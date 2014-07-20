@@ -1,0 +1,58 @@
+# =========== MAP Makefile        =============================================
+#	     
+#  Copyright Jan. 21, 2014
+#  Author: Marco D. Masciola
+# 	
+#  MAP is free software: you can redistribute it and/or modify it under the terms 
+#  of the GNU General Public License as published by the Free Software Foundation, 
+#  either version 3 of the License, or (at your option) any later version.
+#
+#  MAP is distributed in the hope that it will be useful, but WITHOUT ANY 
+#  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS 
+#  FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License along 
+#  with MAP. If not, see:
+#  
+#  < http://www.gnu.org/licenses/>
+#  ============================================================================
+
+CC_TOOLS  = gcc 
+CFLAGS    = -g -fPIC -D DEBUG 
+LDFLAGS   = -shared 
+DEBUG     = 
+OBJ       = lmder.o \
+	dpmpar.o \
+	lmpar.o \
+	qrsolv.o \
+	enorm.o \
+	enorm_u.o \
+	qrfac.o \
+	simclist.o \
+	main.o \
+	fortdatamanager.o \
+	environment.o \
+	mapinit.o \
+	maperror.o \
+	supportfiles.o \
+	lineupdateroutines.o \
+	numeric.o \
+	writesummaryfile.o \
+	linegenerator.o \
+	MAP_Types.o \
+	fortroutines.o \
+	pyroutines.o
+
+all : $(OBJ)
+	$(CC_TOOLS) $(LDFLAGS) -o map.so $(DEBUG) $(OBJ)
+
+.c.o :
+	$(CC_TOOLS) -c $(CFLAGS) $<
+
+clean:
+	rm -rf *.so *.o *~
+
+memcheck:	
+	valgrind --tool=memcheck --leak-check=yes python -E -tt ./main.py	
+	#valgrind --tool=callgrind python ./main.py		
+	#valgrind --tool=memcheck --log-file="memcheck.out" python -E -tt ./main.py		

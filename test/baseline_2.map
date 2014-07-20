@@ -1,0 +1,41 @@
+---------------------- LINE DICTIONARY ---------------------------------------
+LineType  Diam      MassDenInAir   EA            CB   CIntDamp  Ca   Cdn    Cdt     
+(-)       (m)       (kg/m)        (N)           (-)   (Pa-s)    (-)  (-)    (-)
+upper     0.07      160        600000000        1.0    1.0E8    0.6 -1.0    0.05 
+middle    0.08      180        700000000        1.0    1.0E8    0.6 -1.0    0.05 
+lower     0.085     200        800000000        1.0    1.0E8    0.6 -1.0    0.05 
+---------------------- NODE PROPERTIES ---------------------------------------
+Node  Type       X       Y       Z      M     B     FX      FY      FZ
+(-)   (-)       (m)     (m)     (m)    (kg)  (mˆ3) (kN)    (kN)    (kN)
+1     fix       -300     0      depth   0     0      #      #       #
+2     Connect  #-120    #0     #-70     0     0      0      0       0 
+3     Connect  #-53     #0     #-20     0     0      0      0       0 
+4     vessel    -25     15       0.0    0     0      #      #       #
+5     Vessel    -25    -15       0.0    0     0      #      #       # 
+---------------------- LINEP ROPERTIES ---------------------------------------
+Element  LineType  UnstrLen  NodeAnch  NodeFair  Flags
+(-)      (-)       (m)       (-)       (-)       (-)
+1        lower     122       1         2        gx_pos  gy_pos  gz_a_pos  H_ANCH  omit_contact seg_size 11
+2        middle    122       2         3        damage_time 90.0  altitude_a omit_contact
+3        upper     50        3         4        x_excursion  z_excursion  azimuth  tension_fair omit_contact
+4        upper     50        3         5        tension_anch omit_contact
+---------------------- SOLVER OPTIONS-----------------------------------------
+Option 
+(-) 
+help
+integration_dt 0
+kb_default 3.0e6
+cb_default 3.0e5
+wave_kinematics 
+inner_xtol 1e-9
+outer_tol 1e-5
+pg_cooked 1000 1
+! outer_fd_epsilon 1e-3
+! outer_fd 
+outer_bd 
+! outer_cd
+inner_max_its 500
+outer_max_its 500
+!
+repeat 90 -90 180
+! ref_position 0.0 0.0 -6.0
