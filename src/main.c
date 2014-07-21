@@ -95,7 +95,6 @@ MAP_EXTERNCALL void mapcall_msqs_init ( MAP_InitInputType_t* initType,
   data->MAP_SOLVE_TYPE = -999;
   data->yList=NULL;  
   map_reset_universal_error(map_msg, ierr);
-
   do { 
     success = initialize_solver_data(&data->outerSolveData, &data->solverData, map_msg, ierr);    
     success = map_get_version(ioType);

@@ -203,6 +203,8 @@ MAP_EXTERNCALL void py_offset_vessel(MAP_OtherStateType_t* otherType, MAP_InputT
   double rx = 0.0;
   double ry = 0.0;
   double rz = 0.0;
+
+  map_reset_universal_error(map_msg, ierr);
   
   /* define angles */
   cphi = cos(phi*DEG2RAD);
@@ -386,7 +388,7 @@ MAP_ERROR_CODE fd_phi_sequence(MAP_OtherStateType_t* otherType, MAP_InputType_t*
     /* minus epsilon sequence */
     success = increment_phi_dof_by_delta(uType, vessel, -epsilon, size); CHECKERRQ(MAP_FATAL_61);        
     if (data->MAP_SOLVE_TYPE==MONOLITHIC) {
-      success = line_solve_sequence(data, 0.0, map_msg, ierr);
+       success = line_solve_sequence(data, 0.0, map_msg, ierr);
     } else {
       success = node_solve_sequence(data, uType, zType, otherType, map_msg, ierr); // @todo CHECKERRQ()
     };    
@@ -397,7 +399,7 @@ MAP_ERROR_CODE fd_phi_sequence(MAP_OtherStateType_t* otherType, MAP_InputType_t*
     success = restore_original_displacement(uType->x, originalX, size); CHECKERRQ(MAP_FATAL_61);        
     success = restore_original_displacement(uType->y, originalY, size); CHECKERRQ(MAP_FATAL_61);        
     success = restore_original_displacement(uType->z, originalZ, size); CHECKERRQ(MAP_FATAL_61);        
-  
+    
     /* plus epsilon sequence */
     success = increment_phi_dof_by_delta(uType, vessel, epsilon, size); CHECKERRQ(MAP_FATAL_61);        
     if (data->MAP_SOLVE_TYPE==MONOLITHIC) {
@@ -528,7 +530,7 @@ MAP_ERROR_CODE calculate_stiffness_2(double* K, Fd* force, const double delta, c
 /**
  * lib.linearize_matrix.argtypes = [MapInput_Type, MapData_Type, MapOutnput_Type, c_double, c_char_p, POINTER(c_int)]        
  */
-MAP_EXTERNCALL double** py_linearize_matrix(MAP_InputType_t* uType, MAP_OtherStateType_t* otherType, MAP_OutputType_t* yType, MAP_ConstraintStateType_t* zType, double epsilon, MAP_ERROR_CODE* ierr, char* map_msg)
+MAP_EXTERNCALL double** py_linearize_matrix(MAP_InputType_t* uType, MAP_OtherStateType_t* otherType, MAP_OutputType_t* yType, MAP_ConstraintStateType_t* zType, double epsilon, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MapReal* xOriginal = NULL;
   MapReal* yOriginal = NULL;
@@ -543,6 +545,7 @@ MAP_EXTERNCALL double** py_linearize_matrix(MAP_InputType_t* uType, MAP_OtherSta
   Fd force;
   double** K;
 
+  map_reset_universal_error(map_msg, ierr);
   K = (double**)malloc(SIX*sizeof(double*));
   for (i=0 ; i<SIX ; i++) {
     K[i] = (double*)malloc(SIX*sizeof(double));
@@ -565,7 +568,7 @@ MAP_EXTERNCALL double** py_linearize_matrix(MAP_InputType_t* uType, MAP_OtherSta
   xOriginal = (double*)malloc(N*sizeof(double));
   yOriginal = (double*)malloc(N*sizeof(double));
   zOriginal = (double*)malloc(N*sizeof(double));
-
+  
   /* initialize stuff allocated above to zero */
   for (i=0 ; i<N ; i++) {
     force.fx[i] = 0.0;
@@ -578,7 +581,7 @@ MAP_EXTERNCALL double** py_linearize_matrix(MAP_InputType_t* uType, MAP_OtherSta
     yOriginal[i] = 0.0;
     zOriginal[i] = 0.0;
   };
-
+   
   do {    
     /* first get the original values for the displacements */
     for (k=0 ; k<N ; k++) {
@@ -586,7 +589,7 @@ MAP_EXTERNCALL double** py_linearize_matrix(MAP_InputType_t* uType, MAP_OtherSta
       yOriginal[k] = uType->y[k];
       zOriginal[k] = uType->z[k];      
     };
-
+   
     for (i=0 ; i<SIX ; i++) { /* down, force direction changes */
       success = reset_force_to_zero(force.fx, force.fy, force.fz, force.mx, force.my, force.mz, N);
       if (i==0) {        
@@ -602,25 +605,26 @@ MAP_EXTERNCALL double** py_linearize_matrix(MAP_InputType_t* uType, MAP_OtherSta
         success = calculate_stiffness_2(K[2], &force, epsilon, N); CHECKERRQ(MAP_FATAL_64);
         // printf("This is the stiffness: %12.2f, %12.2f, %12.2f, %12.2f, %12.2f, %12.2f\n", K[2][0], K[2][1], K[2][2], K[2][3], K[2][4], K[2][5]);
       } else if (i==3) {
-        success = fd_phi_sequence(otherType, uType, yType, zType, &force, epsilon, N, xOriginal, yOriginal, zOriginal, map_msg, ierr); CHECKERRQ(MAP_FATAL_65);
+        success = fd_phi_sequence(otherType, uType, yType, zType, &force, epsilon, N, xOriginal, yOriginal, zOriginal, map_msg, ierr); //CHECKERRQ(MAP_FATAL_65);
         success = calculate_stiffness_2(K[3], &force, epsilon, N); CHECKERRQ(MAP_FATAL_65);
         // printf("This is the stiffness: %12.2f, %12.2f, %12.2f, %12.2f, %12.2f, %12.2f\n", K[3][0], K[3][1], K[3][2], K[3][3], K[3][4], K[3][5]);
       } else if (i==4) {
-        success = fd_the_sequence(otherType, uType, yType, zType, &force, epsilon, N, xOriginal, yOriginal, zOriginal, map_msg, ierr); CHECKERRQ(MAP_FATAL_66);
+        success = fd_the_sequence(otherType, uType, yType, zType, &force, epsilon, N, xOriginal, yOriginal, zOriginal, map_msg, ierr); //CHECKERRQ(MAP_FATAL_66);
         success = calculate_stiffness_2(K[4], &force, epsilon, N); CHECKERRQ(MAP_FATAL_66);
         // printf("This is the stiffness: %12.2f, %12.2f, %12.2f, %12.2f, %12.2f, %12.2f\n", K[4][0], K[4][1], K[4][2], K[4][3], K[4][4], K[4][5]);
       } else if (i==5) {
-        success = fd_psi_sequence(otherType, uType, yType, zType, &force, epsilon, N, xOriginal, yOriginal, zOriginal, map_msg, ierr); CHECKERRQ(MAP_FATAL_67);
+        success = fd_psi_sequence(otherType, uType, yType, zType, &force, epsilon, N, xOriginal, yOriginal, zOriginal, map_msg, ierr); //CHECKERRQ(MAP_FATAL_67);
         success = calculate_stiffness_2(K[5], &force, epsilon, N); CHECKERRQ(MAP_FATAL_67);
         // printf("This is the stiffness: %12.2f, %12.2f, %12.2f, %12.2f, %12.2f, %12.2f\n", K[5][0], K[5][1], K[5][2], K[5][3], K[5][4], K[5][5]);
       };
     };
-    success = reset_force_to_zero(force.fx, force.fy, force.fz, force.mx, force.my, force.mz, N);
-    success = restore_original_displacement(uType->x, xOriginal, N);
-    success = restore_original_displacement(uType->y, yOriginal, N);
-    success = restore_original_displacement(uType->z, zOriginal, N);
-    success = line_solve_sequence(data, 0.0, map_msg, ierr); 
   } while (0);  
+
+  success = reset_force_to_zero(force.fx, force.fy, force.fz, force.mx, force.my, force.mz, N);
+  success = restore_original_displacement(uType->x, xOriginal, N);
+  success = restore_original_displacement(uType->y, yOriginal, N);
+  success = restore_original_displacement(uType->z, zOriginal, N);
+  success = line_solve_sequence(data, 0.0, map_msg, ierr); 
   
   MAPFREE(force.fx);
   MAPFREE(force.fy);
@@ -631,7 +635,6 @@ MAP_EXTERNCALL double** py_linearize_matrix(MAP_InputType_t* uType, MAP_OtherSta
   MAPFREE(xOriginal);
   MAPFREE(yOriginal);
   MAPFREE(zOriginal);  
-
   return K;
 };
 
@@ -720,18 +723,18 @@ MAP_ERROR_CODE set_force_minus(const double* inputType, double* force, const int
 };
 
 
-/**
- * success = calculate_stiffness(stiffness, fx, epsilon, N);
- */
-MAP_ERROR_CODE calculate_stiffness(double* K, double* force, const double delta, const int size)
-{  
-  *K = 0.0;
-  int i = 0;
-  for (i=0 ; i<size ; i++) {
-    *K += (force[i]/(2*delta));
-  };
-  return MAP_SAFE;
-};
+// /**
+//  * success = calculate_stiffness(stiffness, fx, epsilon, N);
+//  */
+// MAP_ERROR_CODE calculate_stiffness(double* K, double* force, const double delta, const int size)
+// {  
+//   *K = 0.0;
+//   int i = 0;
+//   for (i=0 ; i<size ; i++) {
+//     *K += (force[i]/(2*delta));
+//   };
+//   return MAP_SAFE;
+// };
 
 
 /**
@@ -796,7 +799,7 @@ MAP_ERROR_CODE increment_phi_dof_by_delta(MAP_InputType_t* uType, const Vessel* 
   R[0][0] = 1.0;   R[0][1] = 0.0;              R[0][2] = 0.0;
   R[1][0] = 0.0;   R[1][1] = cos(phi+delta);   R[1][2] = -sin(phi+delta);  
   R[2][0] = 0.0;   R[2][1] = sin(phi+delta);   R[2][2] = cos(phi+delta);
-  
+
   for (i=0 ; i<size ; i++) {
     /* @todo: should also include the reference origin location? */
     rx = vessel->xi[i];
@@ -804,6 +807,7 @@ MAP_ERROR_CODE increment_phi_dof_by_delta(MAP_InputType_t* uType, const Vessel* 
     rz = vessel->zi[i];
     // uType->y[i] = ry - rz*delta;
     // uType->z[i] = rz + ry*delta;
+    // printf("%f  %f  %f\n",uType->x[i],uType->y[i],uType->z[i]);
     uType->x[i] = R[0][0]*rx;
     uType->y[i] = R[1][1]*ry + R[1][2]*rz;
     uType->z[i] = R[2][1]*ry + R[2][2]*rz;
@@ -826,7 +830,7 @@ MAP_ERROR_CODE increment_the_dof_by_delta(MAP_InputType_t* uType, const Vessel* 
   R[0][0] = cos(the+delta);   R[0][1] = 0.0;   R[0][2] = sin(the+delta);
   R[1][0] = 0.0;              R[1][1] = 1.0;   R[1][2] = 0.0;
   R[2][0] = -sin(the+delta);  R[2][1] = 0.0;   R[2][2] = cos(the+delta);
-
+  
   for (i=0 ; i<size ; i++) {
     /* @todo: should also include the reference origin location? */
     rx = vessel->xi[i];

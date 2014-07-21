@@ -4,6 +4,7 @@ import os
 
 class Map(object):
     #lib = cdll.LoadLibrary('map.so') # class level loading lib
+    #lib = cdll.LoadLibrary('/Users/marcom/Dropbox/cemats/src/map.so')
     lib = cdll.LoadLibrary('/media/sf_Dropbox/cemats/src/map.so')
 
     '''
@@ -420,11 +421,11 @@ class Map(object):
 
     def linear( self, epsilon ) :
         array = POINTER(POINTER(c_double))
-        array = Map.lib.py_linearize_matrix( self.f_type_u, self.f_type_d, self.f_type_y, self.f_type_z, epsilon, self.status, pointer(self.ierr) )
+        array = Map.lib.py_linearize_matrix( self.f_type_u, self.f_type_d, self.f_type_y, self.f_type_z, epsilon, self.status, pointer(self.ierr) )        
         if self.ierr.value != 0 :
-            print self.status.value        
-            self.MAP_End( )
-            sys.exit('MAP terminated premature.')
+           print self.status.value        
+           self.MAP_End( )
+           sys.exit('MAP terminated premature.')
         arr = [[array[j][i] for i in range(6)] for j in range(6)]
         Map.lib.py_free_linearize_matrix(array)        
         return arr
