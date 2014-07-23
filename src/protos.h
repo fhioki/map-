@@ -143,6 +143,7 @@ MAP_ERROR_CODE set_line_variables_pre_solve(ModelData* data, char* map_msg, MAP_
 MAP_ERROR_CODE set_element_initial_guess(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE set_line_variables_post_solve(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE calculate_node_sum_force(ModelData* data);
+void print_machine_name_to_screen( );
 
 /**
  * stuff for nodes...

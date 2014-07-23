@@ -19,6 +19,7 @@
 
 CC_TOOLS  = gcc 
 CFLAGS    = -g -fPIC -D DEBUG 
+#CFLAGS    = -g -O2 -fPIC -Wstrict-aliasing
 LDFLAGS   = -shared 
 DEBUG     = 
 OBJ       = lmder.o \

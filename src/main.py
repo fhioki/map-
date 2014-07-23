@@ -8,26 +8,19 @@ if __name__ == '__main__':
 
     mooring_1 = Map( )
     
-    mooring_1.set_sea_depth(100)
+    mooring_1.set_sea_depth(320)
     mooring_1.set_gravity(9.81)
     mooring_1.set_sea_density(1020.0)
     
-    mooring_1.read_file("../test/baseline_2.map") # 100 m depth
-    #mooring_1.read_file("../test/NRELOffshrBsline5MW_Platform_OC3Hywind.map") # 320 m depth
+    mooring_1.read_file("../test/NRELOffshrBsline5MW_Platform_OC3Hywind_segmented.map") # 320 m depth
     
     mooring_1.Init( )
-        
+    
     epsilon = 1e-3
     K = mooring_1.linear(epsilon)    
     print "\nHere is the linearized stiffness matrix with zero vessel displacement:"
     print np.array(K)
     
-    mooring_1.displace_vessel(-0.1,0,0,0,0,0)
-    mooring_1.UpdateStates(1, 0)
-    K = mooring_1.linear(epsilon)    
-    print "\nHere is the linearized stiffness matrix with -0.1 m surge displacement:"
-    print np.array(K)
-
     ''' 
     function residual at (hopefully) the solution
     '''
@@ -56,18 +49,40 @@ if __name__ == '__main__':
     x1 = mooring_1.plot_x( 1, 50 )
     y1 = mooring_1.plot_y( 1, 50 )
     z1 = mooring_1.plot_z( 1, 50 )
+
+    x2 = mooring_1.plot_x( 2, 50 )
+    y2 = mooring_1.plot_y( 2, 50 )
+    z2 = mooring_1.plot_z( 2, 50 )
+
+    x3 = mooring_1.plot_x( 3, 50 )
+    y3 = mooring_1.plot_y( 3, 50 )
+    z3 = mooring_1.plot_z( 3, 50 )    
+    
+    x4 = mooring_1.plot_x( 4, 50 )
+    y4 = mooring_1.plot_y( 4, 50 )
+    z4 = mooring_1.plot_z( 4, 50 )
+
+    x5 = mooring_1.plot_x( 5, 50 )
+    y5 = mooring_1.plot_y( 5, 50 )
+    z5 = mooring_1.plot_z( 5, 50 )
         
     fig = plt.figure()
     ax = Axes3D(fig)
     
     ax.plot(x0,y0,z0,'b-')
     ax.plot(x1,y1,z1,'r-')
+
+    ax.plot(x2,y2,z2,'b-')
+    ax.plot(x3,y3,z3,'r-')
+
+    ax.plot(x4,y4,z4,'b-')
+    ax.plot(x5,y5,z5,'r-')
     
     ax.set_xlabel('X [m]')
     ax.set_ylabel('Y [m]')
     ax.set_zlabel('Z [m]')        
     #ax.set_xlim([-50.0,50])        
-    ax.set_ylim([-50.0,50])        
+    #ax.set_ylim([-50.0,50])        
     #ax.set_zlim([-30.0,-12])        
     
     plt.show()

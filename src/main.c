@@ -160,6 +160,10 @@ MAP_EXTERNCALL void mapcall_msqs_init ( MAP_InitInputType_t* initType,
       data->MAP_SOLVE_TYPE = MONOLITHIC;
     };
 
+#ifdef DEBUG
+    print_machine_name_to_screen( );
+#endif // DEBUG
+
     printf("MAP environment properties (set externally)...\n");
     printf("    Gravity constant          [m/s^2]  : %1.2f\n", pType->g ); 
     printf("    Sea density               [kg/m^3] : %1.2f\n", pType->rhoSea );
