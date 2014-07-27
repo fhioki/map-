@@ -1,32 +1,267 @@
-/*
- * Copyright (c) 2014 mdm <marco.masciola@gmail.com>
- *
- * This file is part of MAP++.
- *
- * MAP++ is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * MAP++ is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with MAP++. If not, see <http://www.gnu.org/licenses/>.
+/***************************************************************************
+ *   Copyright (C) 2014 mdm                                                *
+ *   marco[dot]masciola at gmail                                           *
+ *                                                                         *
+ *   MAP++ is free software; you can redistribute it and/or modify it      *
+ *   under the terms of the GNU General Public License as published by     *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.           *
+ ***************************************************************************/
+
+
+/**
+ * @file 
  */
 
 
 #include <time.h>
 #include "map.h"
 #include "maperror.h"
-#include "protos.h"
+#include "outputstream.h"
 
 
-/**
- *
- */
+MAP_ERROR_CODE get_iteration_output_stream(MAP_OutputType_t *yType, MAP_OtherStateType_t* otherType, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  int count=0;
+  ModelData* data=otherType->object;
+  VarTypePtr* varPtr=NULL;
+  VarType* var=NULL;
+
+  if (!yType->wrtOutput) { /* if NULL, then wrtOutput is not initialized */
+    /* first set size of out list */
+    yType->wrtOutput_Len = (int)list_size(&data->yList->out_list_ptr);
+    yType->wrtOutput_Len += (int)list_size(&data->yList->out_list);
+    
+    /* allocation array */
+    yType->wrtOutput = malloc(sizeof(double)*yType->wrtOutput_Len);
+  };
+
+  list_iterator_start(&data->yList->out_list_ptr);
+  while (list_iterator_hasnext(&data->yList->out_list_ptr)) { 
+    varPtr = (VarTypePtr*)list_iterator_next(&data->yList->out_list_ptr);
+    yType->wrtOutput[count] = *varPtr->value;
+    count++;
+  };
+  list_iterator_stop(&data->yList->out_list_ptr);     
+
+  list_iterator_start(&data->yList->out_list);
+  while (list_iterator_hasnext(&data->yList->out_list)) { 
+    var = (VarType*)list_iterator_next(&data->yList->out_list);
+    yType->wrtOutput[count] = var->value;
+    count++;
+  };
+  list_iterator_stop(&data->yList->out_list);     
+  return MAP_SAFE;
+};
+
+
+MAP_EXTERNCALL void get_header_string(int* N, char** strArr, MAP_OtherStateType_t* otherType)
+{ 
+  int count=0;    
+  ModelData* data=otherType->object;
+  VarTypePtr* varPtr=NULL;
+  VarType* var=NULL;
+
+  list_iterator_start(&data->yList->out_list_ptr);
+  while (list_iterator_hasnext(&data->yList->out_list_ptr)) { 
+    varPtr = (VarTypePtr*)list_iterator_next(&data->yList->out_list_ptr);
+    strcpy(strArr[count],varPtr->name);
+    count++;
+  };
+  list_iterator_stop(&data->yList->out_list_ptr);     
+
+  list_iterator_start(&data->yList->out_list);
+  while (list_iterator_hasnext(&data->yList->out_list)) { 
+    var = (VarType*)list_iterator_next(&data->yList->out_list);
+    strcpy(strArr[count],var->name);
+    count++;
+  };
+  list_iterator_stop(&data->yList->out_list);     
+};
+
+
+MAP_EXTERNCALL void get_unit_string(int* N, char** strArr ,MAP_OtherStateType_t* otherType )
+{ 
+  int count=0;    
+  ModelData* data=otherType->object;
+  VarTypePtr* varPtr=NULL;
+  VarType* var=NULL;
+
+  list_iterator_start(&data->yList->out_list_ptr);
+  while (list_iterator_hasnext(&data->yList->out_list_ptr)) { 
+    varPtr = (VarTypePtr*)list_iterator_next( &data->yList->out_list_ptr );
+    strcpy(strArr[count],varPtr->units);
+    count++;
+  };
+  list_iterator_stop(&data->yList->out_list_ptr);     
+
+  list_iterator_start(&data->yList->out_list);
+  while (list_iterator_hasnext(&data->yList->out_list)) { 
+    var = (VarType*)list_iterator_next( &data->yList->out_list );
+    strcpy(strArr[count],var->units);
+    count++;
+  };
+  list_iterator_stop(&data->yList->out_list);     
+};
+
+
+MAP_ERROR_CODE set_output_list(ModelData* data, MAP_InitOutputType_t* ioType, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  Element* iterElem = NULL;
+  OutputList* yList = data->yList;
+  
+  list_iterator_start(&data->element); /* starting an iteration "session" */
+  while (list_iterator_hasnext(&data->element)) { /* tell whether more values available */ 
+    iterElem = (Element*)list_iterator_next(&data->element);    
+    
+    if (iterElem->options.gxAnchorPosFlag) {
+      list_append(&yList->out_list_ptr, &iterElem->anchor->positionPtr.x);      
+      ioType->writeOutputHdr_Len++;
+      ioType->writeOutputUnt_Len++;
+    };
+
+    if (iterElem->options.gyAnchorPosFlag) {
+      list_append(&yList->out_list_ptr, &iterElem->anchor->positionPtr.y);
+      ioType->writeOutputHdr_Len++;
+      ioType->writeOutputUnt_Len++;
+    };
+
+    if (iterElem->options.gzAnchorPosFlag) {
+      list_append(&yList->out_list_ptr, &iterElem->anchor->positionPtr.z);
+      ioType->writeOutputHdr_Len++;
+      ioType->writeOutputUnt_Len++;
+    };
+
+    if (iterElem->options.gxPosFlag) {
+      list_append(&yList->out_list_ptr, &iterElem->fairlead->positionPtr.x);
+      ioType->writeOutputHdr_Len++;
+      ioType->writeOutputUnt_Len++;
+    };
+
+    if (iterElem->options.gyPosFlag) {
+      list_append(&yList->out_list_ptr, &iterElem->fairlead->positionPtr.y);
+      ioType->writeOutputHdr_Len++;
+      ioType->writeOutputUnt_Len++;
+    };
+
+    if (iterElem->options.gzPosFlag) {
+      list_append(&yList->out_list_ptr, &iterElem->fairlead->positionPtr.z);
+      ioType->writeOutputHdr_Len++;
+      ioType->writeOutputUnt_Len++;
+    };
+
+    if (iterElem->options.HFlag) {
+      list_append(&yList->out_list_ptr, &iterElem->H);
+      ioType->writeOutputHdr_Len++;
+      ioType->writeOutputUnt_Len++;
+    };
+
+    if (iterElem->options.VFlag) {
+      list_append(&yList->out_list_ptr, &iterElem->V);
+      ioType->writeOutputHdr_Len++;
+      ioType->writeOutputUnt_Len++;
+    };
+    
+    if (iterElem->options.HAnchorFlag) {
+      list_append(&yList->out_list, &iterElem->HAtAnchor);
+      ioType->writeOutputHdr_Len++;
+      ioType->writeOutputUnt_Len++;
+    };
+
+    if (iterElem->options.VAnchorFlag) {
+      list_append(&yList->out_list, &iterElem->VAtAnchor);
+      ioType->writeOutputHdr_Len++;
+      ioType->writeOutputUnt_Len++;
+    };
+
+    if (iterElem->options.anchorTensionFlag) {
+      list_append(&yList->out_list, &iterElem->TAtAnchor);
+      ioType->writeOutputHdr_Len++;
+      ioType->writeOutputUnt_Len++;
+    };
+
+    if (iterElem->options.altitudeAnchorFlag) {
+      list_append(&yList->out_list, &iterElem->alphaAtAnchor);
+      ioType->writeOutputHdr_Len++;
+      ioType->writeOutputUnt_Len++;
+    };
+
+    if (iterElem->options.gxForceFlag) {
+      list_append(&yList->out_list, &iterElem->forceAtFairlead.fx); /* @todo: this is not correct. Should point to fairlead->sumForce.fx */
+      ioType->writeOutputHdr_Len++;
+      ioType->writeOutputUnt_Len++;
+    };
+
+    if (iterElem->options.gyForceFlag) {
+      list_append(&yList->out_list, &iterElem->forceAtFairlead.fy); /* @todo: this is not correct. Should point to fairlead->sumForce.fy */
+      ioType->writeOutputHdr_Len++;
+      ioType->writeOutputUnt_Len++;
+    };
+
+    if (iterElem->options.gzForceFlag) {
+      list_append(&yList->out_list, &iterElem->forceAtFairlead.fz); /* @todo: this is not correct. Should point to fairlead->sumForce.fz */
+      ioType->writeOutputHdr_Len++;
+      ioType->writeOutputUnt_Len++;
+    };
+
+    if (iterElem->options.VFlag) {
+      list_append(&yList->out_list, &iterElem->forceAtFairlead.fz); /* @todo: this is not correct. Doubled up with above */
+      ioType->writeOutputHdr_Len++;
+      ioType->writeOutputUnt_Len++;
+    };
+
+    if (iterElem->options.fairleadTensionFlag) {
+      list_append(&yList->out_list, &iterElem->T);
+      ioType->writeOutputHdr_Len++;
+      ioType->writeOutputUnt_Len++;
+    };
+
+    if (iterElem->options.horizontalExcursionFlag) {
+      list_append(&yList->out_list, &iterElem->l);
+      ioType->writeOutputHdr_Len++;
+      ioType->writeOutputUnt_Len++;
+    };
+
+    if (iterElem->options.verticalExcursionFlag) {
+      list_append(&yList->out_list, &iterElem->h);
+      ioType->writeOutputHdr_Len++;
+      ioType->writeOutputUnt_Len++;
+    };
+
+    if (iterElem->options.layLengthFlag) {
+      list_append(&yList->out_list, &iterElem->lb);
+      ioType->writeOutputHdr_Len++;
+      ioType->writeOutputUnt_Len++;
+    };
+
+    if (iterElem->options.azimuthFlag) {
+      list_append(&yList->out_list, &iterElem->psi);
+      ioType->writeOutputHdr_Len++;
+      ioType->writeOutputUnt_Len++;
+    };
+
+    if (iterElem->options.altitudeFlag) {
+      list_append(&yList->out_list, &iterElem->alpha);
+      ioType->writeOutputHdr_Len++;
+      ioType->writeOutputUnt_Len++;
+    };
+  };
+  list_iterator_stop(&data->element); /* ending the iteration session */  
+
+  return MAP_SAFE;
+};
+
+
 MAP_ERROR_CODE write_summary_file(InitializationData* init, MAP_ParameterType_t* paramType, ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_ERROR_CODE success = MAP_SAFE;
@@ -62,9 +297,6 @@ MAP_ERROR_CODE write_summary_file(InitializationData* init, MAP_ParameterType_t*
 };
 
 
-/**
- *
- */
 MAP_ERROR_CODE write_cable_library_information_to_summary_file(FILE* file, ModelData* dataObj)
 {
   CableLibrary* cableLibraryIter = NULL;  
@@ -83,9 +315,6 @@ MAP_ERROR_CODE write_cable_library_information_to_summary_file(FILE* file, Model
 };
 
 
-/**
- *
- */
 MAP_ERROR_CODE write_node_type_to_summary_file(const int columnNumber, const int countToFour, const NodeType nodeType, char* line)
 {
   int j = 0;
@@ -121,9 +350,6 @@ MAP_ERROR_CODE write_node_type_to_summary_file(const int columnNumber, const int
 };
 
 
-/**
- *
- */
 MAP_ERROR_CODE write_node_header_to_summary_file(const int columnNumber, const int countToFour, const int nodeNumber, char* line)
 {
   int j = 0;
@@ -145,9 +371,6 @@ MAP_ERROR_CODE write_node_header_to_summary_file(const int columnNumber, const i
 };
 
 
-/**
- *
- */
 MAP_ERROR_CODE write_node_x_position_to_summary_file(const int columnNumber, const int countToFour, VarTypePtr* xPosition, char* line)
 {
   int j = 0;
@@ -196,9 +419,6 @@ MAP_ERROR_CODE write_node_x_position_to_summary_file(const int columnNumber, con
 };
 
 
-/**
- *
- */
 MAP_ERROR_CODE write_node_y_position_to_summary_file(const int columnNumber, const int countToFour, VarTypePtr* yPosition, char* line)
 {
   int j = 0;
@@ -246,9 +466,6 @@ MAP_ERROR_CODE write_node_y_position_to_summary_file(const int columnNumber, con
 };
 
 
-/**
- *
- */
 MAP_ERROR_CODE write_node_z_position_to_summary_file(const int columnNumber, const int countToFour, VarTypePtr* zPosition, char* line)
 {
   int j = 0;
@@ -296,9 +513,6 @@ MAP_ERROR_CODE write_node_z_position_to_summary_file(const int columnNumber, con
 };
 
 
-/**
- *
- */
 MAP_ERROR_CODE write_node_mass_information_to_summary_file(const int columnNumber, const int countToFour, VarType* nodePointMass, char* line)
 {
   int j = 0;
@@ -347,9 +561,6 @@ MAP_ERROR_CODE write_node_mass_information_to_summary_file(const int columnNumbe
 };
 
 
-/**
- *
- */
 MAP_ERROR_CODE write_node_buoyancy_information_to_summary_file(const int columnNumber, const int countToFour, VarType* nodeBuoyancyModule, char* line)
 {
   int j = 0;
@@ -397,9 +608,6 @@ MAP_ERROR_CODE write_node_buoyancy_information_to_summary_file(const int columnN
 };
 
 
-/**
- *
- */
 MAP_ERROR_CODE write_node_x_sum_force_to_summary_file(const int columnNumber, const int countToFour, VarTypePtr* xSumForce, char* line)
 {
   int j = 0;
@@ -447,9 +655,6 @@ MAP_ERROR_CODE write_node_x_sum_force_to_summary_file(const int columnNumber, co
 };
 
 
-/**
- *
- */
 MAP_ERROR_CODE write_node_y_sum_force_to_summary_file(const int columnNumber, const int countToFour, VarTypePtr* ySumForce, char* line)
 {
   int j = 0;
@@ -497,9 +702,6 @@ MAP_ERROR_CODE write_node_y_sum_force_to_summary_file(const int columnNumber, co
 };
 
 
-/**
- *
- */
 MAP_ERROR_CODE write_node_z_sum_force_to_summary_file(const int columnNumber, const int countToFour, VarTypePtr* zSumForce, char* line)
 {
   int j = 0;
@@ -547,9 +749,6 @@ MAP_ERROR_CODE write_node_z_sum_force_to_summary_file(const int columnNumber, co
 };
 
 
-/**
- *
- */
 MAP_ERROR_CODE write_node_information_to_summary_file(FILE* file, ModelData* dataObj, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   int num =0;
@@ -636,9 +835,6 @@ MAP_ERROR_CODE write_node_information_to_summary_file(FILE* file, ModelData* dat
 };
 
 
-/**
- *
- */
 MAP_ERROR_CODE write_element_information_to_summary_file( FILE *file, ModelData *dataObj )
 {
   unsigned int numberOfElements = 0;
@@ -760,9 +956,6 @@ MAP_ERROR_CODE write_element_information_to_summary_file( FILE *file, ModelData 
 };
 
 
-/**
- *
- */
 MAP_ERROR_CODE write_expanded_input_file_to_summary_file(FILE* file, InitializationData* initData)
 {
   int i = 0;

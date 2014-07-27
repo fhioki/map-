@@ -78,8 +78,8 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* initType,
     data->sizeOfElements = init->elementSize;
 
     success = allocate_internal_states(data,map_msg,ierr); CHECKERRQ(MAP_FATAL_47);
-    list_init(&data->yList->outList); /* simclist routine */
-    list_init(&data->yList->outListPtr); /* simclist routine */
+    list_init(&data->yList->out_list); /* simclist routine */
+    list_init(&data->yList->out_list_ptr); /* simclist routine */
 
     success = set_model_options_list(data, init, map_msg, ierr); CHECKERRQ(MAP_FATAL_33);    
     success = set_cable_library_list(data, init, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);
@@ -91,8 +91,8 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* initType,
     success = set_element_list(zType, data, init->expandedElementInputString, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);    
 
     /* now create an output list to print to and output file. */
-    list_attributes_copy(&data->yList->outList, vartype_meter, 1);  
-    list_attributes_copy(&data->yList->outListPtr, vartype_ptr_meter, 1);  
+    list_attributes_copy(&data->yList->out_list, vartype_meter, 1);  
+    list_attributes_copy(&data->yList->out_list_ptr, vartype_ptr_meter, 1);  
     success = set_output_list(data, ioType, map_msg, ierr); 
     success = initialize_vessel(&data->vessel, uType); CHECKERRQ(MAP_FATAL_69);
 
@@ -195,8 +195,8 @@ MAP_EXTERNCALL void map_end(MAP_InputType_t* uType,
   do {
     success = free_outer_solve_data(&data->outerSolveData, zType->x_Len, map_msg, ierr); CHECKERRQ(MAP_FATAL_73);
     success = free_fortran_types(uType,pType,xType,zType,otherType,yType); 
-    list_destroy(&data->yList->outList);    /* destroy output lists for writting information to output file */
-    list_destroy(&data->yList->outListPtr); /* destroy output lists for writting information to output file */
+    list_destroy(&data->yList->out_list);    /* destroy output lists for writting information to output file */
+    list_destroy(&data->yList->out_list_ptr); /* destroy output lists for writting information to output file */
     success = free_internal_states(data,map_msg,ierr); CHECKERRQ(MAP_FATAL_47);//@rm, should be replaced with a MAPFREE(data->yList)   
     success = free_element(&data->element);
     success = free_node(&data->node);

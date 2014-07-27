@@ -15,7 +15,7 @@ MODULE MAP
   ! Get the string information (label) of all the outputs MAP is providing the FAST glue code    !          | 
   INTERFACE                                                                                      !          | 
      SUBROUTINE MAP_Get_Header_String( FC_int, FC_string, FC_other ) &                         
-          BIND(C,name='fcall_get_header_string')   
+          BIND(C,name='get_header_string')   
        IMPORT                                                                                    !          | 
        IMPLICIT NONE                                                                             !          | 
        INTEGER(KIND=C_INT) :: FC_int                                                             !          | 
@@ -31,7 +31,7 @@ MODULE MAP
   ! Gets the units of all the outputs MAP is providing to the FAST glue code                     !          | 
   INTERFACE                                                                                      !          | 
      SUBROUTINE MAP_Get_Unit_String( FC_int, FC_string, FC_other ) &                              !          | 
-          BIND(C,name='fcall_get_unit_string')                                                  !          | 
+          BIND(C,name='get_unit_string')                                                  !          | 
        IMPORT                                                                                    !          | 
        IMPLICIT NONE                                                                             !          | 
        INTEGER(KIND=C_INT) :: FC_int                                                             !          | 

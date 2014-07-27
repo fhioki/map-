@@ -38,7 +38,7 @@ OBJ       = lmder.o \
 	supportfiles.o \
 	lineupdateroutines.o \
 	numeric.o \
-	writesummaryfile.o \
+	outputstream.o \
 	linegenerator.o \
 	MAP_Types.o \
 	fortroutines.o \

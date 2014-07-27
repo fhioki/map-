@@ -20,8 +20,6 @@
 
 /**
  * @file 
- * NWTC required functions necessary to hook MAP into FAST. These functions provide the binding to 
- * solve constraints for subsequent time-steps.
  */
 
 #include "map.h"

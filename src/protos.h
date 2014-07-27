@@ -59,7 +59,6 @@ int set_node_list(const MAP_ParameterType_t* pType,  MAP_InputType_t* uType, MAP
 int set_element_list(MAP_ConstraintStateType_t* zType, ModelData* data, char** const elementInputString, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE set_model_options_list(ModelData* data, InitializationData* init, char* map_msg, MAP_ERROR_CODE* ierr);
 
-MAP_ERROR_CODE set_output_list(ModelData* data, MAP_InitOutputType_t* ioType, char* map_msg, MAP_ERROR_CODE* ierr);
 size_t cable_library_meter(const void* el);
 size_t node_meter(const void* el);
 size_t vartype_meter(const void* el);
@@ -127,7 +126,6 @@ MAP_ERROR_CODE initialize_solver_data(MinPackDataOuter* mpOuter, MinPackDataInne
 MAP_ERROR_CODE solve_line(ModelData* data, double time, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE node_solve_sequence(ModelData* data, MAP_InputType_t* uType, MAP_ConstraintStateType_t* zType, MAP_OtherStateType_t* otherType, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE line_solve_sequence(ModelData* otherType, double t, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE write_summary_file(InitializationData* init, MAP_ParameterType_t* paramFortType, ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr);
 
 /*
  * Initialized omega (weight per unit length) and cross-section area of a cable. The formula is 
@@ -164,26 +162,6 @@ MAP_ERROR_CODE lu_back_substitution(MinPackDataOuter* ns, const int n, char* map
 MAP_ERROR_CODE forward_difference_jacobian(MAP_OtherStateType_t* otherType, MAP_ConstraintStateType_t* zType, ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE backward_difference_jacobian(MAP_OtherStateType_t* otherType, MAP_ConstraintStateType_t* zType, ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr);
 
-
-MAP_ERROR_CODE write_node_header_to_summary_file(const int columnNumber, const int countToFour, const int nodeNumber, char* line);
-MAP_ERROR_CODE write_node_type_to_summary_file(const int columnNumber, const int countToFour, const NodeType nodeType, char* line);
-MAP_ERROR_CODE write_node_x_position_to_summary_file(const int columnNumber, const int countToFour, VarTypePtr* xPosition, char* line);
-MAP_ERROR_CODE write_node_y_position_to_summary_file(const int columnNumber, const int countToFour, VarTypePtr* yPosition, char* line);
-MAP_ERROR_CODE write_node_z_position_to_summary_file(const int columnNumber, const int countToFour, VarTypePtr* zPosition, char* line);
-MAP_ERROR_CODE write_node_mass_information_to_summary_file(const int columnNumber, const int countToFour, VarType* nodeMass, char* line);
-MAP_ERROR_CODE write_node_buoyancy_information_to_summary_file(const int columnNumber, const int countToFour, VarType* nodeBuoyancy, char* line);
-MAP_ERROR_CODE write_node_x_sum_force_to_summary_file(const int columnNumber, const int countToFour, VarTypePtr* xSumForce, char* line);
-MAP_ERROR_CODE write_node_y_sum_force_to_summary_file(const int columnNumber, const int countToFour, VarTypePtr* ySumForce, char* line);
-MAP_ERROR_CODE write_node_z_sum_force_to_summary_file(const int columnNumber, const int countToFour, VarTypePtr* zSumForce, char* line);
-
-
-/*
- * MARK: ------------------- write information to summary file ------------------ 
- */
-MAP_ERROR_CODE write_cable_library_information_to_summary_file(FILE* file, ModelData* dataObj);
-MAP_ERROR_CODE write_node_information_to_summary_file(FILE* file, ModelData* dataObj, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE write_element_information_to_summary_file(FILE* file, ModelData* dataObj);
-MAP_ERROR_CODE write_expanded_input_file_to_summary_file(FILE* file, InitializationData* init);
 
 
 

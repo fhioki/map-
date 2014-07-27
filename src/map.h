@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2014 mdm                                                *
- *   marco.masciola@gmail.com                                              *
+ *   marco[dot]masciola at gmail                                           *
  *                                                                         *
  *   MAP++ is free software; you can redistribute it and/or modify it      *
  *   under the terms of the GNU General Public License as published by     *
@@ -27,55 +27,94 @@
 #include "simclist.h"
 
 
-typedef enum {
-  NONE,
-  FIX,
-  CONNECT,
-  VESSEL
+/**
+ * @brief Associates the node with a particular type. Fix nodes are anchor points
+ *        (ussually) and cannot move with time. Connect nodes are intermediaries
+ *        connecting two lines. When a connect node is defined, the force-balance
+ *        equation is minimized to obtain the cable profile X, Y, and Z node position
+ *        at connect nodes are associated with constraint types. Vessel nodes attach
+ *        to the platform. X, Y, and Z, node positions are associated with input 
+ *        types, and the corresponding fx, fy, and fz forces are the outputs.  
+ *        Moments are calculated by the calling program. 
+ */
+typedef enum NodeType_enum {
+  NONE,     /**< */
+  FIX,      /**< */
+  CONNECT,  /**< */
+  VESSEL    /**< */
 } NodeType;
 
 
-typedef enum {
-  BACKWARD_DIFFERENCE,
-  CENTRAL_DIFFERENCE,
-  FORWARD_DIFFERENCE  
+/**
+ * @brief Finite different routine when solving the outer-loop iterations. 
+ *        This is also used when the linearization routine is called. 
+ */
+typedef enum FdType_enum {
+  BACKWARD_DIFFERENCE, /**< */
+  CENTRAL_DIFFERENCE,  /**< */
+  FORWARD_DIFFERENCE   /**< */
 } FdType;
 
 
-typedef enum {  
-  MONOLITHIC,   /* for MSQS, elements only (no connect nodes) */
-  PARTITIONED,  /* for MSQS system with connect nodes */
+/**
+ * @struct SolveType
+ * @brief Set internally. If a connect node is present in the MAP input
+ *        file, then the solve typeis partitioned. Partitioned describes the
+ *        process of breaking the problem into two blocks: an inner-loop solve
+ *        (where the catenary equations are minimized) and an outer-loop solve
+ *        (where the force-balance equations are minimized). Likewise, when no
+ *        connect nodes are present, the solver type is monolithic and only the
+ *        non-linear catenary equations need to be solved. 
+ */
+typedef enum SolveType_enum {  
+  MONOLITHIC,   /**< for MSQS, elements only (no connect nodes) */
+  PARTITIONED,  /**< for MSQS system with connect nodes */
 } SolveType;
 
 
-typedef struct Fd {
+/**
+ * @brief Finite-difference structure. This is used locally withint FD routines to conveniently store the
+ *        force and moment when vessel is displaced by epsilon. 
+ */
+struct Fd_t {
   double* fx;
   double* fy;
   double* fz;
   double* mx;
   double* my;
   double* mz;
-} Fd;
+}; typedef struct Fd_t Fd;
 
 
-typedef struct {
-  MapReal value;   /* The value */
-  char* units;   /* units for printing information to a summary file or output buffer */
-  char* name;    /* name of the variable. This is used for identifying it in the output buffer */
-  bool isFixed; /* If isFixed = true, then we are not solving for this var */
-  int referenceCounter;  /* For ensuring the variable is assigned to one of: input, param, or constraint */
-  int id;      /* node or element this value is attached to */
-} VarType;
+/**
+ * @brief Fundamental MAP type. Unless it is used locally, every variable should be darclared as a VarType
+ *        (or VarTypePtr, described below). The VarType provides convenience for printing variable 
+ *        information, such as the units, it's name (such as 'FX[1]' for X-direction node 1 force to the 
+ *        output file), and counting references.
+ */
+struct VarType_t {
+  MapReal value;         /**< the value */
+  char* units;           /**< units for printing information to a summary file or output buffer */
+  char* name;            /**< name of the variable. This is used for identifying it in the output buffer */
+  bool isFixed;          /**< if isFixed = true, then we are not solving for this variable */
+  int referenceCounter;  /**< for ensuring the variable is assigned to one of: input, param, or constraint */
+  int id;                /**< node or element this value is attached to */
+}; typedef struct VarType_t VarType;
 
 
-typedef struct {
-  MapReal* value;   /* The value */
-  char* units;   /* units for printing information to a summary file or output buffer */
-  char* name;    /* name of the variable. This is used for identifying it in the output buffer */
-  bool isFixed; /* If isFixed = true, then we are not solving for this var */
-  int referenceCounter;  /* For ensuring the variable is assigned to one of: input, param, or constraint */
-  int id;      /* node or element this value is attached to */
-} VarTypePtr;
+/**
+ * @brief Serves the same function as VarType, but treats value as a pointer. This preserves the FAST integration
+ *        to native Fortran derivived types. Instead of the variable residing in C, the value parameter points
+ *        to a variable allocated in Fortran. This feature is also preserved with Python binding. 
+ */
+struct VarTypePtr_t {
+  MapReal* value;        /**< the value */
+  char* units;           /**< units for printing information to a summary file or output buffer */
+  char* name;            /**< name of the variable. This is used for identifying it in the output buffer */
+  bool isFixed;          /**< If isFixed = true, then we are not solving for this variable */
+  int referenceCounter;  /**< For ensuring the variable is assigned to one of: input, param, or constraint */
+  int id;                /**< node or element this value is attached to */
+}; typedef struct VarTypePtr_t VarTypePtr;
 
 
 struct Vector_t {
@@ -136,9 +175,18 @@ struct Vessel_t {
 }; typedef struct Vessel_t Vessel;
 
 
+
+/**
+ * @brief References a list of VarType's (in the case of out_list) and VarTypePtr's
+ *        (in the case of out_list_ptr) for output file data streaming. The idea is
+ *        to loop through the list and print the 'value' and 'name[id]' members of
+ *        VarType and VarTypePtr.
+ * @see   
+ * @todo  This really should be made polymorphic so only one variable is needed. 
+ */
 struct OutputList_t{
-  list_t outList;
-  list_t outListPtr;
+  list_t out_list;     /**< Outputs associated with VarType */
+  list_t out_list_ptr; /**< Outputs associated with VarTypePtr */
 }; typedef struct OutputList_t OutputList;
 
 
@@ -153,7 +201,7 @@ typedef struct {
   bool gxForceFlag;
   bool gyForceFlag;
   bool gzForceFlag;
-  bool HFlag;
+  bool HFlag; 
   bool VFlag;
   bool VAnchorFlag;
   bool HAnchorFlag;
@@ -173,7 +221,6 @@ typedef struct {
 
 
 /**
- * @struct CableLibrary_t
  * @brief Defines cable properties for a line. These values are fixed with time and connot change.
  */
 struct CableLibrary_t {
