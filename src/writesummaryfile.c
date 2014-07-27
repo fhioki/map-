@@ -781,8 +781,8 @@ MAP_ERROR_CODE write_expanded_input_file_to_summary_file(FILE* file, Initializat
   fprintf(file, "Node  Type       X       Y       Z      M     B     FX    FY    FZ\n");
   fprintf(file, "(-)   (-)       (m)     (m)     (m)    (kg)  (mˆ3) (kN)  (kN)  (kN)\n");
   for (i=0 ; i<initData->sizeOfFullNodeString ; i++) {    
-    fprintf(file, "%s", initData->fullNodeInputString[i]);
-    if (initData->fullNodeInputString[i][strlen(initData->fullNodeInputString[i])-1]!='\n') {
+    fprintf(file, "%s", initData->expandedNodeInputString[i]);
+    if (initData->expandedNodeInputString[i][strlen(initData->expandedNodeInputString[i])-1]!='\n') {
       fprintf(file, "\n" );
     };
   };
@@ -791,8 +791,8 @@ MAP_ERROR_CODE write_expanded_input_file_to_summary_file(FILE* file, Initializat
   fprintf(file, "Element  LineType  UnstrLen  NodeAnch  NodeFair  Flags\n");
   fprintf(file, "(-)      (-)       (m)       (-)       (-)       (-)\n");
   for (i=0 ; i<initData->sizeOfFullElementString ; i++) {    
-    fprintf(file, "%s", initData->fullElementInputString[i]);
-    if (initData->fullElementInputString[i][strlen(initData->fullElementInputString[i])-1]!='\n') {
+    fprintf(file, "%s", initData->expandedElementInputString[i]);
+    if (initData->expandedElementInputString[i][strlen(initData->expandedElementInputString[i])-1]!='\n') {
       fprintf(file, "\n" );
     };
   };

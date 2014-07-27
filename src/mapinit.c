@@ -850,10 +850,10 @@ MAP_ERROR_CODE repeat_nodes(ModelData* dataObj, InitializationData* init, char* 
   };
 
   dataObj->sizeOfNodes = init->sizeOfFullNodeString;
-  init->fullNodeInputString = malloc(sizeof(char*)*(init->sizeOfFullNodeString));
+  init->expandedNodeInputString = malloc(sizeof(char*)*(init->sizeOfFullNodeString));
   for( i=0 ; i<init->sizeOfFullNodeString ; i++ ) {    
-    init->fullNodeInputString[i] = malloc(sizeof(char)*(strlen(tempArray[i])+1));  
-    strcpy(init->fullNodeInputString[i], tempArray[i]);
+    init->expandedNodeInputString[i] = malloc(sizeof(char)*(strlen(tempArray[i])+1));  
+    strcpy(init->expandedNodeInputString[i], tempArray[i]);
     MAPFREE(tempArray[i]);
   };
   MAPFREE(tempArray);
@@ -945,10 +945,10 @@ MAP_ERROR_CODE repeat_elements(ModelData* dataObj, InitializationData* init, cha
   };
 
   dataObj->sizeOfElements = init->sizeOfFullElementString;
-  init->fullElementInputString = malloc( sizeof(char*)*(init->sizeOfFullElementString) );
+  init->expandedElementInputString = malloc( sizeof(char*)*(init->sizeOfFullElementString) );
   for( i=0 ; i<init->sizeOfFullElementString ; i++ ) {    
-    init->fullElementInputString[i] = malloc( sizeof(char)*(strlen(tempArray[i])+1) );  
-    strcpy( init->fullElementInputString[i], tempArray[i] );
+    init->expandedElementInputString[i] = malloc( sizeof(char)*(strlen(tempArray[i])+1) );  
+    strcpy( init->expandedElementInputString[i], tempArray[i] );
     MAPFREE( tempArray[i] );
   };
   MAPFREE( tempArray );
@@ -969,8 +969,8 @@ MAP_ERROR_CODE initialize_init_input(InitializationData* init)
   if (init==NULL) {
     return MAP_FATAL;
   };    
-  init->fullNodeInputString = NULL;
-  init->fullElementInputString = NULL;
+  init->expandedNodeInputString = NULL;
+  init->expandedElementInputString = NULL;
   init->sizeOfFullNodeString = -9999;
   init->sizeOfFullElementString = -9999;  
   return MAP_SAFE;

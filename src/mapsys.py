@@ -170,52 +170,39 @@ class Map(object):
     lib.py_linearize_matrix.restype  = POINTER(POINTER(c_double))
     lib.py_free_linearize_matrix.argtypes = [POINTER(POINTER(c_double))]
 
-    '''
-    MAP_EXTERNCALL void mapcall_msqs_init ( MAP_InitInputType_t* initFortType, 
-                                            MAP_InputType_t* inputFortType,
-                                            MAP_ParameterType_t* paramFortType,
-                                            MAP_ContinuousStateType_t* contFortType,
-                                            void* none,
-                                            MAP_ConstraintStateType_t* constrFortType,
-                                            MAP_OtherStateType_t* otherFortType,
-                                            MAP_OutputType_t* outFortType,
-                                            MAP_InitOutputType_t* initoutFortType,
-                                            MAP_ERROR_CODE *ierr,
-                                            char *map_msg )
-    '''
-    lib.mapcall_msqs_init.argtypes = [ MapInit_Type,
+    lib.map_init.argtypes = [ MapInit_Type,
+                              MapInput_Type,
+                              MapParameter_Type,
+                              MapContinuous_Type,
+                              c_void_p,
+                              MapConstraint_Type,
+                              MapData_Type,
+                              MapOutput_Type,
+                              MapInitOut_Type,
+                              POINTER(c_int),
+                              c_char_p]
+
+
+    lib.map_update_states.argtypes = [ c_double,
+                                       c_int,
                                        MapInput_Type,
                                        MapParameter_Type,
                                        MapContinuous_Type,
                                        c_void_p,
                                        MapConstraint_Type,
                                        MapData_Type,
-                                       MapOutput_Type,
-                                       MapInitOut_Type,
                                        POINTER(c_int),
                                        c_char_p]
 
-
-    lib.mapcall_msqs_update_states.argtypes = [ c_double,
-                                                c_int,
-                                                MapInput_Type,
-                                                MapParameter_Type,
-                                                MapContinuous_Type,
-                                                c_void_p,
-                                                MapConstraint_Type,
-                                                MapData_Type,
-                                                POINTER(c_int),
-                                                c_char_p]
-
-    lib.mapcall_msqs_end.argtypes = [ MapInput_Type,
-                                      MapParameter_Type,
-                                      MapContinuous_Type,
-                                      c_void_p,
-                                      MapConstraint_Type,
-                                      MapData_Type,
-                                      MapOutput_Type,
-                                      POINTER(c_int),
-                                      c_char_p]
+    lib.map_end.argtypes = [ MapInput_Type,
+                             MapParameter_Type,
+                             MapContinuous_Type,
+                             c_void_p,
+                             MapConstraint_Type,
+                             MapData_Type,
+                             MapOutput_Type,
+                             POINTER(c_int),
+                             c_char_p]
 
 
     def __init__( self ) :
@@ -232,13 +219,13 @@ class Map(object):
 
 
     def Init( self ):
-        Map.lib.mapcall_msqs_init( self.f_type_init, self.f_type_u, self.f_type_p, self.f_type_x, None, self.f_type_z, self.f_type_d, self.f_type_y, self.f_type_initout, pointer(self.ierr), self.status )
+        Map.lib.map_init( self.f_type_init, self.f_type_u, self.f_type_p, self.f_type_x, None, self.f_type_z, self.f_type_d, self.f_type_y, self.f_type_initout, pointer(self.ierr), self.status )
         if self.ierr.value != 0 :
             print self.status.value        
 
 
     def UpdateStates(self, t, interval):
-        Map.lib.mapcall_msqs_update_states(t, interval, self.f_type_u, self.f_type_p, self.f_type_x, None, self.f_type_z, self.f_type_d, pointer(self.ierr), self.status )
+        Map.lib.map_update_states(t, interval, self.f_type_u, self.f_type_p, self.f_type_x, None, self.f_type_z, self.f_type_d, pointer(self.ierr), self.status )
         if self.ierr.value != 0 :
             print self.status.value        
 
@@ -256,7 +243,7 @@ class Map(object):
     MAP_EXTERNCALL void MAP_OtherState_Delete( ModelData* data )
     """
     def MAP_End( self ):
-        Map.lib.mapcall_msqs_end( self.f_type_u, self.f_type_p, self.f_type_x, None, self.f_type_z, self.f_type_d, self.f_type_y, pointer(self.ierr), self.status )
+        Map.lib.map_end( self.f_type_u, self.f_type_p, self.f_type_x, None, self.f_type_z, self.f_type_d, self.f_type_y, pointer(self.ierr), self.status )
 
     """
     Set a name for the MAP summary file. Does not need to be called. If not called, the default name is 'outlist.sum.map'

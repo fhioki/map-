@@ -1,3 +1,24 @@
+/***************************************************************************
+ *   Copyright (C) 2014 mdm                                                *
+ *   marco.masciola@gmail.com                                              *
+ *                                                                         *
+ *   MAP++ is free software; you can redistribute it and/or modify it      *
+ *   under the terms of the GNU General Public License as published by     *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.           *
+ ***************************************************************************/
+
+
 #ifndef _MAP_H
 #define _MAP_H
 
@@ -99,14 +120,19 @@ struct ForcePtr_t {
 }; typedef struct ForcePtr_t ForcePtr;
 
 
+/**
+ * @brief Central point where all 'VESSEL' nodes can be displaced. Instead of displacing all nodes individually, the vessel can be displaced,
+ *        then helper functions can be called to displacement the nodes. The vessel only reference 'input' nodes.
+ */
 struct Vessel_t {
-  Point displacement;
-  Point refOrigin;  
-  EulerAngle orientation;
-  Force lineSumForce;
-  MapReal* xi; /* initial node connection point in body frame.This is equal to uType->x at initialization */
-  MapReal* yi; /* initial node connection point in body frame This is equal to uType->y at initialization */
-  MapReal* zi; /* initial node connection point in body frame This is equal to uType->z at initialization*/
+  Point displacement;     /**< User-specified vessel displacement. This is the [m]*/
+  Point refOrigin;        /**< Center of rotation origin. The moments are taken about this is point. The reference point is with respect to the FAST reference origin (equal to the
+                           * SWL at zero vessel dispalcements) [m]*/
+  EulerAngle orientation; /**< Vessel orientation [deg]*/
+  Force lineSumForce;     /**< Sum force of all nodes connecting to the vessel [N] */
+  MapReal* xi;            /**< initial node connection point in body frame.This is equal to uType->x at initialization [m] */
+  MapReal* yi;            /**< initial node connection point in body frame This is equal to uType->y at initialization [m] */
+  MapReal* zi;            /**< initial node connection point in body frame This is equal to uType->z at initialization [m] */
 }; typedef struct Vessel_t Vessel;
 
 
@@ -117,8 +143,7 @@ struct OutputList_t{
 
 
 typedef struct {
-  /* Element option flags from the input file */
-  bool plotFlag;
+  bool plotFlag;  // @rm
   bool gxPosFlag;
   bool gyPosFlag;
   bool gzPosFlag;
@@ -147,18 +172,22 @@ typedef struct {
 } LineOptions;
 
 
+/**
+ * @struct CableLibrary_t
+ * @brief Defines cable properties for a line. These values are fixed with time and connot change.
+ */
 struct CableLibrary_t {
-  MapReal diam;             /* Cable diameter, [m] */
-  MapReal massDensityInAir; /* Cable density in air [kg/m] */
-  MapReal ea;               /* Element stiffness [kN] */
-  MapReal omega;            /* cable weight per length in seawater [N/m] */
-  MapReal a;                /* cross-sectional area [m^2] */
-  MapReal cb;               /* Cable/seabed friction coefficient [non-dimensional] */
-  MapReal cIntDamp;
-  MapReal cAdded;
-  MapReal cDragNormal;
-  MapReal cDragTangent;
-  char* label;              /* Give the string a recognizable name (such as 'nylon' or 'steel') */
+  MapReal diam;             /**< Cable diameter, [m] */
+  MapReal massDensityInAir; /**< Cable density in air [kg/m] */
+  MapReal ea;               /**< Element stiffness [N] */
+  MapReal omega;            /**< cable weight per length in seawater [N/m] */
+  MapReal a;                /**< cross-sectional area [m^2] */
+  MapReal cb;               /**< Cable/seabed friction coefficient [non-dimensional] */
+  MapReal cIntDamp;         /**< Internal (structural) damping coefficient [non-dimensional] */
+  MapReal cAdded;           /**< Added mass coefficient [non-dimensional] */
+  MapReal cDragNormal;      /**< Quadtradice drag coefficient in the cable cross-flow direction [non-dimensional] */
+  MapReal cDragTangent;     /**< Tangential drag oefficient [non-dimensional] */
+  char* label;              /**< Provides the string a recognizable name (such as 'nylon' or 'steel') */
 }; typedef struct CableLibrary_t CableLibrary;
 
 
@@ -285,7 +314,7 @@ struct ModelData_t {
   MinPackDataOuter outerSolveData;
   OutputList* yList; /* this should be where the internal C data is stored */
   Vessel vessel;
-  list_t cableLibrary;
+  list_t cableLibrary; /**< Cable library link list; stores cable properties, e.g., @see CableLibrary_t */
   list_t element;
   list_t node;
   int sizeOfCableLibrary;
@@ -299,8 +328,8 @@ struct InitializationData_t{
   char** nodeInputString;
   char** elementInputString;
   char** solverOptionsString;
-  char** fullNodeInputString;    // this is the full string duplicating information in nodeInputString when the 'repeat' flag is used 
-  char** fullElementInputString; // this is the full string duplicating information in nodeElementString when the 'repeat' flag is used 
+  char** expandedNodeInputString;    /**< this is the full string duplicating information in nodeInputString when the 'repeat' flag is used */
+  char** expandedElementInputString; /**< this is the full string duplicating information in nodeElementString when the 'repeat' flag is used */
   char* summaryFileName;
   int sizeOfFullNodeString; 
   int sizeOfFullElementString; 

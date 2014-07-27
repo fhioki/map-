@@ -42,14 +42,6 @@ MAP_EXTERNCALL int set_gravity( ModelData* data, MapReal g );
 MAP_EXTERNCALL int set_sea_depth( ModelData* data, MapReal d );
 MAP_EXTERNCALL int set_seaDensity( ModelData* data, MapReal rho );
 
-/**
- * Frees data internal state data allcoated in the mapcall_msqs_init( ) function
- *
- * @acceses: none
- * @calledby: mapcall_msqs_init( )
- * @see: repeat_nodes( ), repeat_elements( )
- */
-MAP_EXTERNCALL int free_init_data( InitializationData* init, char *map_msg, MAP_ERROR_CODE *ierr );
 
 
 /**

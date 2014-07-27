@@ -126,8 +126,8 @@ MAP_EXTERNCALL void set_init_to_null(MAP_InitInputType_t* initFortType, char *ma
   init->nodeInputString=NULL;
   init->elementInputString=NULL;
   init->solverOptionsString=NULL;
-  init->fullNodeInputString=NULL; 
-  init->fullElementInputString=NULL;
+  init->expandedNodeInputString=NULL; 
+  init->expandedElementInputString=NULL;
   init->summaryFileName=NULL;  
   init->sizeOfFullNodeString=0; 
   init->sizeOfFullElementString=0; 

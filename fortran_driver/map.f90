@@ -197,7 +197,7 @@ MODULE MAP
                            FC_InitOut , &                                                        !          |
                            err        , &                                                        !          |
                            msg )        &                                                        !          |
-                           bind(C,name='mapcall_msqs_init')                                      !          |
+                           bind(C,name='map_init')                                      !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
        INTEGER(KIND=C_INT) :: err                                                                !          |
@@ -231,7 +231,7 @@ MODULE MAP
                                    FC_O  , &                                                     !          |
                                    err   , &                                                     !          |
                                    msg ) &                                                       !          |
-                                   bind(C,name='mapcall_msqs_update_states')                     !          |
+                                   bind(C,name='map_update_states')                              !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
        REAL(KIND=C_FLOAT) , VALUE :: time                                                        !          |
@@ -264,7 +264,7 @@ MODULE MAP
                                  FC_y  , &                                                       !          |
                                  err   , &                                                       !          |
                                  msg )   &                                                       !          |
-                                 bind(C,name='mapcall_msqs_calc_output')                         !          |
+                                 bind(C,name='map_calc_output')                                  !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
        REAL(KIND=C_FLOAT) , VALUE :: time                                                        !          |
@@ -296,7 +296,7 @@ MODULE MAP
                           FC_y       , &                                                         !          |
                           err        , &                                                         !          |
                           msg )        &                                                         !          |
-                          bind(C,name='mapcall_msqs_end')                                        !          |
+                          bind(C,name='map_end')                                                 !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
        INTEGER(KIND=C_INT) :: err                                                                !          |

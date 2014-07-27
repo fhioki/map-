@@ -30,11 +30,11 @@ OBJ       = lmder.o \
 	enorm_u.o \
 	qrfac.o \
 	simclist.o \
-	main.o \
+	nwtcfunctions.o \
 	fortdatamanager.o \
-	environment.o \
 	mapinit.o \
 	maperror.o \
+	freedata.o \
 	supportfiles.o \
 	lineupdateroutines.o \
 	numeric.o \
