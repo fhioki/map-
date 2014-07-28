@@ -49,10 +49,10 @@ MODULE MAP
   !   something indenpendent of it. Numerical errors can generate is g (in units of [Nm/s^2]     !          |
   !   is not consistent among modules.                                                           !          |
   INTERFACE                                                                                      !          |
-     SUBROUTINE MAP_set_gravity( interf, val ) bind(C,name='fcall_set_gravity')                  !          |
+     SUBROUTINE MAP_set_gravity( interf, val ) bind(C,name='set_gravity')                        !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
-       TYPE( MAP_ParameterType_C ) interf                                                       !          |
+       TYPE( MAP_ParameterType_C ) interf                                                        !          |
        REAL(C_DOUBLE), VALUE :: val                                                              !          |
      END SUBROUTINE MAP_set_gravity                                                              !          |
   END INTERFACE                                                                                  !   -------+
@@ -66,10 +66,10 @@ MODULE MAP
   !   something indenpendent of it. Numerical errors can generate is g (in units of [Nm/s^2]     !          |
   !   is not consistent among modules.                                                           !          |
   INTERFACE                                                                                      !          |
-     SUBROUTINE MAP_set_depth( interf, val ) bind(C,name='fcall_set_sea_depth')                  !          |
+     SUBROUTINE MAP_set_depth( interf, val ) bind(C,name='set_sea_depth')                        !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
-       TYPE( MAP_ParameterType_C ) interf                                                       !          |
+       TYPE( MAP_ParameterType_C ) interf                                                        !          |
        REAL(C_DOUBLE), VALUE :: val                                                              !          |
      END SUBROUTINE MAP_set_depth                                                                !          |
   END INTERFACE                                                                                  !   -------+
@@ -96,10 +96,10 @@ MODULE MAP
   ! Calls C function "MAPCALL_SetDensity(MAP_InitInputType)" in MAP_FortranBinding.cpp.          !          |
   ! Sets the density of seawater [kg/m^3] according to what is being used in HydroDyn/FAST       !          |
   INTERFACE                                                                                      !          |
-     SUBROUTINE MAP_set_density( interf, val ) bind(C,name='fcall_set_sea_density')              !          |
+     SUBROUTINE MAP_set_density( interf, val ) bind(C,name='set_sea_density')                    !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
-       TYPE( MAP_ParameterType_C ) interf                                                       !          |
+       TYPE( MAP_ParameterType_C ) interf                                                        !          |
        REAL(C_DOUBLE), VALUE :: val                                                              !          |
      END SUBROUTINE MAP_set_density                                                              !          |
   END INTERFACE                                                                                  !   -------+

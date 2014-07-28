@@ -35,6 +35,7 @@ OBJ       = lmder.o \
 	mapinit.o \
 	maperror.o \
 	freedata.o \
+	initialization.o \
 	supportfiles.o \
 	lineupdateroutines.o \
 	numeric.o \

@@ -135,9 +135,9 @@ class Map(object):
     lib.py_create_output_data.restype     = MapOutput_Type
     lib.py_create_continuous_data.restype = MapContinuous_Type
 
-    lib.fcall_set_sea_depth.argtypes   = [ MapParameter_Type, c_double ]
-    lib.fcall_set_gravity.argtypes     = [ MapParameter_Type, c_double ]
-    lib.fcall_set_sea_density.argtypes = [ MapParameter_Type, c_double ]
+    lib.set_sea_depth.argtypes   = [ MapParameter_Type, c_double ]
+    lib.set_gravity.argtypes     = [ MapParameter_Type, c_double ]
+    lib.set_sea_density.argtypes = [ MapParameter_Type, c_double ]
     
     # numeric routines
     lib.pyget_residual_function_length.restype = c_double
@@ -334,13 +334,13 @@ class Map(object):
         return obj
 
     def set_sea_depth( self, depth ):
-        Map.lib.fcall_set_sea_depth( self.f_type_p, depth )
+        Map.lib.set_sea_depth( self.f_type_p, depth )
 
     def set_gravity( self, g ):
-        Map.lib.fcall_set_gravity( self.f_type_p, g )
+        Map.lib.set_gravity( self.f_type_p, g )
 
     def set_sea_density( self, rho ):
-        Map.lib.fcall_set_sea_density( self.f_type_p, rho )
+        Map.lib.set_sea_density( self.f_type_p, rho )
 
     def funcl( self, i ) :
         self.val = Map.lib.pyget_residual_function_length( self.f_type_d, i, self.status, pointer(self.ierr) )

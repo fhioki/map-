@@ -28,12 +28,11 @@
 #include "map.h"
 #include "maperror.h"
 #include "protos.h"
-#include "externprotos.h"
+#include "nwtcfunctions.h"
 #include "freedata.h"
 
-/**
- *
- */
+/** @addtogroup FortranCall */
+/* @{ */
 MAP_EXTERNCALL void map_init(MAP_InitInputType_t* initType, 
                              MAP_InputType_t* uType,
                              MAP_ParameterType_t* pType,
@@ -256,5 +255,4 @@ MAP_EXTERNCALL void map_end(MAP_InputType_t* uType,
   // delete_output_data( y );    // MAPFREE( y );
   // delete_model_data( data );  // MAPFREE( data );
 };
-
-
+/* @} */

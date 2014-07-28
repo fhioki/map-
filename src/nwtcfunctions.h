@@ -19,8 +19,8 @@
  ***************************************************************************/
 
 
-#ifndef _EXTERN_PROTOS_H
-#define _EXTERN_PROTOS_H
+#ifndef _NWTC_FUNCTIONS_H
+#define _NWTC_FUNCTIONS_H
 
 
 /**
@@ -125,4 +125,4 @@ MAP_EXTERNCALL void map_end(MAP_InputType_t* uType,
                             MAP_ERROR_CODE* ierr,
                             char* map_msg);
 
-#endif /* _EXTERN_PROTOS_H */
+#endif /* _NWTC_FUNCTIONS_H */
