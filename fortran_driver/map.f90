@@ -14,7 +14,7 @@ MODULE MAP
   !                                                                                              !          |
   ! Get the string information (label) of all the outputs MAP is providing the FAST glue code    !          | 
   INTERFACE                                                                                      !          | 
-     SUBROUTINE MAP_Get_Header_String( FC_int, FC_string, FC_other ) &                         
+     SUBROUTINE MAP_Get_Header_String(FC_int, FC_string, FC_other ) &                         
           BIND(C,name='get_header_string')   
        IMPORT                                                                                    !          | 
        IMPLICIT NONE                                                                             !          | 

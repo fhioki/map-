@@ -30,11 +30,6 @@
  * @param     ierr error code
  * @return    MAP_SAFE if it completes successfully
  * @see       {@link map_init()}
- *
- * Example Usage:
- * @code
- *    example_nada(3); // Do nothing 3 times.
- * @endcode
  */
 MAP_EXTERNCALL int free_init_data (InitializationData* init, char* map_msg, MAP_ERROR_CODE* ierr);
 

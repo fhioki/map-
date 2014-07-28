@@ -370,20 +370,25 @@ struct ModelData_t {
 }; typedef struct ModelData_t ModelData;
 
 
-struct InitializationData_t{
-  char** libraryInputString;
-  char** nodeInputString;
-  char** elementInputString;
-  char** solverOptionsString;
-  char** expandedNodeInputString;    /**< this is the full string duplicating information in nodeInputString when the 'repeat' flag is used */
-  char** expandedElementInputString; /**< this is the full string duplicating information in nodeElementString when the 'repeat' flag is used */
-  char* summaryFileName;
-  int sizeOfFullNodeString; 
-  int sizeOfFullElementString; 
-  int librarySize;
-  int nodeSize;
-  int elementSize;
-  int solverOptionsSize;
+/**
+ * @brief MAP options from parsed input file. Note that MAP does not readon the input file. This is done by the calling program.
+ *        The calling program simply sets library_input_string, node_input_string, element_input_string, and solver_options_string.
+ *        MAP then parses this string and expands them if necessary depending on the '{@link ModelOptions_t}' repeatAngles flag.
+ */
+struct InitializationData_t {
+  char** libraryInputString;         /**< library property string from input file. MAP does not read contents from input string; must be done by calling program */
+  char** nodeInputString;            /**< raw (non-expanded) node input string. MAP does not read contents from input string; must be done by calling program */
+  char** elementInputString;         /**< raw (non-expanded) element input string(MAP does not read contents from input string; must be done by calling program */
+  char** solverOptionsString;        /**< model poptions input string */
+  char** expandedNodeInputString;    /**< full node input string duplicating information in nodeInputString when the 'repeat' flag is used */
+  char** expandedElementInputString; /**< full element input string duplicating information in nodeElementString when the 'repeat' flag is used */
+  char* summaryFileName;             /**< summary file name. Can be set through {@link set_summary_file_name()} */
+  int sizeOfFullNodeString;          /**< number of node entries after expansion, i.e., after repeats */
+  int sizeOfFullElementString;       /**< number of element entries after expansion, i.e., after repeats */
+  int librarySize;                   /**< number of cable types defined in the cable library section of the input string */
+  int nodeSize;                      /**< number of nodes after expansion */
+  int elementSize;                   /**< number of elements after expansion */
+  int solverOptionsSize;             /**< number of model options. This does not necessarily correspond to solver option, i.e., 'help' */
 }; typedef struct InitializationData_t InitializationData;
 
 

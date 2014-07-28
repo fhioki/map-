@@ -27,7 +27,7 @@
 #include "freedata.h"
 
 
-/** @addtogroup Deallocations */
+/** @addtogroup FortranCall */
 /*@{*/
 MAP_EXTERNCALL int free_init_data (InitializationData* init, char* map_msg, MAP_ERROR_CODE* ierr) 
 {
@@ -68,6 +68,7 @@ MAP_EXTERNCALL int free_init_data (InitializationData* init, char* map_msg, MAP_
   MAPFREE(init->solverOptionsString);
   return MAP_SAFE;
 };
+/*@}*/
 
 
 MAP_ERROR_CODE free_element(list_t *restrict element) 
@@ -161,4 +162,4 @@ MAP_ERROR_CODE free_node(list_t *restrict node)
   list_iterator_stop(node);             /* ending the iteration "session" */  
 
 };
-/*@}*/
+

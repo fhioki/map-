@@ -96,28 +96,6 @@ MAP_EXTERNCALL void set_solver_options(MAP_InitInputType_t* initFortType)
 
 /**
  * Fortran binding routine
- * SUBROUTINE MAP_set_summary_file_name(interf,msg,err) bind(C,name='set_summary_file_name')
- *
- * @todo: need to free summaryFileName. This is done in delete_all_init_data(...), 
- *        should be called in Fortran routines
- */
-MAP_EXTERNCALL void set_summary_file_name ( MAP_InitInputType_t* initFortType, char *map_msg, MAP_ERROR_CODE *ierr ) {  
-  int length=0;
-  char *temp=NULL;
-  InitializationData* init=initFortType->object; 
-
-  if(init->summaryFileName!=NULL) MAPFREE(init->summaryFileName);
-
-  temp=strtok( initFortType->summaryFileName, " \n&");
-  length=strlen(temp)+1;
-  init->summaryFileName=(char*)malloc(sizeof(char)*length);
-  strcpy(init->summaryFileName, temp);
-  initFortType->summaryFileName[0]=0;  
-};
-
-
-/**
- * Fortran binding routine
  * SUBROUTINE MAP_set_initinput_to_null(interf,msg,err) bind(C,name='set_init_to_null') 
  */
 MAP_EXTERNCALL void set_init_to_null(MAP_InitInputType_t* initFortType, char *map_msg, MAP_ERROR_CODE *ierr )
