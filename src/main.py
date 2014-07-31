@@ -8,16 +8,14 @@ if __name__ == '__main__':
 
     mooring_1 = Map( )
     
-    #mooring_1.set_sea_depth(2.65)
     mooring_1.set_sea_depth(320)
     mooring_1.set_gravity(9.81)
     mooring_1.set_sea_density(1020.0)
     
-    #mooring_1.read_file("../python_solve/AFOSPscale100.map")
     # mooring_1.read_file("../test/baseline_2.map") # 100 m depth
     mooring_1.read_file("../test/NRELOffshrBsline5MW_Platform_OC3Hywind_segmented.map") # 320 m depth
     
-    mooring_1.Init( )
+    mooring_1.init( )
         
     epsilon = 1e-3
     K = mooring_1.linear(epsilon)    
@@ -90,5 +88,5 @@ if __name__ == '__main__':
     
     plt.show()
     
-    mooring_1.MAP_End( )
+    mooring_1.end( )
     

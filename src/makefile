@@ -51,7 +51,7 @@ OBJ       = lmder.o \
 	pyroutines.o
 
 all : $(OBJ)
-	$(CC_TOOLS) $(LDFLAGS) -o map.so $(DEBUG) $(OBJ)
+	$(CC_TOOLS) $(LDFLAGS) -o libmap-1.00.01.so $(DEBUG) $(OBJ)
 
 .c.o :
 	$(CC_TOOLS) -c $(CFLAGS) $<

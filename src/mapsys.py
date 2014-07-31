@@ -3,9 +3,9 @@ from ctypes import *
 import os
 
 class Map(object):
-    #lib = cdll.LoadLibrary('map.so') # class level loading lib
-    #lib = cdll.LoadLibrary('/Users/marcom/Dropbox/cemats/src/map.so')
-    lib = cdll.LoadLibrary('/media/sf_Dropbox/cemats/src/map.so')
+    # lib = cdll.LoadLibrary('map.so') # class level loading lib
+    # lib = cdll.LoadLibrary('/Users/marcom/Dropbox/cemats/src/map.so')
+    lib = cdll.LoadLibrary('/media/sf_Dropbox/cemats/src/libmap-1.00.01.so')
 
     '''
     these are the fortran derived types created by the FAST registry.
@@ -218,13 +218,13 @@ class Map(object):
         self.summary_file("outlist.map.sum")
 
 
-    def Init( self ):
+    def init( self ):
         Map.lib.map_init( self.f_type_init, self.f_type_u, self.f_type_p, self.f_type_x, None, self.f_type_z, self.f_type_d, self.f_type_y, self.f_type_initout, pointer(self.ierr), self.status )
         if self.ierr.value != 0 :
             print self.status.value        
 
 
-    def UpdateStates(self, t, interval):
+    def update_states(self, t, interval):
         Map.lib.map_update_states(t, interval, self.f_type_u, self.f_type_p, self.f_type_x, None, self.f_type_z, self.f_type_d, pointer(self.ierr), self.status )
         if self.ierr.value != 0 :
             print self.status.value        
@@ -242,7 +242,7 @@ class Map(object):
     MAP_EXTERNCALL void MAP_Output_Delete( InputData* y )
     MAP_EXTERNCALL void MAP_OtherState_Delete( ModelData* data )
     """
-    def MAP_End( self ):
+    def end( self ):
         Map.lib.map_end( self.f_type_u, self.f_type_p, self.f_type_x, None, self.f_type_z, self.f_type_d, self.f_type_y, pointer(self.ierr), self.status )
 
     """
