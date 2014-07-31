@@ -21,7 +21,7 @@
 #ifndef _PROTOS_H
 #define _PROTOS_H
 
-#include "cminpack.h"
+#include "cminpack/cminpack.h"
 #include "MAP_Types.h"
 
 /*

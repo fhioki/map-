@@ -21,7 +21,7 @@
 #include "map.h"
 #include "maperror.h"
 #include "protos.h"
-#include "minpack.h"
+#include "cminpack/minpack.h"
 #include "pyprotos.h"
 
 

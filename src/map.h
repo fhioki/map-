@@ -24,7 +24,7 @@
 
 
 #include "mapsys.h"
-#include "simclist.h"
+#include "simclist/simclist.h"
 
 
 /**
