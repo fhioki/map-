@@ -14,8 +14,8 @@ MODULE MAP
   !                                                                                              !          |
   ! Get the string information (label) of all the outputs MAP is providing the FAST glue code    !          | 
   INTERFACE                                                                                      !          | 
-     SUBROUTINE MAP_Get_Header_String( FC_int, FC_string, FC_other ) &                         
-          BIND(C,name='fcall_get_header_string')   
+     SUBROUTINE MAP_Get_Header_String(FC_int, FC_string, FC_other ) &                         
+          BIND(C,name='get_header_string')   
        IMPORT                                                                                    !          | 
        IMPLICIT NONE                                                                             !          | 
        INTEGER(KIND=C_INT) :: FC_int                                                             !          | 
@@ -31,7 +31,7 @@ MODULE MAP
   ! Gets the units of all the outputs MAP is providing to the FAST glue code                     !          | 
   INTERFACE                                                                                      !          | 
      SUBROUTINE MAP_Get_Unit_String( FC_int, FC_string, FC_other ) &                              !          | 
-          BIND(C,name='fcall_get_unit_string')                                                  !          | 
+          BIND(C,name='get_unit_string')                                                  !          | 
        IMPORT                                                                                    !          | 
        IMPLICIT NONE                                                                             !          | 
        INTEGER(KIND=C_INT) :: FC_int                                                             !          | 
@@ -49,10 +49,10 @@ MODULE MAP
   !   something indenpendent of it. Numerical errors can generate is g (in units of [Nm/s^2]     !          |
   !   is not consistent among modules.                                                           !          |
   INTERFACE                                                                                      !          |
-     SUBROUTINE MAP_set_gravity( interf, val ) bind(C,name='fcall_set_gravity')                  !          |
+     SUBROUTINE MAP_set_gravity( interf, val ) bind(C,name='set_gravity')                        !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
-       TYPE( MAP_ParameterType_C ) interf                                                       !          |
+       TYPE( MAP_ParameterType_C ) interf                                                        !          |
        REAL(C_DOUBLE), VALUE :: val                                                              !          |
      END SUBROUTINE MAP_set_gravity                                                              !          |
   END INTERFACE                                                                                  !   -------+
@@ -66,10 +66,10 @@ MODULE MAP
   !   something indenpendent of it. Numerical errors can generate is g (in units of [Nm/s^2]     !          |
   !   is not consistent among modules.                                                           !          |
   INTERFACE                                                                                      !          |
-     SUBROUTINE MAP_set_depth( interf, val ) bind(C,name='fcall_set_sea_depth')                  !          |
+     SUBROUTINE MAP_set_depth( interf, val ) bind(C,name='set_sea_depth')                        !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
-       TYPE( MAP_ParameterType_C ) interf                                                       !          |
+       TYPE( MAP_ParameterType_C ) interf                                                        !          |
        REAL(C_DOUBLE), VALUE :: val                                                              !          |
      END SUBROUTINE MAP_set_depth                                                                !          |
   END INTERFACE                                                                                  !   -------+
@@ -96,10 +96,10 @@ MODULE MAP
   ! Calls C function "MAPCALL_SetDensity(MAP_InitInputType)" in MAP_FortranBinding.cpp.          !          |
   ! Sets the density of seawater [kg/m^3] according to what is being used in HydroDyn/FAST       !          |
   INTERFACE                                                                                      !          |
-     SUBROUTINE MAP_set_density( interf, val ) bind(C,name='fcall_set_sea_density')              !          |
+     SUBROUTINE MAP_set_density( interf, val ) bind(C,name='set_sea_density')                    !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
-       TYPE( MAP_ParameterType_C ) interf                                                       !          |
+       TYPE( MAP_ParameterType_C ) interf                                                        !          |
        REAL(C_DOUBLE), VALUE :: val                                                              !          |
      END SUBROUTINE MAP_set_density                                                              !          |
   END INTERFACE                                                                                  !   -------+
@@ -197,7 +197,7 @@ MODULE MAP
                            FC_InitOut , &                                                        !          |
                            err        , &                                                        !          |
                            msg )        &                                                        !          |
-                           bind(C,name='mapcall_msqs_init')                                      !          |
+                           bind(C,name='map_init')                                      !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
        INTEGER(KIND=C_INT) :: err                                                                !          |
@@ -231,7 +231,7 @@ MODULE MAP
                                    FC_O  , &                                                     !          |
                                    err   , &                                                     !          |
                                    msg ) &                                                       !          |
-                                   bind(C,name='mapcall_msqs_update_states')                     !          |
+                                   bind(C,name='map_update_states')                              !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
        REAL(KIND=C_FLOAT) , VALUE :: time                                                        !          |
@@ -264,7 +264,7 @@ MODULE MAP
                                  FC_y  , &                                                       !          |
                                  err   , &                                                       !          |
                                  msg )   &                                                       !          |
-                                 bind(C,name='mapcall_msqs_calc_output')                         !          |
+                                 bind(C,name='map_calc_output')                                  !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
        REAL(KIND=C_FLOAT) , VALUE :: time                                                        !          |
@@ -296,7 +296,7 @@ MODULE MAP
                           FC_y       , &                                                         !          |
                           err        , &                                                         !          |
                           msg )        &                                                         !          |
-                          bind(C,name='mapcall_msqs_end')                                        !          |
+                          bind(C,name='map_end')                                                 !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
        INTEGER(KIND=C_INT) :: err                                                                !          |

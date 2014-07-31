@@ -21,7 +21,7 @@
 #include "map.h"
 #include "maperror.h"
 #include "protos.h"
-#include "minpack.h"
+#include "cminpack/minpack.h"
 #include "pyprotos.h"
 
 
@@ -850,10 +850,10 @@ MAP_ERROR_CODE repeat_nodes(ModelData* dataObj, InitializationData* init, char* 
   };
 
   dataObj->sizeOfNodes = init->sizeOfFullNodeString;
-  init->fullNodeInputString = malloc(sizeof(char*)*(init->sizeOfFullNodeString));
+  init->expandedNodeInputString = malloc(sizeof(char*)*(init->sizeOfFullNodeString));
   for( i=0 ; i<init->sizeOfFullNodeString ; i++ ) {    
-    init->fullNodeInputString[i] = malloc(sizeof(char)*(strlen(tempArray[i])+1));  
-    strcpy(init->fullNodeInputString[i], tempArray[i]);
+    init->expandedNodeInputString[i] = malloc(sizeof(char)*(strlen(tempArray[i])+1));  
+    strcpy(init->expandedNodeInputString[i], tempArray[i]);
     MAPFREE(tempArray[i]);
   };
   MAPFREE(tempArray);
@@ -945,10 +945,10 @@ MAP_ERROR_CODE repeat_elements(ModelData* dataObj, InitializationData* init, cha
   };
 
   dataObj->sizeOfElements = init->sizeOfFullElementString;
-  init->fullElementInputString = malloc( sizeof(char*)*(init->sizeOfFullElementString) );
+  init->expandedElementInputString = malloc( sizeof(char*)*(init->sizeOfFullElementString) );
   for( i=0 ; i<init->sizeOfFullElementString ; i++ ) {    
-    init->fullElementInputString[i] = malloc( sizeof(char)*(strlen(tempArray[i])+1) );  
-    strcpy( init->fullElementInputString[i], tempArray[i] );
+    init->expandedElementInputString[i] = malloc( sizeof(char)*(strlen(tempArray[i])+1) );  
+    strcpy( init->expandedElementInputString[i], tempArray[i] );
     MAPFREE( tempArray[i] );
   };
   MAPFREE( tempArray );
@@ -969,8 +969,8 @@ MAP_ERROR_CODE initialize_init_input(InitializationData* init)
   if (init==NULL) {
     return MAP_FATAL;
   };    
-  init->fullNodeInputString = NULL;
-  init->fullElementInputString = NULL;
+  init->expandedNodeInputString = NULL;
+  init->expandedElementInputString = NULL;
   init->sizeOfFullNodeString = -9999;
   init->sizeOfFullElementString = -9999;  
   return MAP_SAFE;
@@ -1486,156 +1486,6 @@ size_t vartype_ptr_meter(const void *el)
 {
   /* every element has the constant size of a rectangle structure */
   return sizeof(VarTypePtr);
-};
-
-
-/**
- *
- */
-MAP_ERROR_CODE set_output_list(ModelData* data, MAP_InitOutputType_t* ioType, char* map_msg, MAP_ERROR_CODE* ierr)
-{
-  Element* iterElem = NULL;
-  OutputList* yList = data->yList;
-  
-  list_iterator_start(&data->element); /* starting an iteration "session" */
-  while (list_iterator_hasnext(&data->element)) { /* tell whether more values available */ 
-    iterElem = (Element*)list_iterator_next(&data->element);    
-    
-    if (iterElem->options.gxAnchorPosFlag) {
-      list_append(&yList->outListPtr, &iterElem->anchor->positionPtr.x);      
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.gyAnchorPosFlag) {
-      list_append(&yList->outListPtr, &iterElem->anchor->positionPtr.y);
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.gzAnchorPosFlag) {
-      list_append(&yList->outListPtr, &iterElem->anchor->positionPtr.z);
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.gxPosFlag) {
-      list_append(&yList->outListPtr, &iterElem->fairlead->positionPtr.x);
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.gyPosFlag) {
-      list_append(&yList->outListPtr, &iterElem->fairlead->positionPtr.y);
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.gzPosFlag) {
-      list_append(&yList->outListPtr, &iterElem->fairlead->positionPtr.z);
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.HFlag) {
-      list_append(&yList->outListPtr, &iterElem->H);
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.VFlag) {
-      list_append(&yList->outListPtr, &iterElem->V);
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-    
-    if (iterElem->options.HAnchorFlag) {
-      list_append(&yList->outList, &iterElem->HAtAnchor);
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.VAnchorFlag) {
-      list_append(&yList->outList, &iterElem->VAtAnchor);
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.anchorTensionFlag) {
-      list_append(&yList->outList, &iterElem->TAtAnchor);
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.altitudeAnchorFlag) {
-      list_append(&yList->outList, &iterElem->alphaAtAnchor);
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.gxForceFlag) {
-      list_append(&yList->outList, &iterElem->forceAtFairlead.fx); /* @todo: this is not correct. Should point to fairlead->sumForce.fx */
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.gyForceFlag) {
-      list_append(&yList->outList, &iterElem->forceAtFairlead.fy); /* @todo: this is not correct. Should point to fairlead->sumForce.fy */
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.gzForceFlag) {
-      list_append(&yList->outList, &iterElem->forceAtFairlead.fz); /* @todo: this is not correct. Should point to fairlead->sumForce.fz */
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.VFlag) {
-      list_append(&yList->outList, &iterElem->forceAtFairlead.fz); /* @todo: this is not correct. Doubled up with above */
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.fairleadTensionFlag) {
-      list_append(&yList->outList, &iterElem->T);
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.horizontalExcursionFlag) {
-      list_append(&yList->outList, &iterElem->l);
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.verticalExcursionFlag) {
-      list_append(&yList->outList, &iterElem->h);
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.layLengthFlag) {
-      list_append(&yList->outList, &iterElem->lb);
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.azimuthFlag) {
-      list_append(&yList->outList, &iterElem->psi);
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.altitudeFlag) {
-      list_append(&yList->outList, &iterElem->alpha);
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-  };
-  list_iterator_stop(&data->element); /* ending the iteration session */  
-
-  return MAP_SAFE;
 };
 
 

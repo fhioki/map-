@@ -42,3 +42,5 @@ project.xcworkspace
 fortran_driver/nwtc_lib/
 libs/
 python_solve/
+src/html/
+src/latex/

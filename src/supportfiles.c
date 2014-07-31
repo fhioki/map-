@@ -377,8 +377,7 @@ MAP_ERROR_CODE map_get_version(MAP_InitOutputType_t* ioType)
 /**
  *
  */
-MAP_ERROR_CODE print_help_to_screen()
-{
+void print_machine_name_to_screen( ) {
   char name[256]="";
 
   __get_machine_name(name);
@@ -394,6 +393,15 @@ MAP_ERROR_CODE print_help_to_screen()
   printf( "%c",BUILD_YEAR_CH1 );
   printf( "%c",BUILD_YEAR_CH2 );
   printf( "%c\n",BUILD_YEAR_CH3 );
+}
+
+
+/**
+ *
+ */
+MAP_ERROR_CODE print_help_to_screen()
+{
+  print_machine_name_to_screen( );
 
   printf("MAP Input file section defitions:\n");
   printf("  Line dictionary definitions:\n");   

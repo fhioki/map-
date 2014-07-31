@@ -22,7 +22,7 @@
 #include "maperror.h"
 #include "protos.h"
 #include "pyprotos.h"
-#include "minpack.h"
+#include "cminpack/minpack.h"
 
 
 int inner_function_evals(void* elementPtr, int m, int n, const __cminpack_real__* x, __cminpack_real__* fvec, __cminpack_real__* fjac, int ldfjac, int iflag) 
