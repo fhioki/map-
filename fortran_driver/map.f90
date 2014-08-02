@@ -110,7 +110,7 @@ MODULE MAP
   !                                                                                              !          |
   !
   INTERFACE                                                                                      !          |
-     SUBROUTINE MAP_set_initinput_to_null(interf,msg,err) bind(C,name='set_init_to_null')        !          |
+     SUBROUTINE MAP_set_initinput_to_null(interf,msg,err) bind(C,name='initialize_init_data_to_null')        !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
        TYPE( MAP_InitInputType_C ) interf                                                        !          |
@@ -127,7 +127,7 @@ MODULE MAP
   ! Pases strings from the "LINE DICTIONARY" porition of the MPA input file to the C++           !          |
   !   data structure.                                                                            !          |
   INTERFACE                                                                                      !          |
-     SUBROUTINE MAP_SetCableLibraryData( interf ) bind(C,name='set_cable_library_data')          !          |
+     SUBROUTINE MAP_SetCableLibraryData( interf ) bind(C,name='add_cable_library_input_text')    !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
        TYPE( MAP_InitInputType_C ) interf                                                        !          |
@@ -142,7 +142,7 @@ MODULE MAP
   ! Pases strings from the "NOE PROPERTIES" porition of the MPA input file to the C++            !          |
   !   data structure.                                                                            !          |
   INTERFACE                                                                                      !          |
-     SUBROUTINE MAP_SetNodeData( interf ) bind(C,name='set_node_data')                           !          |
+     SUBROUTINE MAP_SetNodeData( interf ) bind(C,name='add_node_input_text')                           !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
        TYPE( MAP_InitInputType_C ) interf                                                        !          |
@@ -157,7 +157,7 @@ MODULE MAP
   ! Pases strings from the "ELEMENT PROPERTIES" porition of the MPA input file to the C++        !          |
   !   data structure.                                                                            !          |
   INTERFACE                                                                                      !          |
-     SUBROUTINE MAP_SetElementData( interf ) bind(C,name='set_element_data')                     !          |
+     SUBROUTINE MAP_SetElementData( interf ) bind(C,name='add_element_input_text')                     !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
        TYPE( MAP_InitInputType_C ) interf                                                        !          |
@@ -172,7 +172,7 @@ MODULE MAP
   ! Pases strings from the "SOLVER OPTIONS" porition of the MPA input file to the C++            !          |
   !   data structure.                                                                            !          |
   INTERFACE                                                                                      !          |
-     SUBROUTINE MAP_SetSolverOptions( interf ) bind(C,name='set_solver_options')                 !          |
+     SUBROUTINE MAP_SetSolverOptions( interf ) bind(C,name='add_options_input_text')             !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
        TYPE( MAP_InitInputType_C ) interf                                                        !          |
@@ -335,8 +335,7 @@ CONTAINS
     CHARACTER(KIND=C_CHAR,len=1024)                 :: message_from_MAP = ""//CHAR(0)
     
     INTEGER( KIND=C_INT )                           :: statMap = 0
-    CHARACTER( KIND=C_CHAR,LEN=1024 )               :: msgMap = ""//CHAR(0)
-    !TYPE(ProgDesc)                                  :: MAP_Ver = ProgDesc( 'MAP', 'date', 'huh' )
+    CHARACTER( KIND=C_CHAR,LEN=1024 )               :: msgMap = ""//CHAR(0)   
     INTEGER(IntKi)                                  :: i = 0
     REAL(ReKi)                                      :: Pos(3)
     INTEGER(IntKi)                                  :: NumNodes = 0
@@ -355,8 +354,7 @@ CONTAINS
     ! Call the constructor for each MAP class to create and instance of each C++ object    
     CALL MAP_InitInput_Initialize(InitInp%C_obj%object, msgMap,statMap)    
     CALL MAP_Other_Initialize(other%C_obj%object, msgMap,statMap)
-
-    CALL MAP_Set_InitInput_To_Null(InitInp%C_obj, msgMap,statMap)
+    !CALL MAP_Set_InitInput_To_Null(InitInp%C_obj, msgMap,statMap)
      
     ! Set the environmental properties:
     !   depth           = water depth [m]

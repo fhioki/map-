@@ -99,4 +99,26 @@ MAP_EXTERNCALL void set_sea_density(MAP_ParameterType_t* p_type, const MapReal r
  */
 MAP_EXTERNCALL void set_gravity(MAP_ParameterType_t* p_type, const MapReal gravity);
 
+
+/**
+ * @brief Initializes the Fortran/C iteroperability types
+ * @details This is called in the py_create_init_data routine following successful allocation 
+ *          of memory. This should not be called directly by the user code. 
+ * @param init_type, Fortran/C interoperable type {@link MAP_InitInputType_t}
+ * @see py_create_init_data()
+ */
+void initialize_init_type_to_null(MAP_InitInputType_t* init_type);
+
+
+/**
+ * @brief Initializes MAP internal initialization data
+ * @details This is called in the py_create_init_data routine following successful allocation 
+ *          of memory. This should not be called directly by the user code. The internal states
+ *          are nullified and set to zero. 
+ * @param init_data, internal MAP initialization data {@link InitializationData}
+ * @see py_create_init_data()
+ */
+void initialize_init_data_to_null(InitializationData* init_data);
+
+
 #endif /* _INITIALIZATION_H */

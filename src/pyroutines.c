@@ -34,16 +34,20 @@ MAP_EXTERNCALL MAP_InitInputType_t* py_create_init_data(char* map_msg, MAP_ERROR
 {
   MAP_InitInputType_t* new_data = NULL;  
   *ierr = MAP_SAFE;
-  new_data = (MAP_InitInputType_t*)malloc(sizeof(MAP_InitInputType_t));
+  new_data = malloc(sizeof(MAP_InitInputType_t));
   if (new_data==NULL) {
     *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_4);    
     return new_data;
   } else {    
+    initialize_init_type_to_null(new_data);
     new_data->object = NULL;
-    new_data->object = (InitializationData*)malloc(sizeof(InitializationData));
-    if (new_data->object==NULL) {
-      *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_4);          
-    };
+    new_data->object = (InitializationData*)(uintptr_t)MAP_InitInput_Create(map_msg, ierr);
+    // new_data->object = malloc(sizeof(InitializationData));
+    // if (new_data->object==NULL) {
+    //   *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_4);          
+    // } else {
+    //   initialize_init_data_to_null(new_data->object);
+    // };
     return new_data;
   };
 };
@@ -57,7 +61,7 @@ MAP_EXTERNCALL MAP_InitOutputType_t* py_create_initout_data(char* map_msg, MAP_E
 {
   MAP_InitOutputType_t* new_data = NULL;  
   *ierr = MAP_SAFE;
-  new_data = (MAP_InitOutputType_t*)malloc(sizeof(MAP_InitOutputType_t));
+  new_data = malloc(sizeof(MAP_InitOutputType_t));
   if (new_data==NULL) {
     *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_11);    
   }; 
@@ -74,7 +78,7 @@ MAP_EXTERNCALL MAP_InputType_t* py_create_input_data( char* map_msg, MAP_ERROR_C
 {
   MAP_InputType_t* new_data=NULL;  
   *ierr = MAP_SAFE;
-  new_data = (MAP_InputType_t*)malloc( sizeof(MAP_InputType_t) ); // @todo: needs to be freed
+  new_data = malloc( sizeof(MAP_InputType_t) ); // @todo: needs to be freed
   if ( new_data == NULL ) 
   {
     *ierr = map_set_universal_error( "", map_msg, ierr, MAP_FATAL_5 );    
@@ -93,7 +97,7 @@ MAP_EXTERNCALL MAP_ParameterType_t* py_create_parameter_data(char* map_msg, MAP_
 {
   MAP_ParameterType_t* new_data = NULL;  
   *ierr = MAP_SAFE;
-  new_data = (MAP_ParameterType_t*)malloc(sizeof(MAP_ParameterType_t));
+  new_data = malloc(sizeof(MAP_ParameterType_t));
   if (new_data==NULL) {
     *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_6);    
     return new_data;
@@ -111,7 +115,7 @@ MAP_EXTERNCALL MAP_ConstraintStateType_t* py_create_constraint_data(char* map_ms
 {
   MAP_ConstraintStateType_t* new_data = NULL;  
   *ierr = MAP_SAFE;
-  new_data = (MAP_ConstraintStateType_t*)malloc(sizeof(MAP_ConstraintStateType_t)); 
+  new_data = malloc(sizeof(MAP_ConstraintStateType_t)); 
   if (new_data==NULL) {
     *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_8);    
     return new_data;    
@@ -129,16 +133,17 @@ MAP_EXTERNCALL MAP_OtherStateType_t* py_create_model_data(char* map_msg, MAP_ERR
 {
   MAP_OtherStateType_t* new_data = NULL;  
   *ierr = MAP_SAFE;
-  new_data = (MAP_OtherStateType_t*)malloc(sizeof(MAP_OtherStateType_t)); 
+  new_data = malloc(sizeof(MAP_OtherStateType_t)); 
   if (new_data==NULL) {
     *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_43);    
     return new_data;
   } 
   new_data->object = NULL;
-  new_data->object = (ModelData*)malloc(sizeof(ModelData)); 
-  if (new_data->object==NULL) {
-    *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_43);            
-  };
+  new_data->object = (ModelData*)(uintptr_t)MAP_OtherState_Create(map_msg, ierr);
+  // new_data->object = malloc(sizeof(ModelData)); 
+  // if (new_data->object==NULL) {
+  //   *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_43);            
+  // };
   return new_data;    
 };
 
@@ -151,7 +156,7 @@ MAP_EXTERNCALL MAP_OutputType_t* py_create_output_data(char* map_msg, MAP_ERROR_
 {
   MAP_OutputType_t* new_data = NULL;  
   *ierr = MAP_SAFE;
-  new_data = (MAP_OutputType_t*)malloc(sizeof(MAP_OutputType_t));
+  new_data = malloc(sizeof(MAP_OutputType_t));
   if (new_data==NULL) {
     *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_10);    
     return new_data;
@@ -169,7 +174,7 @@ MAP_EXTERNCALL MAP_ContinuousStateType_t* py_create_continuous_data(char* map_ms
 {
   MAP_ContinuousStateType_t* new_data = NULL;  
   *ierr = MAP_SAFE;
-  new_data = (MAP_ContinuousStateType_t*)malloc(sizeof(MAP_ContinuousStateType_t)); 
+  new_data = malloc(sizeof(MAP_ContinuousStateType_t)); 
   if (new_data==NULL) {
     *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_7);    
     return new_data;

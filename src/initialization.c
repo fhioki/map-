@@ -19,6 +19,7 @@
  ***************************************************************************/
 
 #include "map.h"
+#include "maperror.h"
 #include "initialization.h"
 
 
@@ -41,8 +42,42 @@ MAP_EXTERNCALL void set_sea_density(MAP_ParameterType_t* p_type, const MapReal r
 };
 
 
-MAP_EXTERNCALL void set_gravity(MAP_ParameterType_t* p_type, const MapReal gravity)
+MAP_EXTERNCALL void set_gravity(MAP_ParameterType_t* p_type, double gravity)
 {
   p_type->g = gravity;
 };
 /* @} */
+
+
+void initialize_init_type_to_null(MAP_InitInputType_t* init_type)
+{
+  /* initialize the native Fortran/C types */
+  init_type->gravity = -999.9;
+  init_type->seaDensity = -999.9;
+  init_type->depth = -999.9;
+  init_type->fileName[0] = 0;
+  init_type->summaryFileName[0] = 0;
+  init_type->libraryInputLine[0] = 0;
+  init_type->nodeInputLine[0] = 0;
+  init_type->elementInputLine[0] = 0;
+  init_type->optionInputLine[0] = 0;
+};
+
+
+void initialize_init_data_to_null(InitializationData* init_data)
+{
+  /* initialize the MAP initialization internal data strcture */
+  init_data->libraryInputString = NULL;
+  init_data->nodeInputString = NULL;
+  init_data->elementInputString = NULL;
+  init_data->solverOptionsString = NULL;
+  init_data->expandedNodeInputString = NULL; 
+  init_data->expandedElementInputString = NULL;
+  init_data->summaryFileName = NULL;  
+  init_data->sizeOfFullNodeString = 0; 
+  init_data->sizeOfFullElementString = 0; 
+  init_data->librarySize = 0;
+  init_data->nodeSize = 0;
+  init_data->elementSize = 0;
+  init_data->solverOptionsSize = 0;
+};

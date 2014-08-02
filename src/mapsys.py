@@ -109,12 +109,12 @@ class Map(object):
     MapContinuous_Type = POINTER(ContinuousData_Type)
 
     # read file stuff
-    lib.set_init_to_null.argtype=[MapInit_Type, c_char_p, POINTER(c_int) ]
+    # lib.set_init_to_null.argtype=[MapInit_Type, c_char_p, POINTER(c_int) ]
     lib.set_summary_file_name.argtype=[MapInit_Type, c_char_p, POINTER(c_int) ]
-    lib.set_cable_library_data.argtype=[MapInit_Type]
-    lib.set_node_data.argtype=[MapInit_Type]
-    lib.set_element_data.argtype=[MapInit_Type]
-    lib.set_solver_options.argtype=[MapInit_Type]
+    lib.add_cable_library_input_text.argtype=[MapInit_Type]
+    lib.add_node_input_text.argtype=[MapInit_Type]
+    lib.add_element_input_text.argtype=[MapInit_Type]
+    lib.add_options_input_text.argtype=[MapInit_Type]
 
     lib.py_create_init_data.argtype       = [ c_char_p, POINTER(c_int) ]
     lib.py_create_initout_data.argtype    = [ c_char_p, POINTER(c_int) ]
@@ -214,7 +214,7 @@ class Map(object):
         self.f_type_z       = self.CreateConstraintState( )
         self.f_type_init    = self.CreateInitState( )
         self.f_type_initout = self.CreateInitoutState( )
-        Map.lib.set_init_to_null(self.f_type_init, self.status, pointer(self.ierr) )
+        # Map.lib.set_init_to_null(self.f_type_init, self.status, pointer(self.ierr) )
         self.summary_file("outlist.map.sum")
 
 
@@ -481,39 +481,34 @@ class Map(object):
                 Element_ref = i 
             elif words[0] == "Option":
                 next(f)
-                Option_ref = i 
-    
+                Option_ref = i     
             i+=1
         
-        f.seek(line_offset[LineType_ref+2])
-         
+        f.seek(line_offset[LineType_ref+2])         
         for line in f:
             if line[0] == "-":
                 break
             else:
                 self.f_type_init.contents.libraryInputLine=line
-                Map.lib.set_cable_library_data(self.f_type_init)
+                Map.lib.add_cable_library_input_text(self.f_type_init)
    
         f.seek(line_offset[Node_ref+3])
-
         for line in f:
             if line[0] == "-":
                 break
             else:
                 self.f_type_init.contents.nodeInputLine=line
-                Map.lib.set_node_data(self.f_type_init)
+                Map.lib.add_node_input_text(self.f_type_init)
 
         f.seek(line_offset[Element_ref+4])
-
         for line in f:
             if line[0] == "-":
                 break
             else:
                 self.f_type_init.contents.elementInputLine=line
-                Map.lib.set_element_data(self.f_type_init)
+                Map.lib.add_element_input_text(self.f_type_init)
                  
         f.seek(line_offset[Option_ref+5])
-
         for line in f:
             if line[0]=="-":
                 break
@@ -521,4 +516,4 @@ class Map(object):
                 None
             else:
                 self.f_type_init.contents.optionInputLine=line
-                Map.lib.set_solver_options(self.f_type_init)            
+                Map.lib.add_options_input_text(self.f_type_init)            

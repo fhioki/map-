@@ -553,7 +553,7 @@ MAP_ERROR_CODE set_model_options_list(ModelData* data, InitializationData* initO
             MAPFREE(moreAngles);
             success = 1; CHECKERRQ(MAP_FATAL_35);
           };
-          word=strtok( NULL, " ,\t\n" );
+          word = strtok(NULL, " ,\t\n");
         };
       } else {
         cx = map_snprintf(buffer, 64, "Ignoring value '%s'.", word); assert(cx>=0);
@@ -585,14 +585,14 @@ int set_cable_library_list(ModelData* data, InitializationData* init, char* map_
   CableLibrary in_cableLibrary;
 
   for(i=0 ; i<=init->librarySize-1 ; i++) { 
-    sizeOfString=strlen(init->libraryInputString[i]);
-    line=(char*)realloc(line, (sizeOfString+1)*sizeof(char));    
+    sizeOfString = strlen(init->libraryInputString[i]);
+    line = (char*)realloc(line, (sizeOfString+1)*sizeof(char));    
     strcpy(line, init->libraryInputString[i]);        
     word=strtok(line, " ,\n\t\r\0");        
     while (word!=NULL) {            
       if (cnt==0) {
         len = strlen(word);
-        in_cableLibrary.label=malloc((len+1)*sizeof(char*));
+        in_cableLibrary.label = malloc(sizeof(char*)*(len+1));
         strcpy(in_cableLibrary.label, word);
       } else if (cnt==1) {
         success=is_numeric(word);CHECKERRQ(MAP_FATAL_12);
@@ -752,7 +752,7 @@ MAP_ERROR_CODE repeat_nodes(ModelData* dataObj, InitializationData* init, char* 
   
   numRepeat = dataObj->modelOptions.sizeOfRepeatAngles;
   init->sizeOfFullNodeString = (sizeOfNodeBase)*(numRepeat+1); 
-  tempArray = malloc((init->sizeOfFullNodeString)*sizeof(char*));
+  tempArray = malloc(sizeof(char*)*(init->sizeOfFullNodeString));
 
   for(j=0 ; j<sizeOfNodeBase ; j++) { 
     sizeOfString = strlen(init->nodeInputString[j]);
@@ -867,91 +867,91 @@ MAP_ERROR_CODE repeat_nodes(ModelData* dataObj, InitializationData* init, char* 
  */
 MAP_ERROR_CODE repeat_elements(ModelData* dataObj, InitializationData* init, char* map_msg, MAP_ERROR_CODE* ierr)
 {
-  int     i                 = 0;
-  int     j                 = 0;
-  int     cnt               = 0;
-  int     success           = 0;
-  int     sizeOfElementBase = 0;
-  int     sizeOfNodeBase    = 0;
-  int     sizeOfString      = 0;
-  int     numRepeat         = 0;
-  int     anchNode          = 0.0;
-  int     fairNode          = 0.0;
-  char    buffer[256]       = "";
-  char*   word              = NULL;
-  char    lines[256]        = "";
-  char**  tempArray         = NULL;
-  char    tempString[64]    = "";
+  int i = 0;
+  int j = 0;
+  int cnt = 0;
+  int success = 0;
+  int sizeOfElementBase = 0;
+  int sizeOfNodeBase = 0;
+  int sizeOfString = 0;
+  int numRepeat = 0;
+  int anchNode = 0.0;
+  int fairNode = 0.0;
+  char buffer[256] = "";
+  char* word = NULL;
+  char lines[256] = "";
+  char** temp_array  = NULL;
+  char temp_string[64] = "";
   Element newElement;
 
-  sizeOfElementBase      = dataObj->sizeOfElements;
-  sizeOfNodeBase         = init->nodeSize;
+  sizeOfElementBase = dataObj->sizeOfElements;
+  sizeOfNodeBase = init->nodeSize;
   
   numRepeat = dataObj->modelOptions.sizeOfRepeatAngles;
   init->sizeOfFullElementString = (sizeOfElementBase)*(numRepeat+1); 
-  tempArray = malloc( (init->sizeOfFullElementString)*sizeof(char*) );
+  temp_array = malloc( (init->sizeOfFullElementString)*sizeof(char*));
 
-  for( j=0 ; j<sizeOfElementBase ; j++ ) { 
-    sizeOfString = strlen( init->elementInputString[j] );
-    tempArray[j] = malloc( sizeof(char)*(sizeOfString+1) );
-    strcpy( tempArray[j], init->elementInputString[j] );
+  for(j=0 ; j<sizeOfElementBase ; j++) { 
+    sizeOfString = strlen(init->elementInputString[j]);
+    temp_array[j] = malloc(sizeof(char)*(sizeOfString+1));
+    strcpy(temp_array[j], init->elementInputString[j]);
   };
 
-  for( i=0 ; i<numRepeat ; i++ ) { 
-    for( j=0 ; j<sizeOfElementBase ; j++ ) { 
-      set_element_null( &newElement );  
-      sizeOfString = strlen( init->elementInputString[j] );      
-      strcpy( lines, init->elementInputString[j] );
-      word = strtok( lines, " ,\n\t\r\0" );    
+  for(i=0 ; i<numRepeat ; i++) { 
+    for(j=0 ; j<sizeOfElementBase ; j++) { 
+      set_element_null(&newElement);  
+      sizeOfString = strlen(init->elementInputString[j]);      
+      strcpy(lines, init->elementInputString[j]);
+      word = strtok(lines, " ,\n\t\r\0" );    
       cnt = 0;
-      buffer[0]=0;
-      tempString[0]=0;
-      while ( word!=NULL ) {      
-        if ( cnt==0 ) {
-          map_snprintf( tempString, 64, "%d  ", ((i+1)*sizeOfElementBase+j+1) );
-          map_strcat( buffer, 256, tempString );
-        } else if ( cnt==1 ) { 
-          map_snprintf( tempString, 64, "%s  ", word );
-          map_strcat( buffer, 256, tempString );
-        } else if ( cnt==2 ) { 
-          map_snprintf( tempString, 64, "%s  ", word );
-          map_strcat( buffer, 256, tempString );
-        } else if ( cnt==3 ) { 
-          success=is_numeric( word ); CHECKERRQ( MAP_FATAL_28 );
+      buffer[0] = 0;
+      temp_string[0] = 0;
+      while (word!=NULL) {      
+        if (cnt==0) {
+          map_snprintf(temp_string, 64, "%d  ", ((i+1)*sizeOfElementBase+j+1));
+          map_strcat(buffer, 256, temp_string);
+        } else if (cnt==1 ) { 
+          map_snprintf(temp_string, 64, "%s  ", word);
+          map_strcat(buffer, 256, temp_string);
+        } else if (cnt==2) { 
+          map_snprintf(temp_string, 64, "%s  ", word);
+          map_strcat(buffer, 256, temp_string);
+        } else if (cnt==3) { 
+          success = is_numeric(word); CHECKERRQ(MAP_FATAL_28);
           if ( !success ) {
             anchNode = (MapReal)atof(word);        
           };
-          map_snprintf( tempString, 64, "%d  ", (i+1)*sizeOfNodeBase+anchNode );
-          map_strcat( buffer, 256, tempString );
-        } else if ( cnt==4 ) { 
-          success=is_numeric( word ); CHECKERRQ( MAP_FATAL_29 );
+          map_snprintf(temp_string, 64, "%d  ", (i+1)*sizeOfNodeBase+anchNode);
+          map_strcat(buffer, 256, temp_string);
+        } else if (cnt==4) { 
+          success = is_numeric(word); CHECKERRQ(MAP_FATAL_29);
           if ( !success ) {
             fairNode = (MapReal)atof(word);  
           };
-          map_snprintf( tempString, 64, "%d  ", (i+1)*sizeOfNodeBase+fairNode );
-          map_strcat( buffer, 256, tempString );
+          map_snprintf(temp_string, 64, "%d  ", (i+1)*sizeOfNodeBase+fairNode);
+          map_strcat(buffer, 256, temp_string);
         } else {
-          map_snprintf( tempString, 64, "%s  ", word );
-          map_strcat( buffer, 256, tempString );
+          map_snprintf(temp_string, 64, "%s  ", word);
+          map_strcat(buffer, 256, temp_string);
         };
         cnt++;
         word = strtok( NULL, " ,\n\t\r\0" );
       };  
       map_strcat( buffer, 256, "\n" );
       sizeOfString = strlen( buffer );
-      tempArray[(i+1)*sizeOfElementBase+j] = malloc( sizeof(char)*(sizeOfString+1) );
-      strcpy( tempArray[(i+1)*sizeOfElementBase+j], buffer );
+      temp_array[(i+1)*sizeOfElementBase+j] = malloc(sizeof(char)*(sizeOfString+1));
+      strcpy(temp_array[(i+1)*sizeOfElementBase+j], buffer);
     };  
   };
 
   dataObj->sizeOfElements = init->sizeOfFullElementString;
-  init->expandedElementInputString = malloc( sizeof(char*)*(init->sizeOfFullElementString) );
-  for( i=0 ; i<init->sizeOfFullElementString ; i++ ) {    
-    init->expandedElementInputString[i] = malloc( sizeof(char)*(strlen(tempArray[i])+1) );  
-    strcpy( init->expandedElementInputString[i], tempArray[i] );
-    MAPFREE( tempArray[i] );
+  init->expandedElementInputString = malloc(sizeof(char*)*(init->sizeOfFullElementString));
+  for(i=0 ; i<init->sizeOfFullElementString ; i++) {    
+    init->expandedElementInputString[i] = malloc(sizeof(char)*(strlen(temp_array[i])+1));  
+    strcpy(init->expandedElementInputString[i], temp_array[i]);
+    MAPFREE(temp_array[i]);
   };
-  MAPFREE( tempArray );
+  MAPFREE(temp_array);
 
   return MAP_SAFE;
 

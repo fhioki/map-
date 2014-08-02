@@ -1,4 +1,4 @@
-Outputs were generated using MAP++ (Mooring Analysis Program++) 1.00.01a-marco-robot on Wednesday July 30-2014 at 20:05:20 PM.
+Outputs were generated using MAP++ (Mooring Analysis Program++) 1.00.01a-marco-robot on Saturday August 02-2014 at 18:38:38 PM.
 
 
     Gravity constant          [m/s^2]  : 9.81
@@ -11,6 +11,20 @@ Outputs were generated using MAP++ (Mooring Analysis Program++) 1.00.01a-marco-r
     Mass Density [kg/m] : 77.71
     EA           [kN]   : 384243000.00
     omega        [N/m]  : 698.65
+    CB                  : 1.00
+
+    Cable Type          : Material2
+    Diameter     [m]    : 0.0900
+    Mass Density [kg/m] : 100.71
+    EA           [kN]   : 394243000.00
+    omega        [N/m]  : 924.28
+    CB                  : 1.00
+
+    Cable Type          : Material3
+    Diameter     [m]    : 0.0900
+    Mass Density [kg/m] : 120.71
+    EA           [kN]   : 424243000.00
+    omega        [N/m]  : 1120.48
     CB                  : 1.00
 
           | Node 1 Data            Node 2 Data            Node 3 Data            Node 4 Data
@@ -170,6 +184,8 @@ Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
 LineType  Diam      MassDenInAir   EA            CB
 (-)       (m)       (kg/m)        (kN)           (-)
 Material     0.09      77.7066      384.243E6   1.0   1.0E8    0.6 -1.0    0.05
+Material2    0.09      100.7066     394.243E6   1.0   1.0E8    0.6 -1.0    0.05
+Material3    0.09      120.7066     424.243E6   1.0   1.0E8    0.6 -1.0    0.05
 ---------------------- NODE PROPERTIES ---------------------------------------
 Node  Type       X       Y       Z      M     B     FX    FY    FZ
 (-)   (-)       (m)     (m)     (m)    (kg)  (mˆ3) (kN)  (kN)  (kN)

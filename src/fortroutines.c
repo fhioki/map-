@@ -26,93 +26,61 @@
 #include "MAP_Types.h"
 
 
-/**
- * Fortran binding routine
- * SUBROUTINE MAP_SetCableLibraryData( interf ) bind(C,name='set_cable_library_data')   
- */
-MAP_EXTERNCALL void set_cable_library_data(MAP_InitInputType_t* initFortType)
+MAP_EXTERNCALL void add_cable_library_input_text(MAP_InitInputType_t* init_type)
 {
-  InitializationData* init=(InitializationData*)initFortType->object; 
-  int N=init->librarySize;
-  int length=strlen(initFortType->libraryInputLine)+1;
-
-  init->libraryInputString = (char**)realloc(init->libraryInputString, sizeof(char*)*(N+1));
-  init->libraryInputString[N]=malloc(sizeof(char)*length);    
-  strcpy(init->libraryInputString[N], initFortType->libraryInputLine);
-  init->librarySize++;
-};
-
-
-/**
- * Fortran binding routine
- * SUBROUTINE MAP_SetNodeData( interf ) bind(C,name='set_node_data')
- */
-MAP_EXTERNCALL void set_node_data(MAP_InitInputType_t* initFortType)
-{
-  InitializationData* init=initFortType->object; 
-  int N=init->nodeSize;
-  int length=strlen(initFortType->nodeInputLine)+1;
+  InitializationData* init_data = (InitializationData*)init_type->object; 
+  const int str_length = strlen(init_type->libraryInputLine)+1;
+  const int n = init_data->librarySize;
+  char** temp_string_array = NULL;
   
-  init->nodeInputString = (char**)realloc(init->nodeInputString, sizeof(char*)*(N+1));
-  init->nodeInputString[N]=malloc(sizeof(char)*length);    
-  strcpy(init->nodeInputString[N], initFortType->nodeInputLine);
-  init->nodeSize++;
+  temp_string_array = realloc(init_data->libraryInputString, sizeof(*init_data->libraryInputString)*(n+1));
+  init_data->libraryInputString = temp_string_array;
+  init_data->libraryInputString[n] = malloc(sizeof(char)*str_length);    
+  strcpy(init_data->libraryInputString[n], init_type->libraryInputLine);  
+  init_data->librarySize++;
 };
 
 
-/**
- * Fortran binding routine
- * SUBROUTINE MAP_SetElementData( interf ) bind(C,name='set_element_data')
- */
-MAP_EXTERNCALL void set_element_data(MAP_InitInputType_t* initFortType)
+MAP_EXTERNCALL void add_node_input_text(MAP_InitInputType_t* init_type)
 {
-  InitializationData* init=initFortType->object; 
-  int N=init->elementSize;
-  int length=strlen(initFortType->elementInputLine)+1;
+  InitializationData* init_data = init_type->object; 
+  const int str_length = strlen(init_type->nodeInputLine)+1;
+  const int n = init_data->nodeSize;
+  char** temp_string_array = NULL;
 
-  init->elementInputString = (char**)realloc(init->elementInputString, sizeof(char*)*(N+1));
-  init->elementInputString[N]=malloc(sizeof(char)*length);    
-  strcpy(init->elementInputString[N], initFortType->elementInputLine);
-  init->elementSize++;
+  temp_string_array = realloc(init_data->nodeInputString, sizeof(*init_data->nodeInputString)*(n+1));
+  init_data->nodeInputString = temp_string_array;
+  init_data->nodeInputString[n] = malloc(sizeof(char)*str_length);    
+  strcpy(init_data->nodeInputString[n], init_type->nodeInputLine);
+  init_data->nodeSize++;
 };
 
 
-/**
- * Fortran binding routine
- * SUBROUTINE MAP_SetSolverOptions( interf ) bind(C,name='set_solver_options')
- */
-MAP_EXTERNCALL void set_solver_options(MAP_InitInputType_t* initFortType)
+MAP_EXTERNCALL void add_element_input_text(MAP_InitInputType_t* init_type)
 {
-  InitializationData* init=initFortType->object; 
-  int N=init->solverOptionsSize;
-  int length=strlen(initFortType->optionInputLine)+1;
+  InitializationData* init_data = init_type->object; 
+  const int n = init_data->elementSize;
+  const int str_length = strlen(init_type->elementInputLine)+1;
+  char** temp_string_array = NULL;
 
-  init->solverOptionsString = (char**)realloc(init->solverOptionsString, sizeof(char*)*(N+1));
-  init->solverOptionsString[N]=malloc(sizeof(char)*length);    
-  strcpy(init->solverOptionsString[N], initFortType->optionInputLine);
-  init->solverOptionsSize++;
+  temp_string_array = realloc(init_data->elementInputString, sizeof(*init_data->elementInputString)*(n+1));
+  init_data->elementInputString = temp_string_array;
+  init_data->elementInputString[n] = malloc(sizeof(char)*str_length);    
+  strcpy(init_data->elementInputString[n], init_type->elementInputLine);
+  init_data->elementSize++;
 };
 
 
-/**
- * Fortran binding routine
- * SUBROUTINE MAP_set_initinput_to_null(interf,msg,err) bind(C,name='set_init_to_null') 
- */
-MAP_EXTERNCALL void set_init_to_null(MAP_InitInputType_t* initFortType, char *map_msg, MAP_ERROR_CODE *ierr )
+MAP_EXTERNCALL void add_options_input_text(MAP_InitInputType_t* init_type)
 {
-  InitializationData* init = initFortType->object; 
-  init->libraryInputString=NULL;
-  init->nodeInputString=NULL;
-  init->elementInputString=NULL;
-  init->solverOptionsString=NULL;
-  init->expandedNodeInputString=NULL; 
-  init->expandedElementInputString=NULL;
-  init->summaryFileName=NULL;  
-  init->sizeOfFullNodeString=0; 
-  init->sizeOfFullElementString=0; 
-  init->librarySize=0;
-  init->nodeSize=0;
-  init->elementSize=0;
-  init->solverOptionsSize=0;
-};
+  InitializationData* init_data = init_type->object; 
+  int n = init_data->solverOptionsSize;
+  int str_length = strlen(init_type->optionInputLine)+1;
+  char** temp_string_array = NULL;
 
+  temp_string_array = realloc(init_data->solverOptionsString, sizeof(*init_data->solverOptionsString)*(n+1));
+  init_data->solverOptionsString = temp_string_array;
+  init_data->solverOptionsString[n] = malloc(sizeof(char)*str_length);    
+  strcpy(init_data->solverOptionsString[n], init_type->optionInputLine);
+  init_data->solverOptionsSize++;
+};

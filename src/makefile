@@ -24,8 +24,8 @@ VPATH=cminpack:simclist
 
 CC_TOOLS  = gcc 
 CFLAGS    = -g -fPIC -D DEBUG -Icminpack -Isimclist
-#CFLAGS    = -g -O2 -fPIC -Wstrict-aliasing
-LDFLAGS   = -shared 
+# CFLAGS    = -g -O2 -fPIC -Wstrict-aliasing -Wuninitialized  
+LDFLAGS   = -g -shared
 DEBUG     = 
 OBJ       = lmder.o \
 	dpmpar.o \
@@ -51,7 +51,7 @@ OBJ       = lmder.o \
 	pyroutines.o
 
 all : $(OBJ)
-	$(CC_TOOLS) $(LDFLAGS) -o libmap-1.00.01.so $(DEBUG) $(OBJ)
+	$(CC_TOOLS) $(LDFLAGS) -o libmap-1.00.01.so $(DEBUG) $(OBJ) -lm
 
 .c.o :
 	$(CC_TOOLS) -c $(CFLAGS) $<
