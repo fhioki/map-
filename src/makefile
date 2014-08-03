@@ -22,8 +22,9 @@ SIMCLIST_DIR = simclist
 
 VPATH=cminpack:simclist
 
+GIT_VERSION := $(shell git describe --abbrev=4 --dirty --always)
 CC_TOOLS  = gcc 
-CFLAGS    = -g -fPIC -D DEBUG -Icminpack -Isimclist
+CFLAGS    = -g -fPIC -D DEBUG -DGITVERSION=\"$(GIT_VERSION)\" -Icminpack -Isimclist
 # CFLAGS    = -g -O2 -fPIC -Wstrict-aliasing -Wuninitialized  
 LDFLAGS   = -g -shared
 DEBUG     = 
