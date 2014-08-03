@@ -23,26 +23,6 @@
 
 #include "MAP_Types.h"
 
-/**
- *
- */
-MAP_EXTERNCALL MAP_InitInputType_t* py_create_init_data( char* msg, MAP_ERROR_CODE* status );
-MAP_EXTERNCALL MAP_InitOutputType_t* py_create_initout_data( char* msg, MAP_ERROR_CODE* status );
-MAP_EXTERNCALL MAP_InputType_t* py_create_input_data( char* msg, MAP_ERROR_CODE* status );
-MAP_EXTERNCALL MAP_ParameterType_t* py_create_parameter_data( char* msg, MAP_ERROR_CODE* status );
-MAP_EXTERNCALL MAP_ConstraintStateType_t* py_create_constraint_data( char* msg, MAP_ERROR_CODE* status );
-MAP_EXTERNCALL MAP_OtherStateType_t* py_create_model_data( char* msg, MAP_ERROR_CODE* status );
-MAP_EXTERNCALL MAP_OutputType_t* py_create_output_data( char* msg, MAP_ERROR_CODE* status );
-MAP_EXTERNCALL MAP_ContinuousStateType_t* py_create_continuous_data( char* msg, MAP_ERROR_CODE* status );
-
-
-/**
- */
-MAP_EXTERNCALL int set_gravity( ModelData* data, MapReal g );
-MAP_EXTERNCALL int set_sea_depth( ModelData* data, MapReal d );
-MAP_EXTERNCALL int set_seaDensity( ModelData* data, MapReal rho );
-
-
 
 /**
  *

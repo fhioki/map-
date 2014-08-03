@@ -26,24 +26,6 @@
 extern const char MAP_ERROR_STRING[][1024];
 
 
-/**
- *
- */
-MAP_EXTERNCALL InitializationData* MAP_InitInput_Create(char* map_msg, MAP_ERROR_CODE* ierr)
-{
-  InitializationData* new_data = NULL;
-  map_reset_universal_error(map_msg, ierr);
-  new_data = malloc(sizeof(InitializationData));
-  if (new_data == NULL) {
-    *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_4);    
-    return new_data;
-  } else {
-    initialize_init_data_to_null(new_data);
-    *ierr = MAP_SAFE;
-    return new_data;
-  };
-};
-
 
 /**
  *
@@ -51,23 +33,6 @@ MAP_EXTERNCALL InitializationData* MAP_InitInput_Create(char* map_msg, MAP_ERROR
 MAP_EXTERNCALL void MAP_InitInput_Delete(InitializationData* init_data)
 {
   MAPFREE(init_data); 
-};
-
-
-MAP_EXTERNCALL ModelData* MAP_OtherState_Create(char* map_msg, MAP_ERROR_CODE* ierr)
-{
-  ModelData* new_data = NULL;
-  map_reset_universal_error(map_msg, ierr);
-  new_data = malloc(sizeof(ModelData));
-  if (new_data==NULL) {
-    *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_43);    
-    return new_data;
-  } else {
-    new_data->sizeOfCableLibrary = -9999;
-    new_data->sizeOfElements = -9999;
-    new_data->sizeOfNodes = -9999;    
-    return new_data;
-  };
 };
 
 

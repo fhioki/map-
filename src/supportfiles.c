@@ -279,9 +279,6 @@ MAP_ERROR_CODE set_vartype_ptr_float(char* unit, char* alias, const int num, Var
 };
 
 
-/**
- *
- */
 MAP_ERROR_CODE set_element_vartype_ptr(char* unit, char* alias, const int num, VarTypePtr* type)
 {  
   type->name = malloc(sizeof(char)*strlen(alias)+1); 
@@ -298,9 +295,6 @@ MAP_ERROR_CODE set_element_vartype_ptr(char* unit, char* alias, const int num, V
 };
 
 
-/**
- *
- */
 MAP_ERROR_CODE set_vartype_float(char* unit, char* alias, const int num, VarType* type, MapReal const value)
 {
   type->name = malloc(sizeof(char)*strlen(alias)+1);
@@ -321,11 +315,11 @@ MAP_ERROR_CODE set_vartype_float(char* unit, char* alias, const int num, VarType
 /**
  *
  */
-int strcicmp( char const *a, char const *b )
+int strcicmp(char const* a, char const* b)
 {
-  for ( ;; a++, b++ ) {
+  for (; ; a++,b++) {
     int d = tolower(*a) - tolower(*b);
-    if ( d != 0 || !*a ) {
+    if (d!=0 || !*a) {
       return d;
     };
   };
@@ -342,7 +336,7 @@ int strcicmp( char const *a, char const *b )
  *
  * @see MAP_ERROR_CODE
  */
-MAP_ERROR_CODE is_numeric (const char* s)
+MAP_ERROR_CODE is_numeric(const char* s)
 {
   char* p = NULL;
   if (s==NULL || *s=='\0' || isspace(*s)) {

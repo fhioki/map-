@@ -25,6 +25,14 @@
 #include "MAP_Types.h"
 
 
+void initialize_model_data_to_null(ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr);
+void initialize_model_options_to_defaults(ModelData* data);
+void initialize_vessel_to_null(Vessel* floater, char* map_msg, MAP_ERROR_CODE* ierr);
+void initialize_solver_data_to_null(MinPackDataOuter* mpOuter, MinPackDataInner* mpInner);
+MAP_EXTERNCALL ModelData* MAP_OtherState_Create(char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_EXTERNCALL InitializationData* MAP_InitInput_Create(char* map_msg, MAP_ERROR_CODE* ierr);
+
+
 /**
  * @brief Set the water depth. Should be called before {@link map_init()}
  * @param p_type paramter type, native C struct {@link MAP_ParameterType_t}
@@ -101,24 +109,132 @@ MAP_EXTERNCALL void set_gravity(MAP_ParameterType_t* p_type, const MapReal gravi
 
 
 /**
- * @brief Initializes the Fortran/C iteroperability types
- * @details This is called in the py_create_init_data routine following successful allocation 
+ * @brief   Initializes the Fortran/C iteroperability types
+ * @details This is called in the map_create_init_type routine following successful allocation 
  *          of memory. This should not be called directly by the user code. 
- * @param init_type, Fortran/C interoperable type {@link MAP_InitInputType_t}
- * @see py_create_init_data()
+ * @param   init_type, Fortran/C interoperable type {@link MAP_InitInputType_t}
+ * @see map_create_init_type()
  */
 void initialize_init_type_to_null(MAP_InitInputType_t* init_type);
 
 
 /**
- * @brief Initializes MAP internal initialization data
- * @details This is called in the py_create_init_data routine following successful allocation 
+ * @brief   Initializes MAP internal initialization data
+ * @details This is called in the map_create_init_type routine following successful allocation 
  *          of memory. This should not be called directly by the user code. The internal states
  *          are nullified and set to zero. 
- * @param init_data, internal MAP initialization data {@link InitializationData}
- * @see py_create_init_data()
+ * @param   init_data, internal MAP initialization data {@link InitializationData}
+ * @see     map_create_init_type()
  */
 void initialize_init_data_to_null(InitializationData* init_data);
+
+
+/**
+ * @brief   Allocate MAP_InitInputType_t and InitializationData
+ * @details Called to allocate memory for the initialzation data for both the Fortran
+ *          derived data and internal state data. Following sucessful allocation, 
+ *          {@link initialize_init_type_to_null} and {@link initialize_init_data_to_null}
+ *          are both called to nullify data. If not called, memory errors results. This should 
+ *          the first function called when interacting with MAP. This is a necessary function for
+ *          interaction with python and C based programs
+ * @param   map_msg, error message
+ * @param   ierr, error code
+ * @return  initialization input type (equivalent C binding struct)  
+ */
+MAP_EXTERNCALL MAP_InitInputType_t* map_create_init_type(char* map_msg, MAP_ERROR_CODE* ierr);
+
+
+/**
+ * @brief   Allocate MAP_OtherStateType_t and ModelData
+ * @details Called to allocate memory for the other states for both the Fortran
+ *          derived data and internal state data. This is a necessary function for
+ *          interaction with python and C based programs. The 
+ * @param   map_msg, error message
+ * @param   ierr, error code
+ * @return  other state type (equivalent C binding struct)  
+ */
+MAP_EXTERNCALL MAP_OtherStateType_t* map_create_other_type(char* map_msg, MAP_ERROR_CODE* ierr);
+
+
+/**
+ * @brief   Allocate MAP_InitOutputType_t 
+ * @details Called to allocate memory for the initialization output type. The only obligation of
+ *          this struct is to store the program version, necessary for FAST. This function is a
+ *          necessary call for C and python, but can be ignored for Fortran if the MAP template 
+ *          is followed (that is, ISO C Binding is followed in the mapping of Fortran type and C 
+ *          structures). 
+ * @param   map_msg, error message
+ * @param   ierr, error code
+ * @return  initialization output type (equivalent C binding struct)  
+ */
+MAP_EXTERNCALL MAP_InitOutputType_t* map_create_initout_type(char* map_msg, MAP_ERROR_CODE* ierr);
+
+
+/**
+ * @brief   Allocate MAP_InputType_t
+ * @details Called to allocate memory for the input type. The program inputs are the fairlead 
+ *          displacement due to the motion of the vessel the cable are attached to. This function 
+ *          is a necessary call for C and python, but can be ignored for Fortran if the MAP 
+ *          template is followed (that is, ISO C Binding is followed in the mapping of Fortran 
+ *          type and C structures). 
+ * @param   map_msg, error message
+ * @param   ierr, error code
+ * @return  input type (equivalent C binding struct)  
+ */
+MAP_EXTERNCALL MAP_InputType_t* map_create_input_type(char* map_msg, MAP_ERROR_CODE* ierr);
+
+
+/**
+ * @brief   Allocate MAP_ParameterType_t
+ * @details Called to allocate memory for the parameter type. Parameters are time-invariant 
+ *          constants, such as gravitational constant.  This function 
+ *          is a necessary call for C and python, but can be ignored for Fortran if the MAP 
+ *          template is followed (that is, ISO C Binding is followed in the mapping of Fortran 
+ *          type and C structures). 
+ * @param   map_msg, error message
+ * @param   ierr, error code
+ * @return  parameter type (equivalent C binding struct)  
+ */
+MAP_EXTERNCALL MAP_ParameterType_t* map_create_parameter_type(char* map_msg, MAP_ERROR_CODE* ierr);
+
+
+/**
+ * @brief   Allocate MAP_ConstraintType_t
+ * @details Called to allocate memory for the constraint type. Constraints are variables solved
+ *          through an algebraic equation. This is fairlead end forces (H and V) and node positions.  
+ *          This function is a necessary call for C and python, but can be ignored for Fortran if
+ *          the MAP template is followed (that is, ISO C Binding is followed in the mapping of Fortran 
+ *          type and C structures). 
+ * @param   map_msg, error message
+ * @param   ierr, error code
+ * @return  constraint type (equivalent C binding struct)  
+ */
+MAP_EXTERNCALL MAP_ConstraintStateType_t* map_create_constraint_type(char* map_msg, MAP_ERROR_CODE* ierr);
+
+
+/**
+ * @brief   Allocate MAP_OutputType_t
+ * @details Called to allocate memory for the output type. IMPORTANT: this is different from the {@link OutList}.
+ *          Output types are forces at the line fairlead only for lines connecting to the vessel. 
+ *          This function is a necessary call for C and python, but can be ignored for Fortran if
+ *          the MAP template is followed (that is, ISO C Binding is followed in the mapping of Fortran 
+ *          type and C structures). 
+ * @param   map_msg, error message
+ * @param   ierr, error code
+ * @return  output type (equivalent C binding struct)  
+ */
+MAP_EXTERNCALL MAP_OutputType_t* map_create_output_type(char* map_msg, MAP_ERROR_CODE* ierr);
+
+
+/**
+ * @brief   Allocate MAP_ContinuousStateType_t
+ * @details Called to allocate memory for the coninuous type. Not currently used, but it still is
+ *          required to be allocated for FAST consistentcy. 
+ * @param   map_msg, error message
+ * @param   ierr, error code
+ * @return  continuous type (equivalent C binding struct)  
+ */
+MAP_EXTERNCALL MAP_ContinuousStateType_t* map_create_continuous_type(char* map_msg, MAP_ERROR_CODE* ierr);
 
 
 #endif /* _INITIALIZATION_H */

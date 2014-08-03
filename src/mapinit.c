@@ -25,44 +25,22 @@
 #include "pyprotos.h"
 
 
+
 /**
+ * This sets the pointers to NULL for the vessel object and gives it default properties. Only 
+ * to be used in the python glue code. 
  *
+ * @todo: need to associate the node with inputs
+ * @acceses: set_vartype_float( )
+ * @calledby: mapcall_msqs_init( )
  */
-MAP_ERROR_CODE set_vessel_to_null(Vessel* floater, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE set_vessel(Vessel* floater, const MAP_InputType_t* uType, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_ERROR_CODE success = MAP_SAFE;
+  int i = 0;
+  int N = uType->x_Len;
 
   do {
-    floater->xi = NULL;
-    floater->yi = NULL;
-    floater->zi = NULL;
-    
-    floater->displacement.x.name = NULL;
-    floater->displacement.y.name = NULL;
-    floater->displacement.z.name = NULL;
-    floater->refOrigin.x.name = NULL;
-    floater->refOrigin.y.name = NULL;
-    floater->refOrigin.z.name = NULL;
-    floater->lineSumForce.fx.name = NULL;
-    floater->lineSumForce.fy.name = NULL;
-    floater->lineSumForce.fz.name = NULL;
-    floater->orientation.phi.name = NULL;
-    floater->orientation.the.name = NULL;
-    floater->orientation.psi.name = NULL;
-    
-    floater->displacement.x.units = NULL;
-    floater->displacement.y.units = NULL;
-    floater->displacement.z.units = NULL;
-    floater->refOrigin.x.units = NULL;
-    floater->refOrigin.y.units = NULL;
-    floater->refOrigin.z.units = NULL;
-    floater->lineSumForce.fx.units = NULL;
-    floater->lineSumForce.fy.units = NULL;
-    floater->lineSumForce.fz.units = NULL;
-    floater->orientation.phi.units = NULL;
-    floater->orientation.the.units = NULL;
-    floater->orientation.psi.units = NULL;
-    
     /* vessel displacement */
     success = set_vartype_float("[m]", "Vessel_X", -999.9, &floater->displacement.x, 0.0); CHECKERRQ(MAP_FATAL_68);
     success = set_vartype_float("[m]", "Vessel_Y", -999.9, &floater->displacement.y, 0.0); CHECKERRQ(MAP_FATAL_68);
@@ -82,24 +60,7 @@ MAP_ERROR_CODE set_vessel_to_null(Vessel* floater, char* map_msg, MAP_ERROR_CODE
     success = set_vartype_float("[deg]", "Vessel_phi", -999.9, &floater->orientation.phi, 0.0); CHECKERRQ(MAP_FATAL_68);
     success = set_vartype_float("[deg]", "Vessel_the", -999.9, &floater->orientation.the, 0.0); CHECKERRQ(MAP_FATAL_68);
     success = set_vartype_float("[deg]", "Vessel_psi", -999.9, &floater->orientation.psi, 0.0); CHECKERRQ(MAP_FATAL_68);
-  } while (0);
-
-  MAP_RETURN;
-}
-
-
-/**
- * This sets the pointers to NULL for the vessel object and gives it default properties. Only 
- * to be used in the python glue code. 
- *
- * @todo: need to associate the node with inputs
- * @acceses: set_vartype_float( )
- * @calledby: mapcall_msqs_init( )
- */
-MAP_ERROR_CODE initialize_vessel(Vessel* floater, const MAP_InputType_t* uType)
-{
-  int i = 0;
-  int N = uType->x_Len;
+  } while(0);
 
   floater->xi = (double*)malloc(N*sizeof(double));  
   floater->yi = (double*)malloc(N*sizeof(double));  
@@ -168,30 +129,6 @@ MAP_ERROR_CODE first_solve(ModelData* data, MAP_InputType_t* uType, MAP_Constrai
   } else {
     return MAP_FATAL;
   };
-};
-
-
-/**
- *
- */
-MAP_ERROR_CODE initialize_solver_data(MinPackDataOuter* mpOuter, MinPackDataInner* mpInner, char* map_msg, MAP_ERROR_CODE* ierr)
-{
-  mpInner->m = 2;
-  mpInner->n = 2;
-  mpInner->factor = 1.0E2;             
-  mpInner->factor = 1.0E2;             
-  mpInner->ldfjac = 2; /* number of columns in fjac */
-  mpInner->mode = 1;             
-  mpInner->nprint = 2;           
-  mpInner->info = 0;             
-
-  mpOuter->jac = NULL;
-  mpOuter->x = NULL;
-  mpOuter->b = NULL;
-  mpOuter->l = NULL;
-  mpOuter->u = NULL;
-  mpOuter->y = NULL;
-  return MAP_SAFE;
 };
 
 
@@ -431,7 +368,7 @@ MAP_ERROR_CODE set_model_options_list(ModelData* data, InitializationData* initO
   MapReal* moreAngles = NULL;
   char buffer[64] = "";  
 
-  initialize_options(data);
+  // initialize_options(data);
   for (i=0 ; i<=initObj->solverOptionsSize-1 ; i++) { 
     sizeOfString = strlen(initObj->solverOptionsString[i]);
     line = (char*)realloc(line, (sizeOfString+1)*sizeof(char));    
@@ -1784,47 +1721,16 @@ MAP_ERROR_CODE associate_element_with_fairlead_node(ModelData* data, Element* ne
 
 
 /**
- *
- */
-void initialize_options(ModelData* data) 
-{
-  data->modelOptions.innerFTol = 1e-6;
-  data->modelOptions.innerGTol = 1e-6;
-  data->modelOptions.innerXTol = 1e-6;
-  data->modelOptions.innerMaxIts = 500;
-  data->modelOptions.sizeOfRepeatAngles = 0;
-  data->modelOptions.repeatAngles = NULL;
-  data->modelOptions.integrationDt = 0.01;
-  data->modelOptions.kbLm = 3.0E6;
-  data->modelOptions.cbLm = 3.0E5;
-  data->modelOptions.waveKinematics = false;
-
-  data->outerSolveData.fd = BACKWARD_DIFFERENCE;
-  data->outerSolveData.pg = false;
-  data->outerSolveData.tol = 1e-6;
-  data->outerSolveData.epsilon = 1e-3;
-  data->outerSolveData.maxIts = 500;
-  data->outerSolveData.jac = NULL;
-  data->outerSolveData.x = NULL;
-  data->outerSolveData.b = NULL;
-  data->outerSolveData.l = NULL;
-  data->outerSolveData.u = NULL;
-
-}; 
-
-
-/**
  * Create internal state data structures
  *
  * @todo: delete data->z, data->u, data->yList
  * @acceses: none
  * @calledby: mapcall_msqs_init( )
  */
-MAP_ERROR_CODE allocate_internal_states(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE allocate_outlist(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr)
 {
-  data->yList = (OutputList*)malloc( sizeof(OutputList) ); /* @todo: needs to be freed */
-  if (data->yList==NULL) 
-  {
+  data->yList = (OutputList*)malloc(sizeof(OutputList)); 
+  if (data->yList==NULL) {
     *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_46);    
     return MAP_FATAL;
   };
@@ -1838,9 +1744,9 @@ MAP_ERROR_CODE allocate_internal_states(ModelData* data, char* map_msg, MAP_ERRO
  * @todo: delete additional dependancies in data->z, data->yList, data->u
  * @acceses: none
  * @calledby: mapcall_msqs_end( )
- * @see: allocate_internal_states( )
+ * @see: allocate_outlist( )
  */
-MAP_ERROR_CODE free_internal_states(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE free_outlist(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAPFREE(data->yList);
   return MAP_SAFE;

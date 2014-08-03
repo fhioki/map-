@@ -48,13 +48,9 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* initType,
   ModelData* data = otherType->object;
   MAP_ERROR_CODE success = MAP_SAFE;
 
-  data->MAP_SOLVE_TYPE = -999;
-  data->yList = NULL;  
   map_reset_universal_error(map_msg, ierr);
   do { 
-    success = initialize_solver_data(&data->outerSolveData, &data->solverData, map_msg, ierr);    
     success = map_get_version(ioType);
-    success = set_vessel_to_null(&data->vessel, map_msg, ierr);    
 
     /* 
        initialize types; set doubles to -999.9, int=0, pointers=NULL 
@@ -76,7 +72,7 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* initType,
     data->sizeOfNodes = init->nodeSize;
     data->sizeOfElements = init->elementSize;
 
-    success = allocate_internal_states(data,map_msg,ierr); CHECKERRQ(MAP_FATAL_47);
+    success = allocate_outlist(data,map_msg,ierr); CHECKERRQ(MAP_FATAL_47);
     list_init(&data->yList->out_list); /* simclist routine */
     list_init(&data->yList->out_list_ptr); /* simclist routine */
 
@@ -93,7 +89,7 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* initType,
     list_attributes_copy(&data->yList->out_list, vartype_meter, 1);  
     list_attributes_copy(&data->yList->out_list_ptr, vartype_ptr_meter, 1);  
     success = set_output_list(data, ioType, map_msg, ierr); 
-    success = initialize_vessel(&data->vessel, uType); CHECKERRQ(MAP_FATAL_69);
+    success = set_vessel(&data->vessel, uType, map_msg, ierr); CHECKERRQ(MAP_FATAL_69);
 
     /*
       @todo: possible include hook for LM model here eventually place MAP_SOVE = LM;
@@ -107,7 +103,7 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* initType,
 
 #ifdef DEBUG
     print_machine_name_to_screen( );
-#endif // DEBUG
+#endif /* if DEBUG is raised in CCFLAGS, then MAP version number is printed to screen */
 
     printf("MAP environment properties (set externally)...\n");
     printf("    Gravity constant          [m/s^2]  : %1.2f\n", pType->g ); 
@@ -196,7 +192,7 @@ MAP_EXTERNCALL void map_end(MAP_InputType_t* uType,
     success = free_fortran_types(uType,pType,xType,zType,otherType,yType); 
     list_destroy(&data->yList->out_list);    /* destroy output lists for writting information to output file */
     list_destroy(&data->yList->out_list_ptr); /* destroy output lists for writting information to output file */
-    success = free_internal_states(data,map_msg,ierr); CHECKERRQ(MAP_FATAL_47);//@rm, should be replaced with a MAPFREE(data->yList)   
+    success = free_outlist(data,map_msg,ierr); CHECKERRQ(MAP_FATAL_47);//@rm, should be replaced with a MAPFREE(data->yList)   
     success = free_element(&data->element);
     success = free_node(&data->node);
   } while (0);

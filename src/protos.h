@@ -27,9 +27,8 @@
 /*
  * system prototypes
  */
-void initialize_options(ModelData* data);
-MAP_ERROR_CODE initialize_vessel(Vessel* floater, const MAP_InputType_t *uType);
-MAP_ERROR_CODE set_vessel_to_null(Vessel* floater, char* map_msg, MAP_ERROR_CODE* ierr);
+
+MAP_ERROR_CODE set_vessel(Vessel* floater, const MAP_InputType_t* uType, char* map_msg, MAP_ERROR_CODE* ierr);
 int strcicmp( char const* a, char const* b );
 MAP_ERROR_CODE is_numeric ( const char* s );
 void end_color( char* dest, const char* src );
@@ -91,25 +90,8 @@ MAP_ERROR_CODE set_vartype_float(char* unit, char* alias, const int num, VarType
 MAP_ERROR_CODE initialize_fortran_types(MAP_InputType_t* uType, MAP_ParameterType_t* pType, MAP_ContinuousStateType_t* xType, MAP_ConstraintStateType_t* zType, MAP_OtherStateType_t* otherType, MAP_OutputType_t* yType, MAP_InitOutputType_t* initoutType);
 MAP_ERROR_CODE free_fortran_types(MAP_InputType_t* uType, MAP_ParameterType_t* pType, MAP_ContinuousStateType_t* xType, MAP_ConstraintStateType_t* zType, MAP_OtherStateType_t* otherType, MAP_OutputType_t* yType);
 
-/*
- * Create internal state data structures
- *
- * @todo: delete data->z, data->u, data->y
- * @acceses: none
- * @calledby: mapcall_msqs_init( )
- * @exceptions: 
- */
-MAP_ERROR_CODE allocate_internal_states( ModelData *data, char *map_msg, MAP_ERROR_CODE *ierr );
-
-/*
- * Frees data internal state data allcoated in the mapcall_msqs_init( ) function
- *
- * @todo: delete additional dependancies in data->z, data->y, data->u
- * @acceses: none
- * @calledby: mapcall_msqs_end( )
- * @see: allocate_internal_states( )
- */
-MAP_ERROR_CODE free_internal_states(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE allocate_outlist(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE free_outlist(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr);
 
 /*
  * Sets init data to NULL or -9999
@@ -122,7 +104,6 @@ MAP_ERROR_CODE initialize_init_input(InitializationData* init);
 MAP_ERROR_CODE first_solve(ModelData* data, MAP_InputType_t* uType, MAP_ConstraintStateType_t* zType, MAP_OtherStateType_t* otherType, MAP_OutputType_t* yType, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE allocate_outer_solve_data(MinPackDataOuter* ns, const int size, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE free_outer_solve_data(MinPackDataOuter* ns, const int size, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE initialize_solver_data(MinPackDataOuter* mpOuter, MinPackDataInner* mpInner, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE solve_line(ModelData* data, double time, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE node_solve_sequence(ModelData* data, MAP_InputType_t* uType, MAP_ConstraintStateType_t* zType, MAP_OtherStateType_t* otherType, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE line_solve_sequence(ModelData* otherType, double t, char* map_msg, MAP_ERROR_CODE* ierr);

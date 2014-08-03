@@ -90,14 +90,14 @@ class Map(object):
     '''
     fields for the fortran types
 
-    MAP_EXTERNCALL MAP_InitInputType_t* py_create_init_data( char* msg, MAP_ERROR_CODE* status );
-    MAP_EXTERNCALL MAP_InitOutputType_t* py_create_initout_data( char* msg, MAP_ERROR_CODE* status );
-    MAP_EXTERNCALL MAP_InputType_t* py_create_input_data( char* msg, MAP_ERROR_CODE* status );
-    MAP_EXTERNCALL MAP_ParameterType_t* py_create_parameter_data( char* msg, MAP_ERROR_CODE* status );
-    MAP_EXTERNCALL MAP_ConstraintStateType_t* py_create_constraint_data( char* msg, MAP_ERROR_CODE* status );
-    MAP_EXTERNCALL MAP_OtherStateType_t* py_create_model_data( char* msg, MAP_ERROR_CODE* status );
-    MAP_EXTERNCALL MAP_OutputType_t* py_create_output_data( char* msg, MAP_ERROR_CODE* status );
-    MAP_EXTERNCALL MAP_ContinuousStateType_t* py_create_continuous_data( char* msg, MAP_ERROR_CODE* status );
+    MAP_EXTERNCALL MAP_InitInputType_t* map_create_init_type( char* msg, MAP_ERROR_CODE* status );
+    MAP_EXTERNCALL MAP_InitOutputType_t* map_create_initout_type( char* msg, MAP_ERROR_CODE* status );
+    MAP_EXTERNCALL MAP_InputType_t* map_create_input_type( char* msg, MAP_ERROR_CODE* status );
+    MAP_EXTERNCALL MAP_ParameterType_t* map_create_parameter_type( char* msg, MAP_ERROR_CODE* status );
+    MAP_EXTERNCALL MAP_ConstraintStateType_t* map_create_constraint_type( char* msg, MAP_ERROR_CODE* status );
+    MAP_EXTERNCALL MAP_OtherStateType_t* map_create_other_type( char* msg, MAP_ERROR_CODE* status );
+    MAP_EXTERNCALL MAP_OutputType_t* map_create_output_type( char* msg, MAP_ERROR_CODE* status );
+    MAP_EXTERNCALL MAP_ContinuousStateType_t* map_create_continuous_type( char* msg, MAP_ERROR_CODE* status );
     '''
     MapData_Type       = POINTER(ModelData_Type)
     MapInit_Type       = POINTER(InitializationData_Type)
@@ -116,24 +116,24 @@ class Map(object):
     lib.add_element_input_text.argtype=[MapInit_Type]
     lib.add_options_input_text.argtype=[MapInit_Type]
 
-    lib.py_create_init_data.argtype       = [ c_char_p, POINTER(c_int) ]
-    lib.py_create_initout_data.argtype    = [ c_char_p, POINTER(c_int) ]
-    lib.py_create_input_data.argtype      = [ c_char_p, POINTER(c_int) ]
-    lib.py_create_parameter_data.argtype  = [ c_char_p, POINTER(c_int) ]
-    lib.py_create_constraint_data.argtype = [ c_char_p, POINTER(c_int) ]
-    lib.py_create_model_data.argtype      = [ c_char_p, POINTER(c_int) ]
-    lib.py_create_output_data.argtype     = [ c_char_p, POINTER(c_int) ]
-    lib.py_create_continuous_data.argtype = [ c_char_p, POINTER(c_int) ]
-    lib.py_create_continuous_data.argtype = [ MapData_Type ]
+    lib.map_create_init_type.argtype       = [ c_char_p, POINTER(c_int) ]
+    lib.map_create_initout_type.argtype    = [ c_char_p, POINTER(c_int) ]
+    lib.map_create_input_type.argtype      = [ c_char_p, POINTER(c_int) ]
+    lib.map_create_parameter_type.argtype  = [ c_char_p, POINTER(c_int) ]
+    lib.map_create_constraint_type.argtype = [ c_char_p, POINTER(c_int) ]
+    lib.map_create_other_type.argtype      = [ c_char_p, POINTER(c_int) ]
+    lib.map_create_output_type.argtype     = [ c_char_p, POINTER(c_int) ]
+    lib.map_create_continuous_type.argtype = [ c_char_p, POINTER(c_int) ]
+    lib.map_create_continuous_type.argtype = [ MapData_Type ]
     
-    lib.py_create_init_data.restype       = MapInit_Type
-    lib.py_create_initout_data.restype    = MapInitOut_Type
-    lib.py_create_input_data.restype      = MapInput_Type
-    lib.py_create_parameter_data.restype  = MapParameter_Type
-    lib.py_create_constraint_data.restype = MapConstraint_Type
-    lib.py_create_model_data.restype      = MapData_Type
-    lib.py_create_output_data.restype     = MapOutput_Type
-    lib.py_create_continuous_data.restype = MapContinuous_Type
+    lib.map_create_init_type.restype       = MapInit_Type
+    lib.map_create_initout_type.restype    = MapInitOut_Type
+    lib.map_create_input_type.restype      = MapInput_Type
+    lib.map_create_parameter_type.restype  = MapParameter_Type
+    lib.map_create_constraint_type.restype = MapConstraint_Type
+    lib.map_create_other_type.restype      = MapData_Type
+    lib.map_create_output_type.restype     = MapOutput_Type
+    lib.map_create_continuous_type.restype = MapContinuous_Type
 
     lib.set_sea_depth.argtypes   = [ MapParameter_Type, c_double ]
     lib.set_gravity.argtypes     = [ MapParameter_Type, c_double ]
@@ -258,7 +258,7 @@ class Map(object):
     MAP_EXTERNCALL InitializationData* MAP_InitInput_Create( char* map_msg, MAP_ERROR_CODE* ierr )
     """
     def CreateInitState( self ) :
-        obj = Map.lib.py_create_init_data( self.status, pointer(self.ierr) )
+        obj = Map.lib.map_create_init_type( self.status, pointer(self.ierr) )
         if self.ierr.value != 0 :
             print self.status.value        
         return obj
@@ -268,7 +268,7 @@ class Map(object):
     MAP_EXTERNCALL void MAP_InitOutput_Delete( InputData* io )
     """
     def CreateInitoutState( self ) :
-        obj = Map.lib.py_create_initout_data( self.status, pointer(self.ierr) )
+        obj = Map.lib.map_create_initout_type( self.status, pointer(self.ierr) )
         if self.ierr.value != 0 :
             print self.status.value        
         return obj
@@ -278,7 +278,7 @@ class Map(object):
     MAP_EXTERNCALL ModelData *MAP_OtherState_Create( char *map_msg, MAP_ERROR_CODE *ierr )
     """
     def CreateDataState( self ) :
-        obj = Map.lib.py_create_model_data( self.status, pointer(self.ierr) )
+        obj = Map.lib.map_create_other_type( self.status, pointer(self.ierr) )
         if self.ierr.value != 0 :
             print self.status.value        
         return obj
@@ -288,7 +288,7 @@ class Map(object):
     MAP_EXTERNCALL InputData* MAP_Input_Create( char* map_msg, MAP_ERROR_CODE *ierr )
     """
     def CreateInputState( self ) :
-        obj = Map.lib.py_create_input_data( self.status, pointer(self.ierr) )
+        obj = Map.lib.map_create_input_type( self.status, pointer(self.ierr) )
         if self.ierr.value != 0 :
             print self.status.value        
         return obj
@@ -298,7 +298,7 @@ class Map(object):
     MAP_EXTERNCALL ContinuousData* MAP_ContState_Create( char* map_msg, MAP_ERROR_CODE *ierr )
     """
     def CreateContinuousState( self ) :
-        obj = Map.lib.py_create_continuous_data( self.status, pointer(self.ierr) )
+        obj = Map.lib.map_create_continuous_type( self.status, pointer(self.ierr) )
         if self.ierr.value != 0 :
             print self.status.value        
         return obj
@@ -308,7 +308,7 @@ class Map(object):
     MAP_EXTERNCALL OutputData *MAP_Output_Create( char *map_msg, MAP_ERROR_CODE *ierr )
     """
     def CreateOutputState( self ) :
-        obj = Map.lib.py_create_output_data( self.status, pointer(self.ierr) )
+        obj = Map.lib.map_create_output_type( self.status, pointer(self.ierr) )
         if self.ierr.value != 0 :
             print self.status.value        
         return obj
@@ -318,7 +318,7 @@ class Map(object):
     MAP_EXTERNCALL ConstraintData* MAP_ConstrState_Create( char* map_msg, MAP_ERROR_CODE *ierr )
     """
     def CreateConstraintState( self ) :
-        obj = Map.lib.py_create_constraint_data( self.status, pointer(self.ierr) )
+        obj = Map.lib.map_create_constraint_type( self.status, pointer(self.ierr) )
         if self.ierr.value != 0 :
             print self.status.value        
         return obj
@@ -328,7 +328,7 @@ class Map(object):
     MAP_EXTERNCALL ParameterData* MAP_Param_Create( char* map_msg, MAP_ERROR_CODE *ierr )
     """
     def CreateParameterState( self ) :
-        obj = Map.lib.py_create_parameter_data( self.status, pointer(self.ierr) )
+        obj = Map.lib.map_create_parameter_type( self.status, pointer(self.ierr) )
         if self.ierr.value != 0 :
             print self.status.value        
         return obj

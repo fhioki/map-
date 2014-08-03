@@ -355,18 +355,18 @@ struct MinPackDataOuter_t {
 
 
 struct ModelData_t {
-  SolveType MAP_SOLVE_TYPE;
-  ModelOptions modelOptions;
-  MinPackDataInner solverData;
-  MinPackDataOuter outerSolveData;
-  OutputList* yList; /* this should be where the internal C data is stored */
-  Vessel vessel;
-  list_t cableLibrary; /**< Cable library link list; stores cable properties, e.g., @see CableLibrary_t */
-  list_t element;
-  list_t node;
-  int sizeOfCableLibrary;
-  int sizeOfElements;
-  int sizeOfNodes;
+  SolveType MAP_SOLVE_TYPE;         /**< Identifies the solver type: single line, partitioned (multisegmented), and lumped-mass/FEA. Initialized in {@link initialize_model_data_to_null} */
+  ModelOptions modelOptions;        /**< Contains global model options. Default setting in {@link initialize_model_options_to_defaults} */
+  MinPackDataInner solverData;      /**< Inner-loop (line level) solver options. Default settings in {@link initialize_solver_data_to_null} */
+  MinPackDataOuter outerSolveData;  /**< Outer-loop (node level) solver options. Default settings in {@link initialize_model_options_to_defaults} */
+  OutputList* yList;                /**< Output stream. Set to null at initialization */
+  Vessel vessel;                    /**< Vessel for the mooring instance. Initialized in {@link initialize_vessel_to_null}. Associated VarType's are set in {@link set_vessel} */
+  list_t cableLibrary;              /**< Cable library link list; stores cable properties, e.g., @see CableLibrary_t */
+  list_t element;                   /**< Line link list */
+  list_t node;                      /**< Node link list */
+  int sizeOfCableLibrary;           /**< Number of cable types defined in the cable library section of the input file */ 
+  int sizeOfElements;               /**< Number of lines */
+  int sizeOfNodes;                  /**< Number of nodes */
 }; typedef struct ModelData_t ModelData;
 
 

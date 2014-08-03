@@ -302,7 +302,9 @@ MAP_ERROR_CODE write_summary_file(InitializationData* init, MAP_ParameterType_t*
   __get_machine_name(name);  
   strftime(timeBuffer, 64, "%A %B %d-%Y at %H:%M:%S %p", tmInfo);
   /* 
-     May want to retag version number of git between major/minor releases: 
+     May want to retag version number of git between major/minor releases. A trick to include git revision number
+     can be found archived here: http://stackoverflow.com/questions/1704907/how-can-i-get-my-c-code-to-automatically-print-out-its-git-version-hash
+
      $ git tag -a v1.00 -m "Release v1.00"
   */
   fprintf(file,"Outputs were generated using MAP++ %s on %s.\n\n", GITVERSION, name); 
