@@ -21,7 +21,13 @@ if __name__ == '__main__':
     K = mooring_1.linear(epsilon)    
     print "\nHere is the linearized stiffness matrix with zero vessel displacement:"
     print np.array(K)
-    
+
+    H,V = mooring_1.get_fairlead_force_2d(0)    
+    print H, "  ", V
+
+    fx,fy,fz = mooring_1.get_fairlead_force_3d(0)    
+    print fx, "  ", fy, "  ", fz
+
     ''' 
     function residual at (hopefully) the solution
     '''

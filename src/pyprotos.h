@@ -27,21 +27,49 @@
 /**
  *
  */
-MAP_EXTERNCALL MapReal get_residual_function_length( MAP_OtherStateType_t* otherFortType, int i, char *map_msg, MAP_ERROR_CODE *ierr );
-MAP_EXTERNCALL MapReal get_residual_function_height( MAP_OtherStateType_t* otherFortType, int i, char *map_msg, MAP_ERROR_CODE *ierr );
-MAP_EXTERNCALL MapReal pyget_jacobian_dxdh( MAP_OtherStateType_t* otherFortType, int i, char *map_msg, MAP_ERROR_CODE *ierr );
-MAP_EXTERNCALL MapReal pyget_jacobian_dxdv( MAP_OtherStateType_t* otherFortType, int i, char *map_msg, MAP_ERROR_CODE *ierr );
-MAP_EXTERNCALL MapReal pyget_jacobian_dzdh( MAP_OtherStateType_t* otherFortType, int i, char *map_msg, MAP_ERROR_CODE *ierr );
-MAP_EXTERNCALL MapReal pyget_jacobian_dzdv( MAP_OtherStateType_t* otherFortType, int i, char *map_msg, MAP_ERROR_CODE *ierr );
+MAP_EXTERNCALL MapReal get_residual_function_length( MAP_OtherStateType_t* otherFortType, int i, char* map_msg, MAP_ERROR_CODE* ierr );
+MAP_EXTERNCALL MapReal get_residual_function_height( MAP_OtherStateType_t* otherFortType, int i, char* map_msg, MAP_ERROR_CODE* ierr );
+MAP_EXTERNCALL MapReal pyget_jacobian_dxdh( MAP_OtherStateType_t* otherFortType, int i, char* map_msg, MAP_ERROR_CODE* ierr );
+MAP_EXTERNCALL MapReal pyget_jacobian_dxdv( MAP_OtherStateType_t* otherFortType, int i, char* map_msg, MAP_ERROR_CODE* ierr );
+MAP_EXTERNCALL MapReal pyget_jacobian_dzdh( MAP_OtherStateType_t* otherFortType, int i, char* map_msg, MAP_ERROR_CODE* ierr );
+MAP_EXTERNCALL MapReal pyget_jacobian_dzdv( MAP_OtherStateType_t* otherFortType, int i, char* map_msg, MAP_ERROR_CODE* ierr );
 
 
 /**
  *
  */
-MAP_EXTERNCALL double* pyget_plot_x( MAP_OtherStateType_t* otherFortType, int i, int numPlotPoints, char *map_msg, MAP_ERROR_CODE *ierr );
-MAP_EXTERNCALL double* pyget_plot_y( MAP_OtherStateType_t* otherFortType, int i, int numPlotPoints, char *map_msg, MAP_ERROR_CODE *ierr );
-MAP_EXTERNCALL double* pyget_plot_z( MAP_OtherStateType_t* otherFortType, int i, int numPlotPoints, char *map_msg, MAP_ERROR_CODE *ierr );
+MAP_EXTERNCALL double* pyget_plot_x( MAP_OtherStateType_t* otherFortType, int i, int numPlotPoints, char* map_msg, MAP_ERROR_CODE* ierr );
+MAP_EXTERNCALL double* pyget_plot_y( MAP_OtherStateType_t* otherFortType, int i, int numPlotPoints, char* map_msg, MAP_ERROR_CODE* ierr );
+MAP_EXTERNCALL double* pyget_plot_z( MAP_OtherStateType_t* otherFortType, int i, int numPlotPoints, char* map_msg, MAP_ERROR_CODE* ierr );
 MAP_EXTERNCALL void pyget_plot_array_free( MapReal *array ) ;
 
+
+/**
+ * @brief   Returns vertical and horizontal fairlead force along element plane
+ * @details 
+ * @param   H, reference to horizontal fairlead force magnitude
+ * @param   V, reference to vertical fairlead force magnitude
+ * @param   other_type, other state type fortran derived
+ * @param   index, element number we are requesting the data for
+ * @param   map_msg, error message
+ * @param   ierr, error code
+ * @see     
+ */
+MAP_EXTERNCALL void map_get_fairlead_force_2d(double* H, double* V, MAP_OtherStateType_t* other_type, int index, char* map_msg, MAP_ERROR_CODE* ierr);
+
+
+/**
+ * @brief   Returns X, Y, and Z fairlead force in global reference frame
+ * @details
+ * @param   fx, reference to horizontal X fairlead force in global frame
+ * @param   fy, reference to horizontal Y fairlead force in global frame
+ * @param   fz, reference to vertical Z fairlead force in global frame
+ * @param   other_type, other state type fortran derived
+ * @param   index, element number we are requesting the data for
+ * @param   map_msg, error message
+ * @param   ierr, error code
+ * @see     
+ */
+MAP_EXTERNCALL void map_get_fairlead_force_3d(double* fx, double* fy, double* fz, MAP_OtherStateType_t* other_type, int index, char* map_msg, MAP_ERROR_CODE* ierr);
 
 #endif /* _PYPROTOS_H */

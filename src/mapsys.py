@@ -153,6 +153,10 @@ class Map(object):
     lib.pyget_jacobian_dxdv.argtypes            = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
     lib.pyget_jacobian_dzdh.argtypes            = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
     lib.pyget_jacobian_dzdv.argtypes            = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
+
+    
+    lib.map_get_fairlead_force_2d.argtypes = [POINTER(c_double), POINTER(c_double), MapData_Type, c_int, c_char_p, POINTER(c_int)]
+
     
     # plot routines
     lib.pyget_plot_x.argtypes = [ MapData_Type, c_int, c_int, c_char_p, POINTER(c_int) ]
@@ -163,6 +167,7 @@ class Map(object):
     lib.pyget_plot_z.restype  = POINTER(c_double)
     lib.pyget_plot_array_free.argtypes = [ POINTER(c_double) ]
 
+    
 
     # modifyers
     lib.map_offset_vessel.argtypes = [MapData_Type, MapInput_Type, c_double, c_double, c_double, c_double, c_double, c_double, c_char_p, POINTER(c_int)]        
@@ -332,6 +337,66 @@ class Map(object):
         if self.ierr.value != 0 :
             print self.status.value        
         return obj
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def get_fairlead_force_2d(self, index):
+        """Gets the horizontal and vertical fairlead force in a 2D plane along the 
+        straight-line element. Must ensure update_states() is called before accessing 
+        this function. The function will not solve the forces for a new vessel position
+        if it updated. , otherwise the fairlead forces are not updated with the new 
+        vessel position. Called C function:
+        
+        MAP_EXTERNCALL void map_get_fairlead_force_2d(double* H, double* V, MAP_OtherStateType_t* other_type, int index, char* map_msg, MAP_ERROR_CODE* ierr);
+
+        :param index: The element number the fairlead forces are being requested for. Zero indexed
+        :returns: horizontal and vertical fairlead force [N]
+
+        >>> H,V = print get_fairlead_force_2d(1)        
+        """
+        H_ref = c_double(-999.9)
+        V_ref = c_double(-999.9)
+        Map.lib.map_get_fairlead_force_2d( pointer(H_ref), pointer(V_ref),self.f_type_d, index, self.status, pointer(self.ierr))
+        return H_ref.value, V_ref.value
+
+
+    def get_fairlead_force_3d(self, index):
+        """Gets the horizontal and vertical fairlead force in a 3D frame along relative 
+        referene global axis. Must ensure update_states() is called before accessing 
+        this function. The function will not solve the forces for a new vessel position
+        if it updated. , otherwise the fairlead forces are not updated with the new 
+        vessel position. Called C function:
+        
+        MAP_EXTERNCALL void map_get_fairlead_force_3d(double* fx, double* fy, double* fz, MAP_OtherStateType_t* other_type, int index, char* map_msg, MAP_ERROR_CODE* ierr);
+
+        :param index: The element number the fairlead forces are being requested for. Zero indexed
+        :returns: horizontal and vertical fairlead force [N]
+
+        >>> fx,fy,fz = get_fairlead_force_3d(1)        
+        """
+        fx = c_double(-999.9)
+        fy = c_double(-999.9)
+        fz = c_double(-999.9)
+        Map.lib.map_get_fairlead_force_3d( pointer(fx), pointer(fy), pointer(fz), self.f_type_d, index, self.status, pointer(self.ierr))
+        return fx.value, fy.value, fz.value
+        
+
+
+
+
+
+
+
 
     def map_set_sea_depth( self, depth ):
         Map.lib.map_set_sea_depth( self.f_type_p, depth )

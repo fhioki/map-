@@ -119,6 +119,38 @@ void add_to_sum_fz(Node* node, const MapReal fz)
 };
 
 
+
+MAP_EXTERNCALL void map_get_fairlead_force_2d(double* H, double* V, MAP_OtherStateType_t* other_type, int index, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  Element* iter_element = NULL;
+  ModelData* model_data = other_type->object;
+  if (index<=list_size(&model_data->element)-1) {
+    iter_element = (Element*)list_get_at(&model_data->element, index);
+    *H = *(iter_element->H.value);
+    *V = *(iter_element->V.value);
+  } else {
+    /* @todo: throw error: element out of range */
+  };
+}
+
+
+MAP_EXTERNCALL void map_get_fairlead_force_3d(double* fx, double* fy, double* fz, MAP_OtherStateType_t* other_type, int index, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  Element* iter_element = NULL;
+  ModelData* model_data = other_type->object;
+  double psi = 0.0;
+  if (index<=list_size(&model_data->element)-1) {
+    iter_element = (Element*)list_get_at(&model_data->element, index);
+    psi = iter_element->psi.value;
+    *fx = *(iter_element->H.value)*cos(psi);
+    *fy = *(iter_element->H.value)*sin(psi);
+    *fz = *(iter_element->V.value);
+  } else {
+    /* @todo: throw error: element out of range */
+  };
+}
+
+
 /**
  * sets cable excursions (l and h) and reference frame psi rotation
  */
