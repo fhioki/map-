@@ -331,7 +331,7 @@ MAP_ERROR_CODE write_cable_library_information_to_summary_file(FILE* file, Model
     fprintf(file, "    Cable Type          : %s\n", cableLibraryIter->label);
     fprintf(file, "    Diameter     [m]    : %1.4f\n", cableLibraryIter->diam);
     fprintf(file, "    Mass Density [kg/m] : %1.2f\n", cableLibraryIter->massDensityInAir);
-    fprintf(file, "    EA           [kN]   : %1.2f\n", cableLibraryIter->ea);
+    fprintf(file, "    EA           [N]    : %1.2f\n", cableLibraryIter->ea);
     fprintf(file, "    omega        [N/m]  : %1.2f\n", cableLibraryIter->omega);
     fprintf(file, "    CB                  : %1.2f\n\n", cableLibraryIter->cb);
   };
@@ -643,15 +643,15 @@ MAP_ERROR_CODE write_node_x_sum_force_to_summary_file(const int num_col, const i
   if (!num_col) { 
     if (!x_sum_force->isFixed) {
       if (fx>=0.0) {
-        map_snprintf(line_char, 256, "FX [kN]   | ( %1.3f)", fx);
+        map_snprintf(line_char, 256, "FX [N]    | ( %1.3f)", fx);
       } else {
-        map_snprintf(line_char, 256, "FX [kN]   | (%1.3f)", fx);        
+        map_snprintf(line_char, 256, "FX [N]    | (%1.3f)", fx);        
       };
     } else {
       if (fx>=0.0) {
-        map_snprintf(line_char, 256, "FX [kN]   |   %1.3f", fx);        
+        map_snprintf(line_char, 256, "FX [N]    |   %1.3f", fx);        
       } else {
-        map_snprintf(line_char, 256, "FX [kN]   |  %1.3f", fx);        
+        map_snprintf(line_char, 256, "FX [N]    |  %1.3f", fx);        
       };
     };
   } else {
@@ -689,15 +689,15 @@ MAP_ERROR_CODE write_node_y_sum_force_to_summary_file(const int num_col, const i
   if (!num_col) { 
     if (!y_sum_force->isFixed) {
       if (fy>=0.0) {
-        map_snprintf(line_char, 256, "FY [kN]   | ( %1.3f)", fy);
+        map_snprintf(line_char, 256, "FY [N]    | ( %1.3f)", fy);
       } else {
-        map_snprintf(line_char, 256, "FY [kN]   | (%1.3f)", fy);        
+        map_snprintf(line_char, 256, "FY [N]    | (%1.3f)", fy);        
       };
     } else {
       if (fy>=0.0) {
-        map_snprintf(line_char, 256, "FY [kN]   |   %1.3f", fy);        
+        map_snprintf(line_char, 256, "FY [N]    |   %1.3f", fy);        
       } else {
-        map_snprintf(line_char, 256, "FY [kN]   |  %1.3f", fy);        
+        map_snprintf(line_char, 256, "FY [N]    |  %1.3f", fy);        
       };
     };
   } else {
@@ -736,15 +736,15 @@ MAP_ERROR_CODE write_node_z_sum_force_to_summary_file(const int num_col, const i
   if (!num_col) { 
     if (!z_sum_force->isFixed) {
       if (fz>=0.0) {
-        map_snprintf(line_char, 256, "FZ [kN]   | ( %1.3f)", fz);
+        map_snprintf(line_char, 256, "FZ [N]    | ( %1.3f)", fz);
       } else {
-        map_snprintf(line_char, 256, "FZ [kN]   | (%1.3f)", fz);        
+        map_snprintf(line_char, 256, "FZ [N]    | (%1.3f)", fz);        
       };
     } else {
       if (fz>=0.0) {
-        map_snprintf(line_char, 256, "FZ [kN]   |   %1.3f", fz);        
+        map_snprintf(line_char, 256, "FZ [N]    |   %1.3f", fz);        
       } else {
-        map_snprintf(line_char, 256, "FZ [kN]   |  %1.3f", fz);        
+        map_snprintf(line_char, 256, "FZ [N]    |  %1.3f", fz);        
       };
     };
   } else {
@@ -979,7 +979,7 @@ MAP_ERROR_CODE write_expanded_input_file_to_summary_file(FILE* file, Initializat
 
   fprintf(file, "---------------------- LINE DICTIONARY ---------------------------------------\n");
   fprintf(file, "LineType  Diam      MassDenInAir   EA            CB\n");
-  fprintf(file, "(-)       (m)       (kg/m)        (kN)           (-)\n");  
+  fprintf(file, "[-]       [m]       [kg/m]         [N]           [-]\n");  
   for (i=0 ; i<init_data->librarySize ; i++) {
     fprintf(file, "%s", init_data->libraryInputString[i]);
     if (init_data->libraryInputString[i][strlen(init_data->libraryInputString[i])-1]!='\n') {
@@ -989,7 +989,7 @@ MAP_ERROR_CODE write_expanded_input_file_to_summary_file(FILE* file, Initializat
 
   fprintf(file, "---------------------- NODE PROPERTIES ---------------------------------------\n");
   fprintf(file, "Node  Type       X       Y       Z      M     B     FX    FY    FZ\n");
-  fprintf(file, "(-)   (-)       (m)     (m)     (m)    (kg)  (mˆ3) (kN)  (kN)  (kN)\n");
+  fprintf(file, "[-]   [-]       [m]     [m]     [m]    [kg]  [mˆ3]  [N]   [N]   [N]\n");
   for (i=0 ; i<init_data->sizeOfFullNodeString ; i++) {    
     fprintf(file, "%s", init_data->expandedNodeInputString[i]);
     if (init_data->expandedNodeInputString[i][strlen(init_data->expandedNodeInputString[i])-1]!='\n') {
@@ -999,7 +999,7 @@ MAP_ERROR_CODE write_expanded_input_file_to_summary_file(FILE* file, Initializat
 
   fprintf(file, "---------------------- LINEP ROPERTIES ---------------------------------------\n");
   fprintf(file, "Element  LineType  UnstrLen  NodeAnch  NodeFair  Flags\n");
-  fprintf(file, "(-)      (-)       (m)       (-)       (-)       (-)\n");
+  fprintf(file, "[-]      [-]       [m]       [-]       [-]       [-]\n");
   for (i=0 ; i<init_data->sizeOfFullElementString ; i++) {    
     fprintf(file, "%s", init_data->expandedElementInputString[i]);
     if (init_data->expandedElementInputString[i][strlen(init_data->expandedElementInputString[i])-1]!='\n') {
@@ -1009,7 +1009,7 @@ MAP_ERROR_CODE write_expanded_input_file_to_summary_file(FILE* file, Initializat
 
   fprintf(file, "---------------------- SOLVER OPTIONS-----------------------------------------\n");
   fprintf(file, "Option \n");
-  fprintf(file, "(-) \n");
+  fprintf(file, "[-] \n");
   for (i=0 ; i<init_data->solverOptionsSize ; i++) {    
     fprintf(file, "%s", init_data->solverOptionsString[i]);
     if (init_data->solverOptionsString[i][strlen(init_data->solverOptionsString[i])-1]!='\n') {

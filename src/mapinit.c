@@ -74,9 +74,9 @@ MAP_ERROR_CODE set_vessel_to_null(Vessel* floater, char* map_msg, MAP_ERROR_CODE
     success = set_vartype_float("[m]", "Vessel_Zref", -999.9, &floater->refOrigin.z, 0.0); CHECKERRQ(MAP_FATAL_68);
   
     /* sum force of all fairleads connecte to the vessel */
-    success = set_vartype_float("[kN]", "Vessel_fx", -999.9, &floater->lineSumForce.fx, 0.0); CHECKERRQ(MAP_FATAL_68);
-    success = set_vartype_float("[kN]", "Vessel_fy", -999.9, &floater->lineSumForce.fy, 0.0); CHECKERRQ(MAP_FATAL_68);
-    success = set_vartype_float("[kN]", "Vessel_fz", -999.9, &floater->lineSumForce.fz, 0.0); CHECKERRQ(MAP_FATAL_68);
+    success = set_vartype_float("[N]", "Vessel_fx", -999.9, &floater->lineSumForce.fx, 0.0); CHECKERRQ(MAP_FATAL_68);
+    success = set_vartype_float("[N]", "Vessel_fy", -999.9, &floater->lineSumForce.fy, 0.0); CHECKERRQ(MAP_FATAL_68);
+    success = set_vartype_float("[N]", "Vessel_fz", -999.9, &floater->lineSumForce.fz, 0.0); CHECKERRQ(MAP_FATAL_68);
   
     /* orientation of the vessel. This is used as input from the user */
     success = set_vartype_float("[deg]", "Vessel_phi", -999.9, &floater->orientation.phi, 0.0); CHECKERRQ(MAP_FATAL_68);
@@ -1579,14 +1579,14 @@ void initialize_element(Element* ptr, const int elementNum)
   initialize_vartype("[m]", "l", &ptr->l, elementNum); 
   initialize_vartype("[m]", "lb", &ptr->lb, elementNum);
   initialize_vartype("[m]", "h", &ptr->h, elementNum);  
-  initialize_vartype("[kN]", "H_a", &ptr->HAtAnchor, elementNum); 
-  initialize_vartype("[kN]", "fx", &ptr->forceAtFairlead.fx, elementNum); 
-  initialize_vartype("[kN]", "fy", &ptr->forceAtFairlead.fy, elementNum);
-  initialize_vartype("[kN]", "fz", &ptr->forceAtFairlead.fz, elementNum);  
-  initialize_vartype("[kN]", "fx_a", &ptr->forceAtAnchor.fx, elementNum); 
-  initialize_vartype("[kN]", "fy_a", &ptr->forceAtAnchor.fy, elementNum); 
-  initialize_vartype("[kN]", "fz_a", &ptr->forceAtAnchor.fz, elementNum); 
-  initialize_vartype("[kN]", "V_a" , &ptr->VAtAnchor, elementNum); 
+  initialize_vartype("[N]", "H_a", &ptr->HAtAnchor, elementNum); 
+  initialize_vartype("[N]", "fx", &ptr->forceAtFairlead.fx, elementNum); 
+  initialize_vartype("[N]", "fy", &ptr->forceAtFairlead.fy, elementNum);
+  initialize_vartype("[N]", "fz", &ptr->forceAtFairlead.fz, elementNum);  
+  initialize_vartype("[N]", "fx_a", &ptr->forceAtAnchor.fx, elementNum); 
+  initialize_vartype("[N]", "fy_a", &ptr->forceAtAnchor.fy, elementNum); 
+  initialize_vartype("[N]", "fz_a", &ptr->forceAtAnchor.fz, elementNum); 
+  initialize_vartype("[N]", "V_a" , &ptr->VAtAnchor, elementNum); 
   initialize_vartype("[m]", "T", &ptr->T, elementNum); 
   initialize_vartype("[m]", "T_a", &ptr->TAtAnchor, elementNum); 
 

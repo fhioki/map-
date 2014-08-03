@@ -262,7 +262,7 @@ struct Element_t {
   LineOptions options;        /* run-time options flag */
   VarTypePtr H;               /* Horizontal fairlead force in the local cable elemenet frame */
   VarTypePtr V;               /* Vertical fairlead force in the local cable elemenet frame */  
-  MapReal* lineTension;       /* array of line tension along 's' [kN] */ 
+  MapReal* lineTension;       /* array of line tension along 's' [N] */ 
   MapReal damageTime;         /* time to damage this element and return zero force to the glue code */
   MapReal residualNorm;
   VarType psi;                /* angle of roation between global X and local x axis [deg] */
@@ -274,8 +274,8 @@ struct Element_t {
   VarType h;                  /* vertical cable excursion [m] */
   VarType HAtAnchor;          /* Horizontal anchor force in the local cable elemenet frame */
   VarType VAtAnchor;          /* Vertical anchor force in the local cable elemenet frame */
-  VarType T;                  /* Tension magnitude [kN] */
-  VarType TAtAnchor;          /* Tension magnitude at anchor [kN] */
+  VarType T;                  /* Tension magnitude [N] */
+  VarType TAtAnchor;          /* Tension magnitude at anchor [N] */
   Force forceAtFairlead;      // @rm is this even necessary? I don't think so. Element should not store node forces. They only can contribute force in sumForcePrt
   Force forceAtAnchor;        // @rm is this even necessary? I don't think so. Element should not store node forces. They only can contribute force in sumForcePrt
   char* label;                /* reference a pre-defined property in the line dictionary */

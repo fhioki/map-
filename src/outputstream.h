@@ -157,7 +157,7 @@ MAP_ERROR_CODE write_summary_file(InitializationData* init_data, MAP_ParameterTy
  *        Cable Type          : {value}
  *        Diameter     [m]    : {value}
  *        Mass Density [kg/m] : {value}
- *        EA           [kN]   : {value}
+ *        EA           [N]    : {value}
  *        omega        [N/m]  : {value}
  *        CB                  : {value}
  *        </pre>
@@ -298,9 +298,9 @@ MAP_ERROR_CODE write_node_z_sum_force_to_summary_file(const int num_col, const i
  *        Z  [m]    |   0.000                  0.000                  0.000                  0.000
  *        M  [kg]   |   0.000                  0.000                  0.000                  0.000
  *        B  [m^3]  |   0.000                  0.000                  0.000                  0.000
- *        FX [kN]   |   0.000                  0.000                  0.000                  0.000
- *        FY [kN]   |   0.000                  0.000                  0.000                  0.000
- *        FZ [kN]   |   0.000                  0.000                  0.000                  0.000
+ *        FX [N]    |   0.000                  0.000                  0.000                  0.000
+ *        FY [N]    |   0.000                  0.000                  0.000                  0.000
+ *        FZ [N]    |   0.000                  0.000                  0.000                  0.000
  *        </pre>
  * @param file file where string is being dumped to
  * @param model_data internal state data {@link ModelData}
