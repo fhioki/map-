@@ -33,7 +33,7 @@
  * Example Fortran usage:
  * @code
  * INTERFACE                                                                
- *    SUBROUTINE mapextern_set_depth(interf, fc_val) BIND(C,name='set_sea_depth')  
+ *    SUBROUTINE mapextern_set_depth(interf, fc_val) BIND(C,name='map_set_sea_depth')  
  *      IMPORT                            
  *      IMPLICIT NONE                     
  *      TYPE(MAP_ParameterType_C) interf
@@ -47,7 +47,7 @@
  * CALL mapextern_set_depth(p%C_obj, depth)
  * @endcode
  */
-MAP_EXTERNCALL void set_sea_depth(MAP_ParameterType_t* p_type, const MapReal depth);
+MAP_EXTERNCALL void map_set_sea_depth(MAP_ParameterType_t* p_type, const MapReal depth);
 
 
 /**
@@ -58,7 +58,7 @@ MAP_EXTERNCALL void set_sea_depth(MAP_ParameterType_t* p_type, const MapReal dep
  * Example Fortran usage:
  * @code
  * INTERFACE                                                                         
- *    SUBROUTINE mapextern_set_density(interf, fc_val) BIND(C,name='set_sea_density') 
+ *    SUBROUTINE mapextern_set_density(interf, fc_val) BIND(C,name='map_set_sea_density') 
  *      IMPORT                                            
  *      IMPLICIT NONE                                     
  *      TYPE(MAP_ParameterType_C) interf                
@@ -72,7 +72,7 @@ MAP_EXTERNCALL void set_sea_depth(MAP_ParameterType_t* p_type, const MapReal dep
  * CALL mapextern_set_density(p%C_obj, rho)
  * @endcode
  */
-MAP_EXTERNCALL void set_sea_density(MAP_ParameterType_t* p_type, const MapReal rho);
+MAP_EXTERNCALL void map_set_sea_density(MAP_ParameterType_t* p_type, const MapReal rho);
 
 
 /**
@@ -83,21 +83,21 @@ MAP_EXTERNCALL void set_sea_density(MAP_ParameterType_t* p_type, const MapReal r
  * Example Fortran usage:
  * @code
  * INTERFACE                                                               
- *    SUBROUTINE MAP_set_gravity(interf, fc_val) BIND(C,name='set_gravity')
+ *    SUBROUTINE MAP_map_set_gravity(interf, fc_val) BIND(C,name='map_set_gravity')
  *      IMPORT                                                         
  *      IMPLICIT NONE                                                  
  *      TYPE(MAP_ParameterType_C) interf                               
  *      REAL(C_DOUBLE), VALUE :: fc_val                                
- *    END SUBROUTINE MAP_set_gravity                                   
+ *    END SUBROUTINE MAP_map_set_gravity                                   
  * END INTERFACE                                                       
  *
  *   ...
  *
  * ! access the function using this subroutine call: 
- * CALL mapextern_set_gravity(p%C_obj, g)
+ * CALL mapextern_map_set_gravity(p%C_obj, g)
  * @endcode
  */
-MAP_EXTERNCALL void set_gravity(MAP_ParameterType_t* p_type, const MapReal gravity);
+MAP_EXTERNCALL void map_set_gravity(MAP_ParameterType_t* p_type, const MapReal gravity);
 
 
 /**

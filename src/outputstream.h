@@ -37,23 +37,23 @@
  * @code
  * ! Interface block declaration:
  * INTERFACE 
- *    SUBROUTINE mapextern_set_summary_file_name(fc_init, fc_char, fc_int) BIND(C,name='set_summary_file_name')
+ *    SUBROUTINE mapextern_map_set_summary_file_name(fc_init, fc_char, fc_int) BIND(C,name='map_set_summary_file_name')
  *      IMPORT                                    
  *      IMPLICIT NONE                             
  *      TYPE(MAP_InitInputType_C) fc_init        
  *      CHARACTER(KIND=C_CHAR), DIMENSION(*) :: fc_char
  *      INTEGER(KIND=C_INT) :: fc_int            
- *    END SUBROUTINE mapextern_set_summary_file_name
+ *    END SUBROUTINE mapextern_map_set_summary_file_name
  * END INTERFACE
  *
  *   ...
  *
  * ! access the function using this subroutine call: 
- * CALL mapextern_set_summary_file_name(InitInp%C_obj, ErrMsg, ErrStat)
+ * CALL mapextern_map_set_summary_file_name(InitInp%C_obj, ErrMsg, ErrStat)
  * @endcode
  * @todo: need to free summaryFileName. This is done in delete_all_init_data(...), should be called in Fortran routines
  */
-MAP_EXTERNCALL void set_summary_file_name(MAP_InitInputType_t* init_type, char* map_msg, MAP_ERROR_CODE* ierr); 
+MAP_EXTERNCALL void map_set_summary_file_name(MAP_InitInputType_t* init_type, char* map_msg, MAP_ERROR_CODE* ierr); 
 
 
 /**
@@ -70,23 +70,23 @@ MAP_EXTERNCALL void set_summary_file_name(MAP_InitInputType_t* init_type, char* 
  * @code
  * ! Interface block declaration:
  * INTERFACE      
- *    SUBROUTINE mapextern_get_header_string(fc_int, fc_string, fc_other) BIND(C,name='get_header_string')   
+ *    SUBROUTINE mapextern_map_get_header_string(fc_int, fc_string, fc_other) BIND(C,name='map_get_header_string')   
  *      IMPORT                                 
  *      IMPLICIT NONE                          
  *      INTEGER(KIND=C_INT) :: fc_int          
  *      TYPE( MAP_OtherStateType_C ) fc_other                                                 
  *      TYPE(C_PTR), DIMENSION(FC_int) :: fc_string
- *    END SUBROUTINE mapextern_get_header_string
+ *    END SUBROUTINE mapextern_map_get_header_string
  * END INTERFACE                                                 
  *
  *   ...
  *
  * ! access the function using this subroutine call: 
- * CALL mapextern_get_header_string(num_header_str, hdr_str_ptrs, other%C_obj)
+ * CALL mapextern_map_get_header_string(num_header_str, hdr_str_ptrs, other%C_obj)
  * @endcode
  * @todo this should raise and error when count!=n
  */
-MAP_EXTERNCALL void get_header_string(int* n, char** str_array, MAP_OtherStateType_t* other_type);
+MAP_EXTERNCALL void map_get_header_string(int* n, char** str_array, MAP_OtherStateType_t* other_type);
 
 
 /**
@@ -102,22 +102,22 @@ MAP_EXTERNCALL void get_header_string(int* n, char** str_array, MAP_OtherStateTy
  * @code
  * ! Interface block declaration:
  * INTERFACE
- *    SUBROUTINE mapextern_get_unit_string(fc_int, fc_string, fc_other) BIND(C,name='get_unit_string')          
+ *    SUBROUTINE mapextern_map_get_unit_string(fc_int, fc_string, fc_other) BIND(C,name='map_get_unit_string')          
  *      IMPORT                                     
  *      IMPLICIT NONE                              
  *      INTEGER(KIND=C_INT) :: fc_int              
  *      TYPE(MAP_OtherStateType_C) fc_other                                                 
  *      TYPE(C_PTR), DIMENSION(FC_int) :: fc_string
- *    END SUBROUTINE mapextern_get_unit_string        
+ *    END SUBROUTINE mapextern_map_get_unit_string        
  * END INTERFACE                                                 
  *
  *   ...
  * ! access the function using this subroutine call: 
- * CALL mapextern_get_header_string(num_header_str, unit_str_ptrs, other%C_obj)
+ * CALL mapextern_map_get_header_string(num_header_str, unit_str_ptrs, other%C_obj)
  * @endcode
  * @todo this should raise and error when count!=n
  */
-MAP_EXTERNCALL void get_unit_string(int* n, char** str_array ,MAP_OtherStateType_t* other_type);
+MAP_EXTERNCALL void map_get_unit_string(int* n, char** str_array ,MAP_OtherStateType_t* other_type);
 
 
 /**

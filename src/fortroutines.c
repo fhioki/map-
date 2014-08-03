@@ -26,7 +26,7 @@
 #include "MAP_Types.h"
 
 
-MAP_EXTERNCALL void add_cable_library_input_text(MAP_InitInputType_t* init_type)
+MAP_EXTERNCALL void map_add_cable_library_input_text(MAP_InitInputType_t* init_type)
 {
   InitializationData* init_data = (InitializationData*)init_type->object; 
   const int str_length = strlen(init_type->libraryInputLine)+1;
@@ -41,7 +41,7 @@ MAP_EXTERNCALL void add_cable_library_input_text(MAP_InitInputType_t* init_type)
 };
 
 
-MAP_EXTERNCALL void add_node_input_text(MAP_InitInputType_t* init_type)
+MAP_EXTERNCALL void map_add_node_input_text(MAP_InitInputType_t* init_type)
 {
   InitializationData* init_data = init_type->object; 
   const int str_length = strlen(init_type->nodeInputLine)+1;
@@ -56,7 +56,7 @@ MAP_EXTERNCALL void add_node_input_text(MAP_InitInputType_t* init_type)
 };
 
 
-MAP_EXTERNCALL void add_element_input_text(MAP_InitInputType_t* init_type)
+MAP_EXTERNCALL void map_add_element_input_text(MAP_InitInputType_t* init_type)
 {
   InitializationData* init_data = init_type->object; 
   const int n = init_data->elementSize;
@@ -71,7 +71,7 @@ MAP_EXTERNCALL void add_element_input_text(MAP_InitInputType_t* init_type)
 };
 
 
-MAP_EXTERNCALL void add_options_input_text(MAP_InitInputType_t* init_type)
+MAP_EXTERNCALL void map_add_options_input_text(MAP_InitInputType_t* init_type)
 {
   InitializationData* init_data = init_type->object; 
   int n = init_data->solverOptionsSize;

@@ -110,11 +110,11 @@ class Map(object):
 
     # read file stuff
     # lib.set_init_to_null.argtype=[MapInit_Type, c_char_p, POINTER(c_int) ]
-    lib.set_summary_file_name.argtype=[MapInit_Type, c_char_p, POINTER(c_int) ]
-    lib.add_cable_library_input_text.argtype=[MapInit_Type]
-    lib.add_node_input_text.argtype=[MapInit_Type]
-    lib.add_element_input_text.argtype=[MapInit_Type]
-    lib.add_options_input_text.argtype=[MapInit_Type]
+    lib.map_set_summary_file_name.argtype=[MapInit_Type, c_char_p, POINTER(c_int) ]
+    lib.map_add_cable_library_input_text.argtype=[MapInit_Type]
+    lib.map_add_node_input_text.argtype=[MapInit_Type]
+    lib.map_add_element_input_text.argtype=[MapInit_Type]
+    lib.map_add_options_input_text.argtype=[MapInit_Type]
 
     lib.map_create_init_type.argtype       = [ c_char_p, POINTER(c_int) ]
     lib.map_create_initout_type.argtype    = [ c_char_p, POINTER(c_int) ]
@@ -135,9 +135,9 @@ class Map(object):
     lib.map_create_output_type.restype     = MapOutput_Type
     lib.map_create_continuous_type.restype = MapContinuous_Type
 
-    lib.set_sea_depth.argtypes   = [ MapParameter_Type, c_double ]
-    lib.set_gravity.argtypes     = [ MapParameter_Type, c_double ]
-    lib.set_sea_density.argtypes = [ MapParameter_Type, c_double ]
+    lib.map_set_sea_depth.argtypes   = [ MapParameter_Type, c_double ]
+    lib.map_set_gravity.argtypes     = [ MapParameter_Type, c_double ]
+    lib.map_set_sea_density.argtypes = [ MapParameter_Type, c_double ]
     
     # numeric routines
     lib.pyget_residual_function_length.restype = c_double
@@ -165,7 +165,7 @@ class Map(object):
 
 
     # modifyers
-    lib.py_offset_vessel.argtypes = [MapData_Type, MapInput_Type, c_double, c_double, c_double, c_double, c_double, c_double, c_char_p, POINTER(c_int)]        
+    lib.map_offset_vessel.argtypes = [MapData_Type, MapInput_Type, c_double, c_double, c_double, c_double, c_double, c_double, c_char_p, POINTER(c_int)]        
     lib.py_linearize_matrix.argtypes = [MapInput_Type, MapData_Type, MapOutput_Type, MapConstraint_Type, c_double, c_char_p, POINTER(c_int)]        
     lib.py_linearize_matrix.restype  = POINTER(POINTER(c_double))
     lib.py_free_linearize_matrix.argtypes = [POINTER(POINTER(c_double))]
@@ -250,7 +250,7 @@ class Map(object):
     """
     def summary_file( self, echo_file ):
         self.f_type_init.contents.summaryFileName = echo_file
-        Map.lib.set_summary_file_name(self.f_type_init, self.status, pointer(self.ierr) )
+        Map.lib.map_set_summary_file_name(self.f_type_init, self.status, pointer(self.ierr) )
 
 
     """
@@ -333,14 +333,14 @@ class Map(object):
             print self.status.value        
         return obj
 
-    def set_sea_depth( self, depth ):
-        Map.lib.set_sea_depth( self.f_type_p, depth )
+    def map_set_sea_depth( self, depth ):
+        Map.lib.map_set_sea_depth( self.f_type_p, depth )
 
-    def set_gravity( self, g ):
-        Map.lib.set_gravity( self.f_type_p, g )
+    def map_set_gravity( self, g ):
+        Map.lib.map_set_gravity( self.f_type_p, g )
 
-    def set_sea_density( self, rho ):
-        Map.lib.set_sea_density( self.f_type_p, rho )
+    def map_set_sea_density( self, rho ):
+        Map.lib.map_set_sea_density( self.f_type_p, rho )
 
     def funcl( self, i ) :
         self.val = Map.lib.pyget_residual_function_length( self.f_type_d, i, self.status, pointer(self.ierr) )
@@ -419,7 +419,7 @@ class Map(object):
     
 
     def displace_vessel(self,x,y,z,phi,the,psi) :
-        Map.lib.py_offset_vessel(self.f_type_d, self.f_type_u, x,y,z,phi,the,psi, self.status, pointer(self.ierr) )
+        Map.lib.map_offset_vessel(self.f_type_d, self.f_type_u, x,y,z,phi,the,psi, self.status, pointer(self.ierr) )
         if self.ierr.value != 0 :
             print self.status.value        
             self.MAP_End( )
@@ -490,7 +490,7 @@ class Map(object):
                 break
             else:
                 self.f_type_init.contents.libraryInputLine=line
-                Map.lib.add_cable_library_input_text(self.f_type_init)
+                Map.lib.map_add_cable_library_input_text(self.f_type_init)
    
         f.seek(line_offset[Node_ref+3])
         for line in f:
@@ -498,7 +498,7 @@ class Map(object):
                 break
             else:
                 self.f_type_init.contents.nodeInputLine=line
-                Map.lib.add_node_input_text(self.f_type_init)
+                Map.lib.map_add_node_input_text(self.f_type_init)
 
         f.seek(line_offset[Element_ref+4])
         for line in f:
@@ -506,7 +506,7 @@ class Map(object):
                 break
             else:
                 self.f_type_init.contents.elementInputLine=line
-                Map.lib.add_element_input_text(self.f_type_init)
+                Map.lib.map_add_element_input_text(self.f_type_init)
                  
         f.seek(line_offset[Option_ref+5])
         for line in f:
@@ -516,4 +516,4 @@ class Map(object):
                 None
             else:
                 self.f_type_init.contents.optionInputLine=line
-                Map.lib.add_options_input_text(self.f_type_init)            
+                Map.lib.map_add_options_input_text(self.f_type_init)            

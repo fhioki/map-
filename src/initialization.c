@@ -30,19 +30,19 @@
 
 /** @addtogroup FortranCall */
 /* @{ */
-MAP_EXTERNCALL void set_sea_depth(MAP_ParameterType_t* p_type, const MapReal depth)
+MAP_EXTERNCALL void map_set_sea_depth(MAP_ParameterType_t* p_type, const MapReal depth)
 {
   p_type->depth = depth;
 };
 
 
-MAP_EXTERNCALL void set_sea_density(MAP_ParameterType_t* p_type, const MapReal rho)
+MAP_EXTERNCALL void map_set_sea_density(MAP_ParameterType_t* p_type, const MapReal rho)
 {
   p_type->rhoSea = rho;
 };
 
 
-MAP_EXTERNCALL void set_gravity(MAP_ParameterType_t* p_type, double gravity)
+MAP_EXTERNCALL void map_set_gravity(MAP_ParameterType_t* p_type, double gravity)
 {
   p_type->g = gravity;
 };

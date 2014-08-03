@@ -30,11 +30,11 @@ extern const char MAP_ERROR_STRING[][1024];
  * call this in python: offset_vessel().argtypes = [MapData_Type, MapInput_Type, c_char_p, POINTER(c_int)]        
  * angles are radians
  * 
- *     lib.py_offset_vessel.argtypes = [MapData_Type, MapInput_Type, c_double, c_double, c_double, c_double, c_double, c_double, c_char_p, POINTER(c_int)]        
+ *     lib.map_offset_vessel.argtypes = [MapData_Type, MapInput_Type, c_double, c_double, c_double, c_double, c_double, c_double, c_char_p, POINTER(c_int)]        
  *
  * Angles are in degrees. This routine converts angles from deg to rad
  */
-MAP_EXTERNCALL void py_offset_vessel(MAP_OtherStateType_t* otherType, MAP_InputType_t* uType, double x, double y, double z, double phi, double the, double psi, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_EXTERNCALL void map_offset_vessel(MAP_OtherStateType_t* otherType, MAP_InputType_t* uType, double x, double y, double z, double phi, double the, double psi, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   ModelData* data = otherType->object;
   Vessel* vessel = &data->vessel;

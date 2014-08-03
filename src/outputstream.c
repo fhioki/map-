@@ -32,7 +32,7 @@
 
 /** @addtogroup FortranCall */
 /* @{ */
-MAP_EXTERNCALL void set_summary_file_name(MAP_InitInputType_t* init_type, char *map_msg, MAP_ERROR_CODE *ierr) {  
+MAP_EXTERNCALL void map_set_summary_file_name(MAP_InitInputType_t* init_type, char *map_msg, MAP_ERROR_CODE *ierr) {  
   int length = 0;
   char *temp = NULL;
   InitializationData* init = init_type->object; 
@@ -48,7 +48,7 @@ MAP_EXTERNCALL void set_summary_file_name(MAP_InitInputType_t* init_type, char *
 };
 
 
-MAP_EXTERNCALL void get_header_string(int* n, char** str_array, MAP_OtherStateType_t* other_type)
+MAP_EXTERNCALL void map_get_header_string(int* n, char** str_array, MAP_OtherStateType_t* other_type)
 { 
   int count = 0;    
   ModelData* model_data = other_type->object;
@@ -74,7 +74,7 @@ MAP_EXTERNCALL void get_header_string(int* n, char** str_array, MAP_OtherStateTy
 };
 
 
-MAP_EXTERNCALL void get_unit_string(int* n, char** str_array, MAP_OtherStateType_t* other_type)
+MAP_EXTERNCALL void map_get_unit_string(int* n, char** str_array, MAP_OtherStateType_t* other_type)
 { 
   int count = 0;    
   ModelData* model_data = other_type->object;
@@ -307,6 +307,10 @@ MAP_ERROR_CODE write_summary_file(InitializationData* init, MAP_ParameterType_t*
 
      $ git tag -a v1.00 -m "Release v1.00"
   */
+
+#ifndef GITVERSION /* unboubtedly this will be useful on windows. Not sure how to track git version on windows with MSVC compiler? */
+#  define GITVERSION PROGVERSION
+#endif
   fprintf(file,"Outputs were generated using MAP++ %s on %s.\n\n", GITVERSION, name); 
   fprintf(file,"    %s\n\n", timeBuffer); 
   fprintf(file,"    Gravity constant          [m/s^2]  : %1.2f\n", paramType->g); 

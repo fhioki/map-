@@ -154,7 +154,7 @@ MAP_ERROR_CODE initialize_fortran_types(MAP_InputType_t* uType, MAP_ParameterTyp
 };
 
 
-MAP_ERROR_CODE free_fortran_types(MAP_InputType_t* uType, MAP_ParameterType_t* pType, MAP_ContinuousStateType_t* xType, MAP_ConstraintStateType_t* zType, MAP_OtherStateType_t* otherType, MAP_OutputType_t* yType)
+MAP_ERROR_CODE map_free_types(MAP_InputType_t* uType, MAP_ParameterType_t* pType, MAP_ContinuousStateType_t* xType, MAP_ConstraintStateType_t* zType, MAP_OtherStateType_t* otherType, MAP_OutputType_t* yType)
 {
   /* inputs */
   MAPFREE(uType->x);

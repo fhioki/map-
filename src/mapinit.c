@@ -1024,7 +1024,7 @@ MAP_ERROR_CODE compare_length(int a, int b)
 
 
 /**
- * @see: free_fortran_types to view where fortran types are free'd
+ * @see: map_free_types to view where fortran types are free'd
  */
 int set_node_list(const MAP_ParameterType_t* pType,  MAP_InputType_t* uType, MAP_ConstraintStateType_t* zType, MAP_OtherStateType_t* otherType, MAP_OutputType_t* yType, ModelData* data, char** const nodeInputString, char* map_msg, MAP_ERROR_CODE* ierr)
 {

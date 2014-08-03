@@ -15,7 +15,7 @@ MODULE MAP
   ! Get the string information (label) of all the outputs MAP is providing the FAST glue code    !          | 
   INTERFACE                                                                                      !          | 
      SUBROUTINE MAP_Get_Header_String(FC_int, FC_string, FC_other ) &                         
-          BIND(C,name='get_header_string')   
+          BIND(C,name='map_get_header_string')   
        IMPORT                                                                                    !          | 
        IMPLICIT NONE                                                                             !          | 
        INTEGER(KIND=C_INT) :: FC_int                                                             !          | 
@@ -31,7 +31,7 @@ MODULE MAP
   ! Gets the units of all the outputs MAP is providing to the FAST glue code                     !          | 
   INTERFACE                                                                                      !          | 
      SUBROUTINE MAP_Get_Unit_String( FC_int, FC_string, FC_other ) &                              !          | 
-          BIND(C,name='get_unit_string')                                                  !          | 
+          BIND(C,name='map_get_unit_string')                                                  !          | 
        IMPORT                                                                                    !          | 
        IMPLICIT NONE                                                                             !          | 
        INTEGER(KIND=C_INT) :: FC_int                                                             !          | 
@@ -49,7 +49,7 @@ MODULE MAP
   !   something indenpendent of it. Numerical errors can generate is g (in units of [Nm/s^2]     !          |
   !   is not consistent among modules.                                                           !          |
   INTERFACE                                                                                      !          |
-     SUBROUTINE MAP_set_gravity( interf, val ) bind(C,name='set_gravity')                        !          |
+     SUBROUTINE MAP_set_gravity( interf, val ) bind(C,name='map_set_gravity')                    !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
        TYPE( MAP_ParameterType_C ) interf                                                        !          |
@@ -66,7 +66,7 @@ MODULE MAP
   !   something indenpendent of it. Numerical errors can generate is g (in units of [Nm/s^2]     !          |
   !   is not consistent among modules.                                                           !          |
   INTERFACE                                                                                      !          |
-     SUBROUTINE MAP_set_depth( interf, val ) bind(C,name='set_sea_depth')                        !          |
+     SUBROUTINE MAP_set_depth( interf, val ) bind(C,name='map_set_sea_depth')                    !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
        TYPE( MAP_ParameterType_C ) interf                                                        !          |
@@ -80,7 +80,7 @@ MODULE MAP
   !                                                                                              !          |
   ! Calls C function "MAPCALL_SetSummaryFilename(MAP_InitInputType)" in MAP_FortranBinding.cpp.  !          |
   INTERFACE                                                                                      !          |
-     SUBROUTINE MAP_set_summary_file_name(interf,msg,err) bind(C,name='set_summary_file_name')   !          |
+     SUBROUTINE MAP_set_summary_file_name(interf,msg,err) bind(C,name='map_set_summary_file_name')!         |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
        TYPE( MAP_InitInputType_C ) interf                                                        !          |
@@ -96,7 +96,7 @@ MODULE MAP
   ! Calls C function "MAPCALL_SetDensity(MAP_InitInputType)" in MAP_FortranBinding.cpp.          !          |
   ! Sets the density of seawater [kg/m^3] according to what is being used in HydroDyn/FAST       !          |
   INTERFACE                                                                                      !          |
-     SUBROUTINE MAP_set_density( interf, val ) bind(C,name='set_sea_density')                    !          |
+     SUBROUTINE MAP_set_density( interf, val ) bind(C,name='map_set_sea_density')                !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
        TYPE( MAP_ParameterType_C ) interf                                                        !          |
@@ -127,7 +127,7 @@ MODULE MAP
   ! Pases strings from the "LINE DICTIONARY" porition of the MPA input file to the C++           !          |
   !   data structure.                                                                            !          |
   INTERFACE                                                                                      !          |
-     SUBROUTINE MAP_SetCableLibraryData( interf ) bind(C,name='add_cable_library_input_text')    !          |
+     SUBROUTINE MAP_SetCableLibraryData( interf ) bind(C,name='map_add_cable_library_input_text')!          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
        TYPE( MAP_InitInputType_C ) interf                                                        !          |
@@ -142,7 +142,7 @@ MODULE MAP
   ! Pases strings from the "NOE PROPERTIES" porition of the MPA input file to the C++            !          |
   !   data structure.                                                                            !          |
   INTERFACE                                                                                      !          |
-     SUBROUTINE MAP_SetNodeData( interf ) bind(C,name='add_node_input_text')                           !          |
+     SUBROUTINE MAP_SetNodeData( interf ) bind(C,name='map_add_node_input_text')                 !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
        TYPE( MAP_InitInputType_C ) interf                                                        !          |
@@ -157,7 +157,7 @@ MODULE MAP
   ! Pases strings from the "ELEMENT PROPERTIES" porition of the MPA input file to the C++        !          |
   !   data structure.                                                                            !          |
   INTERFACE                                                                                      !          |
-     SUBROUTINE MAP_SetElementData( interf ) bind(C,name='add_element_input_text')                     !          |
+     SUBROUTINE MAP_SetElementData( interf ) bind(C,name='map_add_element_input_text')           !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
        TYPE( MAP_InitInputType_C ) interf                                                        !          |
@@ -172,7 +172,7 @@ MODULE MAP
   ! Pases strings from the "SOLVER OPTIONS" porition of the MPA input file to the C++            !          |
   !   data structure.                                                                            !          |
   INTERFACE                                                                                      !          |
-     SUBROUTINE MAP_SetSolverOptions( interf ) bind(C,name='add_options_input_text')             !          |
+     SUBROUTINE MAP_SetSolverOptions( interf ) bind(C,name='map_add_options_input_text')         !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
        TYPE( MAP_InitInputType_C ) interf                                                        !          |
