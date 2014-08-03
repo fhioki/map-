@@ -16,6 +16,9 @@
 *.exe
 *.tar
 *.so
+c_driver
+f_driver
+
 
 # compiling files
 *.o
