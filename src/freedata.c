@@ -27,6 +27,18 @@
 #include "freedata.h"
 
 
+MAP_EXTERNCALL void MAP_InitInput_Delete(InitializationData* init_data)
+{
+  MAPFREE(init_data); 
+};
+
+
+void MAP_OtherState_Delete(ModelData* model_data)
+{
+  MAPFREE(model_data);
+};
+
+
 /** @addtogroup FortranCall */
 /*@{*/
 MAP_EXTERNCALL int free_init_data (InitializationData* init, char* map_msg, MAP_ERROR_CODE* ierr) 
@@ -163,3 +175,40 @@ MAP_ERROR_CODE free_node(list_t *restrict node)
 
 };
 
+
+MAP_ERROR_CODE free_vessel(Vessel* floater) 
+{
+    /* Now delete the vessel information */
+  MAPFREE(floater->xi);
+  MAPFREE(floater->yi);
+  MAPFREE(floater->zi);
+
+  MAPFREE(floater->displacement.x.name);
+  MAPFREE(floater->displacement.x.units);
+  MAPFREE(floater->displacement.y.name);
+  MAPFREE(floater->displacement.y.units);
+  MAPFREE(floater->displacement.z.name);
+  MAPFREE(floater->displacement.z.units);
+          
+  MAPFREE(floater->refOrigin.x.name);
+  MAPFREE(floater->refOrigin.x.units);
+  MAPFREE(floater->refOrigin.y.name);
+  MAPFREE(floater->refOrigin.y.units);
+  MAPFREE(floater->refOrigin.z.name);
+  MAPFREE(floater->refOrigin.z.units);
+          
+  MAPFREE(floater->lineSumForce.fx.name);
+  MAPFREE(floater->lineSumForce.fx.units);
+  MAPFREE(floater->lineSumForce.fy.name);
+  MAPFREE(floater->lineSumForce.fy.units);
+  MAPFREE(floater->lineSumForce.fz.name);
+  MAPFREE(floater->lineSumForce.fz.units);
+          
+  MAPFREE(floater->orientation.phi.name);
+  MAPFREE(floater->orientation.phi.units);
+  MAPFREE(floater->orientation.the.name);
+  MAPFREE(floater->orientation.the.units);
+  MAPFREE(floater->orientation.psi.name);
+  MAPFREE(floater->orientation.psi.units);
+  return MAP_SAFE;
+}

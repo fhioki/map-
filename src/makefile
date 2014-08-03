@@ -37,7 +37,6 @@ OBJ       = lmder.o \
 	qrfac.o \
 	simclist.o \
 	nwtcfunctions.o \
-	fortdatamanager.o \
 	mapinit.o \
 	maperror.o \
 	freedata.o \

@@ -747,9 +747,6 @@ CONTAINS
        END IF
     END IF
   
-    ! Destroy C MAP objects
-    CALL MAP_Other_Destroy(other%C_obj%object)                                           
-    
     ! Destroy Fortran MAP types
     ! Anything allocated in C should be destroyed in C. Calling these functions only destroys mesh types. 
     CALL MAP_DestroyInput(u, ErrStat, ErrMsg)

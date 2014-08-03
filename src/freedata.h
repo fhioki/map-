@@ -51,4 +51,14 @@ MAP_ERROR_CODE free_element(list_t *restrict element);
  */
 MAP_ERROR_CODE free_node(list_t *restrict node);
 
+
+void MAP_InitInput_Delete(InitializationData* init_data);
+
+
+void MAP_OtherState_Delete(ModelData* model_data);
+
+
+MAP_ERROR_CODE free_vessel(Vessel* floater);
+
+
 #endif // _FREE_DATA_H

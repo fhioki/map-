@@ -103,9 +103,9 @@ MAP_ERROR_CODE set_vartype(char* unit, char* alias, const int num, VarType* type
 MAP_ERROR_CODE initialize_fortran_types(MAP_InputType_t* uType, MAP_ParameterType_t* pType, MAP_ContinuousStateType_t* xType, MAP_ConstraintStateType_t* zType, MAP_OtherStateType_t* otherType, MAP_OutputType_t* yType, MAP_InitOutputType_t* initoutType)
 {
   /* inputs */
-  uType->x=NULL;     uType->x_Len=0;
-  uType->y=NULL;     uType->y_Len=0;
-  uType->z=NULL;     uType->z_Len=0;
+  uType->x = NULL;     uType->x_Len = 0;
+  uType->y = NULL;     uType->y_Len = 0;
+  uType->z = NULL;     uType->z_Len = 0;
 
   /* parameters are skipped for now; they are set in fortran since depth, gravity and sea density are set by glue code */
 
@@ -113,42 +113,42 @@ MAP_ERROR_CODE initialize_fortran_types(MAP_InputType_t* uType, MAP_ParameterTyp
   xType->dummy=-999.9;
 
   /* constraint state */  
-  zType->H=NULL;     zType->H_Len=0;
-  zType->V=NULL;     zType->V_Len=0;
-  zType->x=NULL;     zType->x_Len=0;
-  zType->y=NULL;     zType->y_Len=0;
-  zType->z=NULL;     zType->z_Len=0;
+  zType->H = NULL;     zType->H_Len = 0;
+  zType->V = NULL;     zType->V_Len = 0;
+  zType->x = NULL;     zType->x_Len = 0;
+  zType->y = NULL;     zType->y_Len = 0;
+  zType->z = NULL;     zType->z_Len = 0;
 
   /* other state */
-  otherType->H=NULL;     otherType->H_Len=0;
-  otherType->V=NULL;     otherType->V_Len=0;
-  otherType->Ha=NULL;    otherType->Ha_Len=0;
-  otherType->Va=NULL;    otherType->Va_Len=0;
-  otherType->x=NULL;     otherType->x_Len=0;
-  otherType->y=NULL;     otherType->y_Len=0;
-  otherType->z=NULL;     otherType->z_Len=0;
-  otherType->xa=NULL;    otherType->xa_Len=0;
-  otherType->ya=NULL;    otherType->ya_Len=0;
-  otherType->za=NULL;    otherType->za_Len=0;
-  otherType->Fx_connect=NULL;    otherType->Fx_connect_Len=0;
-  otherType->Fy_connect=NULL;    otherType->Fy_connect_Len=0;
-  otherType->Fz_connect=NULL;    otherType->Fz_connect_Len=0;
-  otherType->Fx_anchor=NULL;    otherType->Fx_anchor_Len=0;
-  otherType->Fy_anchor=NULL;    otherType->Fy_anchor_Len=0;
-  otherType->Fz_anchor=NULL;    otherType->Fz_anchor_Len=0;
+  otherType->H = NULL;     otherType->H_Len = 0;
+  otherType->V = NULL;     otherType->V_Len = 0;
+  otherType->Ha = NULL;    otherType->Ha_Len = 0;
+  otherType->Va = NULL;    otherType->Va_Len = 0;
+  otherType->x = NULL;     otherType->x_Len = 0;
+  otherType->y = NULL;     otherType->y_Len = 0;
+  otherType->z = NULL;     otherType->z_Len = 0;
+  otherType->xa = NULL;    otherType->xa_Len = 0;
+  otherType->ya = NULL;    otherType->ya_Len = 0;
+  otherType->za = NULL;    otherType->za_Len = 0;
+  otherType->Fx_connect = NULL;    otherType->Fx_connect_Len = 0;
+  otherType->Fy_connect = NULL;    otherType->Fy_connect_Len = 0;
+  otherType->Fz_connect = NULL;    otherType->Fz_connect_Len = 0;
+  otherType->Fx_anchor = NULL;    otherType->Fx_anchor_Len = 0;
+  otherType->Fy_anchor = NULL;    otherType->Fy_anchor_Len = 0;
+  otherType->Fz_anchor = NULL;    otherType->Fz_anchor_Len = 0;
 
   /* outputs */
-  yType->Fx=NULL;              yType->Fx_Len=0;
-  yType->Fy=NULL;              yType->Fy_Len=0;
-  yType->Fz=NULL;              yType->Fz_Len=0;
-  yType->wrtOutput=NULL;       yType->wrtOutput_Len=0;
+  yType->Fx = NULL;              yType->Fx_Len = 0;
+  yType->Fy = NULL;              yType->Fy_Len = 0;
+  yType->Fz = NULL;              yType->Fz_Len = 0;
+  yType->wrtOutput = NULL;       yType->wrtOutput_Len = 0;
   
   /* init outputs */
-  initoutType->progName[0]='\0' ;
-  initoutType->version[0]='\0';
-  initoutType->compilingData[0]='0';
-  initoutType->writeOutputHdr=NULL;     initoutType->writeOutputHdr_Len=0;
-  initoutType->writeOutputUnt=NULL;     initoutType->writeOutputUnt_Len=0;
+  initoutType->progName[0] = '\0' ;
+  initoutType->version[0] = '\0';
+  initoutType->compilingData[0] = '0';
+  initoutType->writeOutputHdr = NULL;     initoutType->writeOutputHdr_Len = 0;
+  initoutType->writeOutputUnt = NULL;     initoutType->writeOutputUnt_Len = 0;
 
   return MAP_SAFE;
 };

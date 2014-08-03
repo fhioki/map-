@@ -105,11 +105,10 @@ PROGRAM Main
   ! !    Can we call MAP_InitInput_Destroy from MAP_DestroyInitInput?
   ! ! 3) Same as (2) for MAP_InitOutput_Destroy.
   ! !................
-  CALL MAP_InitInput_Destroy ( MAP_InitInput%C_obj%object )  
-  CALL MAP_DestroyInitInput  ( MAP_InitInput, ErrStat, ErrMsg )
-    
-   CALL MAP_DestroyInitOutput ( MAP_InitOutput, ErrStat, ErrMsg )
-  !  
+
+  CALL MAP_DestroyInitInput  ( MAP_InitInput, ErrStat, ErrMsg )    
+  CALL MAP_DestroyInitOutput ( MAP_InitOutput, ErrStat, ErrMsg )
+
   ! ! @bonnie : don't we need to initialize the messhes once?
   ! IF (MAP_interp_order .EQ. 2) THEN
   !    DO i = 1,MAP_Input(3)%PtFairDisplacement%NNodes

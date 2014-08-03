@@ -137,7 +137,7 @@ MAP_ERROR_CODE first_solve(ModelData* data, MAP_InputType_t* uType, MAP_Constrai
  * @see mapcall_msqs_end( )
  * @see free_outer_solve_data( ) for where this data is deallocated
  */
-MAP_ERROR_CODE allocate_outer_solve_data(MinPackDataOuter* ns, const int size, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE allocate_outer_solve_data(OuterSolveAttributes* ns, const int size, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   int i = 0;
   const int SIZE = 3*size;
@@ -192,7 +192,7 @@ MAP_ERROR_CODE allocate_outer_solve_data(MinPackDataOuter* ns, const int size, c
 /**
  *
  */
-MAP_ERROR_CODE free_outer_solve_data(MinPackDataOuter* ns, const int size, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE free_outer_solve_data(OuterSolveAttributes* ns, const int size, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   const int SIZE = 3*size;
   int i = 0;
@@ -234,7 +234,7 @@ MAP_ERROR_CODE free_outer_solve_data(MinPackDataOuter* ns, const int size, char*
 MAP_ERROR_CODE node_solve_sequence(ModelData* data, MAP_InputType_t* uType, MAP_ConstraintStateType_t* zType, MAP_OtherStateType_t* otherType, char* map_msg, MAP_ERROR_CODE* ierr)
 {
 
-  MinPackDataOuter* ns = &data->outerSolveData;
+  OuterSolveAttributes* ns = &data->outer_loop;
   MAP_ERROR_CODE success = MAP_SAFE;
   Element* elementIter = NULL;
   const int THREE = 3;
@@ -338,7 +338,7 @@ MAP_ERROR_CODE solve_line(ModelData* data, double time, char* map_msg, MAP_ERROR
         break;
       };
     };    
-    success = call_minpack_lmder(elementIter, &data->solverData, &data->modelOptions, lineCounter, time, map_msg, ierr); CHECKERRQ(MAP_FATAL_79);
+    success = call_minpack_lmder(elementIter, &data->inner_loop, &data->modelOptions, lineCounter, time, map_msg, ierr); CHECKERRQ(MAP_FATAL_79);
     lineCounter++;
   };
   list_iterator_stop(&data->element); /* ending the iteration "session" */    
@@ -381,43 +381,43 @@ MAP_ERROR_CODE set_model_options_list(ModelData* data, InitializationData* initO
         word = strtok(NULL, " ,\n\t\r\0");
         success = is_numeric(word); CHECKERRK(MAP_ERROR_2);
         if (!success) {
-          data->modelOptions.innerFTol = (MapReal)atof(word);        
+          data->inner_loop.f_tol = (MapReal)atof(word);        
         };
       } else if (!strcicmp("INNER_GTOL",word)) {
         word = strtok(NULL, " ,\n\t\r\0");
         success = is_numeric(word); CHECKERRK(MAP_ERROR_9);
         if (!success) {
-          data->modelOptions.innerGTol = (MapReal)atof(word);        
+          data->inner_loop.g_tol = (MapReal)atof(word);        
         };
       } else if (!strcicmp("INNER_XTOL",word)) {
         word = strtok( NULL, " ,\n\t\r\0" );
         success = is_numeric(word); CHECKERRK(MAP_ERROR_10);
         if (!success) {
-          data->modelOptions.innerXTol = (MapReal)atof(word);        
+          data->inner_loop.x_tol = (MapReal)atof(word);        
         };
       } else if (!strcicmp("OUTER_TOL",word)) {
         word = strtok(NULL, " ,\n\t\r\0");
         success = is_numeric(word); CHECKERRK(MAP_ERROR_3);
         if (!success) {
-          data->outerSolveData.tol = (MapReal)atof(word);        
+          data->outer_loop.tol = (MapReal)atof(word);        
         };
       } else if (!strcicmp("OUTER_MAX_ITS",word)) {
         word = strtok( NULL, " ,\n\t\r\0" );
         success = is_numeric(word); CHECKERRK(MAP_ERROR_3);
         if (!success) {
-          data->outerSolveData.maxIts = (MapReal)atof(word);        
+          data->outer_loop.maxIts = (MapReal)atof(word);        
         };
       } else if (!strcicmp("OUTER_EPSILON",word)) {
         word = strtok( NULL, " ,\n\t\r\0" );
         success = is_numeric(word); CHECKERRK(MAP_ERROR_3);
         if (!success) {
-          data->outerSolveData.epsilon = (MapReal)atof(word);        
+          data->outer_loop.epsilon = (MapReal)atof(word);        
         };
       } else if (!strcicmp("INNER_MAX_ITS",word)) {
         word = strtok(NULL, " ,\n\t\r\0");
         success = is_numeric(word); CHECKERRK(MAP_ERROR_4);
         if (!success) {
-          data->modelOptions.innerMaxIts = (MapReal)atof(word);        
+          data->inner_loop.max_its = (MapReal)atof(word);        
         };
       } else if (!strcicmp("INTEGRATION_DT",word)) {
         word = strtok(NULL, " ,\n\t\r\0");
@@ -445,27 +445,27 @@ MAP_ERROR_CODE set_model_options_list(ModelData* data, InitializationData* initO
         if (word!=NULL) {          
           success = is_numeric(word); CHECKERRK(MAP_WARNING_8);
           if (!success) {
-            data->outerSolveData.ds = (MapReal)atof(word);        
+            data->outer_loop.ds = (MapReal)atof(word);        
           } else {
-            data->outerSolveData.ds = 1.0;
+            data->outer_loop.ds = 1.0;
           };
         };
         word = strtok(NULL, " ,\n\t\r\0");        
         if (word!=NULL) {          
           success = is_numeric(word); CHECKERRK(MAP_WARNING_8);
           if (!success) {
-            data->outerSolveData.d = (MapReal)atof(word);        
+            data->outer_loop.d = (MapReal)atof(word);        
           } else {
-            data->outerSolveData.d = 0.0;
+            data->outer_loop.d = 0.0;
           };
         };
-        data->outerSolveData.pg = true;
+        data->outer_loop.pg = true;
       } else if (!strcicmp("OUTER_BD",word)) {
-        data->outerSolveData.fd = BACKWARD_DIFFERENCE;
+        data->outer_loop.fd = BACKWARD_DIFFERENCE;
       } else if (!strcicmp("OUTER_CD",word)) {
-        data->outerSolveData.fd = CENTRAL_DIFFERENCE;
+        data->outer_loop.fd = CENTRAL_DIFFERENCE;
       } else if (!strcicmp("OUTER_FD",word)) {
-        data->outerSolveData.fd = FORWARD_DIFFERENCE;
+        data->outer_loop.fd = FORWARD_DIFFERENCE;
       } else if (!strcicmp("REF_POSITION",word)) {
         word = strtok( NULL, " ,\n\t\r\0" );
         success = is_numeric(word); CHECKERRQ(MAP_FATAL_36);

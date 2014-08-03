@@ -258,33 +258,33 @@ struct Node_t {
 
 struct Element_t {
   Events event;
-  CableLibrary* lineProperty; /* line properties */
-  LineOptions options;        /* run-time options flag */
-  VarTypePtr H;               /* Horizontal fairlead force in the local cable elemenet frame */
-  VarTypePtr V;               /* Vertical fairlead force in the local cable elemenet frame */  
-  MapReal* lineTension;       /* array of line tension along 's' [N] */ 
-  MapReal damageTime;         /* time to damage this element and return zero force to the glue code */
-  MapReal residualNorm;
-  VarType psi;                /* angle of roation between global X and local x axis [deg] */
-  VarType alpha;              /* angle of inclication [deg] */
-  VarType alphaAtAnchor;      /* angle of inclication at anchor [deg] */
-  VarType l;                  /* horizontal cable excursion [m] */
-  VarType lb;                 /* length of element touching the seabed [m] */
-  VarType Lu;                 /* unstretched cable length [m] */
-  VarType h;                  /* vertical cable excursion [m] */
-  VarType HAtAnchor;          /* Horizontal anchor force in the local cable elemenet frame */
-  VarType VAtAnchor;          /* Vertical anchor force in the local cable elemenet frame */
-  VarType T;                  /* Tension magnitude [N] */
-  VarType TAtAnchor;          /* Tension magnitude at anchor [N] */
-  Force forceAtFairlead;      // @rm is this even necessary? I don't think so. Element should not store node forces. They only can contribute force in sumForcePrt
-  Force forceAtAnchor;        // @rm is this even necessary? I don't think so. Element should not store node forces. They only can contribute force in sumForcePrt
-  char* label;                /* reference a pre-defined property in the line dictionary */
-  Node* anchor;               /* Anchor node */
-  Node* fairlead;             /* Fairlead node */
+  CableLibrary* lineProperty; /**< line properties */
+  LineOptions options;        /**< run-time options flag */
+  VarTypePtr H;               /**< Horizontal fairlead force in the local cable elemenet frame */
+  VarTypePtr V;               /**< Vertical fairlead force in the local cable elemenet frame */  
+  MapReal* lineTension;       /**< array of line tension along 's' [N] */ 
+  MapReal damageTime;         /**< time to damage this element and return zero force to the glue code */
+  MapReal residualNorm;       
+  VarType psi;                /**< angle of roation between global X and local x axis [deg] */
+  VarType alpha;              /**< angle of inclication [deg] */
+  VarType alphaAtAnchor;      /**< angle of inclication at anchor [deg] */
+  VarType l;                  /**< horizontal cable excursion [m] */
+  VarType lb;                 /**< length of element touching the seabed [m] */
+  VarType Lu;                 /**< unstretched cable length [m] */
+  VarType h;                  /**< vertical cable excursion [m] */
+  VarType HAtAnchor;          /**< Horizontal anchor force in the local cable elemenet frame */
+  VarType VAtAnchor;          /**< Vertical anchor force in the local cable elemenet frame */
+  VarType T;                  /**< Tension magnitude [N] */
+  VarType TAtAnchor;          /**< Tension magnitude at anchor [N] */
+  Force forceAtFairlead;      //*< @rm is this even necessary? I don't think so. Element should not store node forces. They only can contribute force in sumForcePrt
+  Force forceAtAnchor;        //*< @rm is this even necessary? I don't think so. Element should not store node forces. They only can contribute force in sumForcePrt
+  char* label;                /**< reference a pre-defined property in the line dictionary */
+  Node* anchor;               /**< Anchor node */
+  Node* fairlead;             /**< Fairlead node */
   int segmentSize;
-  int diagnosticType;         /* none=0, first iteration only=2, all iterations otherwise */
-  int numFuncEvals;           /* number of function evaluations */ 
-  int numJacEvals;            /* number of function evaluations */      
+  int diagnosticType;         /**< none=0, first iteration only=2, all iterations otherwise */
+  int numFuncEvals;           /**< number of function evaluations */ 
+  int numJacEvals;            /**< number of function evaluations */      
   int convergeReason;         /*   - info=0 : improper input parameters.
                                *   - info=1 : both actual and predicted relative reductions in the sum of squares are at most ftol.
                                *   - info=2 : relative error between two consecutive iterates is at most xtol.
@@ -300,41 +300,41 @@ struct Element_t {
 
 struct ModelOptions_t {
   MapReal* repeatAngles;
-  MapReal innerFTol; /* @todo: this should be moved in MinPackDataInner */
-  MapReal innerGTol; /* @todo: this should be moved in MinPackDataInner */
-  MapReal innerXTol; /* @todo: this should be moved in MinPackDataInner */
-  int innerMaxIts; /* @todo: this should be moved in MinPackDataInner */
-  MapReal integrationDt; /* LM model specific */
-  MapReal kbLm; /* LM model specific */
-  MapReal cbLm; /* LM model specific */
-  bool waveKinematics; /* LM model specific */
+  MapReal integrationDt; /**< Integration time step [sec]. LM model specific */
+  MapReal kbLm;          /**< Seabed stiffeness coefficient [N/m]. LM model specific */
+  MapReal cbLm;          /**< Seabed damping parameter [N-s/m]. LM model specific */
+  bool waveKinematics;   /**< Enable wave kinematics o calculated relative flui velcity. LM model specific */
   int sizeOfRepeatAngles;
 }; typedef struct ModelOptions_t ModelOptions;
 
 
-struct MinPackDataInner_t {
-  MapReal** nodeJac;
-  MapReal x[2];               /* array of variables the length of n */
-  MapReal fvec[2];            /* function evaluations (residual) */
-  MapReal fjac[4];            /* jacobian. This is a little convoluted because the jacobian is not an array */
-  MapReal wa1[2];             /* work array of length n */
-  MapReal wa2[2];             /* work array of length n */
-  MapReal wa3[2];             /* work array of length n */
-  MapReal wa4[2];             /* work array of length m */  
+struct InnerSolveAttributes_t {
+  MapReal f_tol; 
+  MapReal g_tol; 
+  MapReal x_tol; 
+  int max_its;   
+  MapReal** node_jac;
+  MapReal x[2];               /**< array of variables the length of n */
+  MapReal fvec[2];            /**< function evaluations (residual) */
+  MapReal fjac[4];            /**< jacobian. This is a little convoluted because the jacobian is not an array */
+  MapReal wa1[2];             /**< work array of length n */
+  MapReal wa2[2];             /**< work array of length n */
+  MapReal wa3[2];             /**< work array of length n */
+  MapReal wa4[2];             /**< work array of length m */  
   double diag[2];            
   double qtf[2];             
   double factor;             
-  int ldfjac; /* number of columns in fjac */
+  int ldfjac;                 /**< number of columns in fjac */
   int mode;             
   int nprint;           
   int info;             
   int ipvt[2];
-  int m; /* number of functions */ 
-  int n; /* number of variables */
-}; typedef struct MinPackDataInner_t MinPackDataInner;
+  int m;                      /**< number of functions */ 
+  int n;                      /**< number of variables */
+}; typedef struct InnerSolveAttributes_t InnerSolveAttributes;
 
 
-struct MinPackDataOuter_t {
+struct OuterSolveAttributes_t {
   FdType fd;
   MapReal** jac;
   MapReal** l;
@@ -351,29 +351,29 @@ struct MinPackDataOuter_t {
   bool pg;
   int maxIts;
   int iterationCount;
-}; typedef struct MinPackDataOuter_t MinPackDataOuter;
+}; typedef struct OuterSolveAttributes_t OuterSolveAttributes;
 
 
 struct ModelData_t {
-  SolveType MAP_SOLVE_TYPE;         /**< Identifies the solver type: single line, partitioned (multisegmented), and lumped-mass/FEA. Initialized in {@link initialize_model_data_to_null} */
-  ModelOptions modelOptions;        /**< Contains global model options. Default setting in {@link initialize_model_options_to_defaults} */
-  MinPackDataInner solverData;      /**< Inner-loop (line level) solver options. Default settings in {@link initialize_solver_data_to_null} */
-  MinPackDataOuter outerSolveData;  /**< Outer-loop (node level) solver options. Default settings in {@link initialize_model_options_to_defaults} */
-  OutputList* yList;                /**< Output stream. Set to null at initialization */
-  Vessel vessel;                    /**< Vessel for the mooring instance. Initialized in {@link initialize_vessel_to_null}. Associated VarType's are set in {@link set_vessel} */
-  list_t cableLibrary;              /**< Cable library link list; stores cable properties, e.g., @see CableLibrary_t */
-  list_t element;                   /**< Line link list */
-  list_t node;                      /**< Node link list */
-  int sizeOfCableLibrary;           /**< Number of cable types defined in the cable library section of the input file */ 
-  int sizeOfElements;               /**< Number of lines */
-  int sizeOfNodes;                  /**< Number of nodes */
+  SolveType MAP_SOLVE_TYPE;        /**< Identifies the solver type: single line, partitioned (multisegmented), and lumped-mass/FEA. Initialized in {@link initialize_model_data_to_null} */
+  ModelOptions modelOptions;       /**< Contains global model options. Default setting in {@link initialize_model_options_to_defaults} */
+  InnerSolveAttributes inner_loop; /**< Inner-loop (line level) solver options. Default settings in {@link initialize_solver_data_to_null} */
+  OuterSolveAttributes outer_loop; /**< Outer-loop (node level) solver options. Default settings in {@link initialize_model_options_to_defaults} */
+  OutputList* yList;               /**< Output stream. Set to null at initialization */
+  Vessel vessel;                   /**< Vessel for the mooring instance. Initialized in {@link initialize_vessel_to_null}. Associated VarType's are set in {@link set_vessel} */
+  list_t cableLibrary;             /**< Cable library link list; stores cable properties, e.g., @see CableLibrary_t */
+  list_t element;                  /**< Line link list */
+  list_t node;                     /**< Node link list */
+  int sizeOfCableLibrary;          /**< Number of cable types defined in the cable library section of the input file */ 
+  int sizeOfElements;              /**< Number of lines */
+  int sizeOfNodes;                 /**< Number of nodes */
 }; typedef struct ModelData_t ModelData;
 
 
 /**
- * @brief MAP options from parsed input file. Note that MAP does not readon the input file. This is done by the calling program.
- *        The calling program simply sets library_input_string, node_input_string, element_input_string, and solver_options_string.
- *        MAP then parses this string and expands them if necessary depending on the '{@link ModelOptions_t}' repeatAngles flag.
+ * @details MAP options from parsed input file. Note that MAP does not readon the input file. This is done by the calling program.
+ *          The calling program simply sets library_input_string, node_input_string, element_input_string, and solver_options_string.
+ *          MAP then parses this string and expands them if necessary depending on the '{@link ModelOptions_t}' repeatAngles flag.
  */
 struct InitializationData_t {
   char** libraryInputString;         /**< library property string from input file. MAP does not read contents from input string; must be done by calling program */

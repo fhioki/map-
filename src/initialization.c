@@ -83,69 +83,67 @@ void initialize_init_data_to_null(InitializationData* init_data)
 };
 
 
-void initialize_model_data_to_null(ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr)
+void initialize_model_data_to_null(ModelData* model_data)
 {
-  MAP_ERROR_CODE success = MAP_SAFE;
   model_data->MAP_SOLVE_TYPE = -999;
   model_data->yList = NULL; 
   model_data->sizeOfCableLibrary = 0;
   model_data->sizeOfElements = 0;
   model_data->sizeOfNodes = 0;    
-  initialize_solver_data_to_null(&model_data->outerSolveData, &model_data->solverData);    
-  initialize_vessel_to_null(&model_data->vessel, map_msg, ierr);    
-  initialize_model_options_to_defaults(model_data);
+  initialize_inner_solve_data_defaults(&model_data->inner_loop);    
+  initialize_outer_solve_data_defaults(&model_data->outer_loop);    
+  initialize_vessel_to_null(&model_data->vessel);    
+  initialize_model_option_defaults(&model_data->modelOptions);
 };
 
 
-void initialize_solver_data_to_null(MinPackDataOuter* mpOuter, MinPackDataInner* mpInner)
+void initialize_inner_solve_data_defaults(InnerSolveAttributes* inner)
 {
-  mpInner->m = 2;
-  mpInner->n = 2;
-  mpInner->factor = 1.0E2;             
-  mpInner->factor = 1.0E2;             
-  mpInner->ldfjac = 2; /* number of columns in fjac */
-  mpInner->mode = 1;             
-  mpInner->nprint = 2;           
-  mpInner->info = 0;             
-
-  mpOuter->jac = NULL;
-  mpOuter->x = NULL;
-  mpOuter->b = NULL;
-  mpOuter->l = NULL;
-  mpOuter->u = NULL;
-  mpOuter->y = NULL;
+  inner->f_tol = 1e-6;
+  inner->g_tol = 1e-6;
+  inner->x_tol = 1e-6;
+  inner->max_its = 500;
+  inner->m = 2;
+  inner->n = 2;
+  inner->factor = 1.0E2;             
+  inner->factor = 1.0E2;             
+  inner->ldfjac = 2; 
+  inner->mode = 1;             
+  inner->nprint = 2;           
+  inner->info = 0;             
 };
 
 
-void initialize_model_options_to_defaults(ModelData* data) 
+void initialize_model_option_defaults(ModelOptions* options) 
 {
-  data->modelOptions.innerFTol = 1e-6;
-  data->modelOptions.innerGTol = 1e-6;
-  data->modelOptions.innerXTol = 1e-6;
-  data->modelOptions.innerMaxIts = 500;
-  data->modelOptions.sizeOfRepeatAngles = 0;
-  data->modelOptions.repeatAngles = NULL;
-  data->modelOptions.integrationDt = 0.01;
-  data->modelOptions.kbLm = 3.0E6;
-  data->modelOptions.cbLm = 3.0E5;
-  data->modelOptions.waveKinematics = false;
-
-  data->outerSolveData.fd = BACKWARD_DIFFERENCE;
-  data->outerSolveData.pg = false;
-  data->outerSolveData.tol = 1e-6;
-  data->outerSolveData.epsilon = 1e-3;
-  data->outerSolveData.maxIts = 500;
-  data->outerSolveData.jac = NULL;
-  data->outerSolveData.x = NULL;
-  data->outerSolveData.b = NULL;
-  data->outerSolveData.l = NULL;
-  data->outerSolveData.u = NULL;
+  options->sizeOfRepeatAngles = 0;
+  options->repeatAngles = NULL;
+  options->integrationDt = 0.01;
+  options->kbLm = 3.0E6;
+  options->cbLm = 3.0E5;
+  options->waveKinematics = false;
 }; 
 
 
-void initialize_vessel_to_null(Vessel* floater, char* map_msg, MAP_ERROR_CODE* ierr)
+/* deallocated in free_outer_solve_data() */
+void initialize_outer_solve_data_defaults(OuterSolveAttributes* outer) 
 {
+  outer->fd = BACKWARD_DIFFERENCE;
+  outer->pg = false;
+  outer->tol = 1e-6;
+  outer->epsilon = 1e-3;
+  outer->maxIts = 500;
+  outer->jac = NULL;
+  outer->x = NULL;
+  outer->b = NULL;
+  outer->l = NULL;
+  outer->u = NULL;
+  outer->y = NULL;
+};
 
+
+void initialize_vessel_to_null(Vessel* floater)
+{
   floater->xi = NULL;
   floater->yi = NULL;
   floater->zi = NULL;
@@ -219,7 +217,7 @@ MAP_EXTERNCALL ModelData* MAP_OtherState_Create(char* map_msg, MAP_ERROR_CODE* i
     *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_43);    
     return new_data;
   } else {
-    initialize_model_data_to_null(new_data, map_msg, ierr);
+    initialize_model_data_to_null(new_data);
     *ierr = MAP_SAFE;
     return new_data;
   };

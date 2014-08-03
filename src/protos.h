@@ -102,8 +102,8 @@ MAP_ERROR_CODE free_outlist(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr
 MAP_ERROR_CODE initialize_init_input(InitializationData* init);
 
 MAP_ERROR_CODE first_solve(ModelData* data, MAP_InputType_t* uType, MAP_ConstraintStateType_t* zType, MAP_OtherStateType_t* otherType, MAP_OutputType_t* yType, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE allocate_outer_solve_data(MinPackDataOuter* ns, const int size, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE free_outer_solve_data(MinPackDataOuter* ns, const int size, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE allocate_outer_solve_data(OuterSolveAttributes* ns, const int size, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE free_outer_solve_data(OuterSolveAttributes* ns, const int size, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE solve_line(ModelData* data, double time, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE node_solve_sequence(ModelData* data, MAP_InputType_t* uType, MAP_ConstraintStateType_t* zType, MAP_OtherStateType_t* otherType, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE line_solve_sequence(ModelData* otherType, double t, char* map_msg, MAP_ERROR_CODE* ierr);
@@ -136,10 +136,10 @@ void add_to_sum_fz(Node* node, const MapReal fz);
  * Numeric routines
  */
 int inner_function_evals(void* elementPtr, int m, int n, const __cminpack_real__* x, __cminpack_real__* fvec, __cminpack_real__* fjac, int ldfjac, int iflag);
-MAP_ERROR_CODE call_minpack_lmder(Element* element, MinPackDataInner* mp, ModelOptions* opt, const int lineNum, const double time, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE call_minpack_lmder(Element* element, InnerSolveAttributes* inner_opt, ModelOptions* opt, const int lineNum, const double time, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE set_psi(Element* element, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE lu(MinPackDataOuter* ns, const int n, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE lu_back_substitution(MinPackDataOuter* ns, const int n, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE lu(OuterSolveAttributes* ns, const int n, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE lu_back_substitution(OuterSolveAttributes* ns, const int n, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE forward_difference_jacobian(MAP_OtherStateType_t* otherType, MAP_ConstraintStateType_t* zType, ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE backward_difference_jacobian(MAP_OtherStateType_t* otherType, MAP_ConstraintStateType_t* zType, ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr);
 

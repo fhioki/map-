@@ -523,7 +523,7 @@ MapReal get_maximum_line_length(Element* element)
 /**
  * Ax = b -> LUx = b. Then y is defined to be Ux
  */
-MAP_ERROR_CODE lu_back_substitution(MinPackDataOuter* ns, const int n, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE lu_back_substitution(OuterSolveAttributes* ns, const int n, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   int i = 0;
   int j = 0;
@@ -558,7 +558,7 @@ MAP_ERROR_CODE lu_back_substitution(MinPackDataOuter* ns, const int n, char* map
 /**
  *
  */
-MAP_ERROR_CODE lu(MinPackDataOuter* ns, const int n, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE lu(OuterSolveAttributes* ns, const int n, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   int i = 0;
   int j = 0;
@@ -591,7 +591,7 @@ MAP_ERROR_CODE lu(MinPackDataOuter* ns, const int n, char* map_msg, MAP_ERROR_CO
  */
 MAP_ERROR_CODE forward_difference_jacobian(MAP_OtherStateType_t* otherType, MAP_ConstraintStateType_t* zType, ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr)
 {
-  MinPackDataOuter* ns = &data->outerSolveData;
+  OuterSolveAttributes* ns = &data->outer_loop;
   MAP_ERROR_CODE success = MAP_SAFE;
   double originalDisplacement = 0.0;
   const int THREE = 3;
@@ -688,7 +688,7 @@ MAP_ERROR_CODE forward_difference_jacobian(MAP_OtherStateType_t* otherType, MAP_
  */
 MAP_ERROR_CODE backward_difference_jacobian(MAP_OtherStateType_t* otherType, MAP_ConstraintStateType_t* zType, ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr)
 {
-  MinPackDataOuter* ns = &data->outerSolveData;
+  OuterSolveAttributes* ns = &data->outer_loop;
   MAP_ERROR_CODE success = MAP_SAFE;
   double originalDisplacement = 0.0;
   const int THREE = 3;
@@ -785,7 +785,7 @@ MAP_ERROR_CODE backward_difference_jacobian(MAP_OtherStateType_t* otherType, MAP
  */
 MAP_ERROR_CODE central_difference_jacobian(MAP_OtherStateType_t* otherType, MAP_ConstraintStateType_t* zType, ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr)
 {
-  MinPackDataOuter* ns = &data->outerSolveData;
+  OuterSolveAttributes* ns = &data->outer_loop;
   MAP_ERROR_CODE success = MAP_SAFE;
   double originalDisplacement = 0.0;
   const int THREE = 3;
@@ -914,45 +914,45 @@ MAP_ERROR_CODE central_difference_jacobian(MAP_OtherStateType_t* otherType, MAP_
 
 
 
-MAP_ERROR_CODE call_minpack_lmder(Element* element, MinPackDataInner* mp, ModelOptions* opt, const int lineNum, const double time, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE call_minpack_lmder(Element* element, InnerSolveAttributes* inner_opt, ModelOptions* opt, const int lineNum, const double time, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   char buffer[64] = "";
   int cx = 0;
   MAP_ERROR_CODE success = MAP_SAFE;
 
   /* initial guess vector is set in set_element_initial_guess(..); otherwise, the previous solution is used as the initial guess */
-  mp->x[0] = *(element->H.value);
-  mp->x[1] = *(element->V.value);
+  inner_opt->x[0] = *(element->H.value);
+  inner_opt->x[1] = *(element->V.value);
 
   element->numFuncEvals = 0;
   element->numJacEvals = 0;
 
-  mp->info = __cminpack_func__(lmder)(inner_function_evals, 
+  inner_opt->info = __cminpack_func__(lmder)(inner_function_evals, 
                                       element, 
-                                      mp->m, 
-                                      mp->n, 
-                                      mp->x, 
-                                      mp->fvec, 
-                                      mp->fjac, 
-                                      mp->ldfjac, 
-                                      opt->innerFTol, 
-                                      opt->innerXTol, 
-                                      opt->innerGTol, 
-                                      opt->innerMaxIts, 
-                                      mp->diag,
-                                      mp->mode, 
-                                      mp->factor, 
-                                      mp->nprint, 
+                                      inner_opt->m, 
+                                      inner_opt->n, 
+                                      inner_opt->x, 
+                                      inner_opt->fvec, 
+                                      inner_opt->fjac, 
+                                      inner_opt->ldfjac, 
+                                      inner_opt->f_tol, 
+                                      inner_opt->x_tol, 
+                                      inner_opt->g_tol, 
+                                      inner_opt->max_its, 
+                                      inner_opt->diag,
+                                      inner_opt->mode, 
+                                      inner_opt->factor, 
+                                      inner_opt->nprint, 
                                       &element->numFuncEvals, 
                                       &element->numJacEvals, 
-                                      mp->ipvt, 
-                                      mp->qtf, 
-                                      mp->wa1 ,
-                                      mp->wa2 ,
-                                      mp->wa3 , 
-                                      mp->wa4);
+                                      inner_opt->ipvt, 
+                                      inner_opt->qtf, 
+                                      inner_opt->wa1 ,
+                                      inner_opt->wa2 ,
+                                      inner_opt->wa3 , 
+                                      inner_opt->wa4);
   
-  element->residualNorm = (MapReal)__minpack_func__(enorm)(&mp->m, mp->fvec);
+  element->residualNorm = (MapReal)__minpack_func__(enorm)(&inner_opt->m, inner_opt->fvec);
   
   if (element->options.diagnosticsFlag && (double)element->diagnosticType>time ) { 
     printf("\n      %4.3f [sec]  Element %d\n",time, lineNum+1);
@@ -960,13 +960,13 @@ MAP_ERROR_CODE call_minpack_lmder(Element* element, MinPackDataInner* mp, ModelO
     printf("      Residual l2 norm at solution:  %15.7g\n", element->residualNorm);
     printf("      Function evaluations:         %10i\n", element->numFuncEvals);
     printf("      Jacobian evaluations:         %10i\n", element->numJacEvals);
-    printf("      Exit parameter                %10i\n\n", mp->info);
+    printf("      Exit parameter                %10i\n\n", inner_opt->info);
   };
-  *(element->H.value) = mp->x[0];
-  *(element->V.value) = mp->x[1];
-  element->convergeReason = mp->info;
+  *(element->H.value) = inner_opt->x[0];
+  *(element->V.value) = inner_opt->x[1];
+  element->convergeReason = inner_opt->info;
   
-  switch (mp->info) {
+  switch (inner_opt->info) {
   case 0 :
     success = MAP_FATAL;
     cx = map_snprintf(buffer, 64, "Line segment %d.", lineNum); assert(cx>=0);
