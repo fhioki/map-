@@ -24,6 +24,11 @@
 
 #include "MAP_Types.h"
 
+MAP_EXTERNCALL void map_add_cable_library_input_text(MAP_InitInputType_t* init_type);
+MAP_EXTERNCALL void map_add_node_input_text(MAP_InitInputType_t* init_type);
+MAP_EXTERNCALL void map_add_element_input_text(MAP_InitInputType_t* init_type);
+MAP_EXTERNCALL void map_add_options_input_text(MAP_InitInputType_t* init_type);
+
 
 /**
  * @brief Set the water depth. Should be called before {@link map_init()}

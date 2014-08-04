@@ -1,4 +1,11 @@
-CC = gcc
+PLATFORM = $(shell uname -s)
+
+ifeq ($(PLATFORM),Darwin)
+CC_TOOLS  = gcc
+else
+CC_TOOLS  = gcc
+endif
+
 CCFLAGS = -g -O0 
 OBJ = test.o
 
@@ -10,4 +17,5 @@ clean:
 
 
 memcheck:	
-	valgrind --tool=memcheck --leak-check=yes --track-origins=yes ./c_driver
+	#valgrind --tool=memcheck --leak-check=yes --track-origins=yes ./c_driver
+	valgrind --tool=exp-sgcheck ./c_driver

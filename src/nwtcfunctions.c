@@ -102,7 +102,7 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
     };
     
 #ifdef DEBUG
-    print_machine_name_to_screen( );
+    // print_machine_name_to_screen( );
 #endif /* if DEBUG is raised in CCFLAGS, then MAP version number is printed to screen */
     
     printf("MAP environment properties (set externally)...\n");
@@ -117,7 +117,7 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
     success = set_element_initial_guess(model_data, map_msg, ierr);
     success = first_solve(model_data, u_type, z_type, other_type, y_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_39);
     success = set_line_variables_post_solve(model_data, map_msg, ierr);    
-    success = write_summary_file(init_data, p_type, model_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_37);           
+    // success = write_summary_file(init_data, p_type, model_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_37);           
     success = get_iteration_output_stream(y_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
     free_init_data(init_data, map_msg, ierr); 
     MAP_InitInput_Delete(init_data);
