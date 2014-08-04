@@ -1,5 +1,6 @@
 CC = gcc
-CCFLAGS = -g -O0 
+#CCFLAGS = -g -O0 
+CFLAGS = -g -O2 -Wstrict-aliasing -Wuninitialized  
 OBJ = test.o
 
 all : $(OBJ)
@@ -10,4 +11,5 @@ clean:
 
 
 memcheck:	
-	valgrind --tool=memcheck --leak-check=yes --track-origins=yes ./c_driver
+	valgrind  --tool=exp-sgcheck  ./c_driver
+#	valgrind --tool=memcheck --leak-check=yes python -E -tt ./main.py	

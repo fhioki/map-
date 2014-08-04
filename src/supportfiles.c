@@ -356,12 +356,12 @@ MAP_ERROR_CODE is_numeric(const char* s)
  */
 MAP_ERROR_CODE map_get_version(MAP_InitOutputType_t* ioType)
 {
-  char name[256]="";
+  char name[99]="";
 
-  __get_machine_name(name);
+  //__get_machine_name(name);
   ioType->version[0]='\0';
   ioType->compilingData[0]='\0';
-  map_snprintf(ioType->version, 99, "<%s-%s>",PROGVERSION,name);
+//  map_snprintf(ioType->version, 99, "<%s-%s>",PROGVERSION,name);
   map_snprintf(ioType->compilingData, 24,"<-%c%c%c-%c%c-%c%c%c%c>",BUILD_MONTH_CH0,BUILD_MONTH_CH1,BUILD_MONTH_CH2,BUILD_DAY_CH0,BUILD_DAY_CH1,BUILD_YEAR_CH0,BUILD_YEAR_CH1,BUILD_YEAR_CH2,BUILD_YEAR_CH3);
 
   return MAP_SAFE;
@@ -372,9 +372,9 @@ MAP_ERROR_CODE map_get_version(MAP_InitOutputType_t* ioType)
  *
  */
 void print_machine_name_to_screen( ) {
-  char name[256]="";
+  char name[150]="";
 
-  __get_machine_name(name);
+  //__get_machine_name(name);
   printf( "%s Ver. %s-%s ", PROGNAME, PROGVERSION, name ); 
   printf( "%c",BUILD_MONTH_CH0 );// build month
   printf( "%c",BUILD_MONTH_CH1 );

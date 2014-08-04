@@ -146,8 +146,9 @@ int main(int argc, char *argv[])
     time = (double)its*dt;
     vessel_y_position = its;
     
+    u_type->y[0] = vessel_y_position;
     /* vessel position:                   X    Y                  Z    phi  the  psi */
-    map_offset_vessel(other_type, u_type, 0.0, vessel_y_position, 0.0, 0.0, 0.0, 0.0, map_msg, &ierr); // @todo: <----- inconsistent argument order, map_msg, ierr?
+    // map_offset_vessel(other_type, u_type, 0.0, vessel_y_position, 0.0, 0.0, 0.0, 0.0, map_msg, &ierr); // @todo: <----- inconsistent argument order, map_msg, ierr?
     map_update_states(time, its, u_type, p_type, x_type, NULL, z_type, other_type, &ierr, map_msg);    // @todo: <----- inconsistent argument order, ierr, map_msg?
     
     printf("Time step %0.1f: ", time);

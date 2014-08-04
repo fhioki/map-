@@ -289,7 +289,7 @@ MAP_ERROR_CODE write_summary_file(InitializationData* init, MAP_ParameterType_t*
   time_t timer;
   FILE* file = fopen(init->summaryFileName, "w");
   char timeBuffer[64] = "";
-  char name[256] = "";
+  char name[150] = "";
   
   time(&timer);
   tmInfo = localtime(&timer);
@@ -299,7 +299,7 @@ MAP_ERROR_CODE write_summary_file(InitializationData* init, MAP_ParameterType_t*
     return MAP_FATAL;
   };
   
-  __get_machine_name(name);  
+  //__get_machine_name(name);  
   strftime(timeBuffer, 64, "%A %B %d-%Y at %H:%M:%S %p", tmInfo);
   /* 
      May want to retag version number of git between major/minor releases. A trick to include git revision number
