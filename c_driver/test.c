@@ -1,6 +1,6 @@
 /* 
-   This program is without warranty, use is at your own risk, not liable for damages, ect. 
-   Apache 2.0 license.
+   This program is without warranty, ect. 
+   See: Apache 2.0 license text for details.
 */
 
 #include <stdio.h>
@@ -30,8 +30,9 @@ int main(int argc, char *argv[])
   char** unit_array = NULL;
   
   /* 
-     I'm going to rename these functions to make them more generic sounding. py_create_*_data() seems like
-     only python folks would be interested in what is done here. This can be misleading.
+     For clarity, all API functions are prefixed with 'map_'. The convention applied before, i.e., 'py_create_*_data()', seemed like
+     the function applied to python only. This isn't true; any function prototytped with MAP_EXTERNCALL is exposed to any lanugage, and 
+     is part of the API library. 
   */
   MAP_InitInputType_t* init_type = (MAP_InitInputType_t*)(uintptr_t)map_create_init_type(map_msg, &ierr); // @todo: check ierr==MAP_SAFE error for all
   MAP_InitOutputType_t* io_type = (MAP_InitOutputType_t*)(uintptr_t)map_create_initout_type(map_msg, &ierr);
@@ -51,13 +52,13 @@ int main(int argc, char *argv[])
     The reason why the init_type needs to be set line-by-line for fortran (ISO_C_BINDING) 
     legacy reasons. I haven't figured out a clean way to pass 2D char** arrays from fortran 
     to C (because 2D arrays between C and fortran do no align in memory). 1D arrays do line 
-    up. 
+    up. A better, more generic, non-text driven way of setting model parameters should be use. 
   */
-  strcpy(line_def[0], "chainup   0.064929  138.73        545000000 1.0    1.0E8    0.6 -1.0    0.05\0");
-  strcpy(line_def[1], "chainup2   0.064929  138.73        545000000 1.0    1.0E8    0.6 -1.0    0.05\0");
-  strcpy(node_def[0], "1     fix        0    -520      -120    0 0      #     #     #\0");
-  strcpy(node_def[1], "2     Vessel     0     -20       40     0 0      #     #     #\0");
-  strcpy(element_def[0], "1        chainup   640        1         2 gy_pos h_fair\0");
+  strcpy(line_def[0], "chainup  0.064929 138.73 545000000 1.0 1.0E8 0.6 -1.0 0.05\0");
+  strcpy(line_def[1], "chainup2 0.064929 138.73 545000000 1.0 1.0E8 0.6 -1.0 0.05\0");
+  strcpy(node_def[0], "1  fix    0 -520  -120  0 0 # # #\0");
+  strcpy(node_def[1], "2  Vessel 0  -20  40    0 0 # # #\0");
+  strcpy(element_def[0], "1 chainup  640 1 2 gy_pos h_fair\0");
   strcpy(option_def[0], "inner_ftol 1e-6\0");
   strcpy(option_def[1], "inner_gtol 1e-12\0");
   strcpy(option_def[2], "inner_xtol 1e-6\0");
@@ -88,6 +89,7 @@ int main(int argc, char *argv[])
   strcpy(init_type->optionInputLine, option_def[3]); map_add_options_input_text(init_type);  
   strcpy(init_type->optionInputLine, option_def[4]); map_add_options_input_text(init_type);  
   strcpy(init_type->optionInputLine, option_def[5]); map_add_options_input_text(init_type);  
+  strcpy(init_type->optionInputLine, option_def[6]); map_add_options_input_text(init_type);  
 
 
   /* 
@@ -168,7 +170,7 @@ int main(int argc, char *argv[])
    
   /* first delete internal data type, then delete derived data types...  */
   map_end(u_type, p_type, x_type, NULL, z_type, other_type, y_type, &ierr, map_msg);
-  success = map_free_types(u_type, p_type, x_type, z_type, other_type, y_type);  /* @todo: check success... why do I do this? nothing should return from API function; 
+  success = map_free_types(u_type, p_type, x_type, z_type, other_type, y_type);  /* @todo: check success... why do I do this? nothing should return from API functions; 
                                                                                     arguments are passed by reference. Should pass ierr, map_msg as argument */
 
   /* 

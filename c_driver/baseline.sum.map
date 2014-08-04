@@ -1,6 +1,6 @@
-Outputs were generated using MAP++ v1.00-4-g3be2-dirty on marco-robot.
+Outputs were generated using MAP++ v1.00-6-g3941-dirty on marco-robot.
 
-    Sunday August 03-2014 at 16:08:43 PM
+    Sunday August 03-2014 at 20:40:59 PM
 
     Gravity constant          [m/s^2]  : 9.81
     Sea density               [kg/m^3] : 1020.00
@@ -21,17 +21,43 @@ Outputs were generated using MAP++ v1.00-4-g3be2-dirty on marco-robot.
     omega        [N/m]  : 1327.81
     CB                  : 1.00
 
-          | Node 1 Data            Node 2 Data
+          | Node 1 Data            Node 2 Data            Node 3 Data            Node 4 Data
+          | -------------------------------------------------------------------------------------------
+Type      |  FIX                    VESSEL                 FIX                    VESSEL
+X  [m]    |  0.000                   0.000                 -520.000               -20.000
+Y  [m]    |  -520.000               -20.000                 -0.000                 -0.000
+Z  [m]    |  -120.000                40.000                -120.000                40.000
+M  [kg]   |   0.000                  0.000                  0.000                  0.000
+B  [m^3]  |   0.000                  0.000                  0.000                  0.000
+FX [N]    |   0.000                  0.000                  0.000                  9134.588
+FY [N]    |   0.000                  9134.588               0.000                  0.000
+FZ [N]    |   0.000                  221350.862             0.000                  221350.862
+
+
+          | Node 5 Data            Node 6 Data            Node 7 Data            Node 8 Data
+          | -------------------------------------------------------------------------------------------
+Type      |  FIX                    VESSEL                 FIX                    VESSEL
+X  [m]    |  -450.333               -17.320                 450.333                17.320
+Y  [m]    |   260.000                10.000                 260.000                10.000
+Z  [m]    |  -120.000                40.000                -120.000                40.000
+M  [kg]   |   0.000                  0.000                  0.000                  0.000
+B  [m^3]  |   0.000                  0.000                  0.000                  0.000
+FX [N]    |   0.000                  7910.785               0.000                 -7910.785
+FY [N]    |   0.000                 -4567.294               0.000                 -4567.294
+FZ [N]    |   0.000                  221350.860             0.000                  221350.860
+
+
+          | Node 9 Data            Node 10 Data
           | -------------------------------------------------------------------------------------------
 Type      |  FIX                    VESSEL
-X  [m]    |  0.000                   0.000
-Y  [m]    |  -520.000               -20.000
+X  [m]    |  -425.959               -16.383
+Y  [m]    |  -298.260               -11.472
 Z  [m]    |  -120.000                40.000
 M  [kg]   |   0.000                  0.000
 B  [m^3]  |   0.000                  0.000
-FX [N]    |   0.000                  0.000
-FY [N]    |   0.000                  9134.588
-FZ [N]    |   0.000                  221350.862
+FX [N]    |   0.000                  7482.647
+FY [N]    |   0.000                  5239.404
+FZ [N]    |   0.000                  221350.896
 
 
                 | Element 1
@@ -53,20 +79,108 @@ Jacobian Evals  |  7
 Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
 
 
+                | Element 2
+                | ---------------------------------------
+Material        |  chainup
+Lu        [m]   |  640.000
+Lb        [m]   |  473.296
+H         [N]   |  9134.588
+V         [N]   |  221350.862
+T         [N]   |  221539.262
+Alpha     [deg] |  87.637
+HAnch     [N]   | 0.000
+VAnch     [N]   | 0.000
+TAnch     [N]   | 0.000
+AlphaAnch [deg] | 0.000
+L^2-Norm        |  3.956316e-10
+Function Evals  |  9
+Jacobian Evals  |  7
+Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
+
+
+                | Element 3
+                | ---------------------------------------
+Material        |  chainup
+Lu        [m]   |  640.000
+Lb        [m]   |  473.296
+H         [N]   |  9134.587
+V         [N]   |  221350.860
+T         [N]   |  221539.261
+Alpha     [deg] |  87.637
+HAnch     [N]   | 0.000
+VAnch     [N]   | 0.000
+TAnch     [N]   | 0.000
+AlphaAnch [deg] | 0.000
+L^2-Norm        |  3.956535e-10
+Function Evals  |  9
+Jacobian Evals  |  7
+Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
+
+
+                | Element 4
+                | ---------------------------------------
+Material        |  chainup
+Lu        [m]   |  640.000
+Lb        [m]   |  473.296
+H         [N]   |  9134.587
+V         [N]   |  221350.860
+T         [N]   |  221539.261
+Alpha     [deg] |  87.637
+HAnch     [N]   | 0.000
+VAnch     [N]   | 0.000
+TAnch     [N]   | 0.000
+AlphaAnch [deg] | 0.000
+L^2-Norm        |  3.956535e-10
+Function Evals  |  9
+Jacobian Evals  |  7
+Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
+
+
+                | Element 5
+                | ---------------------------------------
+Material        |  chainup
+Lu        [m]   |  640.000
+Lb        [m]   |  473.296
+H         [N]   |  9134.624
+V         [N]   |  221350.896
+T         [N]   |  221539.298
+Alpha     [deg] |  87.637
+HAnch     [N]   | 0.000
+VAnch     [N]   | 0.000
+TAnch     [N]   | 0.000
+AlphaAnch [deg] | 0.000
+L^2-Norm        |  3.956754e-10
+Function Evals  |  9
+Jacobian Evals  |  7
+Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
+
+
 ---------------------- LINE DICTIONARY ---------------------------------------
 LineType  Diam      MassDenInAir   EA            CB
 [-]       [m]       [kg/m]         [N]           [-]
-chainup   0.064929  138.73        545000000 1.0    1.0E8    0.6 -1.0    0.05
-chainup2   0.064929  138.73        545000000 1.0    1.0E8    0.6 -1.0    0.05
+chainup  0.064929 138.73 545000000 1.0 1.0E8 0.6 -1.0 0.05
+chainup2 0.064929 138.73 545000000 1.0 1.0E8 0.6 -1.0 0.05
 ---------------------- NODE PROPERTIES ---------------------------------------
 Node  Type       X       Y       Z      M     B     FX    FY    FZ
 [-]   [-]       [m]     [m]     [m]    [kg]  [mˆ3]  [N]   [N]   [N]
-1     fix        0    -520      -120    0 0      #     #     #
-2     Vessel     0     -20       40     0 0      #     #     #
+1  fix    0 -520  -120  0 0 # # #
+2  Vessel 0  -20  40    0 0 # # #
+3  fix  -520.0000  -0.0000  -120.0000  0  0  #0.0000  #0.0000  #0.0000
+4  vessel  -20.0000  -0.0000  40.0000  0  0  #0.0000  #0.0000  #0.0000
+5  fix  -450.3332  260.0000  -120.0000  0  0  #0.0000  #-0.0000  #0.0000
+6  vessel  -17.3205  10.0000  40.0000  0  0  #0.0000  #-0.0000  #0.0000
+7  fix  450.3332  260.0000  -120.0000  0  0  #-0.0000  #0.0000  #0.0000
+8  vessel  17.3205  10.0000  40.0000  0  0  #-0.0000  #0.0000  #0.0000
+9  fix  -425.9591  -298.2597  -120.0000  0  0  #0.0000  #0.0000  #0.0000
+10  vessel  -16.3830  -11.4715  40.0000  0  0  #0.0000  #0.0000  #0.0000
 ---------------------- LINEP ROPERTIES ---------------------------------------
 Element  LineType  UnstrLen  NodeAnch  NodeFair  Flags
 [-]      [-]       [m]       [-]       [-]       [-]
-1        chainup   640        1         2 gy_pos h_fair
+1 chainup  640 1 2 gy_pos h_fair
+2  chainup  640  3  4  gy_pos  h_fair  
+3  chainup  640  5  6  gy_pos  h_fair  
+4  chainup  640  7  8  gy_pos  h_fair  
+5  chainup  640  9  10  gy_pos  h_fair  
 ---------------------- SOLVER OPTIONS-----------------------------------------
 Option 
 [-] 
@@ -76,3 +190,4 @@ inner_xtol 1e-6
 outer_tol 1e-4
 inner_max_its 400
 outer_max_its 400
+repeat 90 120 240 55
