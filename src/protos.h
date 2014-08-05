@@ -80,7 +80,7 @@ MAP_ERROR_CODE repeat_elements(ModelData* dataObj, InitializationData* init, cha
  * @acceses: set_vartype_float( )
  * @calledby: mapcall_msqs_init( )
  */
-MAP_ERROR_CODE set_vartype_float(char* unit, char* alias, const int num, VarType* type, MapReal const value);
+MAP_ERROR_CODE set_vartype_float(char* unit, char* alias, const double num, VarType* type, MapReal const value);
 
 
 /*

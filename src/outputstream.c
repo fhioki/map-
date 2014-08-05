@@ -299,7 +299,7 @@ MAP_ERROR_CODE write_summary_file(InitializationData* init, MAP_ParameterType_t*
     return MAP_FATAL;
   };
   
-  // __get_machine_name(name);  
+  __get_machine_name(name);  
   strftime(timeBuffer, 64, "%A %B %d-%Y at %H:%M:%S %p", tmInfo);
   /* 
      May want to retag version number of git between major/minor releases. A trick to include git revision number
@@ -311,7 +311,7 @@ MAP_ERROR_CODE write_summary_file(InitializationData* init, MAP_ParameterType_t*
 #ifndef GITVERSION /* unboubtedly this will be useful on windows. Not sure how to track git version on windows with MSVC compiler? */
 #  define GITVERSION PROGVERSION
 #endif
-  fprintf(file,"Outputs were generated using MAP++ %s on %s.\n\n", GITVERSION, name); 
+  fprintf(file,"Outputs were generated using MAP++ %s.\n\n", GITVERSION); 
   fprintf(file,"    %s\n\n", timeBuffer); 
   fprintf(file,"    Gravity constant          [m/s^2]  : %1.2f\n", paramType->g); 
   fprintf(file,"    Sea density               [kg/m^3] : %1.2f\n", paramType->rhoSea);

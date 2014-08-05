@@ -1,12 +1,14 @@
 PLATFORM = $(shell uname -s)
 
 ifeq ($(PLATFORM),Darwin)
-CC_TOOLS  = gcc
+CC_TOOLS  = clang
+CCFLAGS = -g -O1 -fsanitize=address -fno-omit-frame-pointer
 else
 CC_TOOLS  = gcc
+#CCFLAGS = -g -O1 -fsanitize=address -fno-omit-frame-pointer
+CCFLAGS = -g -O1 
 endif
 
-CCFLAGS = -g -O0 
 OBJ = test.o
 
 all : $(OBJ)
