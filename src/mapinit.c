@@ -23,7 +23,7 @@
 #include "protos.h"
 #include "cminpack/minpack.h"
 #include "pyprotos.h"
-
+#include "bstring/bstrlib.h"
 
 
 /**
@@ -1297,10 +1297,19 @@ int set_element_list(MAP_ConstraintStateType_t* zType, ModelData* data, char** c
   Element* elementIter = NULL;
   int lineCounter = 0;
 
+
+  struct tagbstring b_tokens; cstr2tbstr (b_tokens," \t");
+  bstring b_line = bfromcstr ("");
+  bstring b_unit = bfromcstr ("");
+  bstring b_buffer = bfromcstr ("");
+  struct bstrList* b_words = NULL;
+
+
+  /* @todo ideally this should be set in its own function, not hidden in set_element_list() */
   zType->H_Len = data->sizeOfElements;          
   zType->V_Len = data->sizeOfElements;          
-  zType->H = (double*)malloc(zType->H_Len*sizeof(double));
-  zType->V = (double*)malloc(zType->V_Len*sizeof(double));
+  zType->H = malloc(zType->H_Len*sizeof(double));
+  zType->V = malloc(zType->V_Len*sizeof(double));
 
   if (zType->H==NULL) {
     *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_53);
@@ -1313,19 +1322,44 @@ int set_element_list(MAP_ConstraintStateType_t* zType, ModelData* data, char** c
   };
 
   for(i=0 ; i<=data->sizeOfElements-1 ; i++) {
-    sizeOfString = strlen(elementInputString[i]);
+    sizeOfString = strlen(elementInputString[i]);    
+    
+
+    if (strlen(elementInputString[i])>MAX_INIT_TYPE_LENGTH) {
+      checkpoint(); /* @todo raise error code; buffer overflow */
+    } else {
+      bassigncstr(b_line, elementInputString[i]);
+      // printf("length is: %d\n<%s>\n",b_line->slen,b_line->data);
+    };
+    // REPLACE
     line = (char*)realloc(line, (sizeOfString+1)*sizeof(char));    
     strcpy(line, elementInputString[i]);    
+    // REPLACE
+
+    
+    b_words = bsplits(b_line, &b_tokens);
+    // REPLACE
     word = strtok(line, " ,\n\t\r\0");
+    // REPLACE
+
+
+    int cout1 = 0;
     while (word!=NULL) {
       do {
+        // printf("%d %d [%s] <%s>\n",b_words->qty,b_words->mlen,word,b_words->entry[cout1]->data);
+        cout1+=2;
         if (cnt==0) {
           /* use this first option as an opportunity to set the run-time flags to false */
           initialize_element(&newElement, i+1);
           success = associate_vartype_ptr(&newElement.H, zType->H, i+1);
           success = associate_vartype_ptr(&newElement.V, zType->V, i+1);          
+          
+          b_buffer = bformat("V[%d]",i+1);
           cx = map_snprintf(buffer, 64, "V[%d]", i+1);assert(cx>=0);                  
+          // b(b_line, elementInputString[i]);
           success = set_vartype_ptr("[N]", buffer, i, &newElement.V, word); CHECKERRQ(MAP_FATAL_32);
+          // printf("%s %s\n",b_buffer->data,buffer);
+
           cx = map_snprintf(buffer, 64, "H[%d]", i+1); assert(cx>=0);                            
           success = set_vartype_ptr("[N]", buffer, i, &newElement.H, word); CHECKERRQ(MAP_FATAL_32);
         } else if (cnt==1) {
@@ -1347,6 +1381,9 @@ int set_element_list(MAP_ConstraintStateType_t* zType, ModelData* data, char** c
     list_append(&data->element, &newElement);
     cnt=0;
   };
+
+  success = bstrListDestroy(b_words);
+
 
   /* check EA, Lu errors. These values cannot be negative. */
   list_iterator_start(&data->element);            /* starting an iteration "session" */
@@ -1372,6 +1409,98 @@ int set_element_list(MAP_ConstraintStateType_t* zType, ModelData* data, char** c
   };
   return MAP_SAFE;
 };
+// /**
+//  *
+//  */
+// int set_element_list(MAP_ConstraintStateType_t* zType, ModelData* data, char** const elementInputString, char* map_msg, MAP_ERROR_CODE* ierr)
+// {
+//   int i = 0;
+//   int cx = 0;
+//   int cnt = 0;
+//   int success = 0;
+//   int sizeOfString = 0;
+//   char buffer[64] = "";
+//   char* line = NULL;
+//   char* word = NULL;
+//   Element newElement;
+//   Element* elementIter = NULL;
+//   int lineCounter = 0;
+// 
+//   zType->H_Len = data->sizeOfElements;          
+//   zType->V_Len = data->sizeOfElements;          
+//   zType->H = (double*)malloc(zType->H_Len*sizeof(double));
+//   zType->V = (double*)malloc(zType->V_Len*sizeof(double));
+// 
+//   if (zType->H==NULL) {
+//     *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_53);
+//     return MAP_FATAL;
+//   };
+// 
+//   if (zType->V==NULL) {
+//     *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_53);
+//     return MAP_FATAL;
+//   };
+// 
+//   for(i=0 ; i<=data->sizeOfElements-1 ; i++) {
+//     sizeOfString = strlen(elementInputString[i]);
+//     line = (char*)realloc(line, (sizeOfString+1)*sizeof(char));    
+//     strcpy(line, elementInputString[i]);    
+//     word = strtok(line, " ,\n\t\r\0");
+//     while (word!=NULL) {
+//       do {
+//         if (cnt==0) {
+//           /* use this first option as an opportunity to set the run-time flags to false */
+//           initialize_element(&newElement, i+1);
+//           success = associate_vartype_ptr(&newElement.H, zType->H, i+1);
+//           success = associate_vartype_ptr(&newElement.V, zType->V, i+1);          
+//           cx = map_snprintf(buffer, 64, "V[%d]", i+1);assert(cx>=0);                  
+//           success = set_vartype_ptr("[N]", buffer, i, &newElement.V, word); CHECKERRQ(MAP_FATAL_32);
+//           cx = map_snprintf(buffer, 64, "H[%d]", i+1); assert(cx>=0);                            
+//           success = set_vartype_ptr("[N]", buffer, i, &newElement.H, word); CHECKERRQ(MAP_FATAL_32);
+//         } else if (cnt==1) {
+//           success = associate_element_with_cable_property(&newElement, data, word, map_msg, ierr); CHECKERRQ(MAP_FATAL_32);
+//         } else if (cnt==2) { 
+//           cx = map_snprintf(buffer, 64, "Lu[%d]", i+1); assert(cx>=0);                
+//           success = set_vartype("[m]", buffer, i, &newElement.Lu, word); CHECKERRQ(MAP_FATAL_26);
+//         } else if (cnt==3) {
+//           success = associate_element_with_anchor_node(data, &newElement, i+1, word, map_msg, ierr); CHECKERRQ(MAP_FATAL_32);        
+//         } else if (cnt==4) {
+//           success = associate_element_with_fairlead_node(data, &newElement, i+1, word, map_msg, ierr); CHECKERRQ(MAP_FATAL_32); 
+//         } else { 
+//           success = map_set_option_flags (word, &newElement, map_msg, ierr);
+//         };
+//       } while (0);
+//       cnt++;
+//       word = strtok(NULL, " ,\n\t\r\0");
+//     };  
+//     list_append(&data->element, &newElement);
+//     cnt=0;
+//   };
+// 
+//   /* check EA, Lu errors. These values cannot be negative. */
+//   list_iterator_start(&data->element);            /* starting an iteration "session" */
+//   while (list_iterator_hasnext(&data->element)) { /* tell whether more values available */ 
+//     elementIter = (Element*)list_iterator_next(&data->element);
+//     if(elementIter->Lu.value<=0.0) {
+//       success = MAP_FATAL;
+//       cx = map_snprintf(buffer, 64, "Line segment %d, Lu = %f [m].", lineCounter, elementIter->Lu.value); assert(cx>=0);
+//       *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_56);      
+//     } else if(elementIter->lineProperty->ea<=0.0) {
+//       success = MAP_FATAL;
+//       cx = map_snprintf(buffer, 64, "Line segment %d, EA = %f [N].", lineCounter, elementIter->lineProperty->ea); assert(cx>=0);
+//       *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_57);      
+//     };
+//     lineCounter++;
+//   };
+//   list_iterator_stop(&data->element); /* ending the iteration "session" */    
+// 
+//   MAPFREE(line);
+// 
+//   if (*ierr==MAP_FATAL) {
+//     return MAP_FATAL;
+//   };
+//   return MAP_SAFE;
+// };
 
 
 

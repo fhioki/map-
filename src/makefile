@@ -19,9 +19,10 @@
 
 PLATFORM = $(shell uname -s)
 CMINPACK_DIR = cminpack
+BSTRING_DIR = bstring
 SIMCLIST_DIR = simclist
 
-VPATH = cminpack:simclist
+VPATH = cminpack:simclist:bstring
 
 
 ifeq ($(PLATFORM),Darwin)
@@ -31,7 +32,7 @@ LDFLAGS   = -g -fsanitize=address -fno-omit-frame-pointer -dynamiclib
 else ifeq ($(PLATFORM),Linux)
 CC_TOOLS  = gcc
 #CFLAGS    = -g -O1 -fsanitize=address -fno-omit-frame-pointer -fPIC -D DEBUG -DGITVERSION=\"$(GIT_VERSION)\" -Icminpack -Isimclist
-CFLAGS    = -g -O2 -fPIC -DGITVERSION=\"$(GIT_VERSION)\" -Wstrict-aliasing -Wuninitialized  
+CFLAGS    = -g -O1 -fPIC -D DEBUG -DGITVERSION=\"$(GIT_VERSION)\" -Wstrict-aliasing -Wuninitialized  
 LDFLAGS   = -g -shared 
 endif
 
@@ -49,6 +50,8 @@ OBJ       = lmder.o \
 	enorm_u.o \
 	qrfac.o \
 	simclist.o \
+	bstrlib.o \
+	bstraux.o \
 	nwtcfunctions.o \
 	mapinit.o \
 	maperror.o \

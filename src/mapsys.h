@@ -89,6 +89,8 @@
 #endif // DEBUG
 
 
+#define MAX_INIT_TYPE_LENGTH 255
+
 #define PROGNAME "MAP++ (Mooring Analysis Program++)"
 #define PROGVERSION "1.00.01a"
 #define CHECKERRQ(code) if(success!=MAP_SAFE) { *ierr=map_set_universal_error("", map_msg, ierr, code ); break; } 

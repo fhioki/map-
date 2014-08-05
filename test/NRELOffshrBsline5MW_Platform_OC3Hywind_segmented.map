@@ -8,12 +8,12 @@ Material3    0.09      120.7066     424.243E6   1.0   1.0E8    0.6 -1.0    0.05
 Node Type       X     Y     Z     M     B     FX    FY    FZ
 (-)  (-)       (m)   (m)   (m)   (kg)  (mˆ3) (kN)  (kN)  (kN)
 1    fix     853.87   0    -320    0     0     #     #     #
-2    connect   500    0    -200    0     0     #     #     #
+2    connect   500    0    -200    0     0     #     #     # d
 3    Vessel    5.2    0    -70.0   0     0     #     #     #
 ---------------------- LINE PROPERTIES ---------------------------------------
 Element  LineType  UnstrLen    NodeAnch  NodeFair  Flags
 (-)      (-)       (m)         (-)       (-)       (-)
-1       Material   402.2        1         2        plot 
+1       Material   402.2        1         2        plot d
 2       Material   500.0        2         3        plot 
 ---------------------- SOLVER OPTIONS-----------------------------------------
 Option
