@@ -353,228 +353,228 @@ MAP_ERROR_CODE solve_line(ModelData* data, double time, char* map_msg, MAP_ERROR
 };
 
 
-/**
- *
- */
-MAP_ERROR_CODE set_model_options_list(ModelData* data, InitializationData* initObj, char* map_msg, MAP_ERROR_CODE* ierr)
-{
-  int i = 0;
-  int index = 0;
-  int cx = 0;
-  int success = 0;
-  int sizeOfString = 0;
-  char* word = NULL;
-  char* line = NULL;
-  MapReal* moreAngles = NULL;
-  char buffer[64] = "";  
+// /**
+//  *
+//  */
+// MAP_ERROR_CODE set_model_options_list(ModelData* data, InitializationData* initObj, char* map_msg, MAP_ERROR_CODE* ierr)
+// {
+//   int i = 0;
+//   int index = 0;
+//   int cx = 0;
+//   int success = 0;
+//   int sizeOfString = 0;
+//   char* word = NULL;
+//   char* line = NULL;
+//   MapReal* moreAngles = NULL;
+//   char buffer[64] = "";  
+// 
+//   // initialize_options(data);
+//   for (i=0 ; i<=initObj->solverOptionsSize-1 ; i++) { 
+//     sizeOfString = strlen(initObj->solverOptionsString[i]);
+//     line = (char*)realloc(line, (sizeOfString+1)*sizeof(char));    
+//     strcpy(line, initObj->solverOptionsString[i]);    
+//     word = strtok( line, " ,\n\t\r\0");
+//     while (word!=NULL) {      
+//       if (!strcicmp("HELP",word)) {
+//         success = print_help_to_screen(map_msg,ierr);
+//       } else if (!strcicmp("INNER_FTOL",word)) {
+//         word = strtok(NULL, " ,\n\t\r\0");
+//         success = is_numeric(word); CHECKERRK(MAP_ERROR_2);
+//         if (!success) {
+//           data->inner_loop.f_tol = (MapReal)atof(word);        
+//         };
+//       } else if (!strcicmp("INNER_GTOL",word)) {
+//         word = strtok(NULL, " ,\n\t\r\0");
+//         success = is_numeric(word); CHECKERRK(MAP_ERROR_9);
+//         if (!success) {
+//           data->inner_loop.g_tol = (MapReal)atof(word);        
+//         };
+//       } else if (!strcicmp("INNER_XTOL",word)) {
+//         word = strtok( NULL, " ,\n\t\r\0" );
+//         success = is_numeric(word); CHECKERRK(MAP_ERROR_10);
+//         if (!success) {
+//           data->inner_loop.x_tol = (MapReal)atof(word);        
+//         };
+//       } else if (!strcicmp("OUTER_TOL",word)) {
+//         word = strtok(NULL, " ,\n\t\r\0");
+//         success = is_numeric(word); CHECKERRK(MAP_ERROR_3);
+//         if (!success) {
+//           data->outer_loop.tol = (MapReal)atof(word);        
+//         };
+//       } else if (!strcicmp("OUTER_MAX_ITS",word)) {
+//         word = strtok( NULL, " ,\n\t\r\0" );
+//         success = is_numeric(word); CHECKERRK(MAP_ERROR_3);
+//         if (!success) {
+//           data->outer_loop.maxIts = (MapReal)atof(word);        
+//         };
+//       } else if (!strcicmp("OUTER_EPSILON",word)) {
+//         word = strtok( NULL, " ,\n\t\r\0" );
+//         success = is_numeric(word); CHECKERRK(MAP_ERROR_3);
+//         if (!success) {
+//           data->outer_loop.epsilon = (MapReal)atof(word);        
+//         };
+//       } else if (!strcicmp("INNER_MAX_ITS",word)) {
+//         word = strtok(NULL, " ,\n\t\r\0");
+//         success = is_numeric(word); CHECKERRK(MAP_ERROR_4);
+//         if (!success) {
+//           data->inner_loop.max_its = (MapReal)atof(word);        
+//         };
+//       } else if (!strcicmp("INTEGRATION_DT",word)) {
+//         word = strtok(NULL, " ,\n\t\r\0");
+//         success = is_numeric(word); CHECKERRK(MAP_ERROR_15); 
+//         if (!success) {
+//           data->modelOptions.integrationDt = (MapReal)atof(word);        
+//         };
+//       } else if (!strcicmp("KB_DEFAULT",word)) {
+//         word = strtok(NULL, " ,\n\t\r\0");
+//         success = is_numeric(word); CHECKERRK(MAP_ERROR_16); 
+//         if (!success) {
+//           data->modelOptions.integrationDt = (MapReal)atof(word);        
+//         };
+//       } else if (!strcicmp("CB_DEFAULT",word)) {
+//         word = strtok(NULL, " ,\n\t\r\0");
+//         success = is_numeric(word); CHECKERRK(MAP_ERROR_17); 
+//         if (!success) {
+//           data->modelOptions.integrationDt = (MapReal)atof(word);        
+//         };
+//       } else if (!strcicmp("WAVE_KINEMATICS",word)) {
+//         *ierr = map_set_universal_error("", map_msg, ierr, MAP_WARNING_10);
+//         data->modelOptions.waveKinematics = false;
+//       } else if (!strcicmp("PG_COOKED",word)) {
+//         word = strtok(NULL, " ,\t\0");        
+//         if (word!=NULL) {          
+//           success = is_numeric(word); CHECKERRK(MAP_WARNING_8);
+//           if (!success) {
+//             data->outer_loop.ds = (MapReal)atof(word);        
+//           } else {
+//             data->outer_loop.ds = 1.0;
+//           };
+//         };
+//         word = strtok(NULL, " ,\n\t\r\0");        
+//         if (word!=NULL) {          
+//           success = is_numeric(word); CHECKERRK(MAP_WARNING_8);
+//           if (!success) {
+//             data->outer_loop.d = (MapReal)atof(word);        
+//           } else {
+//             data->outer_loop.d = 0.0;
+//           };
+//         };
+//         data->outer_loop.pg = true;
+//       } else if (!strcicmp("OUTER_BD",word)) {
+//         data->outer_loop.fd = BACKWARD_DIFFERENCE;
+//       } else if (!strcicmp("OUTER_CD",word)) {
+//         data->outer_loop.fd = CENTRAL_DIFFERENCE;
+//       } else if (!strcicmp("OUTER_FD",word)) {
+//         data->outer_loop.fd = FORWARD_DIFFERENCE;
+//       } else if (!strcicmp("REF_POSITION",word)) {
+//         word = strtok( NULL, " ,\n\t\r\0" );
+//         success = is_numeric(word); CHECKERRQ(MAP_FATAL_36);
+//         data->vessel.refOrigin.x.value = (MapReal)atof(word);        
+//         word = strtok( NULL, " ,\n\t\r\0" );
+//         success = is_numeric(word); CHECKERRQ(MAP_FATAL_36);
+//         data->vessel.refOrigin.y.value = (MapReal)atof(word);        
+//         word = strtok( NULL, " ,\n\t\r\0" );
+//         success = is_numeric(word); CHECKERRQ(MAP_FATAL_36);
+//         data->vessel.refOrigin.z.value = (MapReal)atof(word);
+//       } else if (!strcicmp("REPEAT",word)) {
+//         word = strtok(NULL, " ,\t\n");
+//         while (word!=NULL) {      
+//           index = data->modelOptions.sizeOfRepeatAngles;
+//           moreAngles = (MapReal*)realloc(data->modelOptions.repeatAngles, (index+1)*sizeof(MapReal));
+//           if (moreAngles!=NULL) {
+//             data->modelOptions.repeatAngles = moreAngles;
+//             success = is_numeric(word); CHECKERRQ(MAP_FATAL_34);
+//             data->modelOptions.repeatAngles[index] = (MapReal)atof(word);
+//             data->modelOptions.sizeOfRepeatAngles++;
+//           } else {
+//             MAPFREE(moreAngles);
+//             success = 1; CHECKERRQ(MAP_FATAL_35);
+//           };
+//           word = strtok(NULL, " ,\t\n");
+//         };
+//       } else {
+//         cx = map_snprintf(buffer, 64, "Ignoring value '%s'.", word); assert(cx>=0);
+//         *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_WARNING_4);
+//       };
+//       word = strtok(NULL, " ,\n\t\r\0");
+//     };
+//   };
+//   MAPFREE(line);
+//   return MAP_SAFE;
+// };
 
-  // initialize_options(data);
-  for (i=0 ; i<=initObj->solverOptionsSize-1 ; i++) { 
-    sizeOfString = strlen(initObj->solverOptionsString[i]);
-    line = (char*)realloc(line, (sizeOfString+1)*sizeof(char));    
-    strcpy(line, initObj->solverOptionsString[i]);    
-    word = strtok( line, " ,\n\t\r\0");
-    while (word!=NULL) {      
-      if (!strcicmp("HELP",word)) {
-        success = print_help_to_screen(map_msg,ierr);
-      } else if (!strcicmp("INNER_FTOL",word)) {
-        word = strtok(NULL, " ,\n\t\r\0");
-        success = is_numeric(word); CHECKERRK(MAP_ERROR_2);
-        if (!success) {
-          data->inner_loop.f_tol = (MapReal)atof(word);        
-        };
-      } else if (!strcicmp("INNER_GTOL",word)) {
-        word = strtok(NULL, " ,\n\t\r\0");
-        success = is_numeric(word); CHECKERRK(MAP_ERROR_9);
-        if (!success) {
-          data->inner_loop.g_tol = (MapReal)atof(word);        
-        };
-      } else if (!strcicmp("INNER_XTOL",word)) {
-        word = strtok( NULL, " ,\n\t\r\0" );
-        success = is_numeric(word); CHECKERRK(MAP_ERROR_10);
-        if (!success) {
-          data->inner_loop.x_tol = (MapReal)atof(word);        
-        };
-      } else if (!strcicmp("OUTER_TOL",word)) {
-        word = strtok(NULL, " ,\n\t\r\0");
-        success = is_numeric(word); CHECKERRK(MAP_ERROR_3);
-        if (!success) {
-          data->outer_loop.tol = (MapReal)atof(word);        
-        };
-      } else if (!strcicmp("OUTER_MAX_ITS",word)) {
-        word = strtok( NULL, " ,\n\t\r\0" );
-        success = is_numeric(word); CHECKERRK(MAP_ERROR_3);
-        if (!success) {
-          data->outer_loop.maxIts = (MapReal)atof(word);        
-        };
-      } else if (!strcicmp("OUTER_EPSILON",word)) {
-        word = strtok( NULL, " ,\n\t\r\0" );
-        success = is_numeric(word); CHECKERRK(MAP_ERROR_3);
-        if (!success) {
-          data->outer_loop.epsilon = (MapReal)atof(word);        
-        };
-      } else if (!strcicmp("INNER_MAX_ITS",word)) {
-        word = strtok(NULL, " ,\n\t\r\0");
-        success = is_numeric(word); CHECKERRK(MAP_ERROR_4);
-        if (!success) {
-          data->inner_loop.max_its = (MapReal)atof(word);        
-        };
-      } else if (!strcicmp("INTEGRATION_DT",word)) {
-        word = strtok(NULL, " ,\n\t\r\0");
-        success = is_numeric(word); CHECKERRK(MAP_ERROR_15); 
-        if (!success) {
-          data->modelOptions.integrationDt = (MapReal)atof(word);        
-        };
-      } else if (!strcicmp("KB_DEFAULT",word)) {
-        word = strtok(NULL, " ,\n\t\r\0");
-        success = is_numeric(word); CHECKERRK(MAP_ERROR_16); 
-        if (!success) {
-          data->modelOptions.integrationDt = (MapReal)atof(word);        
-        };
-      } else if (!strcicmp("CB_DEFAULT",word)) {
-        word = strtok(NULL, " ,\n\t\r\0");
-        success = is_numeric(word); CHECKERRK(MAP_ERROR_17); 
-        if (!success) {
-          data->modelOptions.integrationDt = (MapReal)atof(word);        
-        };
-      } else if (!strcicmp("WAVE_KINEMATICS",word)) {
-        *ierr = map_set_universal_error("", map_msg, ierr, MAP_WARNING_10);
-        data->modelOptions.waveKinematics = false;
-      } else if (!strcicmp("PG_COOKED",word)) {
-        word = strtok(NULL, " ,\t\0");        
-        if (word!=NULL) {          
-          success = is_numeric(word); CHECKERRK(MAP_WARNING_8);
-          if (!success) {
-            data->outer_loop.ds = (MapReal)atof(word);        
-          } else {
-            data->outer_loop.ds = 1.0;
-          };
-        };
-        word = strtok(NULL, " ,\n\t\r\0");        
-        if (word!=NULL) {          
-          success = is_numeric(word); CHECKERRK(MAP_WARNING_8);
-          if (!success) {
-            data->outer_loop.d = (MapReal)atof(word);        
-          } else {
-            data->outer_loop.d = 0.0;
-          };
-        };
-        data->outer_loop.pg = true;
-      } else if (!strcicmp("OUTER_BD",word)) {
-        data->outer_loop.fd = BACKWARD_DIFFERENCE;
-      } else if (!strcicmp("OUTER_CD",word)) {
-        data->outer_loop.fd = CENTRAL_DIFFERENCE;
-      } else if (!strcicmp("OUTER_FD",word)) {
-        data->outer_loop.fd = FORWARD_DIFFERENCE;
-      } else if (!strcicmp("REF_POSITION",word)) {
-        word = strtok( NULL, " ,\n\t\r\0" );
-        success = is_numeric(word); CHECKERRQ(MAP_FATAL_36);
-        data->vessel.refOrigin.x.value = (MapReal)atof(word);        
-        word = strtok( NULL, " ,\n\t\r\0" );
-        success = is_numeric(word); CHECKERRQ(MAP_FATAL_36);
-        data->vessel.refOrigin.y.value = (MapReal)atof(word);        
-        word = strtok( NULL, " ,\n\t\r\0" );
-        success = is_numeric(word); CHECKERRQ(MAP_FATAL_36);
-        data->vessel.refOrigin.z.value = (MapReal)atof(word);
-      } else if (!strcicmp("REPEAT",word)) {
-        word = strtok(NULL, " ,\t\n");
-        while (word!=NULL) {      
-          index = data->modelOptions.sizeOfRepeatAngles;
-          moreAngles = (MapReal*)realloc(data->modelOptions.repeatAngles, (index+1)*sizeof(MapReal));
-          if (moreAngles!=NULL) {
-            data->modelOptions.repeatAngles = moreAngles;
-            success = is_numeric(word); CHECKERRQ(MAP_FATAL_34);
-            data->modelOptions.repeatAngles[index] = (MapReal)atof(word);
-            data->modelOptions.sizeOfRepeatAngles++;
-          } else {
-            MAPFREE(moreAngles);
-            success = 1; CHECKERRQ(MAP_FATAL_35);
-          };
-          word = strtok(NULL, " ,\t\n");
-        };
-      } else {
-        cx = map_snprintf(buffer, 64, "Ignoring value '%s'.", word); assert(cx>=0);
-        *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_WARNING_4);
-      };
-      word = strtok(NULL, " ,\n\t\r\0");
-    };
-  };
-  MAPFREE(line);
-  return MAP_SAFE;
-};
 
 
-
-/**
- *
- */
-int set_cable_library_list(ModelData* data, InitializationData* init, char* map_msg, MAP_ERROR_CODE* ierr)
-{
-  int i = 0;
-  int cx = 0;
-  int cnt = 0;
-  int success = 0;
-  int len = 0;
-  int sizeOfString = 0;
-  char* line = NULL;
-  char* word = NULL;
-  char buffer[64] = "";  
-  CableLibrary in_cableLibrary;
-
-  for(i=0 ; i<=init->librarySize-1 ; i++) { 
-    sizeOfString = strlen(init->libraryInputString[i]);
-    line = (char*)realloc(line, (sizeOfString+1)*sizeof(char));    
-    strcpy(line, init->libraryInputString[i]);        
-    word=strtok(line, " ,\n\t\r\0");        
-    while (word!=NULL) {            
-      if (cnt==0) {
-        len = strlen(word);
-        in_cableLibrary.label = malloc(sizeof(char*)*(len+1));
-        strcpy(in_cableLibrary.label, word);
-      } else if (cnt==1) {
-        success=is_numeric(word);CHECKERRQ(MAP_FATAL_12);
-        in_cableLibrary.diam=(MapReal)atof(word);
-      } else if (cnt==2) {
-        success=is_numeric(word);CHECKERRQ(MAP_FATAL_13);
-        in_cableLibrary.massDensityInAir=(MapReal)atof(word);
-      } else if (cnt==3) {
-        success=is_numeric(word);CHECKERRQ(MAP_FATAL_14);
-        in_cableLibrary.ea=(MapReal)atof(word);
-      } else if (cnt==4) {
-        success=is_numeric(word); CHECKERRQ(MAP_FATAL_15);
-        in_cableLibrary.cb=(MapReal)atof(word);
-      } else if (cnt==5) {
-        success=is_numeric(word); CHECKERRQ(MAP_FATAL_81);
-        in_cableLibrary.cIntDamp=(MapReal)atof(word);
-      } else if (cnt==6) {
-        success=is_numeric(word); CHECKERRQ(MAP_FATAL_82);
-        in_cableLibrary.cAdded=(MapReal)atof(word);
-      } else if (cnt==7) {
-        success=is_numeric(word); CHECKERRQ(MAP_FATAL_83);
-        in_cableLibrary.cDragNormal=(MapReal)atof(word);
-      } else if (cnt==8) {
-        success=is_numeric(word); CHECKERRQ(MAP_FATAL_84);
-        in_cableLibrary.cDragTangent=(MapReal)atof(word);
-      } else { /* too many options are listed in the MAP input file. Let's warn users of uncommented information */
-        if (strcmp (" ",word)) {
-          cx = map_snprintf(buffer, 64, "Value '%s'.", word);assert(cx>=0);
-          *ierr=map_set_universal_error(buffer, map_msg, ierr, MAP_WARNING_1);
-        };
-      };
-      cnt++;
-      word = strtok(NULL, " ,\n\t\r\0");
-    };  
-    list_append(&data->cableLibrary, &in_cableLibrary);
-    cnt=0;
-  };
-  
-  MAPFREE(line);
-
-  if (*ierr==MAP_FATAL) {
-    return MAP_FATAL;
-  };
-  return MAP_SAFE;  
-};
+// /**
+//  *
+//  */
+// int set_cable_library_list(ModelData* data, InitializationData* init, char* map_msg, MAP_ERROR_CODE* ierr)
+// {
+//   int i = 0;
+//   int cx = 0;
+//   int cnt = 0;
+//   int success = 0;
+//   int len = 0;
+//   int sizeOfString = 0;
+//   char* line = NULL;
+//   char* word = NULL;
+//   char buffer[64] = "";  
+//   CableLibrary in_cableLibrary;
+// 
+//   for(i=0 ; i<=init->librarySize-1 ; i++) { 
+//     sizeOfString = strlen(init->libraryInputString[i]);
+//     line = (char*)realloc(line, (sizeOfString+1)*sizeof(char));    
+//     strcpy(line, init->libraryInputString[i]);        
+//     word=strtok(line, " ,\n\t\r\0");        
+//     while (word!=NULL) {            
+//       if (cnt==0) {
+//         len = strlen(word);
+//         in_cableLibrary.label = malloc(sizeof(char*)*(len+1));
+//         strcpy(in_cableLibrary.label, word);
+//       } else if (cnt==1) {
+//         success=is_numeric(word);CHECKERRQ(MAP_FATAL_12);
+//         in_cableLibrary.diam=(MapReal)atof(word);
+//       } else if (cnt==2) {
+//         success=is_numeric(word);CHECKERRQ(MAP_FATAL_13);
+//         in_cableLibrary.massDensityInAir=(MapReal)atof(word);
+//       } else if (cnt==3) {
+//         success=is_numeric(word);CHECKERRQ(MAP_FATAL_14);
+//         in_cableLibrary.ea=(MapReal)atof(word);
+//       } else if (cnt==4) {
+//         success=is_numeric(word); CHECKERRQ(MAP_FATAL_15);
+//         in_cableLibrary.cb=(MapReal)atof(word);
+//       } else if (cnt==5) {
+//         success=is_numeric(word); CHECKERRQ(MAP_FATAL_81);
+//         in_cableLibrary.cIntDamp=(MapReal)atof(word);
+//       } else if (cnt==6) {
+//         success=is_numeric(word); CHECKERRQ(MAP_FATAL_82);
+//         in_cableLibrary.cAdded=(MapReal)atof(word);
+//       } else if (cnt==7) {
+//         success=is_numeric(word); CHECKERRQ(MAP_FATAL_83);
+//         in_cableLibrary.cDragNormal=(MapReal)atof(word);
+//       } else if (cnt==8) {
+//         success=is_numeric(word); CHECKERRQ(MAP_FATAL_84);
+//         in_cableLibrary.cDragTangent=(MapReal)atof(word);
+//       } else { /* too many options are listed in the MAP input file. Let's warn users of uncommented information */
+//         if (strcmp (" ",word)) {
+//           cx = map_snprintf(buffer, 64, "Value '%s'.", word);assert(cx>=0);
+//           *ierr=map_set_universal_error(buffer, map_msg, ierr, MAP_WARNING_1);
+//         };
+//       };
+//       cnt++;
+//       word = strtok(NULL, " ,\n\t\r\0");
+//     };  
+//     list_append(&data->cableLibrary, &in_cableLibrary);
+//     cnt=0;
+//   };
+//   
+//   MAPFREE(line);
+// 
+//   if (*ierr==MAP_FATAL) {
+//     return MAP_FATAL;
+//   };
+//   return MAP_SAFE;  
+// };
 
 
 /**
@@ -619,280 +619,280 @@ MAP_ERROR_CODE initialize_cable_library_variables(ModelData* data, MAP_Parameter
 };
 
 
-/**
- *  char** list; 
- *  
- *  list = malloc(sizeof(char*)*number_of_row);
- *  for(i=0;i<number_of_row; i++) list[i] = malloc(sizeof(char)*number_of_col);  
- * 
- *  ....
- *  
- *  for(i=0;i<number_of_row; i++) MAPFREE(list[i] );
- *  MAPFREE(list);  
- * 
- *
- * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- *
- *
- *  char **array = malloc(sizeof(*array) * array_size)
- *  ...
- *  while (storing strings in array)
- *  {
- *      if (amount of strings is going to exceed array_size)
- *      {
- *          new_array_size = array_size * growth_factor
- *          char **temp_array = realloc(array, sizeof(*array) * new_array_size)
- *          if (temp_array)
- *          {
- *              array = temp_array
- *              array_size = new_array_size
- *          }
- *          else
- *              error handling
- *      // rest of processing
- *  }
- */
-MAP_ERROR_CODE repeat_nodes(ModelData* dataObj, InitializationData* init, char* map_msg, MAP_ERROR_CODE* ierr)
-{
-  int i = 0;
-  int j = 0;
-  int cnt = 0;
-  int sizeOfNodeBase = 0;
-  int sizeOfString = 0;
-  int numRepeat = 0;
-  char buffer[256] = "";
-  char* word = NULL;
-  char lines[256] = "";
-  char** tempArray = NULL;
-  char tempString[64] = "";
-  MapReal angle = -999.9;
-  Vector force;     
-  Vector forceOriginal;
-  Vector position;
-  Vector positionOriginal;
-  Node newNode;
+// /**
+//  *  char** list; 
+//  *  
+//  *  list = malloc(sizeof(char*)*number_of_row);
+//  *  for(i=0;i<number_of_row; i++) list[i] = malloc(sizeof(char)*number_of_col);  
+//  * 
+//  *  ....
+//  *  
+//  *  for(i=0;i<number_of_row; i++) MAPFREE(list[i] );
+//  *  MAPFREE(list);  
+//  * 
+//  *
+//  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//  *
+//  *
+//  *  char **array = malloc(sizeof(*array) * array_size)
+//  *  ...
+//  *  while (storing strings in array)
+//  *  {
+//  *      if (amount of strings is going to exceed array_size)
+//  *      {
+//  *          new_array_size = array_size * growth_factor
+//  *          char **temp_array = realloc(array, sizeof(*array) * new_array_size)
+//  *          if (temp_array)
+//  *          {
+//  *              array = temp_array
+//  *              array_size = new_array_size
+//  *          }
+//  *          else
+//  *              error handling
+//  *      // rest of processing
+//  *  }
+//  */
+// MAP_ERROR_CODE repeat_nodes(ModelData* dataObj, InitializationData* init, char* map_msg, MAP_ERROR_CODE* ierr)
+// {
+//   int i = 0;
+//   int j = 0;
+//   int cnt = 0;
+//   int sizeOfNodeBase = 0;
+//   int sizeOfString = 0;
+//   int numRepeat = 0;
+//   char buffer[256] = "";
+//   char* word = NULL;
+//   char lines[256] = "";
+//   char** tempArray = NULL;
+//   char tempString[64] = "";
+//   MapReal angle = -999.9;
+//   Vector force;     
+//   Vector forceOriginal;
+//   Vector position;
+//   Vector positionOriginal;
+//   Node newNode;
+// 
+//   force.x = 0.0;
+//   force.y = 0.0;
+//   force.z = 0.0;
+//   position.x = 0.0;
+//   position.y = 0.0;
+//   position.z = 0.0;
+//   forceOriginal.x = 0.0;
+//   forceOriginal.y = 0.0;
+//   forceOriginal.z = 0.0;
+//   positionOriginal.x = 0.0;
+//   positionOriginal.y = 0.0;
+//   positionOriginal.z = 0.0;
+// 
+//   sizeOfNodeBase = dataObj->sizeOfNodes;
+//   
+//   numRepeat = dataObj->modelOptions.sizeOfRepeatAngles;
+//   init->sizeOfFullNodeString = (sizeOfNodeBase)*(numRepeat+1); 
+//   tempArray = malloc(sizeof(char*)*(init->sizeOfFullNodeString));
+// 
+//   for(j=0 ; j<sizeOfNodeBase ; j++) { 
+//     sizeOfString = strlen(init->nodeInputString[j]);
+//     tempArray[j] = malloc(sizeof(char)*(sizeOfString+1));
+//     strcpy(tempArray[j], init->nodeInputString[j]);
+//   };
+//   
+//   for(i=0 ; i<numRepeat ; i++) { 
+//     for(j=0 ; j<sizeOfNodeBase ; j++) { 
+//       set_node_null(&newNode);  
+//       sizeOfString = strlen(init->nodeInputString[j]);
+//       
+//       strcpy(lines, init->nodeInputString[j]);
+//       word = strtok(lines, " ,\n\t\r\0");    
+//       
+//       cnt = 0;
+//       strcpy(buffer, "");
+//       angle = dataObj->modelOptions.repeatAngles[i]*(DEG2RAD);  // @todo : this needs to change index[0] for angles
+//       while (word!=NULL) {      
+//         if (cnt==0) {
+//           map_snprintf(tempString, 64, "%d  ", ((i+1)*sizeOfNodeBase+j+1));
+//           map_strcat(buffer, 256, tempString);
+//         } else if (cnt==1) { /* compare strings to determine what type of node it is connected to */
+//           if (!strcicmp("FIX",word)) { 
+//             map_strcat( buffer, 256, "fix  " );
+//           } else if (!strcicmp("CONNECT",word)) {
+//             map_strcat(buffer, 256, "connect  ");
+//           } else {
+//             map_strcat(buffer, 256, "vessel  ");
+//           };
+//         } else if (cnt==2) {           
+//           if (word[0]=='#') { 
+//             positionOriginal.x = (MapReal)atof(remove_first_character(word));
+//           } else {
+//             positionOriginal.x = (MapReal)atof(word);
+//           };
+//         } else if (cnt==3) { 
+//           if (word[0]=='#') { 
+//             positionOriginal.y = (MapReal)atof(remove_first_character(word));
+//           } else {
+//             positionOriginal.y = (MapReal)atof(word);
+//           };
+//         } else if (cnt==4) { 
+//           position.x =  positionOriginal.x*cos(angle) + positionOriginal.y*sin(angle);
+//           position.y = -positionOriginal.x*sin(angle) + positionOriginal.y*cos(angle);                    
+//           if (word[0]=='#') { 
+//             position.z = (MapReal)atof(remove_first_character(word));
+//             map_snprintf(tempString, 64, "#%1.4f  #%1.4f  #%1.4f  ", position.x, position.y, position.z);
+//           } else {
+//             if (!is_numeric(word)) {
+//               position.z = (MapReal)atof(word);
+//               map_snprintf(tempString, 64, "%1.4f  %1.4f  %1.4f  ", position.x, position.y, position.z);
+//             } else {
+//               map_snprintf(tempString, 64, "%1.4f  %1.4f  %s  ", position.x, position.y, word);
+//             };
+//           };
+//           map_strcat(buffer, 256, tempString);        
+//         } else if (cnt==5) { 
+//           map_snprintf(tempString, 64, "%s  ", word);
+//           map_strcat(buffer, 256, tempString);
+//         } else if (cnt==6 ) { 
+//           map_snprintf(tempString, 64, "%s  ", word);
+//           map_strcat(buffer, 256, tempString);
+//         } else if (cnt==7) { 
+//           if (word[0]=='#') { 
+//             forceOriginal.x = (MapReal)atof(remove_first_character(word));
+//           } else {
+//             forceOriginal.x = (MapReal)atof(word);
+//           };
+//         } else if (cnt==8) { 
+//           if (word[0]=='#') { 
+//             forceOriginal.y = (MapReal)atof(remove_first_character(word));
+//           } else {
+//             forceOriginal.y = (MapReal)atof(word);
+//           };
+//         } else if (cnt==9) { 
+//           force.x =  forceOriginal.x*cos(angle) + forceOriginal.y*sin(angle);
+//           force.y = -forceOriginal.x*sin(angle) + forceOriginal.y*cos(angle);
+//           if (word[0]=='#') { 
+//             force.z = (MapReal)atof(remove_first_character(word));
+//             map_snprintf(tempString, 64, "#%1.4f  #%1.4f  #%1.4f\n", force.x, force.y, force.z);
+//           } else {
+//             force.z = (MapReal)atof(word);
+//             map_snprintf(tempString, 64, "%1.4f  %1.4f  %1.4f\n", force.x, force.y, force.z);
+//           };
+//           map_strcat(buffer, 256, tempString);        
+//         };
+//         cnt++;
+//         word = strtok(NULL, " ,\n\t\r\0");
+//       };  
+//       sizeOfString = strlen(buffer);
+//       tempArray[(i+1)*sizeOfNodeBase+j] = malloc(sizeof(char)*(sizeOfString+1));
+//       strcpy(tempArray[(i+1)*sizeOfNodeBase+j], buffer);
+//     };  
+//   };
+// 
+//   dataObj->sizeOfNodes = init->sizeOfFullNodeString;
+//   init->expandedNodeInputString = malloc(sizeof(char*)*(init->sizeOfFullNodeString));
+//   for( i=0 ; i<init->sizeOfFullNodeString ; i++ ) {    
+//     init->expandedNodeInputString[i] = malloc(sizeof(char)*(strlen(tempArray[i])+1));  
+//     strcpy(init->expandedNodeInputString[i], tempArray[i]);
+//     MAPFREE(tempArray[i]);
+//   };
+//   MAPFREE(tempArray);
+// 
+//   return MAP_SAFE;
+// };
 
-  force.x = 0.0;
-  force.y = 0.0;
-  force.z = 0.0;
-  position.x = 0.0;
-  position.y = 0.0;
-  position.z = 0.0;
-  forceOriginal.x = 0.0;
-  forceOriginal.y = 0.0;
-  forceOriginal.z = 0.0;
-  positionOriginal.x = 0.0;
-  positionOriginal.y = 0.0;
-  positionOriginal.z = 0.0;
 
-  sizeOfNodeBase = dataObj->sizeOfNodes;
-  
-  numRepeat = dataObj->modelOptions.sizeOfRepeatAngles;
-  init->sizeOfFullNodeString = (sizeOfNodeBase)*(numRepeat+1); 
-  tempArray = malloc(sizeof(char*)*(init->sizeOfFullNodeString));
-
-  for(j=0 ; j<sizeOfNodeBase ; j++) { 
-    sizeOfString = strlen(init->nodeInputString[j]);
-    tempArray[j] = malloc(sizeof(char)*(sizeOfString+1));
-    strcpy(tempArray[j], init->nodeInputString[j]);
-  };
-  
-  for(i=0 ; i<numRepeat ; i++) { 
-    for(j=0 ; j<sizeOfNodeBase ; j++) { 
-      set_node_null(&newNode);  
-      sizeOfString = strlen(init->nodeInputString[j]);
-      
-      strcpy(lines, init->nodeInputString[j]);
-      word = strtok(lines, " ,\n\t\r\0");    
-      
-      cnt = 0;
-      strcpy(buffer, "");
-      angle = dataObj->modelOptions.repeatAngles[i]*(DEG2RAD);  // @todo : this needs to change index[0] for angles
-      while (word!=NULL) {      
-        if (cnt==0) {
-          map_snprintf(tempString, 64, "%d  ", ((i+1)*sizeOfNodeBase+j+1));
-          map_strcat(buffer, 256, tempString);
-        } else if (cnt==1) { /* compare strings to determine what type of node it is connected to */
-          if (!strcicmp("FIX",word)) { 
-            map_strcat( buffer, 256, "fix  " );
-          } else if (!strcicmp("CONNECT",word)) {
-            map_strcat(buffer, 256, "connect  ");
-          } else {
-            map_strcat(buffer, 256, "vessel  ");
-          };
-        } else if (cnt==2) {           
-          if (word[0]=='#') { 
-            positionOriginal.x = (MapReal)atof(remove_first_character(word));
-          } else {
-            positionOriginal.x = (MapReal)atof(word);
-          };
-        } else if (cnt==3) { 
-          if (word[0]=='#') { 
-            positionOriginal.y = (MapReal)atof(remove_first_character(word));
-          } else {
-            positionOriginal.y = (MapReal)atof(word);
-          };
-        } else if (cnt==4) { 
-          position.x =  positionOriginal.x*cos(angle) + positionOriginal.y*sin(angle);
-          position.y = -positionOriginal.x*sin(angle) + positionOriginal.y*cos(angle);                    
-          if (word[0]=='#') { 
-            position.z = (MapReal)atof(remove_first_character(word));
-            map_snprintf(tempString, 64, "#%1.4f  #%1.4f  #%1.4f  ", position.x, position.y, position.z);
-          } else {
-            if (!is_numeric(word)) {
-              position.z = (MapReal)atof(word);
-              map_snprintf(tempString, 64, "%1.4f  %1.4f  %1.4f  ", position.x, position.y, position.z);
-            } else {
-              map_snprintf(tempString, 64, "%1.4f  %1.4f  %s  ", position.x, position.y, word);
-            };
-          };
-          map_strcat(buffer, 256, tempString);        
-        } else if (cnt==5) { 
-          map_snprintf(tempString, 64, "%s  ", word);
-          map_strcat(buffer, 256, tempString);
-        } else if (cnt==6 ) { 
-          map_snprintf(tempString, 64, "%s  ", word);
-          map_strcat(buffer, 256, tempString);
-        } else if (cnt==7) { 
-          if (word[0]=='#') { 
-            forceOriginal.x = (MapReal)atof(remove_first_character(word));
-          } else {
-            forceOriginal.x = (MapReal)atof(word);
-          };
-        } else if (cnt==8) { 
-          if (word[0]=='#') { 
-            forceOriginal.y = (MapReal)atof(remove_first_character(word));
-          } else {
-            forceOriginal.y = (MapReal)atof(word);
-          };
-        } else if (cnt==9) { 
-          force.x =  forceOriginal.x*cos(angle) + forceOriginal.y*sin(angle);
-          force.y = -forceOriginal.x*sin(angle) + forceOriginal.y*cos(angle);
-          if (word[0]=='#') { 
-            force.z = (MapReal)atof(remove_first_character(word));
-            map_snprintf(tempString, 64, "#%1.4f  #%1.4f  #%1.4f\n", force.x, force.y, force.z);
-          } else {
-            force.z = (MapReal)atof(word);
-            map_snprintf(tempString, 64, "%1.4f  %1.4f  %1.4f\n", force.x, force.y, force.z);
-          };
-          map_strcat(buffer, 256, tempString);        
-        };
-        cnt++;
-        word = strtok(NULL, " ,\n\t\r\0");
-      };  
-      sizeOfString = strlen(buffer);
-      tempArray[(i+1)*sizeOfNodeBase+j] = malloc(sizeof(char)*(sizeOfString+1));
-      strcpy(tempArray[(i+1)*sizeOfNodeBase+j], buffer);
-    };  
-  };
-
-  dataObj->sizeOfNodes = init->sizeOfFullNodeString;
-  init->expandedNodeInputString = malloc(sizeof(char*)*(init->sizeOfFullNodeString));
-  for( i=0 ; i<init->sizeOfFullNodeString ; i++ ) {    
-    init->expandedNodeInputString[i] = malloc(sizeof(char)*(strlen(tempArray[i])+1));  
-    strcpy(init->expandedNodeInputString[i], tempArray[i]);
-    MAPFREE(tempArray[i]);
-  };
-  MAPFREE(tempArray);
-
-  return MAP_SAFE;
-};
-
-
-/**
- *
- */
-MAP_ERROR_CODE repeat_elements(ModelData* dataObj, InitializationData* init, char* map_msg, MAP_ERROR_CODE* ierr)
-{
-  int i = 0;
-  int j = 0;
-  int cnt = 0;
-  int success = 0;
-  int sizeOfElementBase = 0;
-  int sizeOfNodeBase = 0;
-  int sizeOfString = 0;
-  int numRepeat = 0;
-  int anchNode = 0.0;
-  int fairNode = 0.0;
-  char buffer[256] = "";
-  char* word = NULL;
-  char lines[256] = "";
-  char** temp_array  = NULL;
-  char temp_string[64] = "";
-  Element newElement;
-
-  sizeOfElementBase = dataObj->sizeOfElements;
-  sizeOfNodeBase = init->nodeSize;
-  
-  numRepeat = dataObj->modelOptions.sizeOfRepeatAngles;
-  init->sizeOfFullElementString = (sizeOfElementBase)*(numRepeat+1); 
-  temp_array = malloc( (init->sizeOfFullElementString)*sizeof(char*));
-
-  for(j=0 ; j<sizeOfElementBase ; j++) { 
-    sizeOfString = strlen(init->elementInputString[j]);
-    temp_array[j] = malloc(sizeof(char)*(sizeOfString+1));
-    strcpy(temp_array[j], init->elementInputString[j]);
-  };
-
-  for(i=0 ; i<numRepeat ; i++) { 
-    for(j=0 ; j<sizeOfElementBase ; j++) { 
-      set_element_null(&newElement);  
-      sizeOfString = strlen(init->elementInputString[j]);      
-      strcpy(lines, init->elementInputString[j]);
-      word = strtok(lines, " ,\n\t\r\0" );    
-      cnt = 0;
-      buffer[0] = 0;
-      temp_string[0] = 0;
-      while (word!=NULL) {      
-        if (cnt==0) {
-          map_snprintf(temp_string, 64, "%d  ", ((i+1)*sizeOfElementBase+j+1));
-          map_strcat(buffer, 256, temp_string);
-        } else if (cnt==1 ) { 
-          map_snprintf(temp_string, 64, "%s  ", word);
-          map_strcat(buffer, 256, temp_string);
-        } else if (cnt==2) { 
-          map_snprintf(temp_string, 64, "%s  ", word);
-          map_strcat(buffer, 256, temp_string);
-        } else if (cnt==3) { 
-          success = is_numeric(word); CHECKERRQ(MAP_FATAL_28);
-          if ( !success ) {
-            anchNode = (MapReal)atof(word);        
-          };
-          map_snprintf(temp_string, 64, "%d  ", (i+1)*sizeOfNodeBase+anchNode);
-          map_strcat(buffer, 256, temp_string);
-        } else if (cnt==4) { 
-          success = is_numeric(word); CHECKERRQ(MAP_FATAL_29);
-          if ( !success ) {
-            fairNode = (MapReal)atof(word);  
-          };
-          map_snprintf(temp_string, 64, "%d  ", (i+1)*sizeOfNodeBase+fairNode);
-          map_strcat(buffer, 256, temp_string);
-        } else {
-          map_snprintf(temp_string, 64, "%s  ", word);
-          map_strcat(buffer, 256, temp_string);
-        };
-        cnt++;
-        word = strtok( NULL, " ,\n\t\r\0" );
-      };  
-      map_strcat( buffer, 256, "\n" );
-      sizeOfString = strlen( buffer );
-      temp_array[(i+1)*sizeOfElementBase+j] = malloc(sizeof(char)*(sizeOfString+1));
-      strcpy(temp_array[(i+1)*sizeOfElementBase+j], buffer);
-    };  
-  };
-
-  dataObj->sizeOfElements = init->sizeOfFullElementString;
-  init->expandedElementInputString = malloc(sizeof(char*)*(init->sizeOfFullElementString));
-  for(i=0 ; i<init->sizeOfFullElementString ; i++) {    
-    init->expandedElementInputString[i] = malloc(sizeof(char)*(strlen(temp_array[i])+1));  
-    strcpy(init->expandedElementInputString[i], temp_array[i]);
-    MAPFREE(temp_array[i]);
-  };
-  MAPFREE(temp_array);
-
-  return MAP_SAFE;
-
-};
+// /**
+//  *
+//  */
+// MAP_ERROR_CODE repeat_elements(ModelData* dataObj, InitializationData* init, char* map_msg, MAP_ERROR_CODE* ierr)
+// {
+//   int i = 0;
+//   int j = 0;
+//   int cnt = 0;
+//   int success = 0;
+//   int sizeOfElementBase = 0;
+//   int sizeOfNodeBase = 0;
+//   int sizeOfString = 0;
+//   int numRepeat = 0;
+//   int anchNode = 0.0;
+//   int fairNode = 0.0;
+//   char buffer[256] = "";
+//   char* word = NULL;
+//   char lines[256] = "";
+//   char** temp_array  = NULL;
+//   char temp_string[64] = "";
+//   Element newElement;
+// 
+//   sizeOfElementBase = dataObj->sizeOfElements;
+//   sizeOfNodeBase = init->nodeSize;
+//   
+//   numRepeat = dataObj->modelOptions.sizeOfRepeatAngles;
+//   init->sizeOfFullElementString = (sizeOfElementBase)*(numRepeat+1); 
+//   temp_array = malloc( (init->sizeOfFullElementString)*sizeof(char*));
+// 
+//   for(j=0 ; j<sizeOfElementBase ; j++) { 
+//     sizeOfString = strlen(init->elementInputString[j]);
+//     temp_array[j] = malloc(sizeof(char)*(sizeOfString+1));
+//     strcpy(temp_array[j], init->elementInputString[j]);
+//   };
+// 
+//   for(i=0 ; i<numRepeat ; i++) { 
+//     for(j=0 ; j<sizeOfElementBase ; j++) { 
+//       set_element_null(&newElement);  
+//       sizeOfString = strlen(init->elementInputString[j]);      
+//       strcpy(lines, init->elementInputString[j]);
+//       word = strtok(lines, " ,\n\t\r\0" );    
+//       cnt = 0;
+//       buffer[0] = 0;
+//       temp_string[0] = 0;
+//       while (word!=NULL) {      
+//         if (cnt==0) {
+//           map_snprintf(temp_string, 64, "%d  ", ((i+1)*sizeOfElementBase+j+1));
+//           map_strcat(buffer, 256, temp_string);
+//         } else if (cnt==1 ) { 
+//           map_snprintf(temp_string, 64, "%s  ", word);
+//           map_strcat(buffer, 256, temp_string);
+//         } else if (cnt==2) { 
+//           map_snprintf(temp_string, 64, "%s  ", word);
+//           map_strcat(buffer, 256, temp_string);
+//         } else if (cnt==3) { 
+//           success = is_numeric(word); CHECKERRQ(MAP_FATAL_28);
+//           if ( !success ) {
+//             anchNode = (MapReal)atof(word);        
+//           };
+//           map_snprintf(temp_string, 64, "%d  ", (i+1)*sizeOfNodeBase+anchNode);
+//           map_strcat(buffer, 256, temp_string);
+//         } else if (cnt==4) { 
+//           success = is_numeric(word); CHECKERRQ(MAP_FATAL_29);
+//           if ( !success ) {
+//             fairNode = (MapReal)atof(word);  
+//           };
+//           map_snprintf(temp_string, 64, "%d  ", (i+1)*sizeOfNodeBase+fairNode);
+//           map_strcat(buffer, 256, temp_string);
+//         } else {
+//           map_snprintf(temp_string, 64, "%s  ", word);
+//           map_strcat(buffer, 256, temp_string);
+//         };
+//         cnt++;
+//         word = strtok( NULL, " ,\n\t\r\0" );
+//       };  
+//       map_strcat( buffer, 256, "\n" );
+//       sizeOfString = strlen( buffer );
+//       temp_array[(i+1)*sizeOfElementBase+j] = malloc(sizeof(char)*(sizeOfString+1));
+//       strcpy(temp_array[(i+1)*sizeOfElementBase+j], buffer);
+//     };  
+//   };
+// 
+//   dataObj->sizeOfElements = init->sizeOfFullElementString;
+//   init->expandedElementInputString = malloc(sizeof(char*)*(init->sizeOfFullElementString));
+//   for(i=0 ; i<init->sizeOfFullElementString ; i++) {    
+//     init->expandedElementInputString[i] = malloc(sizeof(char)*(strlen(temp_array[i])+1));  
+//     strcpy(init->expandedElementInputString[i], temp_array[i]);
+//     MAPFREE(temp_array[i]);
+//   };
+//   MAPFREE(temp_array);
+// 
+//   return MAP_SAFE;
+// 
+// };
 
 
 /**
@@ -1668,54 +1668,54 @@ void initialize_element(Element* ptr, const int elementNum)
 };
 
 
-/**
- *
- */
-MAP_ERROR_CODE initialize_external_applied_force(char* unit, char* alias, const int num, VarType* type, char const* property)
-{
-  type->name = malloc(sizeof(char)*strlen(alias)+1);
-  type->units = malloc(sizeof(char)*strlen(unit)+1);
-  
-  strcpy(type->name, alias);
-  strcpy(type->units, unit);
+// /**
+//  *
+//  */
+// MAP_ERROR_CODE initialize_external_applied_force(char* unit, char* alias, const int num, VarType* type, char const* property)
+// {
+//   type->name = malloc(sizeof(char)*strlen(alias)+1);
+//   type->units = malloc(sizeof(char)*strlen(unit)+1);
+//   
+//   strcpy(type->name, alias);
+//   strcpy(type->units, unit);
+// 
+//   type->referenceCounter = 0;
+//   type->id = num;  
+//   type->value = 0;
+//   type->isFixed = true;
+// 
+//   if (property[0]=='#') { 
+//     type->value = 0.0;
+//   } else { 
+//     /* this variable is constant */    
+//     if (is_numeric(property)) { 
+//       /* cannot convert to numeric value */
+//       return MAP_FATAL;
+//     } else { 
+//       /* converted to numeric value */
+//       type->value = (MapReal)atof(property);      
+//     };
+//   };
+//   return MAP_SAFE;
+// };
 
-  type->referenceCounter = 0;
-  type->id = num;  
-  type->value = 0;
-  type->isFixed = true;
 
-  if (property[0]=='#') { 
-    type->value = 0.0;
-  } else { 
-    /* this variable is constant */    
-    if (is_numeric(property)) { 
-      /* cannot convert to numeric value */
-      return MAP_FATAL;
-    } else { 
-      /* converted to numeric value */
-      type->value = (MapReal)atof(property);      
-    };
-  };
-  return MAP_SAFE;
-};
-
-
-/**
- *
- */
-MAP_ERROR_CODE initialize_node_sum_force_ptr(char* unit, char* alias, const int num, VarTypePtr* type)
-{
-  type->name = malloc(sizeof(char)*strlen(alias)+1);
-  type->units = malloc(sizeof(char)*strlen(unit)+1);  
-  strcpy(type->name, alias);
-  strcpy(type->units, unit);
-
-  type->referenceCounter = 0;
-  type->id = num;  
-  type->isFixed = true;
-  *(type->value) = 0.0;
-  return MAP_SAFE;
-};
+// /**
+//  *
+//  */
+// MAP_ERROR_CODE initialize_node_sum_force_ptr(char* unit, char* alias, const int num, VarTypePtr* type)
+// {
+//   type->name = malloc(sizeof(char)*strlen(alias)+1);
+//   type->units = malloc(sizeof(char)*strlen(unit)+1);  
+//   strcpy(type->name, alias);
+//   strcpy(type->units, unit);
+// 
+//   type->referenceCounter = 0;
+//   type->id = num;  
+//   type->isFixed = true;
+//   *(type->value) = 0.0;
+//   return MAP_SAFE;
+// };
 
 
 /**
@@ -1755,31 +1755,31 @@ void set_node_null(Node* ptr)
 };
 
 
-/**
- *
- */
-MAP_ERROR_CODE associate_element_with_cable_property(Element* newElement, ModelData* data, char* word, char* map_msg, MAP_ERROR_CODE* ierr)
-{
-  CableLibrary* iterCableLibrary = NULL;
-  iterCableLibrary = NULL;
-  newElement->lineProperty = NULL;
-
-  list_iterator_start(&data->cableLibrary); /* starting an iteration session */
-  while (list_iterator_hasnext(&data->cableLibrary)) { /* tell whether more values available */
-    iterCableLibrary = (CableLibrary*)list_iterator_next(&data->cableLibrary);
-    if (!strcicmp(iterCableLibrary->label, word)) {
-      newElement->lineProperty = iterCableLibrary;
-      list_iterator_stop(&data->cableLibrary); /* ending the iteration session */  
-      break;
-    }; 
-  };
-  list_iterator_stop(&data->cableLibrary); /* ending the iteration session */  
-  if (newElement->lineProperty==NULL) {        
-    *ierr = map_set_universal_error(word, map_msg, ierr, MAP_FATAL_27);
-    return MAP_FATAL;
-  };
-  return MAP_SAFE;
-};
+// /**
+//  *
+//  */
+// MAP_ERROR_CODE associate_element_with_cable_property(Element* newElement, ModelData* data, char* word, char* map_msg, MAP_ERROR_CODE* ierr)
+// {
+//   CableLibrary* iterCableLibrary = NULL;
+//   iterCableLibrary = NULL;
+//   newElement->lineProperty = NULL;
+// 
+//   list_iterator_start(&data->cableLibrary); /* starting an iteration session */
+//   while (list_iterator_hasnext(&data->cableLibrary)) { /* tell whether more values available */
+//     iterCableLibrary = (CableLibrary*)list_iterator_next(&data->cableLibrary);
+//     if (!strcicmp(iterCableLibrary->label, word)) {
+//       newElement->lineProperty = iterCableLibrary;
+//       list_iterator_stop(&data->cableLibrary); /* ending the iteration session */  
+//       break;
+//     }; 
+//   };
+//   list_iterator_stop(&data->cableLibrary); /* ending the iteration session */  
+//   if (newElement->lineProperty==NULL) {        
+//     *ierr = map_set_universal_error(word, map_msg, ierr, MAP_FATAL_27);
+//     return MAP_FATAL;
+//   };
+//   return MAP_SAFE;
+// };
 
 
 /**

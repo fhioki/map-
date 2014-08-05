@@ -25,6 +25,7 @@
 
 #include "mapsys.h"
 #include "simclist/simclist.h"
+#include "bstring/bstrlib.h"
 
 
 /**
@@ -94,8 +95,10 @@ struct Fd_t {
  */
 struct VarType_t {
   MapReal value;         /**< the value */
-  char* units;           /**< units for printing information to a summary file or output buffer */
-  char* name;            /**< name of the variable. This is used for identifying it in the output buffer */
+  bstring units;           /*< units for printing information to a summary file or output buffer */
+  bstring name;            /*< name of the variable. This is used for identifying it in the output buffer */
+  // char* units;           /*< units for printing information to a summary file or output buffer */
+  // char* name;            /*< name of the variable. This is used for identifying it in the output buffer */
   bool isFixed;          /**< if isFixed = true, then we are not solving for this variable */
   int referenceCounter;  /**< for ensuring the variable is assigned to one of: input, param, or constraint */
   int id;                /**< node or element this value is attached to */
@@ -109,8 +112,10 @@ struct VarType_t {
  */
 struct VarTypePtr_t {
   MapReal* value;        /**< the value */
-  char* units;           /**< units for printing information to a summary file or output buffer */
-  char* name;            /**< name of the variable. This is used for identifying it in the output buffer */
+  bstring units;           /*< units for printing information to a summary file or output buffer */
+  bstring name;            /*< name of the variable. This is used for identifying it in the output buffer */
+  // char* units;           /**< units for printing information to a summary file or output buffer */
+  // char* name;            /**< name of the variable. This is used for identifying it in the output buffer */
   bool isFixed;          /**< If isFixed = true, then we are not solving for this variable */
   int referenceCounter;  /**< For ensuring the variable is assigned to one of: input, param, or constraint */
   int id;                /**< node or element this value is attached to */
@@ -234,7 +239,8 @@ struct CableLibrary_t {
   MapReal cAdded;           /**< Added mass coefficient [non-dimensional] */
   MapReal cDragNormal;      /**< Quadtradice drag coefficient in the cable cross-flow direction [non-dimensional] */
   MapReal cDragTangent;     /**< Tangential drag oefficient [non-dimensional] */
-  char* label;              /**< Provides the string a recognizable name (such as 'nylon' or 'steel') */
+  bstring label;            /**< Provides the string a recognizable name (such as 'nylon' or 'steel') */
+  // char* label;              /**< Provides the string a recognizable name (such as 'nylon' or 'steel') */
 }; typedef struct CableLibrary_t CableLibrary;
 
 
@@ -278,7 +284,8 @@ struct Element_t {
   VarType TAtAnchor;          /**< Tension magnitude at anchor [N] */
   Force forceAtFairlead;      //*< @rm is this even necessary? I don't think so. Element should not store node forces. They only can contribute force in sumForcePrt
   Force forceAtAnchor;        //*< @rm is this even necessary? I don't think so. Element should not store node forces. They only can contribute force in sumForcePrt
-  char* label;                /**< reference a pre-defined property in the line dictionary */
+  // char* label;                /**< reference a pre-defined property in the line dictionary */
+  bstring label;              /**< reference a pre-defined property in the line dictionary */
   Node* anchor;               /**< Anchor node */
   Node* fairlead;             /**< Fairlead node */
   int segmentSize;
@@ -376,13 +383,20 @@ struct ModelData_t {
  *          MAP then parses this string and expands them if necessary depending on the '{@link ModelOptions_t}' repeatAngles flag.
  */
 struct InitializationData_t {
-  char** libraryInputString;         /**< library property string from input file. MAP does not read contents from input string; must be done by calling program */
-  char** nodeInputString;            /**< raw (non-expanded) node input string. MAP does not read contents from input string; must be done by calling program */
-  char** elementInputString;         /**< raw (non-expanded) element input string(MAP does not read contents from input string; must be done by calling program */
-  char** solverOptionsString;        /**< model poptions input string */
-  char** expandedNodeInputString;    /**< full node input string duplicating information in nodeInputString when the 'repeat' flag is used */
-  char** expandedElementInputString; /**< full element input string duplicating information in nodeElementString when the 'repeat' flag is used */
-  char* summaryFileName;             /**< summary file name. Can be set through {@link map_set_summary_file_name()} */
+  struct bstrList* libraryInputString;         /**< library property string from input file. MAP does not read contents from input string; must be done by calling program */
+  struct bstrList* nodeInputString;            /**< raw (non-expanded) node input string. MAP does not read contents from input string; must be done by calling program */
+  struct bstrList* elementInputString;         /**< raw (non-expanded) element input string(MAP does not read contents from input string; must be done by calling program */
+  struct bstrList* solverOptionsString;        /**< model poptions input string */
+  struct bstrList* expandedNodeInputString;    /**< full node input string duplicating information in nodeInputString when the 'repeat' flag is used */
+  struct bstrList* expandedElementInputString; /**< full element input string duplicating information in nodeElementString when the 'repeat' flag is used */
+  bstring summaryFileName;                     /**< summary file name. Can be set through {@link map_set_summary_file_name()} */
+  // char** libraryInputString;         /**< library property string from input file. MAP does not read contents from input string; must be done by calling program */
+  // char** nodeInputString;            /**< raw (non-expanded) node input string. MAP does not read contents from input string; must be done by calling program */
+  // char** elementInputString;         /**< raw (non-expanded) element input string(MAP does not read contents from input string; must be done by calling program */
+  // char** solverOptionsString;        /**< model poptions input string */
+  // char** expandedNodeInputString;    /**< full node input string duplicating information in nodeInputString when the 'repeat' flag is used */
+  // char** expandedElementInputString; /**< full element input string duplicating information in nodeElementString when the 'repeat' flag is used */
+  // char* summaryFileName;             /**< summary file name. Can be set through {@link map_set_summary_file_name()} */
   int sizeOfFullNodeString;          /**< number of node entries after expansion, i.e., after repeats */
   int sizeOfFullElementString;       /**< number of element entries after expansion, i.e., after repeats */
   int librarySize;                   /**< number of cable types defined in the cable library section of the input string */

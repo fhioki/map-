@@ -30,74 +30,74 @@ const char* remove_first_character(const char* str)
 
 
 
-/**
- *
- */
-void initialize_vartype(char* unit, char* alias, VarType* type, const int num)
-{
-  int cx = 0;
-  char buffer[64] = "";
+// /**
+//  *
+//  */
+// void initialize_vartype(char* unit, char* alias, VarType* type, const int num)
+// {
+//   int cx = 0;
+//   char buffer[64] = "";
+// 
+//   cx = map_snprintf(buffer, 64, "%s[%d]", alias, num); assert(cx>=0);
+//   type->name = malloc(sizeof(char)*strlen(buffer)+1);
+//   type->units = malloc(sizeof(char)*strlen(unit)+1);
+//   strcpy(type->name, buffer);
+//   strcpy(type->units, unit);
+//   type->referenceCounter = 0;
+//   type->id = num;  
+//   type->value = -999.9;
+//   type->isFixed = false;
+// };
 
-  cx = map_snprintf(buffer, 64, "%s[%d]", alias, num); assert(cx>=0);
-  type->name = malloc(sizeof(char)*strlen(buffer)+1);
-  type->units = malloc(sizeof(char)*strlen(unit)+1);
-  strcpy(type->name, buffer);
-  strcpy(type->units, unit);
-  type->referenceCounter = 0;
-  type->id = num;  
-  type->value = -999.9;
-  type->isFixed = false;
-};
 
-
-/**
- *
- */
-MAP_ERROR_CODE set_vartype(char* unit, char* alias, const int num, VarType* type, char const* property)
-{
-  const char* return_str = NULL;
-
-  type->name = malloc(sizeof(char)*strlen(alias)+1);
-  type->units = malloc(sizeof(char)*strlen(unit)+1);
-  
-  strcpy(type->name, alias);
-  strcpy(type->units, unit);
-
-  type->referenceCounter = 0;
-  type->id = num;  
-  type->value = 0;
-
-  if (property[0]== '#') { 
-    /* this variable is an iterated parameter */  
-    type->isFixed = false;
-    return_str = remove_first_character(property);
-    if (!strcmp(return_str, "") || !strcmp(return_str, "\n")) {
-      /* entry in empty in the MAP input file */
-      type->value = -999.9;
-      return MAP_SAFE;
-    } else if (is_numeric(return_str)) { 
-      /* cannot convert to numeric value */
-      return MAP_FATAL;
-    } else {
-      /* converted to numeric value */
-      type->value = (MapReal)atof(return_str); 
-      return MAP_SAFE;
-    };
-  } else { 
-    /* this variable is constant */
-    type->isFixed = true;
-    if (is_numeric(property)) 
-    { 
-      /* cannot convert to numeric value */
-      return MAP_FATAL;
-    } else { 
-      /* converted to numeric value */
-      type->value = (MapReal)atof(property);
-      return MAP_SAFE;
-    };
-  };
-  return MAP_SAFE;
-};
+// /**
+//  *
+//  */
+// MAP_ERROR_CODE set_vartype(char* unit, char* alias, const int num, VarType* type, char const* property)
+// {
+//   const char* return_str = NULL;
+// 
+//   type->name = malloc(sizeof(char)*strlen(alias)+1);
+//   type->units = malloc(sizeof(char)*strlen(unit)+1);
+//   
+//   strcpy(type->name, alias);
+//   strcpy(type->units, unit);
+// 
+//   type->referenceCounter = 0;
+//   type->id = num;  
+//   type->value = 0;
+// 
+//   if (property[0]== '#') { 
+//     /* this variable is an iterated parameter */  
+//     type->isFixed = false;
+//     return_str = remove_first_character(property);
+//     if (!strcmp(return_str, "") || !strcmp(return_str, "\n")) {
+//       /* entry in empty in the MAP input file */
+//       type->value = -999.9;
+//       return MAP_SAFE;
+//     } else if (is_numeric(return_str)) { 
+//       /* cannot convert to numeric value */
+//       return MAP_FATAL;
+//     } else {
+//       /* converted to numeric value */
+//       type->value = (MapReal)atof(return_str); 
+//       return MAP_SAFE;
+//     };
+//   } else { 
+//     /* this variable is constant */
+//     type->isFixed = true;
+//     if (is_numeric(property)) 
+//     { 
+//       /* cannot convert to numeric value */
+//       return MAP_FATAL;
+//     } else { 
+//       /* converted to numeric value */
+//       type->value = (MapReal)atof(property);
+//       return MAP_SAFE;
+//     };
+//   };
+//   return MAP_SAFE;
+// };
 
 
 MAP_ERROR_CODE initialize_fortran_types(MAP_InputType_t* uType, MAP_ParameterType_t* pType, MAP_ContinuousStateType_t* xType, MAP_ConstraintStateType_t* zType, MAP_OtherStateType_t* otherType, MAP_OutputType_t* yType, MAP_InitOutputType_t* initoutType)
@@ -211,52 +211,52 @@ MAP_ERROR_CODE associate_vartype_ptr(VarTypePtr* type, double* arr, int index)
 
 
 
-/**
- *
- */
-MAP_ERROR_CODE set_vartype_ptr(char* unit, char* alias, const int num, VarTypePtr* type, char const* property)
-{
-  const char* return_str = NULL;
-  
-  type->name = malloc(sizeof(char)*strlen(alias)+1); /* @todo: this needs to be freed */
-  type->units = malloc(sizeof(char)*strlen(unit)+1); /* @todo: this needs to be freed */
-  
-  strcpy(type->name, alias);
-  strcpy(type->units, unit);
-  
-  type->referenceCounter = 0;
-  type->id = num;  
-
-  if (property[0]=='#') { 
-    /* this variable is an iterated parameter */      
-    type->isFixed = false;
-    return_str = remove_first_character(property);
-    if (!strcmp(return_str, "") || !strcmp(return_str, "\n")) {
-      /* entry in empty in the MAP input file */
-      *type->value = -999.9;
-      return MAP_SAFE;
-    } else if (is_numeric(return_str)) { 
-      /* cannot convert to numeric value */
-      return MAP_FATAL;
-    } else {
-      /* converted to numeric value */
-      *type->value = (MapReal)atof(return_str); 
-      return MAP_SAFE;
-    };
-  } else { 
-    /* this variable is constant */
-    type->isFixed = true;
-    if (is_numeric(property)) { 
-      /* cannot convert to numeric value */
-      return MAP_FATAL;
-    } else { 
-      /* converted to numeric value */
-      *type->value = (MapReal)atof(property); 
-      return MAP_SAFE;
-    };
-  };
-  return MAP_SAFE;
-};
+// /**
+//  *
+//  */
+// MAP_ERROR_CODE set_vartype_ptr(char* unit, char* alias, const int num, VarTypePtr* type, char const* property)
+// {
+//   const char* return_str = NULL;
+//   
+//   type->name = malloc(sizeof(char)*strlen(alias)+1); /* @todo: this needs to be freed */
+//   type->units = malloc(sizeof(char)*strlen(unit)+1); /* @todo: this needs to be freed */
+//   
+//   strcpy(type->name, alias);
+//   strcpy(type->units, unit);
+//   
+//   type->referenceCounter = 0;
+//   type->id = num;  
+// 
+//   if (property[0]=='#') { 
+//     /* this variable is an iterated parameter */      
+//     type->isFixed = false;
+//     return_str = remove_first_character(property);
+//     if (!strcmp(return_str, "") || !strcmp(return_str, "\n")) {
+//       /* entry in empty in the MAP input file */
+//       *type->value = -999.9;
+//       return MAP_SAFE;
+//     } else if (is_numeric(return_str)) { 
+//       /* cannot convert to numeric value */
+//       return MAP_FATAL;
+//     } else {
+//       /* converted to numeric value */
+//       *type->value = (MapReal)atof(return_str); 
+//       return MAP_SAFE;
+//     };
+//   } else { 
+//     /* this variable is constant */
+//     type->isFixed = true;
+//     if (is_numeric(property)) { 
+//       /* cannot convert to numeric value */
+//       return MAP_FATAL;
+//     } else { 
+//       /* converted to numeric value */
+//       *type->value = (MapReal)atof(property); 
+//       return MAP_SAFE;
+//     };
+//   };
+//   return MAP_SAFE;
+// };
 
 
 
@@ -313,57 +313,57 @@ MAP_ERROR_CODE set_vartype_ptr(char* unit, char* alias, const int num, VarTypePt
 
 
 
-/**
- *
- */
-MAP_ERROR_CODE set_vartype_ptr_float(char* unit, char* alias, const int num, VarTypePtr* type, const MapReal value)
-{
-  const char* return_str = NULL;
-  
-  type->name = malloc(sizeof(char)*strlen(alias)+1); /* @todo: this needs to be freed */
-  type->units = malloc(sizeof(char)*strlen(unit)+1); /* @todo: this needs to be freed */
-  strcpy(type->name, alias);
-  strcpy(type->units, unit);  
-
-  type->referenceCounter = 0;
-  type->id = num;  
-  type->isFixed = true;
-  *type->value = -value;
-  return MAP_SAFE;
-};
-
-
-MAP_ERROR_CODE set_element_vartype_ptr(char* unit, char* alias, const int num, VarTypePtr* type)
-{  
-  type->name = malloc(sizeof(char)*strlen(alias)+1); 
-  type->units = malloc(sizeof(char)*strlen(unit)+1); 
-  if (type->name==NULL || type->units==NULL) {
-    return MAP_FATAL;
-  };
-  strcpy(type->name, alias);
-  strcpy(type->units, unit);  
-  type->referenceCounter = 0;
-  type->id = num;  
-  *(type->value) = -999.9;
-  return MAP_SAFE;
-};
+// /**
+//  *
+//  */
+// MAP_ERROR_CODE set_vartype_ptr_float(char* unit, char* alias, const int num, VarTypePtr* type, const MapReal value)
+// {
+//   const char* return_str = NULL;
+//   
+//   type->name = malloc(sizeof(char)*strlen(alias)+1); /* @todo: this needs to be freed */
+//   type->units = malloc(sizeof(char)*strlen(unit)+1); /* @todo: this needs to be freed */
+//   strcpy(type->name, alias);
+//   strcpy(type->units, unit);  
+// 
+//   type->referenceCounter = 0;
+//   type->id = num;  
+//   type->isFixed = true;
+//   *type->value = -value;
+//   return MAP_SAFE;
+// };
 
 
-MAP_ERROR_CODE set_vartype_float(char* unit, char* alias, const double num, VarType* type, MapReal const value)
-{
-  type->name = malloc(sizeof(char)*strlen(alias)+1);
-  type->units = malloc(sizeof(char)*strlen(unit)+1);
-
-  strcpy(type->name, alias);
-  strcpy(type->units, unit);
-
-  type->isFixed = false;
-  type->referenceCounter = 0;
-  type->id = num;  
-  type->value = value;
-
-  return MAP_SAFE;
-};
+// MAP_ERROR_CODE set_element_vartype_ptr(char* unit, char* alias, const int num, VarTypePtr* type)
+// {  
+//   type->name = malloc(sizeof(char)*strlen(alias)+1); 
+//   type->units = malloc(sizeof(char)*strlen(unit)+1); 
+//   if (type->name==NULL || type->units==NULL) {
+//     return MAP_FATAL;
+//   };
+//   strcpy(type->name, alias);
+//   strcpy(type->units, unit);  
+//   type->referenceCounter = 0;
+//   type->id = num;  
+//   *(type->value) = -999.9;
+//   return MAP_SAFE;
+// };
+// 
+// 
+// MAP_ERROR_CODE set_vartype_float(char* unit, char* alias, const double num, VarType* type, MapReal const value)
+// {
+//   type->name = malloc(sizeof(char)*strlen(alias)+1);
+//   type->units = malloc(sizeof(char)*strlen(unit)+1);
+// 
+//   strcpy(type->name, alias);
+//   strcpy(type->units, unit);
+// 
+//   type->isFixed = false;
+//   type->referenceCounter = 0;
+//   type->id = num;  
+//   type->value = value;
+// 
+//   return MAP_SAFE;
+// };
 
 
 /**
