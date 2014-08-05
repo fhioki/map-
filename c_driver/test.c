@@ -10,6 +10,10 @@
 #include "../src/MAP_Types.h"
 #include "../src/maperror.h"
 #include "../src/map.h"
+#include "../src/protos.h"
+#include "../src/initialization.h"
+#include "../src/outputstream.h"
+#include "../src/nwtcfunctions.h"
 
 int main(int argc, char *argv[]) 
 {
@@ -99,7 +103,7 @@ int main(int argc, char *argv[])
   */
 
 
-  strcpy(init_type->summaryFileName,"baseline.sum.map\0"); map_set_summary_file_name(init_type, map_msg, ierr);
+  strcpy(init_type->summaryFileName,"baseline.sum.map\0"); map_set_summary_file_name(init_type, map_msg, &ierr);
   map_init(init_type, u_type, p_type, x_type, NULL, z_type, other_type, y_type, io_type, &ierr, map_msg);
 
 

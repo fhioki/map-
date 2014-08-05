@@ -295,7 +295,7 @@ MAP_ERROR_CODE set_element_vartype_ptr(char* unit, char* alias, const int num, V
 };
 
 
-MAP_ERROR_CODE set_vartype_float(char* unit, char* alias, const int num, VarType* type, MapReal const value)
+MAP_ERROR_CODE set_vartype_float(char* unit, char* alias, const double num, VarType* type, MapReal const value)
 {
   type->name = malloc(sizeof(char)*strlen(alias)+1);
   type->units = malloc(sizeof(char)*strlen(unit)+1);
@@ -356,12 +356,12 @@ MAP_ERROR_CODE is_numeric(const char* s)
  */
 MAP_ERROR_CODE map_get_version(MAP_InitOutputType_t* ioType)
 {
-  char name[99]="";
+  char name[50]="";
 
-  //__get_machine_name(name);
+  // __get_machine_name(name);
   ioType->version[0]='\0';
   ioType->compilingData[0]='\0';
-//  map_snprintf(ioType->version, 99, "<%s-%s>",PROGVERSION,name);
+  map_snprintf(ioType->version, 99, "<%s>",PROGVERSION);
   map_snprintf(ioType->compilingData, 24,"<-%c%c%c-%c%c-%c%c%c%c>",BUILD_MONTH_CH0,BUILD_MONTH_CH1,BUILD_MONTH_CH2,BUILD_DAY_CH0,BUILD_DAY_CH1,BUILD_YEAR_CH0,BUILD_YEAR_CH1,BUILD_YEAR_CH2,BUILD_YEAR_CH3);
 
   return MAP_SAFE;
@@ -372,10 +372,10 @@ MAP_ERROR_CODE map_get_version(MAP_InitOutputType_t* ioType)
  *
  */
 void print_machine_name_to_screen( ) {
-  char name[150]="";
+  char name[50]="";
 
-  //__get_machine_name(name);
-  printf( "%s Ver. %s-%s ", PROGNAME, PROGVERSION, name ); 
+  // __get_machine_name(name);
+  printf( "%s Ver. %s ", PROGNAME, PROGVERSION); 
   printf( "%c",BUILD_MONTH_CH0 );// build month
   printf( "%c",BUILD_MONTH_CH1 );
   printf( "%c",BUILD_MONTH_CH2 );
@@ -388,6 +388,33 @@ void print_machine_name_to_screen( ) {
   printf( "%c",BUILD_YEAR_CH2 );
   printf( "%c\n",BUILD_YEAR_CH3 );
 }
+
+
+/**
+ * @see: http://stackoverflow.com/questions/504810/how-do-i-find-the-current-machines-full-hostname-in-c-hostname-and-domain-info
+ */
+void __get_machine_name(char* machineName)
+{
+  char name[150];  
+  
+#if defined(_WIN32) || defined(_WIN64)
+  int i = 0;
+  TCHAR infoBuf[150];
+  DWORD bufCharCount = 150;
+  memset(name, 0, 150);
+  if (GetComputerName(infoBuf, &bufCharCount)) {
+    for (i=0 ; i<150 ; i++) {
+      name[i] = infoBuf[i];
+    };
+  } else {
+    strcpy(name, "Unknown_Host_Name");
+  };
+#else
+  memset(name, 0, 150);
+  gethostname(name, 150);
+#endif
+  strncpy(machineName ,name, 150);
+};
 
 
 /**
@@ -486,31 +513,4 @@ MAP_ERROR_CODE print_help_to_screen()
   printf( "<https://gnu.org/licenses/gpl.html> for more details.\n" );
   printf("    \n");
   return MAP_SAFE;
-};
-
-
-/**
- * @see: http://stackoverflow.com/questions/504810/how-do-i-find-the-current-machines-full-hostname-in-c-hostname-and-domain-info
- */
-void __get_machine_name(char* machineName)
-{
-  char name[150];  
-  
-#if defined(_WIN32) || defined(_WIN64)
-  int i = 0;
-  TCHAR infoBuf[150];
-  DWORD bufCharCount = 150;
-  memset(name, 0, 150);
-  if (GetComputerName(infoBuf, &bufCharCount)) {
-    for (i=0 ; i<150 ; i++) {
-      name[i] = infoBuf[i];
-    };
-  } else {
-    strcpy(name, "Unknown_Host_Name");
-  };
-#else
-  memset(name, 0, 150);
-  gethostname(name, 150);
-#endif
-  strncpy(machineName ,name, 150);
 };

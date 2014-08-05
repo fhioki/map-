@@ -1,6 +1,14 @@
-CC = gcc
-#CCFLAGS = -g -O0 
-CFLAGS = -g -O2 -Wstrict-aliasing -Wuninitialized  
+PLATFORM = $(shell uname -s)
+
+ifeq ($(PLATFORM),Darwin)
+CC_TOOLS  = clang
+CCFLAGS = -g -O1 -fsanitize=address -fno-omit-frame-pointer
+else
+CC_TOOLS  = gcc
+#CCFLAGS = -g -O1 -fsanitize=address -fno-omit-frame-pointer
+CCFLAGS = -g -O1 
+endif
+
 OBJ = test.o
 
 all : $(OBJ)
@@ -11,5 +19,5 @@ clean:
 
 
 memcheck:	
-	valgrind  --tool=exp-sgcheck  ./c_driver
-#	valgrind --tool=memcheck --leak-check=yes python -E -tt ./main.py	
+	#valgrind --tool=memcheck --leak-check=yes --track-origins=yes ./c_driver
+	valgrind --tool=exp-sgcheck ./c_driver

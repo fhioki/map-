@@ -17,16 +17,29 @@
 #  < http://www.gnu.org/licenses/>
 #  ============================================================================
 
+PLATFORM = $(shell uname -s)
 CMINPACK_DIR = cminpack
 SIMCLIST_DIR = simclist
 
-VPATH=cminpack:simclist
+VPATH = cminpack:simclist
+
+
+ifeq ($(PLATFORM),Darwin)
+CC_TOOLS  = clang
+CFLAGS    = -g -O1 -fsanitize=address -fno-omit-frame-pointer -fPIC -D DEBUG -Icminpack -Isimclist
+LDFLAGS   = -g -fsanitize=address -fno-omit-frame-pointer -dynamiclib
+else ifeq ($(PLATFORM),Linux)
+CC_TOOLS  = gcc
+#CFLAGS    = -g -O1 -fsanitize=address -fno-omit-frame-pointer -fPIC -D DEBUG -DGITVERSION=\"$(GIT_VERSION)\" -Icminpack -Isimclist
+CFLAGS    = -g -O2 -fPIC -DGITVERSION=\"$(GIT_VERSION)\" -Wstrict-aliasing -Wuninitialized  
+LDFLAGS   = -g -shared 
+endif
+
+
+
+
 
 GIT_VERSION := $(shell git describe --abbrev=4 --dirty --always)
-CC_TOOLS  = gcc 
-CFLAGS    = -g -fPIC -D DEBUG -DGITVERSION=\"$(GIT_VERSION)\" -Icminpack -Isimclist
-#CFLAGS    = -g -O2 -fPIC -DGITVERSION=\"$(GIT_VERSION)\" -Wstrict-aliasing -Wuninitialized  
-LDFLAGS   = -g -shared
 DEBUG     = 
 OBJ       = lmder.o \
 	dpmpar.o \
@@ -52,6 +65,7 @@ OBJ       = lmder.o \
 
 all : $(OBJ)
 	$(CC_TOOLS) $(LDFLAGS) -o libmap-1.00.01.so $(DEBUG) $(OBJ) -lm
+	@echo $(CFLAGS)
 
 .c.o :
 	$(CC_TOOLS) -c $(CFLAGS) $<
