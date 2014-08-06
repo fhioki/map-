@@ -100,60 +100,6 @@ const char* remove_first_character(const char* str)
 // };
 
 
-MAP_ERROR_CODE initialize_fortran_types(MAP_InputType_t* uType, MAP_ParameterType_t* pType, MAP_ContinuousStateType_t* xType, MAP_ConstraintStateType_t* zType, MAP_OtherStateType_t* otherType, MAP_OutputType_t* yType, MAP_InitOutputType_t* initoutType)
-{
-  /* inputs */
-  uType->x = NULL;     uType->x_Len = 0;
-  uType->y = NULL;     uType->y_Len = 0;
-  uType->z = NULL;     uType->z_Len = 0;
-
-  /* parameters are skipped for now; they are set in fortran since depth, gravity and sea density are set by glue code */
-
-  /* continuous state */
-  xType->dummy=-999.9;
-
-  /* constraint state */  
-  zType->H = NULL;     zType->H_Len = 0;
-  zType->V = NULL;     zType->V_Len = 0;
-  zType->x = NULL;     zType->x_Len = 0;
-  zType->y = NULL;     zType->y_Len = 0;
-  zType->z = NULL;     zType->z_Len = 0;
-
-  /* other state */
-  otherType->H = NULL;     otherType->H_Len = 0;
-  otherType->V = NULL;     otherType->V_Len = 0;
-  otherType->Ha = NULL;    otherType->Ha_Len = 0;
-  otherType->Va = NULL;    otherType->Va_Len = 0;
-  otherType->x = NULL;     otherType->x_Len = 0;
-  otherType->y = NULL;     otherType->y_Len = 0;
-  otherType->z = NULL;     otherType->z_Len = 0;
-  otherType->xa = NULL;    otherType->xa_Len = 0;
-  otherType->ya = NULL;    otherType->ya_Len = 0;
-  otherType->za = NULL;    otherType->za_Len = 0;
-  otherType->Fx_connect = NULL;    otherType->Fx_connect_Len = 0;
-  otherType->Fy_connect = NULL;    otherType->Fy_connect_Len = 0;
-  otherType->Fz_connect = NULL;    otherType->Fz_connect_Len = 0;
-  otherType->Fx_anchor = NULL;    otherType->Fx_anchor_Len = 0;
-  otherType->Fy_anchor = NULL;    otherType->Fy_anchor_Len = 0;
-  otherType->Fz_anchor = NULL;    otherType->Fz_anchor_Len = 0;
-
-  /* outputs */
-  yType->Fx = NULL;              yType->Fx_Len = 0;
-  yType->Fy = NULL;              yType->Fy_Len = 0;
-  yType->Fz = NULL;              yType->Fz_Len = 0;
-  yType->wrtOutput = NULL;       yType->wrtOutput_Len = 0;
-  
-  /* init outputs */
-  initoutType->progName[0] = '\0' ;
-  initoutType->version[0] = '\0';
-  initoutType->compilingData[0] = '0';
-  initoutType->writeOutputHdr = NULL;     initoutType->writeOutputHdr_Len = 0;
-  initoutType->writeOutputUnt = NULL;     initoutType->writeOutputUnt_Len = 0;
-
-  return MAP_SAFE;
-};
-
-
 MAP_ERROR_CODE map_free_types(MAP_InputType_t* uType, MAP_ParameterType_t* pType, MAP_ContinuousStateType_t* xType, MAP_ConstraintStateType_t* zType, MAP_OtherStateType_t* otherType, MAP_OutputType_t* yType)
 {
   /* inputs */
@@ -406,25 +352,48 @@ MAP_ERROR_CODE is_numeric(const char* s)
 
 
 /**
- *
+ * done
  */
-MAP_ERROR_CODE map_get_version(MAP_InitOutputType_t* ioType)
+void copy_target_string(char *target, char *source)
 {
-  char name[50]="";
-
-  // __get_machine_name(name);
-  ioType->version[0]='\0';
-  ioType->compilingData[0]='\0';
-  map_snprintf(ioType->version, 99, "<%s>",PROGVERSION);
-  map_snprintf(ioType->compilingData, 24,"<-%c%c%c-%c%c-%c%c%c%c>",BUILD_MONTH_CH0,BUILD_MONTH_CH1,BUILD_MONTH_CH2,BUILD_DAY_CH0,BUILD_DAY_CH1,BUILD_YEAR_CH0,BUILD_YEAR_CH1,BUILD_YEAR_CH2,BUILD_YEAR_CH3);
-
-  return MAP_SAFE;
+  while (*source) {
+    *target = *source;
+    source++;
+    target++;
+  };
+  *target = '\0';
 };
 
 
 /**
- *
+ * done
  */
+MAP_ERROR_CODE map_get_version(MAP_InitOutputType_t* ioType)
+{
+  bstring out_string = bfromcstr("");
+  int ret = 0;
+
+  /* first set the program version defined in the mapsys.h header file 
+   * @todo: program version should be tied to the gi revision numner
+   */
+  out_string = bformat("<%s>",PROGVERSION);
+  if (out_string->slen>MAX_INIT_VERSION_STRING_LENGTH) { /* overflow */
+    return MAP_FATAL; /* @todo: give proper error code */
+  };
+  copy_target_string(ioType->version, out_string->data);
+  ret = bdestroy(out_string);
+
+  /* the set the compiling date. This is #defined in the mapsys.h header */
+  out_string = bformat("<%c%c%c-%c%c-%c%c%c%c>",BUILD_MONTH_CH0,BUILD_MONTH_CH1,BUILD_MONTH_CH2,BUILD_DAY_CH0,BUILD_DAY_CH1,BUILD_YEAR_CH0,BUILD_YEAR_CH1,BUILD_YEAR_CH2,BUILD_YEAR_CH3);
+  if (out_string->slen>MAX_INIT_COMPILING_DATA_STRING_LENGTH) { /* overflow */
+    return MAP_FATAL; /* @todo: give proper error code */
+  };
+  copy_target_string(ioType->compilingData, out_string->data);
+  ret = bdestroy(out_string);
+  return MAP_SAFE;
+};
+
+
 void print_machine_name_to_screen( ) {
   char name[50]="";
 

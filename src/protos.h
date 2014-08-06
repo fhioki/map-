@@ -28,6 +28,7 @@
  * system prototypes
  */
 
+void copy_target_string(char *target, char *source);
 MAP_EXTERNCALL void map_offset_vessel(MAP_OtherStateType_t* otherType, MAP_InputType_t* uType, double x, double y, double z, double phi, double the, double psi, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE set_vessel(Vessel* floater, const MAP_InputType_t* uType, char* map_msg, MAP_ERROR_CODE* ierr);
 int strcicmp( char const* a, char const* b );
@@ -59,11 +60,8 @@ int set_node_list(const MAP_ParameterType_t* pType,  MAP_InputType_t* uType, MAP
 int set_element_list(MAP_ConstraintStateType_t* zType, ModelData* data, char** const elementInputString, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE set_model_options_list(ModelData* data, InitializationData* init, char* map_msg, MAP_ERROR_CODE* ierr);
 
-size_t cable_library_meter(const void* el);
-size_t node_meter(const void* el);
 size_t vartype_meter(const void* el);
 size_t vartype_ptr_meter(const void *el);
-size_t cable_element_meter( const void* el);
 void set_element_null(Element* ptr);
 void set_node_null(Node* ptr);
 MAP_ERROR_CODE associate_element_with_cable_property(Element* in_element, ModelData* data, char* word, char* map_msg, MAP_ERROR_CODE* ierr);
@@ -88,10 +86,7 @@ MAP_ERROR_CODE set_vartype_float(char* unit, char* alias, const double num, VarT
  * @returns: error code
  * @calledby: mapcall_msqs_init( )
  */
-MAP_ERROR_CODE initialize_fortran_types(MAP_InputType_t* uType, MAP_ParameterType_t* pType, MAP_ContinuousStateType_t* xType, MAP_ConstraintStateType_t* zType, MAP_OtherStateType_t* otherType, MAP_OutputType_t* yType, MAP_InitOutputType_t* initoutType);
 MAP_ERROR_CODE map_free_types(MAP_InputType_t* uType, MAP_ParameterType_t* pType, MAP_ContinuousStateType_t* xType, MAP_ConstraintStateType_t* zType, MAP_OtherStateType_t* otherType, MAP_OutputType_t* yType);
-
-MAP_ERROR_CODE allocate_outlist(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE free_outlist(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr);
 
 /*
@@ -100,8 +95,6 @@ MAP_ERROR_CODE free_outlist(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr
  * @acceses: none
  * @calledby: mapcall_msqs_init( )
  */
-MAP_ERROR_CODE initialize_init_input(InitializationData* init);
-
 MAP_ERROR_CODE first_solve(ModelData* data, MAP_InputType_t* uType, MAP_ConstraintStateType_t* zType, MAP_OtherStateType_t* otherType, MAP_OutputType_t* yType, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE allocate_outer_solve_data(OuterSolveAttributes* ns, const int size, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE free_outer_solve_data(OuterSolveAttributes* ns, const int size, char* map_msg, MAP_ERROR_CODE* ierr);

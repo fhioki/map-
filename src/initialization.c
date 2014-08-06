@@ -22,6 +22,7 @@
 #include "maperror.h"
 #include "initialization.h"
 #include "protos.h"
+#include "bstring/bstrlib.h"
 
 /**
  * @file 
@@ -49,31 +50,145 @@ MAP_EXTERNCALL void map_set_gravity(MAP_ParameterType_t* p_type, double gravity)
 /* @} */
 
 
+MAP_EXTERNCALL void map_add_cable_library_input_text(MAP_InitInputType_t* init_type)
+{
+  InitializationData* init_data = init_type->object; 
+  const int n = init_data->libraryInputString->qty;
+  int ret = 0;
+  
+  ret = bstrListAlloc(init_data->libraryInputString, n+1);
+  init_data->libraryInputString->entry[n] = bfromcstr(init_type->libraryInputLine);
+  init_data->libraryInputString->qty++;
+};
+
+
+MAP_EXTERNCALL void map_add_node_input_text(MAP_InitInputType_t* init_type)
+{
+  InitializationData* init_data = init_type->object; 
+  const int n = init_data->nodeInputString->qty;
+  int ret = 0;
+  
+  ret = bstrListAlloc(init_data->nodeInputString, n+1);
+  init_data->nodeInputString->entry[n] = bfromcstr(init_type->nodeInputLine);
+  init_data->nodeInputString->qty++;
+};
+
+
+MAP_EXTERNCALL void map_add_element_input_text(MAP_InitInputType_t* init_type)
+{
+  InitializationData* init_data = init_type->object; 
+  const int n = init_data->elementInputString->qty;
+  int ret = 0;
+  
+  ret = bstrListAlloc(init_data->elementInputString, n+1);
+  init_data->elementInputString->entry[n] = bfromcstr(init_type->elementInputLine);
+  init_data->elementInputString->qty++;
+};
+
+
+MAP_EXTERNCALL void map_add_options_input_text(MAP_InitInputType_t* init_type)
+{
+  InitializationData* init_data = init_type->object; 
+  const int n = init_data->solverOptionsString->qty;
+  int ret = 0;
+  
+  ret = bstrListAlloc(init_data->solverOptionsString, n+1);
+  init_data->solverOptionsString->entry[n] = bfromcstr(init_type->optionInputLine);
+  init_data->solverOptionsString->qty++;
+};
+
+
+MAP_ERROR_CODE initialize_fortran_types(MAP_InputType_t* u_type, 
+                                        MAP_ParameterType_t* p_type, 
+                                        MAP_ContinuousStateType_t* x_type, 
+                                        MAP_ConstraintStateType_t* z_type, 
+                                        MAP_OtherStateType_t* other_type, 
+                                        MAP_OutputType_t* y_type, 
+                                        MAP_InitOutputType_t* initout_type)
+{
+  /* parameters are skipped for now; they are set in fortran since depth, 
+   * gravity and sea density are set by glue code 
+   */
+
+  /* inputs */
+  u_type->x = NULL;     u_type->x_Len = 0;
+  u_type->y = NULL;     u_type->y_Len = 0;
+  u_type->z = NULL;     u_type->z_Len = 0;
+
+  /* continuous state */
+  x_type->dummy=-999.9;
+
+  /* constraint state */  
+  z_type->H = NULL;     z_type->H_Len = 0;
+  z_type->V = NULL;     z_type->V_Len = 0;
+  z_type->x = NULL;     z_type->x_Len = 0;
+  z_type->y = NULL;     z_type->y_Len = 0;
+  z_type->z = NULL;     z_type->z_Len = 0;
+
+  /* other state */
+  other_type->H = NULL;     other_type->H_Len = 0;
+  other_type->V = NULL;     other_type->V_Len = 0;
+  other_type->Ha = NULL;    other_type->Ha_Len = 0;
+  other_type->Va = NULL;    other_type->Va_Len = 0;
+  other_type->x = NULL;     other_type->x_Len = 0;
+  other_type->y = NULL;     other_type->y_Len = 0;
+  other_type->z = NULL;     other_type->z_Len = 0;
+  other_type->xa = NULL;    other_type->xa_Len = 0;
+  other_type->ya = NULL;    other_type->ya_Len = 0;
+  other_type->za = NULL;    other_type->za_Len = 0;
+  other_type->Fx_connect = NULL;    other_type->Fx_connect_Len = 0;
+  other_type->Fy_connect = NULL;    other_type->Fy_connect_Len = 0;
+  other_type->Fz_connect = NULL;    other_type->Fz_connect_Len = 0;
+  other_type->Fx_anchor = NULL;    other_type->Fx_anchor_Len = 0;
+  other_type->Fy_anchor = NULL;    other_type->Fy_anchor_Len = 0;
+  other_type->Fz_anchor = NULL;    other_type->Fz_anchor_Len = 0;
+
+  /* outputs */
+  y_type->Fx = NULL;              y_type->Fx_Len = 0;
+  y_type->Fy = NULL;              y_type->Fy_Len = 0;
+  y_type->Fz = NULL;              y_type->Fz_Len = 0;
+  y_type->wrtOutput = NULL;       y_type->wrtOutput_Len = 0;
+  
+  /* init outputs */
+  initout_type->progName[0] = '\0' ;
+  initout_type->version[0] = '\0';
+  initout_type->compilingData[0] = '\0';
+  initout_type->writeOutputHdr = NULL;     initout_type->writeOutputHdr_Len = 0;
+  initout_type->writeOutputUnt = NULL;     initout_type->writeOutputUnt_Len = 0;
+
+  return MAP_SAFE;
+};
+
+
 void initialize_init_type_to_null(MAP_InitInputType_t* init_type)
 {
   /* initialize the native Fortran/C types */
   init_type->gravity = -999.9;
   init_type->seaDensity = -999.9;
   init_type->depth = -999.9;
-  init_type->fileName[0] = 0;
-  init_type->summaryFileName[0] = 0;
-  init_type->libraryInputLine[0] = 0;
-  init_type->nodeInputLine[0] = 0;
-  init_type->elementInputLine[0] = 0;
-  init_type->optionInputLine[0] = 0;
+  init_type->fileName[0] = '\0';
+  init_type->summaryFileName[0] = '\0';
+  init_type->libraryInputLine[0] = '\0';
+  init_type->nodeInputLine[0] = '\0';
+  init_type->elementInputLine[0] = '\0';
+  init_type->optionInputLine[0] = '\0';
 };
+
 
 
 void initialize_init_data_to_null(InitializationData* init_data)
 {
   /* initialize the MAP initialization internal data strcture */
-  init_data->libraryInputString = NULL;
-  init_data->nodeInputString = NULL;
-  init_data->elementInputString = NULL;
-  init_data->solverOptionsString = NULL;
-  init_data->expandedNodeInputString = NULL; 
-  init_data->expandedElementInputString = NULL;
-  init_data->summaryFileName = NULL;  
+  init_data->libraryInputString = bstrListCreate();
+  init_data->nodeInputString = bstrListCreate();
+  init_data->elementInputString = bstrListCreate();
+  init_data->solverOptionsString = bstrListCreate();
+  init_data->expandedNodeInputString = bstrListCreate();
+  init_data->expandedElementInputString = bstrListCreate();
+  init_data->summaryFileName = bfromcstr ("");  
+
+  init_data->sizeOfFullNodeString = 0;
+  init_data->sizeOfFullElementString = 0;  
   init_data->sizeOfFullNodeString = 0; 
   init_data->sizeOfFullElementString = 0; 
   init_data->librarySize = 0;
@@ -94,6 +209,41 @@ void initialize_model_data_to_null(ModelData* model_data)
   initialize_outer_solve_data_defaults(&model_data->outer_loop);    
   initialize_vessel_to_null(&model_data->vessel);    
   initialize_model_option_defaults(&model_data->modelOptions);
+};
+
+
+size_t cable_element_meter(const void *el) 
+{
+  return sizeof(Element);
+};
+
+
+size_t bstring_meter(const void *el) 
+{
+  return sizeof(bstring);
+};
+
+
+size_t cable_library_meter(const void *el) 
+{
+  return sizeof(CableLibrary);
+};
+
+
+size_t node_meter(const void *el) 
+{
+  return sizeof(Node);
+};
+
+
+MAP_ERROR_CODE allocate_outlist(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  data->yList = malloc(sizeof(OutputList)); 
+  if (data->yList==NULL) {
+    *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_46);    
+    return MAP_FATAL;
+  };
+  return MAP_SAFE;
 };
 
 

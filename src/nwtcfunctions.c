@@ -28,6 +28,7 @@
 #include "map.h"
 #include "maperror.h"
 #include "MAP_Types.h"
+#include "initialization.h"
 
 // #include "protos.h"
 // #include "nwtcfunctions.h"
@@ -52,33 +53,36 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
 
   map_reset_universal_error(map_msg, ierr);
   do { 
-//    success = map_get_version(io_type);
-
     /*  initialize types; set doubles to -999.9, int=0, pointers=NULL 
      *  @todo: add other variables as neccessary. This needs to be fixed each time the registry
-     *         is run an new varaibles are introdued 
+     *         is run an new varaibles are introduced 
      */  
-//    success = initialize_fortran_types(u_type, p_type, x_type, z_type, other_type, y_type, io_type); 
-//    success = initialize_init_input(init_data); CHECKERRQ(MAP_FATAL_48);
+    success = initialize_fortran_types(u_type, p_type, x_type, z_type, other_type, y_type, io_type);     
+    success = map_get_version(io_type);
     
-//     /* create a cable library link list. The following are simclist routines */
-//     list_init(&model_data->cableLibrary); 
-//     list_init(&model_data->node); 
-//     list_init(&model_data->element);  
-//     list_attributes_copy(&model_data->cableLibrary, cable_library_meter, 1); 
-//     list_attributes_copy(&model_data->node, node_meter, 1); 
-//     list_attributes_copy(&model_data->element, cable_element_meter, 1);    
-//     
-//     model_data->sizeOfCableLibrary = init_data->librarySize;
-//     model_data->sizeOfNodes = init_data->nodeSize;
-//     model_data->sizeOfElements = init_data->elementSize;
-//     
-//     success = allocate_outlist(model_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_47);
-//     list_init(&model_data->yList->out_list); /* simclist routine */
-//     list_init(&model_data->yList->out_list_ptr); /* simclist routine */
-//     
-//     success = set_model_options_list(model_data, init_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_33);    
-//     success = set_cable_library_list(model_data, init_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);
+    /* create a cable library link lists for:
+     *  - nodes
+     *  - lines
+     *  - cable library (properties)
+     * The following are simclist routines 
+     */
+    list_init(&model_data->cableLibrary); 
+    list_init(&model_data->node); 
+    list_init(&model_data->element);  
+    list_attributes_copy(&model_data->cableLibrary, cable_library_meter, 1); 
+    list_attributes_copy(&model_data->node, node_meter, 1); 
+    list_attributes_copy(&model_data->element, cable_element_meter, 1);    
+     
+    model_data->sizeOfCableLibrary = init_data->librarySize;
+    model_data->sizeOfNodes = init_data->nodeSize;
+    model_data->sizeOfElements = init_data->elementSize;
+     
+    success = allocate_outlist(model_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_47);
+    list_init(&model_data->yList->out_list); /* simclist routine */
+    list_init(&model_data->yList->out_list_ptr); /* simclist routine */
+     
+//    success = set_model_options_list(model_data, init_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_33);    
+//    success = set_cable_library_list(model_data, init_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);
 //     
 //     success = repeat_nodes(model_data, init_data, map_msg, ierr);
 //     success = repeat_elements(model_data, init_data, map_msg, ierr);

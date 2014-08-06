@@ -53,9 +53,23 @@ class Map(object):
                    ("optionInputLine",c_char*255)]
 
         
+    '''
+    void * object ;
+    char progName[99] ;
+    char version[99] ;
+    char compilingData[24] ;
+    char * writeOutputHdr ;     int writeOutputHdr_Len ;
+    char * writeOutputUnt ;     int writeOutputUnt_Len ;
+    '''
     class InitializationOutputData_Type(Structure):
-        _fields_ = []
-
+        _fields_ = [("object",c_void_p),
+                    ("progName",c_char*99),
+                    ("version",c_char*99),
+                    ("CompilingData",c_char*99),
+                    ("writeOutputHdr",c_char_p),
+                    ("writeOutputHdr_Len",c_int),
+                    ("writeOutputUnt",c_char_p),
+                    ("writeOutputUnt_Len",c_int)]
 
     class InputData_Type(Structure):
         _fields_ = []
@@ -134,9 +148,9 @@ class Map(object):
     lib.map_create_output_type.restype     = MapOutput_Type
     lib.map_create_continuous_type.restype = MapContinuous_Type
 
-#     lib.map_set_sea_depth.argtypes   = [ MapParameter_Type, c_double ]
-#     lib.map_set_gravity.argtypes     = [ MapParameter_Type, c_double ]
-#     lib.map_set_sea_density.argtypes = [ MapParameter_Type, c_double ]
+    lib.map_set_sea_depth.argtypes   = [ MapParameter_Type, c_double ]
+    lib.map_set_gravity.argtypes     = [ MapParameter_Type, c_double ]
+    lib.map_set_sea_density.argtypes = [ MapParameter_Type, c_double ]
     
 #     # numeric routines
 #     lib.pyget_residual_function_length.restype = c_double
@@ -224,6 +238,7 @@ class Map(object):
 
     def init( self ):
         Map.lib.map_init( self.f_type_init, self.f_type_u, self.f_type_p, self.f_type_x, None, self.f_type_z, self.f_type_d, self.f_type_y, self.f_type_initout, pointer(self.ierr), self.status )
+        print self.f_type_initout.contents.version
         if self.ierr.value != 0 :
             print self.status.value        
 
@@ -338,6 +353,14 @@ class Map(object):
         return obj
 
 
+    def map_set_sea_depth( self, depth ):
+         Map.lib.map_set_sea_depth( self.f_type_p, depth )
+
+    def map_set_gravity( self, g ):
+        Map.lib.map_set_gravity( self.f_type_p, g )
+
+    def map_set_sea_density( self, rho ):
+        Map.lib.map_set_sea_density( self.f_type_p, rho )
 
 
 
@@ -397,14 +420,6 @@ class Map(object):
 # 
 # 
 # 
-#     def map_set_sea_depth( self, depth ):
-#         Map.lib.map_set_sea_depth( self.f_type_p, depth )
-# 
-#     def map_set_gravity( self, g ):
-#         Map.lib.map_set_gravity( self.f_type_p, g )
-# 
-#     def map_set_sea_density( self, rho ):
-#         Map.lib.map_set_sea_density( self.f_type_p, rho )
 # 
 #     def funcl( self, i ) :
 #         self.val = Map.lib.pyget_residual_function_length( self.f_type_d, i, self.status, pointer(self.ierr) )
@@ -516,68 +531,68 @@ class Map(object):
 #         arr = [array[j] for j in range(length)]        
 #         Map.lib.pyget_plot_array_free( array )        
 #         return arr 
-#     
-# 
-#     def read_file( self, fileName ):
-#         f           = open(fileName, 'r')
-#         charptr     = POINTER(c_char)
-#         line_offset = []
-#         offset      = 0
-#         temp_str    = []
-#     
-#         for line in f:
-#             line_offset.append(offset)
-#             offset += len(line)
-#     
-#         f.seek(0)
-#     
-#         i = 0
-#         for line in f:
-#             words = line.split()
-#             if words[0] == "LineType":
-#                 next(f)
-#                 LineType_ref = i
-#             elif words[0] == "Node":
-#                 next(f)
-#                 Node_ref = i
-#             elif words[0] == "Element":
-#                 next(f)
-#                 Element_ref = i 
-#             elif words[0] == "Option":
-#                 next(f)
-#                 Option_ref = i     
-#             i+=1
-#         
-#         f.seek(line_offset[LineType_ref+2])         
-#         for line in f:
-#             if line[0] == "-":
-#                 break
-#             else:
-#                 self.f_type_init.contents.libraryInputLine=line
-#                 Map.lib.map_add_cable_library_input_text(self.f_type_init)
-#    
-#         f.seek(line_offset[Node_ref+3])
-#         for line in f:
-#             if line[0] == "-":
-#                 break
-#             else:
-#                 self.f_type_init.contents.nodeInputLine=line
-#                 Map.lib.map_add_node_input_text(self.f_type_init)
-# 
-#         f.seek(line_offset[Element_ref+4])
-#         for line in f:
-#             if line[0] == "-":
-#                 break
-#             else:
-#                 self.f_type_init.contents.elementInputLine=line
-#                 Map.lib.map_add_element_input_text(self.f_type_init)
-#                  
-#         f.seek(line_offset[Option_ref+5])
-#         for line in f:
-#             if line[0]=="-":
-#                 break
-#             elif line[0]=="!":
-#                 None
-#             else:
-#                 self.f_type_init.contents.optionInputLine=line
-#                 Map.lib.map_add_options_input_text(self.f_type_init)            
+    
+
+    def read_file( self, fileName ):
+        f           = open(fileName, 'r')
+        charptr     = POINTER(c_char)
+        line_offset = []
+        temp_str    = []
+        offset      = 0
+    
+        for line in f:
+            line_offset.append(offset)
+            offset += len(line)    
+        f.seek(0)
+        
+        i = 0
+        for line in f:
+            words = line.split()
+            if words[0] == "LineType":
+                next(f)
+                LineType_ref = i
+            elif words[0] == "Node":
+                next(f)
+                Node_ref = i
+            elif words[0] == "Element":
+                next(f)
+                Element_ref = i 
+            elif words[0] == "Option":
+                next(f)
+                Option_ref = i     
+            i+=1
+        
+        f.seek(line_offset[LineType_ref+2])         
+        for line in f:
+            if line[0] == "-":
+                break
+            else:
+                # create_string_buffer(line, 255).raw
+                self.f_type_init.contents.libraryInputLine =  line+'\0'
+                Map.lib.map_add_cable_library_input_text(self.f_type_init)
+   
+        f.seek(line_offset[Node_ref+3])
+        for line in f:
+            if line[0] == "-":
+                break
+            else:
+                self.f_type_init.contents.nodeInputLine = line+'\0'
+                Map.lib.map_add_node_input_text(self.f_type_init)
+
+        f.seek(line_offset[Element_ref+4])
+        for line in f:
+            if line[0] == "-":
+                break
+            else:
+                self.f_type_init.contents.elementInputLine = line+'\0'
+                Map.lib.map_add_element_input_text(self.f_type_init)
+                 
+        f.seek(line_offset[Option_ref+5])
+        for line in f:
+            if line[0]=="-":
+                break
+            elif line[0]=="!":
+                None
+            else:
+                self.f_type_init.contents.optionInputLine = line+'\0'
+                Map.lib.map_add_options_input_text(self.f_type_init)            

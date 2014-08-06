@@ -28,6 +28,12 @@ MAP_EXTERNCALL void map_add_cable_library_input_text(MAP_InitInputType_t* init_t
 MAP_EXTERNCALL void map_add_node_input_text(MAP_InitInputType_t* init_type);
 MAP_EXTERNCALL void map_add_element_input_text(MAP_InitInputType_t* init_type);
 MAP_EXTERNCALL void map_add_options_input_text(MAP_InitInputType_t* init_type);
+MAP_ERROR_CODE initialize_fortran_types(MAP_InputType_t* u_type, MAP_ParameterType_t* p_type, MAP_ContinuousStateType_t* x_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type, MAP_InitOutputType_t* initout_type);
+MAP_ERROR_CODE allocate_outlist(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr);
+size_t cable_library_meter(const void* el);
+size_t node_meter(const void* el);
+size_t cable_element_meter( const void* el);
+size_t bstring_meter(const void *el);
 
 
 /**

@@ -52,8 +52,10 @@ OBJ       = lmder.o \
 	simclist.o \
 	bstrlib.o \
 	bstraux.o \
-	nwtcfunctions.o \
+	supportfiles.o \
 	initialization.o \
+	mapinit.o \
+	nwtcfunctions.o \
 	maperror.o \
 	MAP_Types.o 
 
