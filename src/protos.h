@@ -28,7 +28,7 @@
  * system prototypes
  */
 
-void copy_target_string(char *target, char *source);
+void copy_target_string(char* target, unsigned char* source);
 MAP_EXTERNCALL void map_offset_vessel(MAP_OtherStateType_t* otherType, MAP_InputType_t* uType, double x, double y, double z, double phi, double the, double psi, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE set_vessel(Vessel* floater, const MAP_InputType_t* uType, char* map_msg, MAP_ERROR_CODE* ierr);
 int strcicmp( char const* a, char const* b );
@@ -80,14 +80,6 @@ MAP_ERROR_CODE repeat_elements(ModelData* dataObj, InitializationData* init, cha
  */
 MAP_ERROR_CODE set_vartype_float(char* unit, char* alias, const double num, VarType* type, MapReal const value);
 
-
-/*
- * @input: Fortran types: Input, Parameter, Continuous States, Constraint State, Other State, Output, Init Output 
- * @returns: error code
- * @calledby: mapcall_msqs_init( )
- */
-MAP_ERROR_CODE map_free_types(MAP_InputType_t* uType, MAP_ParameterType_t* pType, MAP_ContinuousStateType_t* xType, MAP_ConstraintStateType_t* zType, MAP_OtherStateType_t* otherType, MAP_OutputType_t* yType);
-MAP_ERROR_CODE free_outlist(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr);
 
 /*
  * Sets init data to NULL or -9999

@@ -42,6 +42,7 @@ xcuserdata
 project.xcworkspace
  
 # ignore directories
+cpp_driver/
 fortran_driver/nwtc_lib/
 libs/
 python_solve/

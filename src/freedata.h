@@ -23,6 +23,24 @@
 #define _FREE_DATA_H
 
 
+#include "MAP_Types.h"
+
+
+MAP_ERROR_CODE map_free_types(MAP_InputType_t* u_type, MAP_ParameterType_t* p_type, MAP_ContinuousStateType_t* x_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type);
+void MAP_InitInput_Delete(InitializationData* init_data);
+void MAP_OtherState_Delete(ModelData* model_data);
+MAP_ERROR_CODE free_vessel(Vessel* floater);
+
+/**
+ * Frees internal state data allcoated in the mapcall_msqs_init( ) function
+ *
+ * @todo: delete additional dependancies in data->z, data->yList, data->u
+ * @acceses: none
+ * @calledby: mapcall_msqs_end( )
+ * @see: allocate_outlist( )
+ */
+MAP_ERROR_CODE free_outlist(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr);
+
 /**
  * @brief     Deallocates the memory space for the init structure. Should be called immediately after map_init()
  * @param     init MAP-native initialization data structure. This is distinct from the FAST-framework data structure 
@@ -33,6 +51,7 @@
  */
 MAP_EXTERNCALL int free_init_data (InitializationData* init, char* map_msg, MAP_ERROR_CODE* ierr);
 
+
 /**
  * @brief     Deallocates all elements. Function loops through the elemenet link list and frees allocated data. Pointers
  *            are nullified.  
@@ -42,6 +61,7 @@ MAP_EXTERNCALL int free_init_data (InitializationData* init, char* map_msg, MAP_
  */
 MAP_ERROR_CODE free_element(list_t *restrict element);
 
+
 /**
  * @brief     Deallocates all nodes. Function loops through the elemenet link list and frees allocated data. Pointers
  *            are nullified.  
@@ -50,15 +70,6 @@ MAP_ERROR_CODE free_element(list_t *restrict element);
  * @see       {@link Element_t()}
  */
 MAP_ERROR_CODE free_node(list_t *restrict node);
-
-
-void MAP_InitInput_Delete(InitializationData* init_data);
-
-
-void MAP_OtherState_Delete(ModelData* model_data);
-
-
-MAP_ERROR_CODE free_vessel(Vessel* floater);
 
 
 #endif // _FREE_DATA_H

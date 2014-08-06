@@ -20,7 +20,7 @@
 
 #include "map.h"
 #include "maperror.h"
-// #include "protos.h"
+#include "protos.h"
 //#include "cminpack/minpack.h"
 //#include "pyprotos.h"
 #include "bstring/bstrlib.h"
@@ -362,10 +362,9 @@ MAP_ERROR_CODE set_model_options_list(ModelData* model_data, InitializationData*
   int ret = 0;
   int string_size = 0;
   int n_options = init_data->solverOptionsSize-1;
-  bstring line = bfromcstr("");
+  bstring line = NULL;//bfromcstr("");
 
-  // int index = 0;
-  // int cx = 0;
+  int index = 0;
  
   // char* word = NULL;
   // char* line = NULL;
@@ -1796,22 +1795,5 @@ MAP_ERROR_CODE associate_element_with_fairlead_node(ModelData* data, Element* ne
   
   new_element->fairlead = iter_node;
 
-  return MAP_SAFE;
-};
-
-
-
-
-/**
- * Frees internal state data allcoated in the mapcall_msqs_init( ) function
- *
- * @todo: delete additional dependancies in data->z, data->yList, data->u
- * @acceses: none
- * @calledby: mapcall_msqs_end( )
- * @see: allocate_outlist( )
- */
-MAP_ERROR_CODE free_outlist(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr)
-{
-  MAPFREE(data->yList);
   return MAP_SAFE;
 };

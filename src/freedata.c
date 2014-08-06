@@ -41,46 +41,28 @@ void MAP_OtherState_Delete(ModelData* model_data)
 
 /** @addtogroup FortranCall */
 /*@{*/
-// MAP_EXTERNCALL int free_init_data (InitializationData* init, char* map_msg, MAP_ERROR_CODE* ierr) 
-// {
-//   int sizeOfString = 0;
-//   int i = 0;
-//   
-//   MAPFREE(init->summaryFileName);
-// 
-//   for(i=0 ; i<init->sizeOfFullNodeString ; i++) {
-//     MAPFREE(init->expandedNodeInputString[i]);
-//   };
-//   MAPFREE(init->expandedNodeInputString);
-// 
-//   sizeOfString = init->sizeOfFullElementString;  
-//   for(i=0 ; i<sizeOfString ; i++) {
-//     MAPFREE(init->expandedElementInputString[i]);
-//   };
-//   MAPFREE(init->expandedElementInputString);  
-//   
-//   for(i=0 ; i<init->librarySize ; i++) {
-//     MAPFREE(init->libraryInputString[i]);
-//   };
-//   MAPFREE(init->libraryInputString);
-//   
-//   for(i=0 ; i<init->nodeSize ; i++) {
-//     MAPFREE(init->nodeInputString[i]);
-//   };
-//   MAPFREE(init->nodeInputString);
-//   
-//   for(i=0 ; i<init->elementSize ; i++) {
-//     MAPFREE(init->elementInputString[i]);
-//   };
-//   MAPFREE(init->elementInputString);  
-//   
-//   for(i=0 ; i<init->solverOptionsSize ; i++) {
-//     MAPFREE(init->solverOptionsString[i]);
-//   };
-//   MAPFREE(init->solverOptionsString);
-//   return MAP_SAFE;
-// };
+MAP_EXTERNCALL int free_init_data (InitializationData* init_data, char* map_msg, MAP_ERROR_CODE* ierr) 
+{
+  int ret = 0;
+
+  ret = bdestroy(init_data->summaryFileName);
+  // MAPFREE(init->summaryFileName);
+  ret = bstrListDestroy(init_data->expandedNodeInputString);
+  ret = bstrListDestroy(init_data->expandedElementInputString);
+  ret = bstrListDestroy(init_data->libraryInputString);  
+  ret = bstrListDestroy(init_data->nodeInputString);
+  ret = bstrListDestroy(init_data->elementInputString);
+  ret = bstrListDestroy(init_data->solverOptionsString);
+  return MAP_SAFE;
+};
 /*@}*/
+
+
+MAP_ERROR_CODE free_outlist(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  MAPFREE(data->yList);
+  return MAP_SAFE;
+};
 
 
 // MAP_ERROR_CODE free_element(list_t *restrict element) 
@@ -172,7 +154,7 @@ MAP_ERROR_CODE free_node(list_t *restrict node)
     MAPFREE(iterNode->sumForcePtr.fz.units);
   };
   list_iterator_stop(node);             /* ending the iteration "session" */  
-
+  return MAP_SAFE;
 };
 
 
@@ -212,3 +194,49 @@ MAP_ERROR_CODE free_vessel(Vessel* floater)
   MAPFREE(floater->orientation.psi.units);
   return MAP_SAFE;
 }
+
+
+MAP_ERROR_CODE map_free_types(MAP_InputType_t* u_type, MAP_ParameterType_t* p_type, MAP_ContinuousStateType_t* x_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type)
+{
+  /* inputs */
+  MAPFREE(u_type->x);
+  MAPFREE(u_type->y);
+  MAPFREE(u_type->z);
+
+  /* parameters are skipped for now; they are set in fortran since depth, gravity and sea density are set by glue code */
+
+  /* continuous state */
+
+  /* constraint state */  
+  MAPFREE(z_type->H);     
+  MAPFREE(z_type->V);     
+  MAPFREE(z_type->x);     
+  MAPFREE(z_type->y);     
+  MAPFREE(z_type->z);     
+
+  /* other state */
+  MAPFREE(other_type->H); 
+  MAPFREE(other_type->V); 
+  MAPFREE(other_type->Ha);
+  MAPFREE(other_type->Va);
+  MAPFREE(other_type->x); 
+  MAPFREE(other_type->y); 
+  MAPFREE(other_type->z); 
+  MAPFREE(other_type->xa);
+  MAPFREE(other_type->ya);
+  MAPFREE(other_type->za);
+  MAPFREE(other_type->Fx_connect); 
+  MAPFREE(other_type->Fy_connect); 
+  MAPFREE(other_type->Fz_connect); 
+  MAPFREE(other_type->Fx_anchor); 
+  MAPFREE(other_type->Fy_anchor); 
+  MAPFREE(other_type->Fz_anchor); 
+
+  /* outputs */
+  MAPFREE(y_type->Fx);    
+  MAPFREE(y_type->Fy);    
+  MAPFREE(y_type->Fz);    
+  MAPFREE(y_type->wrtOutput);
+  
+  return MAP_SAFE;
+};

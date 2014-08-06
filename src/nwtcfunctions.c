@@ -29,10 +29,10 @@
 #include "maperror.h"
 #include "MAP_Types.h"
 #include "initialization.h"
-
-// #include "protos.h"
+#include "protos.h"
+#include "freedata.h"
 // #include "nwtcfunctions.h"
-// #include "freedata.h"
+
 
 /** @addtogroup FortranCall */
 /* @{ */
@@ -81,7 +81,7 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
     list_init(&model_data->yList->out_list); /* simclist routine */
     list_init(&model_data->yList->out_list_ptr); /* simclist routine */
      
-//    success = set_model_options_list(model_data, init_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_33);    
+    success = set_model_options_list(model_data, init_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_33);    
 //    success = set_cable_library_list(model_data, init_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);
 //     
 //     success = repeat_nodes(model_data, init_data, map_msg, ierr);
@@ -124,8 +124,8 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
 //     success = set_line_variables_post_solve(model_data, map_msg, ierr);    
 //     success = write_summary_file(init_data, p_type, model_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_37);           
 //     success = get_iteration_output_stream(y_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
-//     free_init_data(init_data, map_msg, ierr); 
-//    MAP_InitInput_Delete(init_data);
+    free_init_data(init_data, map_msg, ierr); 
+    MAP_InitInput_Delete(init_data);
   } while (0);  
 };
 
@@ -185,13 +185,13 @@ MAP_EXTERNCALL void map_end(MAP_InputType_t* u_type,
   ModelData* model_data = other_type->object;
   MAP_ERROR_CODE success = MAP_SAFE;
 
-//   map_reset_universal_error(map_msg, ierr);  
-//   do {
+   map_reset_universal_error(map_msg, ierr);  
+   do {
 //     success = free_outer_solve_data(&model_data->outer_loop, z_type->x_Len, map_msg, ierr); CHECKERRQ(MAP_FATAL_73);
-//     success = map_free_types(u_type, p_type, x_type, z_type, other_type, y_type); 
-//     list_destroy(&model_data->yList->out_list);    /* destroy output lists for writting information to output file */
-//     list_destroy(&model_data->yList->out_list_ptr); /* destroy output lists for writting information to output file */
-//     success = free_outlist(model_data,map_msg,ierr); CHECKERRQ(MAP_FATAL_47);//@rm, should be replaced with a MAPFREE(data->yList)   
+     success = map_free_types(u_type, p_type, x_type, z_type, other_type, y_type); 
+     list_destroy(&model_data->yList->out_list);    /* destroy output lists for writting information to output file */
+     list_destroy(&model_data->yList->out_list_ptr); /* destroy output lists for writting information to output file */
+     success = free_outlist(model_data,map_msg,ierr); CHECKERRQ(MAP_FATAL_47);//@rm, should be replaced with a MAPFREE(data->yList)   
 //     success = free_element(&model_data->element);
 //     success = free_node(&model_data->node);
 //     success = free_vessel(&model_data->vessel);
@@ -204,11 +204,11 @@ MAP_EXTERNCALL void map_end(MAP_InputType_t* u_type,
 //     };
 //     list_iterator_stop(&model_data->cableLibrary);             /* ending the iteration "session" */  
 //     
-//     list_destroy(&model_data->element);
-//     list_destroy(&model_data->node);
-//     list_destroy(&model_data->cableLibrary);
-//     MAPFREE(model_data->modelOptions.repeatAngles);
-//     MAP_OtherState_Delete(model_data);
-//   } while (0);
+     list_destroy(&model_data->element);
+     list_destroy(&model_data->node);
+     list_destroy(&model_data->cableLibrary);
+     MAPFREE(model_data->modelOptions.repeatAngles);
+     MAP_OtherState_Delete(model_data);
+   } while (0);
 };
 /* @} */

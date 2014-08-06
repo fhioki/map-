@@ -100,58 +100,12 @@ const char* remove_first_character(const char* str)
 // };
 
 
-MAP_ERROR_CODE map_free_types(MAP_InputType_t* uType, MAP_ParameterType_t* pType, MAP_ContinuousStateType_t* xType, MAP_ConstraintStateType_t* zType, MAP_OtherStateType_t* otherType, MAP_OutputType_t* yType)
-{
-  /* inputs */
-  MAPFREE(uType->x);
-  MAPFREE(uType->y);
-  MAPFREE(uType->z);
-
-  /* parameters are skipped for now; they are set in fortran since depth, gravity and sea density are set by glue code */
-
-  /* continuous state */
-
-  /* constraint state */  
-  MAPFREE(zType->H);     
-  MAPFREE(zType->V);     
-  MAPFREE(zType->x);     
-  MAPFREE(zType->y);     
-  MAPFREE(zType->z);     
-
-  /* other state */
-  MAPFREE(otherType->H); 
-  MAPFREE(otherType->V); 
-  MAPFREE(otherType->Ha);
-  MAPFREE(otherType->Va);
-  MAPFREE(otherType->x); 
-  MAPFREE(otherType->y); 
-  MAPFREE(otherType->z); 
-  MAPFREE(otherType->xa);
-  MAPFREE(otherType->ya);
-  MAPFREE(otherType->za);
-  MAPFREE(otherType->Fx_connect); 
-  MAPFREE(otherType->Fy_connect); 
-  MAPFREE(otherType->Fz_connect); 
-  MAPFREE(otherType->Fx_anchor); 
-  MAPFREE(otherType->Fy_anchor); 
-  MAPFREE(otherType->Fz_anchor); 
-
-  /* outputs */
-  MAPFREE(yType->Fx);    
-  MAPFREE(yType->Fy);    
-  MAPFREE(yType->Fz);    
-  MAPFREE(yType->wrtOutput);
-  
-  return MAP_SAFE;
-};
-
-
 /**
  *
  */
 MAP_ERROR_CODE associate_vartype_ptr(VarTypePtr* type, double* arr, int index)
 {
-  type->value=&arr[index-1];
+  type->value = &arr[index-1];
   return MAP_SAFE;
 };
 
@@ -354,7 +308,7 @@ MAP_ERROR_CODE is_numeric(const char* s)
 /**
  * done
  */
-void copy_target_string(char *target, char *source)
+void copy_target_string(char* target, unsigned char* source)
 {
   while (*source) {
     *target = *source;
@@ -370,7 +324,7 @@ void copy_target_string(char *target, char *source)
  */
 MAP_ERROR_CODE map_get_version(MAP_InitOutputType_t* ioType)
 {
-  bstring out_string = bfromcstr("");
+  bstring out_string = NULL;
   int ret = 0;
 
   /* first set the program version defined in the mapsys.h header file 

@@ -218,12 +218,6 @@ size_t cable_element_meter(const void *el)
 };
 
 
-size_t bstring_meter(const void *el) 
-{
-  return sizeof(bstring);
-};
-
-
 size_t cable_library_meter(const void *el) 
 {
   return sizeof(CableLibrary);

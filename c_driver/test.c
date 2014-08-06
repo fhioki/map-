@@ -33,11 +33,10 @@ int main(int argc, char *argv[])
   char** header_array = NULL;
   char** unit_array = NULL;
   
-  /* 
-     For clarity, all API functions are prefixed with 'map_'. The convention applied before, i.e., 'py_create_*_data()', seemed like
-     the function applied to python only. This isn't true; any function prototytped with MAP_EXTERNCALL is exposed to any lanugage, and 
-     is part of the API library. 
-  */
+  /* For clarity, all API functions are prefixed with 'map_'. The convention applied before, i.e., 'py_create_*_data()', seemed like
+   * the function applied to python only. This isn't true; any function prototytped with MAP_EXTERNCALL is exposed to any lanugage, and 
+   * is part of the API library. 
+   */
   MAP_InitInputType_t* init_type = (MAP_InitInputType_t*)(uintptr_t)map_create_init_type(map_msg, &ierr); // @todo: check ierr==MAP_SAFE error for all
   MAP_InitOutputType_t* io_type = (MAP_InitOutputType_t*)(uintptr_t)map_create_initout_type(map_msg, &ierr);
   MAP_InputType_t* u_type = (MAP_InputType_t*)(uintptr_t)map_create_input_type(map_msg, &ierr);
@@ -52,12 +51,11 @@ int main(int argc, char *argv[])
   char element_def[1][100];
   char option_def[7][100];
 
-  /*
-    The reason why the init_type needs to be set line-by-line for fortran (ISO_C_BINDING) 
-    legacy reasons. I haven't figured out a clean way to pass 2D char** arrays from fortran 
-    to C (because 2D arrays between C and fortran do no align in memory). 1D arrays do line 
-    up. A better, more generic, non-text driven way of setting model parameters should be use. 
-  */
+  /* The reason why the init_type needs to be set line-by-line for fortran (ISO_C_BINDING) 
+   * legacy reasons. I haven't figured out a clean way to pass 2D char** arrays from fortran 
+   * to C (because 2D arrays between C and fortran do no align in memory). 1D arrays do line 
+   * up. A better, more generic, non-text driven way of setting model parameters should be use. 
+   */
   strcpy(line_def[0], "chainup  0.064929 138.73 545000000 1.0 1.0E8 0.6 -1.0 0.05\0");
   strcpy(line_def[1], "chainup2 0.064929 138.73 545000000 1.0 1.0E8 0.6 -1.0 0.05\0");
   strcpy(node_def[0], "1  fix    0 -520  -120  0 0 # # #\0");
@@ -75,103 +73,99 @@ int main(int argc, char *argv[])
   map_set_gravity(p_type, g);
   map_set_sea_density(p_type, rho);
   
-  /* set cable library data */
-  strcpy(init_type->libraryInputLine, line_def[0]); map_add_cable_library_input_text(init_type); 
-  strcpy(init_type->libraryInputLine, line_def[1]); map_add_cable_library_input_text(init_type); 
-  
-  /* set node data */
-  strcpy(init_type->nodeInputLine, node_def[0]); map_add_node_input_text(init_type);  
-  strcpy(init_type->nodeInputLine, node_def[1]); map_add_node_input_text(init_type);
-  
-  /* set line properties */
-  strcpy(init_type->elementInputLine, element_def[0]); map_add_element_input_text(init_type);  
+  // /* set cable library data */
+  // strcpy(init_type->libraryInputLine, line_def[0]); map_add_cable_library_input_text(init_type); 
+  // strcpy(init_type->libraryInputLine, line_def[1]); map_add_cable_library_input_text(init_type); 
+  // 
+  // /* set node data */
+  // strcpy(init_type->nodeInputLine, node_def[0]); map_add_node_input_text(init_type);  
+  // strcpy(init_type->nodeInputLine, node_def[1]); map_add_node_input_text(init_type);
+  // 
+  // /* set line properties */
+  // strcpy(init_type->elementInputLine, element_def[0]); map_add_element_input_text(init_type);  
+  // 
+  // /* set solver options */
+  // strcpy(init_type->optionInputLine, option_def[0]); map_add_options_input_text(init_type);  
+  // strcpy(init_type->optionInputLine, option_def[1]); map_add_options_input_text(init_type);  
+  // strcpy(init_type->optionInputLine, option_def[2]); map_add_options_input_text(init_type);  
+  // strcpy(init_type->optionInputLine, option_def[3]); map_add_options_input_text(init_type);  
+  // strcpy(init_type->optionInputLine, option_def[4]); map_add_options_input_text(init_type);  
+  // strcpy(init_type->optionInputLine, option_def[5]); map_add_options_input_text(init_type);  
+  // strcpy(init_type->optionInputLine, option_def[6]); map_add_options_input_text(init_type);  
 
-  /* set solver options */
-  strcpy(init_type->optionInputLine, option_def[0]); map_add_options_input_text(init_type);  
-  strcpy(init_type->optionInputLine, option_def[1]); map_add_options_input_text(init_type);  
-  strcpy(init_type->optionInputLine, option_def[2]); map_add_options_input_text(init_type);  
-  strcpy(init_type->optionInputLine, option_def[3]); map_add_options_input_text(init_type);  
-  strcpy(init_type->optionInputLine, option_def[4]); map_add_options_input_text(init_type);  
-  strcpy(init_type->optionInputLine, option_def[5]); map_add_options_input_text(init_type);  
-  strcpy(init_type->optionInputLine, option_def[6]); map_add_options_input_text(init_type);  
+  /* 1) read input file, set library input string, ect, in the MAP_InitInput_type_t structure 
+   * 2) call map_init(). init_type->object is freed in map_init( ) at the end. 
+   * 3) after initialization, delete init_type
+   */
 
-
-  /* 
-     1) read input file, set library input string, ect, in the MAP_InitInput_type_t structure 
-     2) call map_init(). init_type->object is freed in map_init( ) at the end. 
-     3) after initialization, delete init_type
-  */
-
-
-  strcpy(init_type->summaryFileName,"baseline.sum.map\0"); map_set_summary_file_name(init_type, map_msg, &ierr);
+//  strcpy(init_type->summaryFileName,"baseline.sum.map\0"); map_set_summary_file_name(init_type, map_msg, &ierr);
   map_init(init_type, u_type, p_type, x_type, NULL, z_type, other_type, y_type, io_type, &ierr, map_msg);
 
 
-  /* OPTIONAL: if you want output headers    <-------------------------------------+   */
-  header_array = malloc(sizeof(char*)*(io_type->writeOutputHdr_Len));        //    |
-  unit_array = malloc(sizeof(char*)*(io_type->writeOutputUnt_Len));          //    |
-  for (i=0 ; i<io_type->writeOutputHdr_Len ; i++) {                          //    |
-    header_array[i] = malloc(sizeof(char)*17);                               //    |
-    unit_array[i] = malloc(sizeof(char)*17);                                 //    |
-  };                                                                         //    |
-  map_get_header_string(&io_type->writeOutputHdr_Len,header_array,other_type);//   |
-  map_get_unit_string(&io_type->writeOutputUnt_Len, unit_array, other_type); //    |
-  printf("\t");                                                              //    |
-  for (i=0 ; i<io_type->writeOutputHdr_Len ; i++) {                          //    |
-    printf("%s\t",header_array[i]);                                          //    |
-  };                                                                         //    |
-  printf("\n\t");                                                            //    |
-  for (i=0 ; i<io_type->writeOutputHdr_Len ; i++) {                          //    |
-    printf("%s\t",unit_array[i]);                                            //    |
-  };                                                                         //    |
-  printf("\n");                                                              //    |
-  for (i=0 ; i<io_type->writeOutputHdr_Len ; i++) {                          //    |
-    MAPFREE(header_array[i]);                                                //    |
-    MAPFREE(unit_array[i]);                                                  //    |
-  };                                                                         //    |
-  MAPFREE(header_array);                                                     //    |
-  MAPFREE(unit_array);                                                       //    |  
-  /* ------------------------------------------------------------------------------+   */
-
+//  /* OPTIONAL: if you want output headers    <-------------------------------------+   */
+//  header_array = malloc(sizeof(char*)*(io_type->writeOutputHdr_Len));        //    |
+//  unit_array = malloc(sizeof(char*)*(io_type->writeOutputUnt_Len));          //    |
+//  for (i=0 ; i<io_type->writeOutputHdr_Len ; i++) {                          //    |
+//    header_array[i] = malloc(sizeof(char)*17);                               //    |
+//    unit_array[i] = malloc(sizeof(char)*17);                                 //    |
+//  };                                                                         //    |
+//  map_get_header_string(&io_type->writeOutputHdr_Len,header_array,other_type);//   |
+//  map_get_unit_string(&io_type->writeOutputUnt_Len, unit_array, other_type); //    |
+//  printf("\t");                                                              //    |
+//  for (i=0 ; i<io_type->writeOutputHdr_Len ; i++) {                          //    |
+//    printf("%s\t",header_array[i]);                                          //    |
+//  };                                                                         //    |
+//  printf("\n\t");                                                            //    |
+//  for (i=0 ; i<io_type->writeOutputHdr_Len ; i++) {                          //    |
+//    printf("%s\t",unit_array[i]);                                            //    |
+//  };                                                                         //    |
+//  printf("\n");                                                              //    |
+//  for (i=0 ; i<io_type->writeOutputHdr_Len ; i++) {                          //    |
+//    MAPFREE(header_array[i]);                                                //    |
+//    MAPFREE(unit_array[i]);                                                  //    |
+//  };                                                                         //    |
+//  MAPFREE(header_array);                                                     //    |
+//  MAPFREE(unit_array);                                                       //    |  
+//  /* ------------------------------------------------------------------------------+   */
 
   MAPFREE(init_type); 
   MAPFREE(io_type); 
-  
-  do {
-    /* 
-       1) update the input states in u_type.x, u_type.y, u_type.z (fairlead displacements) 
-          Alternatively, call py_offset_vessel to displace fairlead positions. 
-       2) call map_update_states()       
-       3) call map_calc_output() (optional is you don't want outlist to be updated)
-       4) get outputs from y_type.fx, y_type.fy, y_type.fz (fairlead node sum-force). You have to calculate
-          the moments manually, i.e., cross(r,f).
-    */
 
-    time = (double)its*dt;
-    vessel_y_position = its;
-    
-    u_type->y[0] = vessel_y_position;
-    /* vessel position:                   X    Y                  Z    phi  the  psi */
-    // map_offset_vessel(other_type, u_type, 0.0, vessel_y_position, 0.0, 0.0, 0.0, 0.0, map_msg, &ierr); // @todo: <----- inconsistent argument order, map_msg, ierr?
-    map_update_states(time, its, u_type, p_type, x_type, NULL, z_type, other_type, &ierr, map_msg);    // @todo: <----- inconsistent argument order, ierr, map_msg?
-    
-    printf("Time step %0.1f: ", time);
-    printf("Element 0 fairlead force: %0.2f  %0.2f  %0.2f\n", y_type->Fx[0], y_type->Fy[0], y_type->Fz[0]);
-
-    
-    /* OPTIONAL: if you want output headers    <-------------------------------------+   */
-    map_calc_output(time, u_type, p_type, x_type, NULL, z_type,                //    |
-                    other_type, y_type, &ierr, map_msg);                       //    |
-    printf("\t");                                                              //    |
-    for (i=0 ; i<y_type->wrtOutput_Len ; i++) {                                //    |
-      printf("%0.2f\t",y_type->wrtOutput[i]);                                  //    |
-    };                                                                         //    |
-    printf("\n");                                                              //    |
-    /* ------------------------------------------------------------------------------+   */
-
-
-    its++;
-  } while (its<10); 
+//  do {
+//    /* 
+//       1) update the input states in u_type.x, u_type.y, u_type.z (fairlead displacements) 
+//          Alternatively, call py_offset_vessel to displace fairlead positions. 
+//       2) call map_update_states()       
+//       3) call map_calc_output() (optional is you don't want outlist to be updated)
+//       4) get outputs from y_type.fx, y_type.fy, y_type.fz (fairlead node sum-force). You have to calculate
+//          the moments manually, i.e., cross(r,f).
+//    */
+//
+//    time = (double)its*dt;
+//    vessel_y_position = its;
+//    
+//    u_type->y[0] = vessel_y_position;
+//    /* vessel position:                   X    Y                  Z    phi  the  psi */
+//    // map_offset_vessel(other_type, u_type, 0.0, vessel_y_position, 0.0, 0.0, 0.0, 0.0, map_msg, &ierr); // @todo: <----- inconsistent argument order, map_msg, ierr?
+//    map_update_states(time, its, u_type, p_type, x_type, NULL, z_type, other_type, &ierr, map_msg);    // @todo: <----- inconsistent argument order, ierr, map_msg?
+//    
+//    printf("Time step %0.1f: ", time);
+//    printf("Element 0 fairlead force: %0.2f  %0.2f  %0.2f\n", y_type->Fx[0], y_type->Fy[0], y_type->Fz[0]);
+//
+//    
+//    /* OPTIONAL: if you want output headers    <-------------------------------------+   */
+//    map_calc_output(time, u_type, p_type, x_type, NULL, z_type,                //    |
+//                    other_type, y_type, &ierr, map_msg);                       //    |
+//    printf("\t");                                                              //    |
+//    for (i=0 ; i<y_type->wrtOutput_Len ; i++) {                                //    |
+//      printf("%0.2f\t",y_type->wrtOutput[i]);                                  //    |
+//    };                                                                         //    |
+//    printf("\n");                                                              //    |
+//    /* ------------------------------------------------------------------------------+   */
+//
+//
+//    its++;
+//  } while (its<10); 
    
   /* first delete internal data type, then delete derived data types...  */
   map_end(u_type, p_type, x_type, NULL, z_type, other_type, y_type, &ierr, map_msg);
