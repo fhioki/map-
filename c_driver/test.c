@@ -61,11 +61,11 @@ int main(int argc, char *argv[])
   strcpy(node_def[0], "1  fix    0 -520  -120  0 0 # # #\0");
   strcpy(node_def[1], "2  Vessel 0  -20  40    0 0 # # #\0");
   strcpy(element_def[0], "1 chainup  640 1 2 gy_pos h_fair\0");
-  strcpy(option_def[0], "inner_ftol 1e-6\0");
-  strcpy(option_def[1], "inner_gtol 1e-12\0");
+  strcpy(option_def[0], "inner_gtol 4me-6\0");
+  strcpy(option_def[1], "inner_ftol 1e-3\0");
   strcpy(option_def[2], "inner_xtol 1e-6\0");
   strcpy(option_def[3], "outer_tol 1e-4\0");
-  strcpy(option_def[4], "inner_max_its 400\0");
+  strcpy(option_def[4], "hewlp\0");
   strcpy(option_def[5], "outer_max_its 400\0");
   strcpy(option_def[6], "repeat 90 120 240 55\0");
 
@@ -84,14 +84,14 @@ int main(int argc, char *argv[])
   // /* set line properties */
   // strcpy(init_type->elementInputLine, element_def[0]); map_add_element_input_text(init_type);  
   // 
-  // /* set solver options */
-  // strcpy(init_type->optionInputLine, option_def[0]); map_add_options_input_text(init_type);  
-  // strcpy(init_type->optionInputLine, option_def[1]); map_add_options_input_text(init_type);  
-  // strcpy(init_type->optionInputLine, option_def[2]); map_add_options_input_text(init_type);  
-  // strcpy(init_type->optionInputLine, option_def[3]); map_add_options_input_text(init_type);  
-  // strcpy(init_type->optionInputLine, option_def[4]); map_add_options_input_text(init_type);  
-  // strcpy(init_type->optionInputLine, option_def[5]); map_add_options_input_text(init_type);  
-  // strcpy(init_type->optionInputLine, option_def[6]); map_add_options_input_text(init_type);  
+  /* set solver options */
+  strcpy(init_type->optionInputLine, option_def[0]); map_add_options_input_text(init_type);  
+  strcpy(init_type->optionInputLine, option_def[1]); map_add_options_input_text(init_type);  
+  strcpy(init_type->optionInputLine, option_def[2]); map_add_options_input_text(init_type);  
+  strcpy(init_type->optionInputLine, option_def[3]); map_add_options_input_text(init_type);  
+  strcpy(init_type->optionInputLine, option_def[4]); map_add_options_input_text(init_type);  
+  strcpy(init_type->optionInputLine, option_def[5]); map_add_options_input_text(init_type);  
+  strcpy(init_type->optionInputLine, option_def[6]); map_add_options_input_text(init_type);  
 
   /* 1) read input file, set library input string, ect, in the MAP_InitInput_type_t structure 
    * 2) call map_init(). init_type->object is freed in map_init( ) at the end. 

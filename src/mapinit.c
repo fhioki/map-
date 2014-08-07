@@ -24,7 +24,7 @@
 //#include "cminpack/minpack.h"
 //#include "pyprotos.h"
 #include "bstring/bstrlib.h"
-
+#include "mapinit.h"
 
 // /**
 //  * This sets the pointers to NULL for the vessel object and gives it default properties. Only 
@@ -355,35 +355,267 @@
 
 
 
+MAP_ERROR_CODE check_help_flag(bstring list)
+{
+  int success = 0;
+  success = biseqcstrcaseless(list,"HELP"); /* string compare */
+  if (success==BSTR_ERR) {
+    return MAP_FATAL;
+  } else if (success) { 
+    print_help_to_screen();
+  }; 
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE check_inner_f_tol_flag(struct bstrList* list, double* ftol)
+{
+  int success = 0;
+  success = biseqcstrcaseless(list->entry[0],"INNER_FTOL"); /* string compare */
+  if (success==BSTR_ERR) {
+    return MAP_FATAL;
+  } else if (success) { 
+    if (is_numeric(list->entry[1]->data)) { 
+      *ftol = (double)atof(list->entry[1]->data);
+    } else {
+      return MAP_FATAL;
+    };
+  }; 
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE check_inner_g_tol_flag(struct bstrList* list, double* gtol)
+{
+  int success = 0;
+  success = biseqcstrcaseless(list->entry[0],"INNER_GTOL"); /* string compare */
+  if (success==BSTR_ERR) {
+    return MAP_FATAL;
+  } else if (success) { 
+    if (is_numeric(list->entry[1]->data)) { 
+      *gtol = (double)atof(list->entry[1]->data);
+    } else {
+      return MAP_FATAL;
+    };
+  }; 
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE check_inner_x_tol_flag(struct bstrList* list, double* xtol)
+{
+  int success = 0;
+  success = biseqcstrcaseless(list->entry[0],"INNER_XTOL"); /* string compare */
+  if (success==BSTR_ERR) {
+    return MAP_FATAL;
+  } else if (success) { 
+    if (is_numeric(list->entry[1]->data)) { 
+      *xtol = (double)atof(list->entry[1]->data);
+    } else {
+      return MAP_FATAL;
+    };
+  }; 
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE check_inner_max_its_flag(struct bstrList* list, int* max_its)
+{
+  int success = 0;
+  success = biseqcstrcaseless(list->entry[0],"INNER_MAX_ITS"); /* string compare */
+  if (success==BSTR_ERR) {
+    return MAP_FATAL;
+  } else if (success) { 
+    if (is_numeric(list->entry[1]->data)) { 
+      *max_its = (int)atoi(list->entry[1]->data);
+    } else {
+      return MAP_FATAL;
+    };
+  }; 
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE check_outer_max_its_flag(struct bstrList* list, int* max_its)
+{
+  int success = 0;
+  success = biseqcstrcaseless(list->entry[0],"OUTER_MAX_ITS"); /* string compare */
+  if (success==BSTR_ERR) {
+    return MAP_FATAL;
+  } else if (success) { 
+    if (is_numeric(list->entry[1]->data)) { 
+      *max_its = (int)atoi(list->entry[1]->data);
+    } else {
+      return MAP_FATAL;
+    };
+  }; 
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE check_outer_tol_flag(struct bstrList* list, double* outer_tol)
+{
+  int success = 0;
+  success = biseqcstrcaseless(list->entry[0],"OUTER_TOL"); /* string compare */
+  if (success==BSTR_ERR) {
+    return MAP_FATAL;
+  } else if (success) { 
+    if (is_numeric(list->entry[1]->data)) { 
+      *outer_tol = (double)atof(list->entry[1]->data);
+    } else {
+      return MAP_FATAL;
+    };
+  }; 
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE check_outer_epsilon_flag(struct bstrList* list, double* epsilon)
+{
+  int success = 0;
+  success = biseqcstrcaseless(list->entry[0],"OUTER_EPSILON"); /* string compare */
+  if (success==BSTR_ERR) {
+    return MAP_FATAL;
+  } else if (success) { 
+    if (is_numeric(list->entry[1]->data)) { 
+      *epsilon = (double)atof(list->entry[1]->data);
+    } else {
+      return MAP_FATAL;
+    };
+  }; 
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE check_integration_dt_flag(struct bstrList* list, double* dt)
+{
+  int success = 0;
+  success = biseqcstrcaseless(list->entry[0],"INTEGRATION_DT"); /* string compare */
+  if (success==BSTR_ERR) {
+    return MAP_FATAL;
+  } else if (success) { 
+    if (is_numeric(list->entry[1]->data)) { 
+      *dt = (double)atof(list->entry[1]->data);
+    } else {
+      return MAP_FATAL;
+    };
+  }; 
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE check_kb_default_flag(struct bstrList* list, double* kb)
+{
+  int success = 0;
+  success = biseqcstrcaseless(list->entry[0],"KB_DEFAULT"); /* string compare */
+  if (success==BSTR_ERR) {
+    return MAP_FATAL;
+  } else if (success) { 
+    if (is_numeric(list->entry[1]->data)) { 
+      *kb = (double)atof(list->entry[1]->data);
+    } else {
+      return MAP_FATAL;
+    };
+  }; 
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE check_cb_default_flag(struct bstrList* list, double* cb)
+{
+  int success = 0;
+  success = biseqcstrcaseless(list->entry[0],"CB_DEFAULT"); /* string compare */
+  if (success==BSTR_ERR) {
+    return MAP_FATAL;
+  } else if (success) { 
+    if (is_numeric(list->entry[1]->data)) { 
+      *cb = (double)atof(list->entry[1]->data);
+    } else {
+      return MAP_FATAL;
+    };
+  }; 
+  return MAP_SAFE;
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+MAP_ERROR_CODE check_outer_bd_flag(struct bstrList* list, FdType* bd)
+{
+  int success = 0;
+  success = biseqcstrcaseless(list->entry[0],"OUTER_BD"); /* string compare */
+  *bd = BACKWARD_DIFFERENCE;
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE check_outer_cd_flag(struct bstrList* list, FdType* cd)
+{
+  int success = 0;
+  success = biseqcstrcaseless(list->entry[0],"OUTER_CD"); /* string compare */
+  *cd = CENTRAL_DIFFERENCE;
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE check_outer_fd_flag(struct bstrList* list, FdType* fd)
+{
+  int success = 0;
+  success = biseqcstrcaseless(list->entry[0],"OUTER_FD"); /* string compare */
+  *fd = FORWARD_DIFFERENCE;
+  return MAP_SAFE;
+};
+
+
 MAP_ERROR_CODE set_model_options_list(ModelData* model_data, InitializationData* init_data, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_ERROR_CODE success = MAP_SAFE;
   int i = 0;
   int ret = 0;
-  int string_size = 0;
-  int n_options = init_data->solverOptionsSize-1;
-  bstring line = NULL;//bfromcstr("");
+  const int n_lines = (init_data->solverOptionsString->qty)-1;
+  struct bstrList* parsed = NULL;
+  struct tagbstring tokens; 
 
-  int index = 0;
- 
-  // char* word = NULL;
-  // char* line = NULL;
-  // double* more_angles = NULL;
-  // char buffer[64] = "";  
-  
-  for (i=0 ; i<=n_options ; i++) { 
-    
-//    ret = bassigncstr(line, init_data->solverOptionsString[i]);    
-//     sizeOfString = strlen(initObj->solverOptionsString[i]);
-//     line = (char*)realloc(line, (sizeOfString+1)*sizeof(char));    
-//     strcpy(line, initObj->solverOptionsString[i]);    
-//     word = strtok( line, " ,\n\t\r\0");
+  cstr2tbstr(tokens," \t\n"); /* token for splitting line into indivdual words is a tab and space */   
+  for (i=0 ; i<=n_lines ; i++) { 
+    parsed = bsplits(init_data->solverOptionsString->entry[i], &tokens);
+    do {
+      success = check_help_flag(parsed->entry[0]); CHECKERRQ(MAP_FATAL_85);
+      success = check_inner_f_tol_flag(parsed, &model_data->inner_loop.f_tol); CHECKERRK(MAP_ERROR_2);
+      success = check_outer_max_its_flag(parsed, &model_data->outer_loop.maxIts); CHECKERRK(MAP_ERROR_3);
+      success = check_inner_max_its_flag(parsed, &model_data->inner_loop.max_its); CHECKERRK(MAP_ERROR_4);
+      success = check_inner_g_tol_flag(parsed, &model_data->inner_loop.g_tol); CHECKERRK(MAP_ERROR_9);
+      success = check_inner_x_tol_flag(parsed, &model_data->inner_loop.x_tol); CHECKERRK(MAP_ERROR_10);
+      success = check_outer_tol_flag(parsed, &model_data->outer_loop.tol); CHECKERRK(MAP_ERROR_3);
+      success = check_outer_epsilon_flag(parsed, &model_data->outer_loop.epsilon); CHECKERRK(MAP_ERROR_3);
+      success = check_integration_dt_flag(parsed, &model_data->modelOptions.integrationDt); CHECKERRK(MAP_ERROR_15); 
+      success = check_kb_default_flag(parsed, &model_data->modelOptions.kbLm); CHECKERRK(MAP_ERROR_16); 
+      success = check_cb_default_flag(parsed, &model_data->modelOptions.cbLm); CHECKERRK(MAP_ERROR_17); 
+      success = check_outer_bd_flag(parsed, &model_data->outer_loop.fd);
+      success = check_outer_cd_flag(parsed, &model_data->outer_loop.fd);
+      success = check_outer_fd_flag(parsed, &model_data->outer_loop.fd);
+
+      checkpoint();
+    } while(0);   
+    ret = bstrListDestroy(parsed);
+
 //     while (word!=NULL) {      
 //       if (!strcicmp("HELP",word)) {
 //         success = print_help_to_screen(map_msg,ierr);
 //       } else if (!strcicmp("INNER_FTOL",word)) {
 //         word = strtok(NULL, " ,\n\t\r\0");
-//         success = is_numeric(word); CHECKERRK(MAP_ERROR_2);
+//         success = is_numeric(word); 
 //         if (!success) {
 //           data->inner_loop.f_tol = (MapReal)atof(word);        
 //         };

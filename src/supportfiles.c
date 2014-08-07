@@ -294,13 +294,13 @@ MAP_ERROR_CODE is_numeric(const char* s)
 {
   char* p = NULL;
   if (s==NULL || *s=='\0' || isspace(*s)) {
-    return MAP_FATAL;
+    return MAP_SAFE;
   };
   strtod (s, &p);
   if (*p=='\0') {
-    return MAP_SAFE;
-  } else {
     return MAP_FATAL;
+  } else {
+    return MAP_SAFE;
   };
 };
 
