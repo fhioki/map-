@@ -538,24 +538,13 @@ MAP_ERROR_CODE check_cb_default_flag(struct bstrList* list, double* cb)
 };
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 MAP_ERROR_CODE check_outer_bd_flag(struct bstrList* list, FdType* bd)
 {
   int success = 0;
   success = biseqcstrcaseless(list->entry[0],"OUTER_BD"); /* string compare */
-  *bd = BACKWARD_DIFFERENCE;
+  if (success) {
+    *bd = BACKWARD_DIFFERENCE;
+  };
   return MAP_SAFE;
 };
 
@@ -564,7 +553,9 @@ MAP_ERROR_CODE check_outer_cd_flag(struct bstrList* list, FdType* cd)
 {
   int success = 0;
   success = biseqcstrcaseless(list->entry[0],"OUTER_CD"); /* string compare */
-  *cd = CENTRAL_DIFFERENCE;
+  if (success) {
+    *cd = CENTRAL_DIFFERENCE;
+  };
   return MAP_SAFE;
 };
 
@@ -573,10 +564,95 @@ MAP_ERROR_CODE check_outer_fd_flag(struct bstrList* list, FdType* fd)
 {
   int success = 0;
   success = biseqcstrcaseless(list->entry[0],"OUTER_FD"); /* string compare */
-  *fd = FORWARD_DIFFERENCE;
+  if (success) {
+    *fd = FORWARD_DIFFERENCE;
+  };
   return MAP_SAFE;
 };
 
+
+MAP_ERROR_CODE check_wave_kinematics_flag(struct bstrList* list, bool* wave)
+{
+  int success = 0;
+  success = biseqcstrcaseless(list->entry[0],"WAVE_KINEMATICS"); /* string compare */
+  if (success) {
+    *wave = false;
+    return MAP_FATAL;
+  };
+  return MAP_SAFE;
+};
+
+
+
+MAP_ERROR_CODE check_pg_cooked_flag(struct bstrList* list, OuterSolveAttributes* solver)
+{
+  int success = 0;
+  success = biseqcstrcaseless(list->entry[0],"PG_COOKED"); /* string compare */
+  if (success==BSTR_ERR) {
+    return MAP_FATAL;
+  } else if (success) {
+    /* check first parameter */
+    if (is_numeric(list->entry[1]->data)) { 
+      solver->ds = (double)atof(list->entry[1]->data);
+    } else {
+      return MAP_FATAL;
+    };
+
+    /* check second parameter */
+    if (is_numeric(list->entry[2]->data)) { 
+      solver->d = (double)atof(list->entry[2]->data);
+    } else {
+      return MAP_FATAL;
+    };
+    solver->pg = true;
+  }; 
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE check_repeat_flag(struct bstrList* list, ModelOptions* options)
+{
+  double* more_angles = NULL;
+  int success = 0;
+  int n = 0;
+  int i = 0;
+  char* current = NULL;
+  success = biseqcstrcaseless(list->entry[0],"REPEAT"); /* string compare */
+  if (success==BSTR_ERR) {
+    return MAP_FATAL;
+  } else if (success) {
+    while (n<list->qty-1) { /* iterating through all strings */      
+      if (list->entry[n+1]->slen) { /* if the string length is not 0 */
+        current = list->entry[n+1]->data;
+        printf("%d  <%s>\n", list->entry[n+1]->slen, current);
+        i = options->sizeOfRepeatAngles;
+        more_angles = realloc(options->repeatAngles, (i+1)*sizeof(double));
+        if (more_angles) {
+          options->repeatAngles = more_angles;
+          if (is_numeric(current)) { 
+            options->repeatAngles[i] = atof(current);
+            options->sizeOfRepeatAngles++;
+          } else {
+            MAPFREE(more_angles);
+            return MAP_FATAL;
+          }
+        } else {
+          MAPFREE(more_angles);
+          return MAP_FATAL;
+        };        
+      };
+      n++;
+    };
+  };
+
+
+  for (i=0 ; i<options->sizeOfRepeatAngles ; i++) {
+    printf("%f\n",options->repeatAngles[i]);
+  };
+
+
+  return MAP_SAFE;
+}
 
 MAP_ERROR_CODE set_model_options_list(ModelData* model_data, InitializationData* init_data, char* map_msg, MAP_ERROR_CODE* ierr)
 {
@@ -586,10 +662,13 @@ MAP_ERROR_CODE set_model_options_list(ModelData* model_data, InitializationData*
   const int n_lines = (init_data->solverOptionsString->qty)-1;
   struct bstrList* parsed = NULL;
   struct tagbstring tokens; 
+  char b_unit = ' ';
 
-  cstr2tbstr(tokens," \t\n"); /* token for splitting line into indivdual words is a tab and space */   
+  cstr2tbstr(tokens," \t\n\r"); /* token for splitting line into indivdual words is a tab and space */   
   for (i=0 ; i<=n_lines ; i++) { 
+//    parsed = bsplit(init_data->solverOptionsString->entry[i], b_unit);
     parsed = bsplits(init_data->solverOptionsString->entry[i], &tokens);
+//    parsed = bsplitstr(init_data->solverOptionsString->entry[i], &tokens);
     do {
       success = check_help_flag(parsed->entry[0]); CHECKERRQ(MAP_FATAL_85);
       success = check_inner_f_tol_flag(parsed, &model_data->inner_loop.f_tol); CHECKERRK(MAP_ERROR_2);
@@ -604,9 +683,10 @@ MAP_ERROR_CODE set_model_options_list(ModelData* model_data, InitializationData*
       success = check_cb_default_flag(parsed, &model_data->modelOptions.cbLm); CHECKERRK(MAP_ERROR_17); 
       success = check_outer_bd_flag(parsed, &model_data->outer_loop.fd);
       success = check_outer_cd_flag(parsed, &model_data->outer_loop.fd);
-      success = check_outer_fd_flag(parsed, &model_data->outer_loop.fd);
-
-      checkpoint();
+      success = check_outer_fd_flag(parsed, &model_data->outer_loop.fd);      
+      success = check_wave_kinematics_flag(parsed, &model_data->modelOptions.waveKinematics); CHECKERRK(MAP_WARNING_10);
+      success = check_pg_cooked_flag(parsed, &model_data->outer_loop); CHECKERRK(MAP_WARNING_8);
+      success = check_repeat_flag(parsed, &model_data->modelOptions); CHECKERRQ(MAP_FATAL_34);
     } while(0);   
     ret = bstrListDestroy(parsed);
 
