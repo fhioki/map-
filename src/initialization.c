@@ -260,8 +260,8 @@ void initialize_inner_solve_data_defaults(InnerSolveAttributes* inner)
 
 void initialize_model_option_defaults(ModelOptions* options) 
 {
-  options->sizeOfRepeatAngles = 0;
-  options->repeatAngles = NULL;
+  options->repeat_angle_size = 0;
+  options->repeat_angle = NULL;
   options->integrationDt = 0.01;
   options->kbLm = 3.0E6;
   options->cbLm = 3.0E5;

@@ -125,7 +125,7 @@ typedef enum MAP_ERROR_CODE {
   MAP_ERROR_12  , // INNER_GTOL is too small. No further reduction in the sum of squares is possible
   MAP_ERROR_13  , // INNER_XTOL is too small. No further reduction in the sum of squares is possible
   MAP_ERROR_14  , // Element option 'DIAGNOSTIC' does not trail with a valid value. Defaulting is to run diagnostic for the first iteration only
-  MAP_ERROR_15  , // Value for 'INTEGRATION_DT' is not a valid numeric value. Using the default value <0.01 sec>
+  MAP_ERROR_15  , // Value for 'INTEGRATION_DT' is not a valid input. No support for the LM/FEA model at this time.
   MAP_ERROR_16  , // Value for 'KB_DEFAULT' is not a valid numeric value. Using the default value <3.0E6 N/m>
   MAP_ERROR_17  , // Value for 'CB_DEFAULT' is not a valid numeric value. Using the default value <3.0E5 Ns/m>
   MAP_ERROR_18  , // Value for 'SEG_SIZE' is not a valid numeric value. Using the default value <10>

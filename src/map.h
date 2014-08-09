@@ -306,12 +306,12 @@ struct Element_t {
 
 
 struct ModelOptions_t {
-  MapReal* repeatAngles;
+  MapReal* repeat_angle;
   MapReal integrationDt; /**< Integration time step [sec]. LM model specific */
   MapReal kbLm;          /**< Seabed stiffeness coefficient [N/m]. LM model specific */
   MapReal cbLm;          /**< Seabed damping parameter [N-s/m]. LM model specific */
   bool waveKinematics;   /**< Enable wave kinematics o calculated relative flui velcity. LM model specific */
-  int sizeOfRepeatAngles;
+  int repeat_angle_size;
 }; typedef struct ModelOptions_t ModelOptions;
 
 
@@ -380,7 +380,7 @@ struct ModelData_t {
 /**
  * @details MAP options from parsed input file. Note that MAP does not readon the input file. This is done by the calling program.
  *          The calling program simply sets library_input_string, node_input_string, element_input_string, and solver_options_string.
- *          MAP then parses this string and expands them if necessary depending on the '{@link ModelOptions_t}' repeatAngles flag.
+ *          MAP then parses this string and expands them if necessary depending on the '{@link ModelOptions_t}' repeat_angle flag.
  */
 struct InitializationData_t {
   struct bstrList* libraryInputString;         /**< library property string from input file. MAP does not read contents from input string; must be done by calling program */

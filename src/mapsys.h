@@ -39,19 +39,19 @@
 #  include "stdbool.h"
 #  define map_snprintf _snprintf
 #  define map_strcat(a,b,c) strcat_s(a,b,c)
-#  define map_end_color(a)
+// #  define map_end_color(a)
 #  define MAP_EXTERNCALL __declspec( dllexport )
 #elif _WIN32 
 #  include "stdbool.h"
 #  define map_snprintf _snprintf
 #  define map_strcat(a,b,c) strcat_s(a,b,c)
-#  define map_end_color(a)
+// #  define map_end_color(a)
 #  define MAP_EXTERNCALL __declspec( dllexport )
 #else
 #  include <stdbool.h>
 #  define map_snprintf snprintf
 #  define map_strcat(a,b,c) strncat(a,c,b)
-#  define map_end_color(a) map_end_unix_color(a)
+// #  define map_end_color(a) map_end_unix_color(a)
 #  define MAP_EXTERNCALL 
 #endif
 
@@ -95,9 +95,9 @@
 
 #define PROGNAME "MAP++ (Mooring Analysis Program++)"
 #define PROGVERSION "1.00.01a"
-#define CHECKERRQ(code) if(success!=MAP_SAFE) { *ierr=map_set_universal_error("", map_msg, ierr, code ); break; } 
-#define CHECKERRK(code) if(success!=MAP_SAFE) { *ierr=map_set_universal_error("", map_msg, ierr, code ); } 
-#define MAPFREE(obj) if(obj!=NULL) { free( obj ); obj=NULL; } 
+#define CHECKERRQ(code) if(success!=MAP_SAFE) {*ierr=map_set_universal_error("", map_msg, ierr, code); break;} 
+#define CHECKERRK(code) if(success!=MAP_SAFE) {*ierr=map_set_universal_error("", map_msg, ierr, code);} 
+#define MAPFREE(obj) if(obj!=NULL) {free(obj); obj=NULL;} 
 #define MAP_STR_LEN 1024
 #define MapReal double /* this can be set to double, long double, ect as necessary */
 #define DEG2RAD 0.01745329251 /*  pi/180  */

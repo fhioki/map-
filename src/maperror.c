@@ -104,7 +104,7 @@ const char MAP_ERROR_STRING[][256] = {
   /* MAP_ERROR_12   */  "INNER_GTOL is too small. No further reduction in the sum of squares is possible",
   /* MAP_ERROR_13   */  "INNER_XTOL is too small. No further reduction in the sum of squares is possible",
   /* MAP_ERROR_14   */  "Element option 'DIAGNOSTIC' does not trail with a valid value. Defaulting is to run diagnostic for the first iteration only",
-  /* MAP_ERROR_15   */  "Value for 'INTEGRATION_DT' is not a valid numeric value. Using the default value <0.01 sec>",
+  /* MAP_ERROR_15   */  "Value for 'INTEGRATION_DT' is not a valid input. No support for the LM/FEA model at this time",
   /* MAP_ERROR_16   */  "Value for 'KB_DEFAULT' is not a valid numeric value. Using the default value <3.0E6 N/m>",
   /* MAP_ERROR_17   */  "Value for 'CB_DEFAULT' is not a valid numeric value. Using the default value <3.0E5 Ns/m>",
   /* MAP_ERROR_18   */  "Value for 'SEG_SIZE' is not a valid numeric value. Using the default value <10>",
@@ -121,71 +121,78 @@ const char MAP_ERROR_STRING[][256] = {
 };
 
 
-/**
- *
- */
-void map_end_unix_color( char *dest )
-{
-  if(strlen(dest) + 1 > MAP_STR_LEN ) 
-  {
-    int len = strlen(dest);
-    dest[len-7] = '\\';
-    dest[len-5] = '3';
-    dest[len-4] = '3';
-    dest[len-3] = '[';
-    dest[len-2] = '0';
-    dest[len-1] = 'm';
-  };
-};
+// /**
+//  *
+//  */
+// void map_end_unix_color(char* dest)
+// {
+//   if(strlen(dest)+1>MAP_STR_LEN) {
+//     int len = strlen(dest);
+//     dest[len-7] = '\\';
+//     dest[len-5] = '3';
+//     dest[len-4] = '3';
+//     dest[len-3] = '[';
+//     dest[len-2] = '0';
+//     dest[len-1] = 'm';
+//   };
+// };
 
 
 /**
  *
  */
-MAP_ERROR_CODE map_set_universal_error( char *user_str, char* map_msg, const MAP_ERROR_CODE *current, const MAP_ERROR_CODE ierr )
+MAP_ERROR_CODE map_set_universal_error(char* user_string, char* map_msg, const MAP_ERROR_CODE* current, const MAP_ERROR_CODE ierr)
 {
   char buffer[MAP_STR_LEN] = "";
   int cx = 0;
   int num = 0;
   int size = 0;
-  
-  if ( ierr >= MAP_WARNING_1 ) 
-  {
-    /* MAP did not quite fail. Let users know what the error is */
-    num = ierr-MAP_WARNING_1+1;
-    cx = map_snprintf( buffer, MAP_STR_LEN, "MAP_WARNING[%d] : %s. %s\n", num, MAP_ERROR_STRING[ierr], user_str);  
+  bstring out_string = NULL;
+  if (ierr>=MAP_WARNING_1) { /* MAP did not quite fail. Let users know what the error is */
+    num = ierr - MAP_WARNING_1 + 1;
+    cx = map_snprintf( buffer, MAP_STR_LEN, "MAP_WARNING[%d] : %s. %s\n", num, MAP_ERROR_STRING[ierr], user_string);  
     size = MAP_STR_LEN - strlen(buffer) - strlen(map_msg)-1;
-    if (size>0) map_strcat( map_msg, size, buffer );
-    assert( cx>=0 );    
-    if (*current<=MAP_WARNING) return MAP_WARNING;
-    else if (*current<=MAP_ERROR) return MAP_ERROR;
-    else return MAP_FATAL;
-  } else if (ierr >= MAP_ERROR_1 ) {
-    /* MAP failed but recovered */
+    if (size>0) {
+      map_strcat( map_msg, size, buffer );
+    };
+    if (*current<=MAP_WARNING) {
+      return MAP_WARNING;
+    } else if (*current<=MAP_ERROR) {
+      return MAP_ERROR;
+    } else {
+      return MAP_FATAL;
+    };
+  } else if (ierr >= MAP_ERROR_1 ) { /* MAP failed but recovered */    
     num = ierr-MAP_ERROR_1+1;
-    cx = map_snprintf( buffer, MAP_STR_LEN, "%sMAP_ERROR[%d] : %s. %s\n%s", MAP_COLOR_YELLOW, num, MAP_ERROR_STRING[ierr], user_str, MAP_COLOR_END);  
+    cx = map_snprintf( buffer, MAP_STR_LEN, "%sMAP_ERROR[%d] : %s. %s\n%s", MAP_COLOR_YELLOW, num, MAP_ERROR_STRING[ierr], user_string, MAP_COLOR_END);  
     size = MAP_STR_LEN - strlen(buffer) - strlen(map_msg)-1;
-    if (size>0) map_strcat( map_msg, size, buffer );
-    map_end_color(map_msg);
+    if (size>0) {
+      map_strcat( map_msg, size, buffer );
+    };
+    // map_end_color(map_msg);
     assert( cx>=0 );
-    if (*current<=MAP_ERROR) return MAP_ERROR;
-    else return MAP_FATAL;
-  } else {
-    /* MAP failed and program must end prematurely */
-    cx = map_snprintf( buffer, MAP_STR_LEN, "%sMAP_FATAL[%d]   : %s. %s\n%s", MAP_COLOR_RED, ierr, MAP_ERROR_STRING[ierr], user_str, MAP_COLOR_END);  
+    if (*current<=MAP_ERROR) {
+      return MAP_ERROR;
+    } else {
+      return MAP_FATAL;
+    };
+  } else { /* MAP failed and program must end prematurely */    
+    cx = map_snprintf( buffer, MAP_STR_LEN, "%sMAP_FATAL[%d]   : %s. %s\n%s", MAP_COLOR_RED, ierr, MAP_ERROR_STRING[ierr], user_string, MAP_COLOR_END);  
     size = MAP_STR_LEN - strlen(buffer) - strlen(map_msg)-1;
-    if (size>0) map_strcat( map_msg, size, buffer );
-    map_end_color(map_msg);
+    if (size>0) {
+      map_strcat( map_msg, size, buffer );
+    };
+    // map_end_color(map_msg);
     return MAP_FATAL;
   };
 };
 
 
-/*!
+/*
  *
  */
-void map_reset_universal_error( char *user_str, MAP_ERROR_CODE *ierr )
+void map_reset_universal_error(char* map_msg, MAP_ERROR_CODE* ierr)
 {
   *ierr = MAP_SAFE;
-  strcpy( user_str, "\0" );
+  strcpy(map_msg, "\0");
 };

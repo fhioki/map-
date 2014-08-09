@@ -49,7 +49,7 @@ MAP_ERROR_CODE set_vartype_ptr_float(char* unit, char* alias, const int num, Var
 MAP_ERROR_CODE set_element_vartype_ptr( char *unit, char *alias, const int num, VarTypePtr* type);
 
 const char* remove_first_character(const char* str);
-void map_end_unix_color( char* dest );
+// void map_end_unix_color( char* dest );
 void initialize_element( Element* ptr, const int ElementNum );
 MAP_ERROR_CODE initialize_external_applied_force(char* unit, char* alias, const int num, VarType* type, char const* property);
 MAP_ERROR_CODE initialize_node_sum_force_ptr(char* unit, char* alias, const int num, VarTypePtr* type);

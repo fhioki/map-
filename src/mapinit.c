@@ -371,16 +371,26 @@ MAP_ERROR_CODE check_help_flag(bstring list)
 MAP_ERROR_CODE check_inner_f_tol_flag(struct bstrList* list, double* ftol)
 {
   int success = 0;
+  int n = 0;
+  const char* word = NULL;
   success = biseqcstrcaseless(list->entry[0],"INNER_FTOL"); /* string compare */
   if (success==BSTR_ERR) {
     return MAP_FATAL;
   } else if (success) { 
-    if (is_numeric(list->entry[1]->data)) { 
-      *ftol = (double)atof(list->entry[1]->data);
-    } else {
-      return MAP_FATAL;
+    while (n<list->qty-1) { /* iterating through all strings */      
+      if (list->entry[n+1]->slen) { /* if the string length is not 0 */
+        word = list->entry[n+1]->data;
+        if (is_numeric(word)) { 
+          *ftol = (double)atof(word);
+          return MAP_SAFE;
+        } else {
+          return MAP_FATAL;
+        };
+      };
+      n++;
     };
   }; 
+  word = NULL;
   return MAP_SAFE;
 };
 
@@ -388,16 +398,26 @@ MAP_ERROR_CODE check_inner_f_tol_flag(struct bstrList* list, double* ftol)
 MAP_ERROR_CODE check_inner_g_tol_flag(struct bstrList* list, double* gtol)
 {
   int success = 0;
+  int n = 0;
+  const char* word = NULL;
   success = biseqcstrcaseless(list->entry[0],"INNER_GTOL"); /* string compare */
   if (success==BSTR_ERR) {
     return MAP_FATAL;
   } else if (success) { 
-    if (is_numeric(list->entry[1]->data)) { 
-      *gtol = (double)atof(list->entry[1]->data);
-    } else {
-      return MAP_FATAL;
+    while (n<list->qty-1) { /* iterating through all strings */      
+      if (list->entry[n+1]->slen) { /* if the string length is not 0 */
+        word = list->entry[n+1]->data;
+        if (is_numeric(word)) { 
+          *gtol = (double)atof(word);
+          return MAP_SAFE;
+        } else {
+          return MAP_FATAL;
+        };
+      };
+      n++;
     };
   }; 
+  word = NULL;
   return MAP_SAFE;
 };
 
@@ -405,33 +425,54 @@ MAP_ERROR_CODE check_inner_g_tol_flag(struct bstrList* list, double* gtol)
 MAP_ERROR_CODE check_inner_x_tol_flag(struct bstrList* list, double* xtol)
 {
   int success = 0;
+  int n = 0;
+  const char* word = NULL;
   success = biseqcstrcaseless(list->entry[0],"INNER_XTOL"); /* string compare */
   if (success==BSTR_ERR) {
     return MAP_FATAL;
   } else if (success) { 
-    if (is_numeric(list->entry[1]->data)) { 
-      *xtol = (double)atof(list->entry[1]->data);
-    } else {
-      return MAP_FATAL;
+    while (n<list->qty-1) { /* iterating through all strings */      
+      if (list->entry[n+1]->slen) { /* if the string length is not 0 */
+        word = list->entry[n+1]->data;
+        if (is_numeric(word)) { 
+          *xtol = (double)atof(word);
+          return MAP_SAFE;
+        } else {
+          return MAP_FATAL;
+        };
+      };
+      n++;
     };
   }; 
+  word = NULL;
   return MAP_SAFE;
 };
+
 
 
 MAP_ERROR_CODE check_inner_max_its_flag(struct bstrList* list, int* max_its)
 {
   int success = 0;
+  int n = 0;
+  const char* word = NULL;
   success = biseqcstrcaseless(list->entry[0],"INNER_MAX_ITS"); /* string compare */
   if (success==BSTR_ERR) {
     return MAP_FATAL;
   } else if (success) { 
-    if (is_numeric(list->entry[1]->data)) { 
-      *max_its = (int)atoi(list->entry[1]->data);
-    } else {
-      return MAP_FATAL;
+    while (n<list->qty-1) { /* iterating through all strings */      
+      if (list->entry[n+1]->slen) { /* if the string length is not 0 */
+        word = list->entry[n+1]->data;
+        if (is_numeric(word)) { 
+          *max_its = (int)atof(word);
+          return MAP_SAFE;
+        } else {
+          return MAP_FATAL;
+        };
+      };
+      n++;
     };
   }; 
+  word = NULL;
   return MAP_SAFE;
 };
 
@@ -439,16 +480,26 @@ MAP_ERROR_CODE check_inner_max_its_flag(struct bstrList* list, int* max_its)
 MAP_ERROR_CODE check_outer_max_its_flag(struct bstrList* list, int* max_its)
 {
   int success = 0;
+  int n = 0;
+  const char* word = NULL;
   success = biseqcstrcaseless(list->entry[0],"OUTER_MAX_ITS"); /* string compare */
   if (success==BSTR_ERR) {
     return MAP_FATAL;
   } else if (success) { 
-    if (is_numeric(list->entry[1]->data)) { 
-      *max_its = (int)atoi(list->entry[1]->data);
-    } else {
-      return MAP_FATAL;
+    while (n<list->qty-1) { /* iterating through all strings */      
+      if (list->entry[n+1]->slen) { /* if the string length is not 0 */
+        word = list->entry[n+1]->data;
+        if (is_numeric(word)) { 
+          *max_its = (int)atof(word);
+          return MAP_SAFE;
+        } else {
+          return MAP_FATAL;
+        };
+      };
+      n++;
     };
   }; 
+  word = NULL;
   return MAP_SAFE;
 };
 
@@ -456,16 +507,26 @@ MAP_ERROR_CODE check_outer_max_its_flag(struct bstrList* list, int* max_its)
 MAP_ERROR_CODE check_outer_tol_flag(struct bstrList* list, double* outer_tol)
 {
   int success = 0;
+  int n = 0;
+  const char* word = NULL;
   success = biseqcstrcaseless(list->entry[0],"OUTER_TOL"); /* string compare */
   if (success==BSTR_ERR) {
     return MAP_FATAL;
   } else if (success) { 
-    if (is_numeric(list->entry[1]->data)) { 
-      *outer_tol = (double)atof(list->entry[1]->data);
-    } else {
-      return MAP_FATAL;
+    while (n<list->qty-1) { /* iterating through all strings */      
+      if (list->entry[n+1]->slen) { /* if the string length is not 0 */
+        word = list->entry[n+1]->data;
+        if (is_numeric(word)) { 
+          *outer_tol = (double)atof(word);
+          return MAP_SAFE;
+        } else {
+          return MAP_FATAL;
+        };
+      };
+      n++;
     };
   }; 
+  word = NULL;
   return MAP_SAFE;
 };
 
@@ -473,16 +534,26 @@ MAP_ERROR_CODE check_outer_tol_flag(struct bstrList* list, double* outer_tol)
 MAP_ERROR_CODE check_outer_epsilon_flag(struct bstrList* list, double* epsilon)
 {
   int success = 0;
+  int n = 0;
+  const char* word = NULL;
   success = biseqcstrcaseless(list->entry[0],"OUTER_EPSILON"); /* string compare */
   if (success==BSTR_ERR) {
     return MAP_FATAL;
   } else if (success) { 
-    if (is_numeric(list->entry[1]->data)) { 
-      *epsilon = (double)atof(list->entry[1]->data);
-    } else {
-      return MAP_FATAL;
+    while (n<list->qty-1) { /* iterating through all strings */      
+      if (list->entry[n+1]->slen) { /* if the string length is not 0 */
+        word = list->entry[n+1]->data;
+        if (is_numeric(word)) { 
+          *epsilon = (double)atof(word);
+          return MAP_SAFE;
+        } else {
+          return MAP_FATAL;
+        };
+      };
+      n++;
     };
   }; 
+  word = NULL;
   return MAP_SAFE;
 };
 
@@ -490,16 +561,26 @@ MAP_ERROR_CODE check_outer_epsilon_flag(struct bstrList* list, double* epsilon)
 MAP_ERROR_CODE check_integration_dt_flag(struct bstrList* list, double* dt)
 {
   int success = 0;
+  int n = 0;
+  const char* word = NULL;
   success = biseqcstrcaseless(list->entry[0],"INTEGRATION_DT"); /* string compare */
   if (success==BSTR_ERR) {
     return MAP_FATAL;
   } else if (success) { 
-    if (is_numeric(list->entry[1]->data)) { 
-      *dt = (double)atof(list->entry[1]->data);
-    } else {
-      return MAP_FATAL;
+    while (n<list->qty-1) { /* iterating through all strings */      
+      if (list->entry[n+1]->slen) { /* if the string length is not 0 */
+        word = list->entry[n+1]->data;
+        if (is_numeric(word)) { 
+          *dt = (double)atof(word);
+          return MAP_WARNING;
+        } else {
+          return MAP_FATAL;
+        };
+      };
+      n++;
     };
   }; 
+  word = NULL;
   return MAP_SAFE;
 };
 
@@ -507,16 +588,26 @@ MAP_ERROR_CODE check_integration_dt_flag(struct bstrList* list, double* dt)
 MAP_ERROR_CODE check_kb_default_flag(struct bstrList* list, double* kb)
 {
   int success = 0;
+  int n = 0;
+  const char* word = NULL;
   success = biseqcstrcaseless(list->entry[0],"KB_DEFAULT"); /* string compare */
   if (success==BSTR_ERR) {
     return MAP_FATAL;
   } else if (success) { 
-    if (is_numeric(list->entry[1]->data)) { 
-      *kb = (double)atof(list->entry[1]->data);
-    } else {
-      return MAP_FATAL;
+    while (n<list->qty-1) { /* iterating through all strings */      
+      if (list->entry[n+1]->slen) { /* if the string length is not 0 */
+        word = list->entry[n+1]->data;
+        if (is_numeric(word)) { 
+          *kb = (double)atof(word);
+          return MAP_WARNING;
+        } else {
+          return MAP_FATAL;
+        };
+      };
+      n++;
     };
   }; 
+  word = NULL;
   return MAP_SAFE;
 };
 
@@ -524,16 +615,26 @@ MAP_ERROR_CODE check_kb_default_flag(struct bstrList* list, double* kb)
 MAP_ERROR_CODE check_cb_default_flag(struct bstrList* list, double* cb)
 {
   int success = 0;
+  int n = 0;
+  const char* word = NULL;
   success = biseqcstrcaseless(list->entry[0],"CB_DEFAULT"); /* string compare */
   if (success==BSTR_ERR) {
     return MAP_FATAL;
   } else if (success) { 
-    if (is_numeric(list->entry[1]->data)) { 
-      *cb = (double)atof(list->entry[1]->data);
-    } else {
-      return MAP_FATAL;
+    while (n<list->qty-1) { /* iterating through all strings */      
+      if (list->entry[n+1]->slen) { /* if the string length is not 0 */
+        word = list->entry[n+1]->data;
+        if (is_numeric(word)) { 
+          *cb = (double)atof(word);
+          return MAP_WARNING;
+        } else {
+          return MAP_FATAL;
+        };
+      };
+      n++;
     };
   }; 
+  word = NULL;
   return MAP_SAFE;
 };
 
@@ -583,40 +684,51 @@ MAP_ERROR_CODE check_wave_kinematics_flag(struct bstrList* list, bool* wave)
 };
 
 
-
 MAP_ERROR_CODE check_pg_cooked_flag(struct bstrList* list, OuterSolveAttributes* solver)
 {
+  int n = 0;
   int success = 0;
+  int next = 0; 
+  const char* word = NULL;
   success = biseqcstrcaseless(list->entry[0],"PG_COOKED"); /* string compare */
   if (success==BSTR_ERR) {
     return MAP_FATAL;
   } else if (success) {
-    /* check first parameter */
-    if (is_numeric(list->entry[1]->data)) { 
-      solver->ds = (double)atof(list->entry[1]->data);
-    } else {
-      return MAP_FATAL;
+    while (n<list->qty-1) { /* iterating through all strings */      
+      if (list->entry[n+1]->slen) { /* if the string length is not 0 */
+        word = list->entry[n+1]->data;
+        if (is_numeric(word)) {         
+          if (!next) {
+            solver->d = (double)atof(word);
+            next++;
+          } else {
+            solver->ds = (double)atof(word);
+            solver->pg = true;
+            return MAP_SAFE;
+          };
+        } else {
+          return MAP_FATAL;
+        };
+      };
+      n++;
     };
-
-    /* check second parameter */
-    if (is_numeric(list->entry[2]->data)) { 
-      solver->d = (double)atof(list->entry[2]->data);
-    } else {
-      return MAP_FATAL;
-    };
-    solver->pg = true;
   }; 
-  return MAP_SAFE;
+  word = NULL;
+  if (!next) {
+    return MAP_SAFE;
+  } else {
+    return MAP_WARNING;
+  };
 };
 
 
 MAP_ERROR_CODE check_repeat_flag(struct bstrList* list, ModelOptions* options)
 {
   double* more_angles = NULL;
-  int success = 0;
-  int n = 0;
-  int i = 0;
   char* current = NULL;
+  int success = 0;
+  int n = 0; /* word interator in the list */
+  int i = 0; /* synonym for repeat_angle_size */
   success = biseqcstrcaseless(list->entry[0],"REPEAT"); /* string compare */
   if (success==BSTR_ERR) {
     return MAP_FATAL;
@@ -624,18 +736,17 @@ MAP_ERROR_CODE check_repeat_flag(struct bstrList* list, ModelOptions* options)
     while (n<list->qty-1) { /* iterating through all strings */      
       if (list->entry[n+1]->slen) { /* if the string length is not 0 */
         current = list->entry[n+1]->data;
-        printf("%d  <%s>\n", list->entry[n+1]->slen, current);
-        i = options->sizeOfRepeatAngles;
-        more_angles = realloc(options->repeatAngles, (i+1)*sizeof(double));
+        i = options->repeat_angle_size;
+        more_angles = realloc(options->repeat_angle, (i+1)*sizeof(double));
         if (more_angles) {
-          options->repeatAngles = more_angles;
-          if (is_numeric(current)) { 
-            options->repeatAngles[i] = atof(current);
-            options->sizeOfRepeatAngles++;
-          } else {
+          options->repeat_angle = more_angles;
+          if (is_numeric(current)) { /* add repeat angle if word is numeric */
+            options->repeat_angle[i] = atof(current);
+            options->repeat_angle_size++;
+          } else { 
             MAPFREE(more_angles);
             return MAP_FATAL;
-          }
+          };
         } else {
           MAPFREE(more_angles);
           return MAP_FATAL;
@@ -644,31 +755,103 @@ MAP_ERROR_CODE check_repeat_flag(struct bstrList* list, ModelOptions* options)
       n++;
     };
   };
-
-
-  for (i=0 ; i<options->sizeOfRepeatAngles ; i++) {
-    printf("%f\n",options->repeatAngles[i]);
-  };
-
-
   return MAP_SAFE;
-}
+};
+
+
+MAP_ERROR_CODE check_ref_position_flag(struct bstrList* list, Point* ref_position)
+{
+  int n = 0;
+  int success = 0;
+  int next = 0; 
+  const char* word = NULL;
+  success = biseqcstrcaseless(list->entry[0],"REF_POSITION"); /* string compare */
+  if (success==BSTR_ERR) {
+    return MAP_FATAL;
+  } else if (success) {
+    while (n<list->qty-1) { /* iterating through all strings */      
+      if (list->entry[n+1]->slen) { /* if the string length is not 0 */
+        word = list->entry[n+1]->data;
+        if (is_numeric(word)) {         
+          if (!next) {
+            ref_position->x.value = (double)atof(word);
+            next++;
+          } else if (next==1) {
+            ref_position->y.value = (double)atof(word);
+            next++;
+          } else {
+            ref_position->z.value = (double)atof(word);
+            return MAP_SAFE;
+          };
+        };
+      };
+      n++;
+    };
+    return MAP_WARNING;
+  };
+  word = NULL;
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE check_uncaught_flag(struct bstrList* list)
+{
+  int success = 0;  
+  if (biseqcstrcaseless(list->entry[0],"")) {
+    return MAP_SAFE;
+  } else if (biseqcstrcaseless(list->entry[0],"HELP")) {
+    return MAP_SAFE;
+  } else if (biseqcstrcaseless(list->entry[0],"INNER_FTOL")) { 
+    return MAP_SAFE;
+  } else if (biseqcstrcaseless(list->entry[0],"INNER_GTOL")) {
+    return MAP_SAFE;
+  } else if (biseqcstrcaseless(list->entry[0],"INNER_XTOL")) {
+    return MAP_SAFE;
+  } else if (biseqcstrcaseless(list->entry[0],"INNER_MAX_ITS")) { 
+    return MAP_SAFE;
+  } else if (biseqcstrcaseless(list->entry[0],"OUTER_MAX_ITS")) {
+    return MAP_SAFE;
+  } else if (biseqcstrcaseless(list->entry[0],"OUTER_TOL")) {
+    return MAP_SAFE;
+  } else if (biseqcstrcaseless(list->entry[0],"OUTER_EPSILON")) {
+    return MAP_SAFE;
+  } else if (biseqcstrcaseless(list->entry[0],"INTEGRATION_DT")) {
+    return MAP_SAFE;
+  } else if (biseqcstrcaseless(list->entry[0],"KB_DEFAULT")) {
+    return MAP_SAFE;
+  } else if (biseqcstrcaseless(list->entry[0],"CB_DEFAULT")) {
+    return MAP_SAFE;
+  } else if (biseqcstrcaseless(list->entry[0],"OUTER_CD")) {
+    return MAP_SAFE;
+  } else if (biseqcstrcaseless(list->entry[0],"OUTER_BD")) {
+    return MAP_SAFE;
+  } else if (biseqcstrcaseless(list->entry[0],"OUTER_FD")) {
+    return MAP_SAFE;
+  } else if (biseqcstrcaseless(list->entry[0],"WAVE_KINEMATICS")) {
+    return MAP_SAFE;
+  } else if (biseqcstrcaseless(list->entry[0],"PG_COOKED")) {
+    return MAP_SAFE;
+  } else if (biseqcstrcaseless(list->entry[0],"REPEAT")) {
+    return MAP_SAFE;
+  } else if (biseqcstrcaseless(list->entry[0],"REF_POSITION")) {
+    return MAP_SAFE;
+  }; 
+  return MAP_WARNING;
+};
+
 
 MAP_ERROR_CODE set_model_options_list(ModelData* model_data, InitializationData* init_data, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_ERROR_CODE success = MAP_SAFE;
   int i = 0;
-  int ret = 0;
   const int n_lines = (init_data->solverOptionsString->qty)-1;
   struct bstrList* parsed = NULL;
   struct tagbstring tokens; 
-  char b_unit = ' ';
+  bstring uncaught_word = NULL;
 
   cstr2tbstr(tokens," \t\n\r"); /* token for splitting line into indivdual words is a tab and space */   
   for (i=0 ; i<=n_lines ; i++) { 
-//    parsed = bsplit(init_data->solverOptionsString->entry[i], b_unit);
     parsed = bsplits(init_data->solverOptionsString->entry[i], &tokens);
-//    parsed = bsplitstr(init_data->solverOptionsString->entry[i], &tokens);
     do {
       success = check_help_flag(parsed->entry[0]); CHECKERRQ(MAP_FATAL_85);
       success = check_inner_f_tol_flag(parsed, &model_data->inner_loop.f_tol); CHECKERRK(MAP_ERROR_2);
@@ -687,135 +870,17 @@ MAP_ERROR_CODE set_model_options_list(ModelData* model_data, InitializationData*
       success = check_wave_kinematics_flag(parsed, &model_data->modelOptions.waveKinematics); CHECKERRK(MAP_WARNING_10);
       success = check_pg_cooked_flag(parsed, &model_data->outer_loop); CHECKERRK(MAP_WARNING_8);
       success = check_repeat_flag(parsed, &model_data->modelOptions); CHECKERRQ(MAP_FATAL_34);
-    } while(0);   
-    ret = bstrListDestroy(parsed);
-
-//     while (word!=NULL) {      
-//       if (!strcicmp("HELP",word)) {
-//         success = print_help_to_screen(map_msg,ierr);
-//       } else if (!strcicmp("INNER_FTOL",word)) {
-//         word = strtok(NULL, " ,\n\t\r\0");
-//         success = is_numeric(word); 
-//         if (!success) {
-//           data->inner_loop.f_tol = (MapReal)atof(word);        
-//         };
-//       } else if (!strcicmp("INNER_GTOL",word)) {
-//         word = strtok(NULL, " ,\n\t\r\0");
-//         success = is_numeric(word); CHECKERRK(MAP_ERROR_9);
-//         if (!success) {
-//           data->inner_loop.g_tol = (MapReal)atof(word);        
-//         };
-//       } else if (!strcicmp("INNER_XTOL",word)) {
-//         word = strtok( NULL, " ,\n\t\r\0" );
-//         success = is_numeric(word); CHECKERRK(MAP_ERROR_10);
-//         if (!success) {
-//           data->inner_loop.x_tol = (MapReal)atof(word);        
-//         };
-//       } else if (!strcicmp("OUTER_TOL",word)) {
-//         word = strtok(NULL, " ,\n\t\r\0");
-//         success = is_numeric(word); CHECKERRK(MAP_ERROR_3);
-//         if (!success) {
-//           data->outer_loop.tol = (MapReal)atof(word);        
-//         };
-//       } else if (!strcicmp("OUTER_MAX_ITS",word)) {
-//         word = strtok( NULL, " ,\n\t\r\0" );
-//         success = is_numeric(word); CHECKERRK(MAP_ERROR_3);
-//         if (!success) {
-//           data->outer_loop.maxIts = (MapReal)atof(word);        
-//         };
-//       } else if (!strcicmp("OUTER_EPSILON",word)) {
-//         word = strtok( NULL, " ,\n\t\r\0" );
-//         success = is_numeric(word); CHECKERRK(MAP_ERROR_3);
-//         if (!success) {
-//           data->outer_loop.epsilon = (MapReal)atof(word);        
-//         };
-//       } else if (!strcicmp("INNER_MAX_ITS",word)) {
-//         word = strtok(NULL, " ,\n\t\r\0");
-//         success = is_numeric(word); CHECKERRK(MAP_ERROR_4);
-//         if (!success) {
-//           data->inner_loop.max_its = (MapReal)atof(word);        
-//         };
-//       } else if (!strcicmp("INTEGRATION_DT",word)) {
-//         word = strtok(NULL, " ,\n\t\r\0");
-//         success = is_numeric(word); CHECKERRK(MAP_ERROR_15); 
-//         if (!success) {
-//           data->modelOptions.integrationDt = (MapReal)atof(word);        
-//         };
-//       } else if (!strcicmp("KB_DEFAULT",word)) {
-//         word = strtok(NULL, " ,\n\t\r\0");
-//         success = is_numeric(word); CHECKERRK(MAP_ERROR_16); 
-//         if (!success) {
-//           data->modelOptions.integrationDt = (MapReal)atof(word);        
-//         };
-//       } else if (!strcicmp("CB_DEFAULT",word)) {
-//         word = strtok(NULL, " ,\n\t\r\0");
-//         success = is_numeric(word); CHECKERRK(MAP_ERROR_17); 
-//         if (!success) {
-//           data->modelOptions.integrationDt = (MapReal)atof(word);        
-//         };
-//       } else if (!strcicmp("WAVE_KINEMATICS",word)) {
-//         *ierr = map_set_universal_error("", map_msg, ierr, MAP_WARNING_10);
-//         data->modelOptions.waveKinematics = false;
-//       } else if (!strcicmp("PG_COOKED",word)) {
-//         word = strtok(NULL, " ,\t\0");        
-//         if (word!=NULL) {          
-//           success = is_numeric(word); CHECKERRK(MAP_WARNING_8);
-//           if (!success) {
-//             data->outer_loop.ds = (MapReal)atof(word);        
-//           } else {
-//             data->outer_loop.ds = 1.0;
-//           };
-//         };
-//         word = strtok(NULL, " ,\n\t\r\0");        
-//         if (word!=NULL) {          
-//           success = is_numeric(word); CHECKERRK(MAP_WARNING_8);
-//           if (!success) {
-//             data->outer_loop.d = (MapReal)atof(word);        
-//           } else {
-//             data->outer_loop.d = 0.0;
-//           };
-//         };
-//         data->outer_loop.pg = true;
-//       } else if (!strcicmp("OUTER_BD",word)) {
-//         data->outer_loop.fd = BACKWARD_DIFFERENCE;
-//       } else if (!strcicmp("OUTER_CD",word)) {
-//         data->outer_loop.fd = CENTRAL_DIFFERENCE;
-//       } else if (!strcicmp("OUTER_FD",word)) {
-//         data->outer_loop.fd = FORWARD_DIFFERENCE;
-//       } else if (!strcicmp("REF_POSITION",word)) {
-//         word = strtok( NULL, " ,\n\t\r\0" );
-//         success = is_numeric(word); CHECKERRQ(MAP_FATAL_36);
-//         data->vessel.refOrigin.x.value = (MapReal)atof(word);        
-//         word = strtok( NULL, " ,\n\t\r\0" );
-//         success = is_numeric(word); CHECKERRQ(MAP_FATAL_36);
-//         data->vessel.refOrigin.y.value = (MapReal)atof(word);        
-//         word = strtok( NULL, " ,\n\t\r\0" );
-//         success = is_numeric(word); CHECKERRQ(MAP_FATAL_36);
-//         data->vessel.refOrigin.z.value = (MapReal)atof(word);
-//       } else if (!strcicmp("REPEAT",word)) {
-//         word = strtok(NULL, " ,\t\n");
-//         while (word!=NULL) {      
-//           index = data->modelOptions.sizeOfRepeatAngles;
-//           moreAngles = (MapReal*)realloc(data->modelOptions.repeatAngles, (index+1)*sizeof(MapReal));
-//           if (moreAngles!=NULL) {
-//             data->modelOptions.repeatAngles = moreAngles;
-//             success = is_numeric(word); CHECKERRQ(MAP_FATAL_34);
-//             data->modelOptions.repeatAngles[index] = (MapReal)atof(word);
-//             data->modelOptions.sizeOfRepeatAngles++;
-//           } else {
-//             MAPFREE(moreAngles);
-//             success = 1; CHECKERRQ(MAP_FATAL_35);
-//           };
-//           word = strtok(NULL, " ,\t\n");
-//         };
-//       } else {
-//         cx = map_snprintf(buffer, 64, "Ignoring value '%s'.", word); assert(cx>=0);
-//         *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_WARNING_4);
-//       };
-//       word = strtok(NULL, " ,\n\t\r\0");
-//     };
+      success = check_ref_position_flag(parsed, &model_data->vessel.refOrigin); CHECKERRQ(MAP_FATAL_36);
+      success = check_uncaught_flag(parsed); 
+      if (success) {
+        checkpoint();
+        printf("word: <%s>\n",parsed->entry[0]->data);
+//        cx = map_snprintf(buffer, 64, "Value '%s'.", word);assert(cx>=0);
+//        *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_WARNING_1);        
+      };
+    } while (0);   
+    success = bstrListDestroy(parsed);
   };
-//   MAPFREE(line);
   return MAP_SAFE;
 };
 
@@ -1003,7 +1068,7 @@ MAP_ERROR_CODE set_model_options_list(ModelData* model_data, InitializationData*
 // 
 //   sizeOfNodeBase = dataObj->sizeOfNodes;
 //   
-//   numRepeat = dataObj->modelOptions.sizeOfRepeatAngles;
+//   numRepeat = dataObj->modelOptions.repeat_angle_size;
 //   init->sizeOfFullNodeString = (sizeOfNodeBase)*(numRepeat+1); 
 //   tempArray = malloc(sizeof(char*)*(init->sizeOfFullNodeString));
 // 
@@ -1023,7 +1088,7 @@ MAP_ERROR_CODE set_model_options_list(ModelData* model_data, InitializationData*
 //       
 //       cnt = 0;
 //       strcpy(buffer, "");
-//       angle = dataObj->modelOptions.repeatAngles[i]*(DEG2RAD);  // @todo : this needs to change index[0] for angles
+//       angle = dataObj->modelOptions.repeat_angle[i]*(DEG2RAD);  // @todo : this needs to change index[0] for angles
 //       while (word!=NULL) {      
 //         if (cnt==0) {
 //           map_snprintf(tempString, 64, "%d  ", ((i+1)*sizeOfNodeBase+j+1));
@@ -1140,7 +1205,7 @@ MAP_ERROR_CODE set_model_options_list(ModelData* model_data, InitializationData*
 //   sizeOfElementBase = dataObj->sizeOfElements;
 //   sizeOfNodeBase = init->nodeSize;
 //   
-//   numRepeat = dataObj->modelOptions.sizeOfRepeatAngles;
+//   numRepeat = dataObj->modelOptions.repeat_angle_size;
 //   init->sizeOfFullElementString = (sizeOfElementBase)*(numRepeat+1); 
 //   temp_array = malloc( (init->sizeOfFullElementString)*sizeof(char*));
 // 

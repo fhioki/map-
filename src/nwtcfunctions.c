@@ -207,7 +207,7 @@ MAP_EXTERNCALL void map_end(MAP_InputType_t* u_type,
      list_destroy(&model_data->element);
      list_destroy(&model_data->node);
      list_destroy(&model_data->cableLibrary);
-     MAPFREE(model_data->modelOptions.repeatAngles);
+     MAPFREE(model_data->modelOptions.repeat_angle);
      MAP_OtherState_Delete(model_data);
    } while (0);
 };

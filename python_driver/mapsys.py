@@ -238,7 +238,6 @@ class Map(object):
 
     def init( self ):
         Map.lib.map_init( self.f_type_init, self.f_type_u, self.f_type_p, self.f_type_x, None, self.f_type_z, self.f_type_d, self.f_type_y, self.f_type_initout, pointer(self.ierr), self.status )
-        print self.f_type_initout.contents.version
         if self.ierr.value != 0 :
             print self.status.value        
 
@@ -594,5 +593,6 @@ class Map(object):
             elif line[0]=="!":
                 None
             else:
+                # print line
                 self.f_type_init.contents.optionInputLine = line+'\0'
                 Map.lib.map_add_options_input_text(self.f_type_init)            
