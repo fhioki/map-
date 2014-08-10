@@ -35,9 +35,24 @@ int strcicmp( char const* a, char const* b );
 MAP_ERROR_CODE is_numeric ( const char* s );
 void end_color( char* dest, const char* src );
 MAP_ERROR_CODE map_get_version(MAP_InitOutputType_t* ioType);
-MAP_ERROR_CODE map_set_universal_error( char* user_str, char* stat_str, const MAP_ERROR_CODE* current, const MAP_ERROR_CODE ierr );
 MAP_ERROR_CODE print_help_to_screen();
 void map_reset_universal_error( char* user_str, MAP_ERROR_CODE* ierr );
+
+/**
+ * @brief   Set error code with customized message
+ * @details Can be called in any routine to set the contents of map_message. The routine
+ *          checks to ensure map_msg is not longer than MAX_ERROR_STRING_LENGTH. If it is,
+ *          then the message is truncated. The error code returned depends on the max 
+ *          level reached previously durring program execusion. A MAP_WARNING will not 
+ *          override a MAP_FATAL or MAP_ERROR level. 
+ * @param   user_string, custom message appending the error message
+ * @param   map_msg, error message of length no greater than MAP_ERROR_STRING_LENGTH
+ * @param   ierr, ierr status before function is invoked, should be MAP_SAFE, MAP_WARNING, MAP_ERROR, MAP_FATAL
+ * @param   new_error, new MAP warning code; any entry in enum MAP_ERROR_CODE
+ * @return  MAP error code
+ */
+MAP_ERROR_CODE map_set_universal_error(bstring user_msg, char* map_msg, const MAP_ERROR_CODE ierr, const MAP_ERROR_CODE new_error);
+
 
 /*
  *
@@ -55,10 +70,8 @@ MAP_ERROR_CODE initialize_external_applied_force(char* unit, char* alias, const 
 MAP_ERROR_CODE initialize_node_sum_force_ptr(char* unit, char* alias, const int num, VarTypePtr* type);
 void initialize_vartype( char* unit, char* alias, VarType* type, const int num );
 
-int set_cable_library_list( ModelData* data, InitializationData* init, char* map_msg, MAP_ERROR_CODE* ierr );
 int set_node_list(const MAP_ParameterType_t* pType,  MAP_InputType_t* uType, MAP_ConstraintStateType_t* zType, MAP_OtherStateType_t* otherType, MAP_OutputType_t* yType, ModelData* data, char** const nodeInputString, char* map_msg, MAP_ERROR_CODE* ierr);
 int set_element_list(MAP_ConstraintStateType_t* zType, ModelData* data, char** const elementInputString, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE set_model_options_list(ModelData* data, InitializationData* init, char* map_msg, MAP_ERROR_CODE* ierr);
 
 size_t vartype_meter(const void* el);
 size_t vartype_ptr_meter(const void *el);

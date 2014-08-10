@@ -358,6 +358,7 @@
 MAP_ERROR_CODE check_help_flag(bstring list)
 {
   int success = 0;
+
   success = biseqcstrcaseless(list,"HELP"); /* string compare */
   if (success==BSTR_ERR) {
     return MAP_FATAL;
@@ -373,6 +374,7 @@ MAP_ERROR_CODE check_inner_f_tol_flag(struct bstrList* list, double* ftol)
   int success = 0;
   int n = 0;
   const char* word = NULL;
+
   success = biseqcstrcaseless(list->entry[0],"INNER_FTOL"); /* string compare */
   if (success==BSTR_ERR) {
     return MAP_FATAL;
@@ -400,6 +402,7 @@ MAP_ERROR_CODE check_inner_g_tol_flag(struct bstrList* list, double* gtol)
   int success = 0;
   int n = 0;
   const char* word = NULL;
+
   success = biseqcstrcaseless(list->entry[0],"INNER_GTOL"); /* string compare */
   if (success==BSTR_ERR) {
     return MAP_FATAL;
@@ -427,6 +430,7 @@ MAP_ERROR_CODE check_inner_x_tol_flag(struct bstrList* list, double* xtol)
   int success = 0;
   int n = 0;
   const char* word = NULL;
+
   success = biseqcstrcaseless(list->entry[0],"INNER_XTOL"); /* string compare */
   if (success==BSTR_ERR) {
     return MAP_FATAL;
@@ -455,6 +459,7 @@ MAP_ERROR_CODE check_inner_max_its_flag(struct bstrList* list, int* max_its)
   int success = 0;
   int n = 0;
   const char* word = NULL;
+
   success = biseqcstrcaseless(list->entry[0],"INNER_MAX_ITS"); /* string compare */
   if (success==BSTR_ERR) {
     return MAP_FATAL;
@@ -482,6 +487,7 @@ MAP_ERROR_CODE check_outer_max_its_flag(struct bstrList* list, int* max_its)
   int success = 0;
   int n = 0;
   const char* word = NULL;
+
   success = biseqcstrcaseless(list->entry[0],"OUTER_MAX_ITS"); /* string compare */
   if (success==BSTR_ERR) {
     return MAP_FATAL;
@@ -509,6 +515,7 @@ MAP_ERROR_CODE check_outer_tol_flag(struct bstrList* list, double* outer_tol)
   int success = 0;
   int n = 0;
   const char* word = NULL;
+
   success = biseqcstrcaseless(list->entry[0],"OUTER_TOL"); /* string compare */
   if (success==BSTR_ERR) {
     return MAP_FATAL;
@@ -536,6 +543,7 @@ MAP_ERROR_CODE check_outer_epsilon_flag(struct bstrList* list, double* epsilon)
   int success = 0;
   int n = 0;
   const char* word = NULL;
+
   success = biseqcstrcaseless(list->entry[0],"OUTER_EPSILON"); /* string compare */
   if (success==BSTR_ERR) {
     return MAP_FATAL;
@@ -590,6 +598,7 @@ MAP_ERROR_CODE check_kb_default_flag(struct bstrList* list, double* kb)
   int success = 0;
   int n = 0;
   const char* word = NULL;
+
   success = biseqcstrcaseless(list->entry[0],"KB_DEFAULT"); /* string compare */
   if (success==BSTR_ERR) {
     return MAP_FATAL;
@@ -617,6 +626,7 @@ MAP_ERROR_CODE check_cb_default_flag(struct bstrList* list, double* cb)
   int success = 0;
   int n = 0;
   const char* word = NULL;
+
   success = biseqcstrcaseless(list->entry[0],"CB_DEFAULT"); /* string compare */
   if (success==BSTR_ERR) {
     return MAP_FATAL;
@@ -642,6 +652,7 @@ MAP_ERROR_CODE check_cb_default_flag(struct bstrList* list, double* cb)
 MAP_ERROR_CODE check_outer_bd_flag(struct bstrList* list, FdType* bd)
 {
   int success = 0;
+
   success = biseqcstrcaseless(list->entry[0],"OUTER_BD"); /* string compare */
   if (success) {
     *bd = BACKWARD_DIFFERENCE;
@@ -653,6 +664,7 @@ MAP_ERROR_CODE check_outer_bd_flag(struct bstrList* list, FdType* bd)
 MAP_ERROR_CODE check_outer_cd_flag(struct bstrList* list, FdType* cd)
 {
   int success = 0;
+
   success = biseqcstrcaseless(list->entry[0],"OUTER_CD"); /* string compare */
   if (success) {
     *cd = CENTRAL_DIFFERENCE;
@@ -664,6 +676,7 @@ MAP_ERROR_CODE check_outer_cd_flag(struct bstrList* list, FdType* cd)
 MAP_ERROR_CODE check_outer_fd_flag(struct bstrList* list, FdType* fd)
 {
   int success = 0;
+
   success = biseqcstrcaseless(list->entry[0],"OUTER_FD"); /* string compare */
   if (success) {
     *fd = FORWARD_DIFFERENCE;
@@ -675,6 +688,7 @@ MAP_ERROR_CODE check_outer_fd_flag(struct bstrList* list, FdType* fd)
 MAP_ERROR_CODE check_wave_kinematics_flag(struct bstrList* list, bool* wave)
 {
   int success = 0;
+
   success = biseqcstrcaseless(list->entry[0],"WAVE_KINEMATICS"); /* string compare */
   if (success) {
     *wave = false;
@@ -690,6 +704,7 @@ MAP_ERROR_CODE check_pg_cooked_flag(struct bstrList* list, OuterSolveAttributes*
   int success = 0;
   int next = 0; 
   const char* word = NULL;
+
   success = biseqcstrcaseless(list->entry[0],"PG_COOKED"); /* string compare */
   if (success==BSTR_ERR) {
     return MAP_FATAL;
@@ -729,6 +744,7 @@ MAP_ERROR_CODE check_repeat_flag(struct bstrList* list, ModelOptions* options)
   int success = 0;
   int n = 0; /* word interator in the list */
   int i = 0; /* synonym for repeat_angle_size */
+
   success = biseqcstrcaseless(list->entry[0],"REPEAT"); /* string compare */
   if (success==BSTR_ERR) {
     return MAP_FATAL;
@@ -765,6 +781,7 @@ MAP_ERROR_CODE check_ref_position_flag(struct bstrList* list, Point* ref_positio
   int success = 0;
   int next = 0; 
   const char* word = NULL;
+
   success = biseqcstrcaseless(list->entry[0],"REF_POSITION"); /* string compare */
   if (success==BSTR_ERR) {
     return MAP_FATAL;
@@ -797,6 +814,7 @@ MAP_ERROR_CODE check_ref_position_flag(struct bstrList* list, Point* ref_positio
 MAP_ERROR_CODE check_uncaught_flag(struct bstrList* list)
 {
   int success = 0;  
+
   if (biseqcstrcaseless(list->entry[0],"")) {
     return MAP_SAFE;
   } else if (biseqcstrcaseless(list->entry[0],"HELP")) {
@@ -840,14 +858,103 @@ MAP_ERROR_CODE check_uncaught_flag(struct bstrList* list)
 };
 
 
+MAP_ERROR_CODE set_library_diameter(bstring word, CableLibrary* library_ptr)
+{
+  if (is_numeric(word->data)) { 
+    library_ptr->diam = (double)atof(word->data);
+  } else { 
+    return MAP_FATAL;
+  };  
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE set_library_mass_density(bstring word, CableLibrary* library_ptr)
+{  
+  if (is_numeric(word->data)) { 
+    library_ptr->massDensityInAir = (double)atof(word->data);
+  } else { 
+    return MAP_FATAL;
+  };  
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE set_library_ea(bstring word, CableLibrary* library_ptr)
+{
+  if (is_numeric(word->data)) { 
+    library_ptr->ea = (double)atof(word->data);
+  } else { 
+    return MAP_FATAL;
+  };  
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE set_library_cb(bstring word, CableLibrary* library_ptr)
+{
+  if (is_numeric(word->data)) { 
+    library_ptr->cb = (double)atof(word->data);
+  } else { 
+    return MAP_FATAL;
+  };  
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE set_library_internal_damping(bstring word, CableLibrary* library_ptr)
+{
+  if (is_numeric(word->data)) { 
+    library_ptr->cIntDamp = (double)atof(word->data);
+  } else { 
+    return MAP_FATAL;
+  };  
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE set_library_added_mass_coefficient(bstring word, CableLibrary* library_ptr)
+{
+  if (is_numeric(word->data)) { 
+    library_ptr->cAdded = (double)atof(word->data);
+  } else { 
+    return MAP_FATAL;
+  };  
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE set_library_cross_flow_drag_coefficient(bstring word, CableLibrary* library_ptr)
+{
+  if (is_numeric(word->data)) { 
+    library_ptr->cDragNormal = (double)atof(word->data);
+  } else { 
+    return MAP_FATAL;
+  };  
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE set_library_tangent_drag_coefficient(bstring word, CableLibrary* library_ptr)
+{
+  if (is_numeric(word->data)) { 
+    library_ptr->cDragTangent = (double)atof(word->data);
+  } else { 
+    return MAP_FATAL;
+  };  
+  return MAP_SAFE;
+};
+
+
+
 MAP_ERROR_CODE set_model_options_list(ModelData* model_data, InitializationData* init_data, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_ERROR_CODE success = MAP_SAFE;
+  bstring user_msg = NULL;
   int i = 0;
   const int n_lines = (init_data->solverOptionsString->qty)-1;
   struct bstrList* parsed = NULL;
   struct tagbstring tokens; 
-  bstring uncaught_word = NULL;
 
   cstr2tbstr(tokens," \t\n\r"); /* token for splitting line into indivdual words is a tab and space */   
   for (i=0 ; i<=n_lines ; i++) { 
@@ -871,91 +978,100 @@ MAP_ERROR_CODE set_model_options_list(ModelData* model_data, InitializationData*
       success = check_pg_cooked_flag(parsed, &model_data->outer_loop); CHECKERRK(MAP_WARNING_8);
       success = check_repeat_flag(parsed, &model_data->modelOptions); CHECKERRQ(MAP_FATAL_34);
       success = check_ref_position_flag(parsed, &model_data->vessel.refOrigin); CHECKERRQ(MAP_FATAL_36);
-      success = check_uncaught_flag(parsed); 
+      success = check_uncaught_flag(parsed);       
       if (success) {
-        checkpoint();
-        printf("word: <%s>\n",parsed->entry[0]->data);
-//        cx = map_snprintf(buffer, 64, "Value '%s'.", word);assert(cx>=0);
-//        *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_WARNING_1);        
+        user_msg = bformat("word: <%s>", parsed->entry[0]->data);
+        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_WARNING_1);        
+        success = bdestroy(user_msg); /* clear user_msg to not inavertendly picked up elsewhere */
+        user_msg = NULL;
       };
     } while (0);   
     success = bstrListDestroy(parsed);
+  };
+  MAP_RETURN;
+};
+
+
+MAP_ERROR_CODE reset_cable_library(CableLibrary* library_ptr)
+{
+  MAP_ERROR_CODE success = MAP_SAFE;
+
+  library_ptr->diam = 0.0;
+  library_ptr->massDensityInAir = 0.0;
+  library_ptr->ea = 0.0;          
+  library_ptr->omega = 0.0;       
+  library_ptr->a = 0.0;           
+  library_ptr->cb = 0.0;          
+  library_ptr->cIntDamp = 0.0;    
+  library_ptr->cAdded = 0.0;      
+  library_ptr->cDragNormal = 0.0; 
+  library_ptr->cDragTangent = 0.0; 
+  if (library_ptr->label) {
+    success = bdestroy(library_ptr->label);
   };
   return MAP_SAFE;
 };
 
 
+MAP_ERROR_CODE set_cable_library_list(ModelData* model_data, InitializationData* init_data, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  MAP_ERROR_CODE success = MAP_SAFE;
+  bstring user_msg = NULL;
+  int i = 0;
+  int n = 0;
+  int next = 0; 
+  int ret = 0;
+  const int n_lines = (init_data->libraryInputString->qty)-1;
+  struct bstrList* parsed = NULL;
+  struct tagbstring tokens; 
+  CableLibrary new_cable_library;
 
-// /**
-//  *
-//  */
-// int set_cable_library_list(ModelData* data, InitializationData* init, char* map_msg, MAP_ERROR_CODE* ierr)
-// {
-//   int i = 0;
-//   int cx = 0;
-//   int cnt = 0;
-//   int success = 0;
-//   int len = 0;
-//   int sizeOfString = 0;
-//   char* line = NULL;
-//   char* word = NULL;
-//   char buffer[64] = "";  
-//   CableLibrary in_cableLibrary;
-// 
-//   for(i=0 ; i<=init->librarySize-1 ; i++) { 
-//     sizeOfString = strlen(init->libraryInputString[i]);
-//     line = (char*)realloc(line, (sizeOfString+1)*sizeof(char));    
-//     strcpy(line, init->libraryInputString[i]);        
-//     word=strtok(line, " ,\n\t\r\0");        
-//     while (word!=NULL) {            
-//       if (cnt==0) {
-//         len = strlen(word);
-//         in_cableLibrary.label = malloc(sizeof(char*)*(len+1));
-//         strcpy(in_cableLibrary.label, word);
-//       } else if (cnt==1) {
-//         success=is_numeric(word);CHECKERRQ(MAP_FATAL_12);
-//         in_cableLibrary.diam=(MapReal)atof(word);
-//       } else if (cnt==2) {
-//         success=is_numeric(word);CHECKERRQ(MAP_FATAL_13);
-//         in_cableLibrary.massDensityInAir=(MapReal)atof(word);
-//       } else if (cnt==3) {
-//         success=is_numeric(word);CHECKERRQ(MAP_FATAL_14);
-//         in_cableLibrary.ea=(MapReal)atof(word);
-//       } else if (cnt==4) {
-//         success=is_numeric(word); CHECKERRQ(MAP_FATAL_15);
-//         in_cableLibrary.cb=(MapReal)atof(word);
-//       } else if (cnt==5) {
-//         success=is_numeric(word); CHECKERRQ(MAP_FATAL_81);
-//         in_cableLibrary.cIntDamp=(MapReal)atof(word);
-//       } else if (cnt==6) {
-//         success=is_numeric(word); CHECKERRQ(MAP_FATAL_82);
-//         in_cableLibrary.cAdded=(MapReal)atof(word);
-//       } else if (cnt==7) {
-//         success=is_numeric(word); CHECKERRQ(MAP_FATAL_83);
-//         in_cableLibrary.cDragNormal=(MapReal)atof(word);
-//       } else if (cnt==8) {
-//         success=is_numeric(word); CHECKERRQ(MAP_FATAL_84);
-//         in_cableLibrary.cDragTangent=(MapReal)atof(word);
-//       } else { /* too many options are listed in the MAP input file. Let's warn users of uncommented information */
-//         if (strcmp (" ",word)) {
-//           cx = map_snprintf(buffer, 64, "Value '%s'.", word);assert(cx>=0);
-//           *ierr=map_set_universal_error(buffer, map_msg, ierr, MAP_WARNING_1);
-//         };
-//       };
-//       cnt++;
-//       word = strtok(NULL, " ,\n\t\r\0");
-//     };  
-//     list_append(&data->cableLibrary, &in_cableLibrary);
-//     cnt=0;
-//   };
-//   
-//   MAPFREE(line);
-// 
-//   if (*ierr==MAP_FATAL) {
-//     return MAP_FATAL;
-//   };
-//   return MAP_SAFE;  
-// };
+  cstr2tbstr(tokens," \t\n\r"); /* token for splitting line into indivdual words is a tab and space */   
+  for (i=0 ; i<=n_lines ; i++) { 
+    parsed = bsplits(init_data->libraryInputString->entry[i], &tokens);
+    n = 0;
+    next = 0;
+    do {  
+      while (n<parsed->qty-1) { /* iterating through all strings */              
+        if (parsed->entry[n]->slen) { /* if the string length is not 0 */
+          if (next==0) {
+            new_cable_library.label = bstrcpy(parsed->entry[n]);                         
+            next++;
+          } else if (next==1) {
+            success = set_library_diameter(parsed->entry[n], &new_cable_library); CHECKERRQ(MAP_FATAL_12);
+            next++;            
+          } else if (next==2) {
+            success = set_library_mass_density(parsed->entry[n], &new_cable_library); CHECKERRQ(MAP_FATAL_13);
+            next++;
+          } else if (next==3) {
+            success = set_library_ea(parsed->entry[n], &new_cable_library); CHECKERRQ(MAP_FATAL_14);
+            next++;
+          } else if (next==4) {
+            success = set_library_cb(parsed->entry[n], &new_cable_library); CHECKERRQ(MAP_FATAL_15);
+            next++;
+          } else if (next==5) {
+            success = set_library_internal_damping(parsed->entry[n], &new_cable_library); CHECKERRQ(MAP_FATAL_81);
+            next++;
+          } else if (next==6) {
+            success = set_library_added_mass_coefficient(parsed->entry[n], &new_cable_library); CHECKERRQ(MAP_FATAL_82);
+            next++;
+          } else if (next==7) {
+            success = set_library_cross_flow_drag_coefficient(parsed->entry[n], &new_cable_library); CHECKERRQ(MAP_FATAL_83);
+            next++;
+          } else if (next==8) {
+            success = set_library_tangent_drag_coefficient(parsed->entry[n], &new_cable_library); CHECKERRQ(MAP_FATAL_84);
+            next++;
+          };
+        };
+        n++;
+      };
+    } while (0);   
+    list_append(&model_data->cableLibrary, &new_cable_library);
+    success = reset_cable_library(&new_cable_library);
+    success = bstrListDestroy(parsed);
+  };
+  MAP_RETURN;
+};
 
 
 // /**
@@ -1542,98 +1658,98 @@ MAP_ERROR_CODE set_model_options_list(ModelData* model_data, InitializationData*
 // };
 
 
-/**
- *
- */
-MAP_ERROR_CODE map_set_option_flags( char *parsed_word, Element *elem, char *map_msg, MAP_ERROR_CODE *ierr )
-{
-  int cx = 0 ;
-  int success = 0;
-  char buffer[64] = "";
-  
-  if (!strcicmp("PLOT", parsed_word) ) elem->options.plotFlag = true;
-  else if (!strcicmp("GX_POS", parsed_word)) {
-    elem->options.gxPosFlag = true;
-  } else if (!strcicmp("GY_POS", parsed_word)) {
-    elem->options.gyPosFlag = true;
-  } else if (!strcicmp("GZ_POS", parsed_word)) {
-    elem->options.gzPosFlag = true;
-  } else if (!strcicmp("GX_A_POS", parsed_word)) {
-    elem->options.gxAnchorPosFlag = true;
-  } else if (!strcicmp("GY_A_POS", parsed_word)) {
-    elem->options.gyAnchorPosFlag = true;
-  } else if (!strcicmp("GZ_A_POS", parsed_word)) {
-    elem->options.gzAnchorPosFlag = true;
-  } else if (!strcicmp("GX_FORCE", parsed_word)) {
-    elem->options.gxForceFlag= true;
-  } else if (!strcicmp("GY_FORCE", parsed_word)) {
-    elem->options.gyForceFlag = true;
-  } else if (!strcicmp("GZ_FORCE", parsed_word)) {
-    elem->options.gzForceFlag = true;
-  } else if (!strcicmp("H_FAIR", parsed_word)) {
-    elem->options.HFlag = true;
-  } else if (!strcicmp("H_ANCH", parsed_word)) {
-    elem->options.HAnchorFlag = true;
-  } else if (!strcicmp("V_FAIR", parsed_word)) {
-    elem->options.VFlag = true;
-  } else if (!strcicmp("V_ANCH", parsed_word)) {
-    elem->options.VAnchorFlag = true;
-  } else if (!strcicmp("TENSION_FAIR", parsed_word)) {
-    elem->options.fairleadTensionFlag = true;
-  } else if (!strcicmp("TENSION_ANCH", parsed_word)) {
-    elem->options.anchorTensionFlag = true;
-  } else if (!strcicmp("X_EXCURSION", parsed_word)) {
-    elem->options.horizontalExcursionFlag = true;
-  } else if (!strcicmp("Z_EXCURSION", parsed_word)) {
-    elem->options.verticalExcursionFlag = true;
-  } else if (!strcicmp("AZIMUTH", parsed_word)) {
-    elem->options.azimuthFlag = true;
-  } else if (!strcicmp("ALTITUDE", parsed_word)) {
-    elem->options.altitudeFlag = true;
-  } else if (!strcicmp("ALTITUDE_A", parsed_word)) {
-    elem->options.altitudeAnchorFlag = true;
-  } else if (!strcicmp("LINE_TENSION", parsed_word)) {
-    elem->options.lineTensionFlag = true;
-  } else if (!strcicmp("OMIT_CONTACT", parsed_word)) {
-    elem->options.omitContact = true;
-  } else if (!strcicmp("SEG_SIZE", parsed_word)) {
-    parsed_word = strtok(NULL, " ,\n\t\r\0");
-    success = is_numeric(parsed_word);
-    if (success==MAP_SAFE) {
-      elem->segmentSize = (MapReal)atof(parsed_word);
-    } else { /* should not cancel the simulation; simply ignore it */      
-      *ierr=map_set_universal_error(buffer, map_msg, ierr, MAP_ERROR_18); 
-    };          
-  } else if (!strcicmp("LAY_LENGTH", parsed_word)) {
-    elem->options.layLengthFlag = true;
-  } else if (!strcicmp("DAMAGE_TIME", parsed_word)) {
-    parsed_word = strtok(NULL, " ,\n\t\r\0");
-    success = is_numeric(parsed_word);
-    if (success==MAP_SAFE) {
-      elem->options.damageTimeFlag = true;
-      elem->damageTime = (MapReal)atof(parsed_word);
-    } else { /* should not cancel the simulation; simply ignore it */     
-  *ierr=map_set_universal_error(buffer, map_msg, ierr, MAP_ERROR_1);
-    };          
-  } else if (!strcicmp("DIAGNOSTIC", parsed_word)) {
-    parsed_word = strtok(NULL, " ,\n\t\r\0");
-    success = is_numeric(parsed_word);
-    if (success==MAP_SAFE) {
-      elem->options.diagnosticsFlag = true;
-      elem->diagnosticType = (int)atoi(parsed_word);
-    } else {
-      /* should not cancel the simulation; simply ignore it */
-      *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_ERROR_14);
-      elem->options.diagnosticsFlag = true;
-      elem->diagnosticType = 0;
-    };          
-  } else {
-    /* should not cancel the simulation; simply ignore it */
-    cx = map_snprintf(buffer, 64, "Option '%s'.", parsed_word); assert(cx>=0);
-    *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_WARNING_3);
-  };
-  return MAP_SAFE;
-};
+// /**
+//  *
+//  */
+// MAP_ERROR_CODE map_set_option_flags( char *parsed_word, Element *elem, char *map_msg, MAP_ERROR_CODE *ierr )
+// {
+//   int cx = 0 ;
+//   int success = 0;
+//   char buffer[64] = "";
+//   
+//   if (!strcicmp("PLOT", parsed_word) ) elem->options.plotFlag = true;
+//   else if (!strcicmp("GX_POS", parsed_word)) {
+//     elem->options.gxPosFlag = true;
+//   } else if (!strcicmp("GY_POS", parsed_word)) {
+//     elem->options.gyPosFlag = true;
+//   } else if (!strcicmp("GZ_POS", parsed_word)) {
+//     elem->options.gzPosFlag = true;
+//   } else if (!strcicmp("GX_A_POS", parsed_word)) {
+//     elem->options.gxAnchorPosFlag = true;
+//   } else if (!strcicmp("GY_A_POS", parsed_word)) {
+//     elem->options.gyAnchorPosFlag = true;
+//   } else if (!strcicmp("GZ_A_POS", parsed_word)) {
+//     elem->options.gzAnchorPosFlag = true;
+//   } else if (!strcicmp("GX_FORCE", parsed_word)) {
+//     elem->options.gxForceFlag= true;
+//   } else if (!strcicmp("GY_FORCE", parsed_word)) {
+//     elem->options.gyForceFlag = true;
+//   } else if (!strcicmp("GZ_FORCE", parsed_word)) {
+//     elem->options.gzForceFlag = true;
+//   } else if (!strcicmp("H_FAIR", parsed_word)) {
+//     elem->options.HFlag = true;
+//   } else if (!strcicmp("H_ANCH", parsed_word)) {
+//     elem->options.HAnchorFlag = true;
+//   } else if (!strcicmp("V_FAIR", parsed_word)) {
+//     elem->options.VFlag = true;
+//   } else if (!strcicmp("V_ANCH", parsed_word)) {
+//     elem->options.VAnchorFlag = true;
+//   } else if (!strcicmp("TENSION_FAIR", parsed_word)) {
+//     elem->options.fairleadTensionFlag = true;
+//   } else if (!strcicmp("TENSION_ANCH", parsed_word)) {
+//     elem->options.anchorTensionFlag = true;
+//   } else if (!strcicmp("X_EXCURSION", parsed_word)) {
+//     elem->options.horizontalExcursionFlag = true;
+//   } else if (!strcicmp("Z_EXCURSION", parsed_word)) {
+//     elem->options.verticalExcursionFlag = true;
+//   } else if (!strcicmp("AZIMUTH", parsed_word)) {
+//     elem->options.azimuthFlag = true;
+//   } else if (!strcicmp("ALTITUDE", parsed_word)) {
+//     elem->options.altitudeFlag = true;
+//   } else if (!strcicmp("ALTITUDE_A", parsed_word)) {
+//     elem->options.altitudeAnchorFlag = true;
+//   } else if (!strcicmp("LINE_TENSION", parsed_word)) {
+//     elem->options.lineTensionFlag = true;
+//   } else if (!strcicmp("OMIT_CONTACT", parsed_word)) {
+//     elem->options.omitContact = true;
+//   } else if (!strcicmp("SEG_SIZE", parsed_word)) {
+//     parsed_word = strtok(NULL, " ,\n\t\r\0");
+//     success = is_numeric(parsed_word);
+//     if (success==MAP_SAFE) {
+//       elem->segmentSize = (MapReal)atof(parsed_word);
+//     } else { /* should not cancel the simulation; simply ignore it */      
+//       *ierr=map_set_universal_error(buffer, map_msg, ierr, MAP_ERROR_18); 
+//     };          
+//   } else if (!strcicmp("LAY_LENGTH", parsed_word)) {
+//     elem->options.layLengthFlag = true;
+//   } else if (!strcicmp("DAMAGE_TIME", parsed_word)) {
+//     parsed_word = strtok(NULL, " ,\n\t\r\0");
+//     success = is_numeric(parsed_word);
+//     if (success==MAP_SAFE) {
+//       elem->options.damageTimeFlag = true;
+//       elem->damageTime = (MapReal)atof(parsed_word);
+//     } else { /* should not cancel the simulation; simply ignore it */     
+//   *ierr=map_set_universal_error(buffer, map_msg, ierr, MAP_ERROR_1);
+//     };          
+//   } else if (!strcicmp("DIAGNOSTIC", parsed_word)) {
+//     parsed_word = strtok(NULL, " ,\n\t\r\0");
+//     success = is_numeric(parsed_word);
+//     if (success==MAP_SAFE) {
+//       elem->options.diagnosticsFlag = true;
+//       elem->diagnosticType = (int)atoi(parsed_word);
+//     } else {
+//       /* should not cancel the simulation; simply ignore it */
+//       *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_ERROR_14);
+//       elem->options.diagnosticsFlag = true;
+//       elem->diagnosticType = 0;
+//     };          
+//   } else {
+//     /* should not cancel the simulation; simply ignore it */
+//     cx = map_snprintf(buffer, 64, "Option '%s'.", parsed_word); assert(cx>=0);
+//     *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_WARNING_3);
+//   };
+//   return MAP_SAFE;
+// };
 
 
 
@@ -2109,68 +2225,68 @@ void set_node_null(Node* ptr)
 // };
 
 
-/**
- *
- */
-MAP_ERROR_CODE associate_element_with_anchor_node(ModelData* data, Element* new_element, const int element_num, char* word, char* map_msg, MAP_ERROR_CODE* ierr)
-{
-  Node* iter_node = NULL;
-  int node_num = 0;
-  char buffer[64] = "";
-  int cx = 0;
-  int success = 0;
+// /**
+//  *
+//  */
+// MAP_ERROR_CODE associate_element_with_anchor_node(ModelData* data, Element* new_element, const int element_num, char* word, char* map_msg, MAP_ERROR_CODE* ierr)
+// {
+//   Node* iter_node = NULL;
+//   int node_num = 0;
+//   char buffer[64] = "";
+//   int cx = 0;
+//   int success = 0;
+// 
+//   new_element->anchor = NULL;
+//   
+//   success = is_numeric(word); 
+//   if (success) {
+//     cx = map_snprintf(buffer, 64, "Element '%d'.", element_num+1);assert(cx>=0);
+//     *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_28);
+//     return MAP_FATAL;
+//   };
+//   
+//   node_num = (int)atoi(word); 
+//   iter_node = (Node*)list_get_at(&data->node, node_num-1);
+//   if (!iter_node) {
+//     cx = map_snprintf( buffer, 64, "Element '%d'.", element_num+1); assert(cx>=0);
+//     *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_30);
+//     return MAP_FATAL;
+//   };
+// 
+//   new_element->anchor = iter_node;
+//   return MAP_SAFE;
+// };
 
-  new_element->anchor = NULL;
-  
-  success = is_numeric(word); 
-  if (success) {
-    cx = map_snprintf(buffer, 64, "Element '%d'.", element_num+1);assert(cx>=0);
-    *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_28);
-    return MAP_FATAL;
-  };
-  
-  node_num = (int)atoi(word); 
-  iter_node = (Node*)list_get_at(&data->node, node_num-1);
-  if (!iter_node) {
-    cx = map_snprintf( buffer, 64, "Element '%d'.", element_num+1); assert(cx>=0);
-    *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_30);
-    return MAP_FATAL;
-  };
 
-  new_element->anchor = iter_node;
-  return MAP_SAFE;
-};
-
-
-/**
- *
- */
-MAP_ERROR_CODE associate_element_with_fairlead_node(ModelData* data, Element* new_element, const int element_num, char* word, char* map_msg, MAP_ERROR_CODE* ierr)
-{
-  Node *iter_node = NULL;
-  int node_num = 0;
-  char buffer[64] = "";
-  int cx = 0;
-  int success = 0;
-
-  new_element->fairlead = NULL;
-  
-  success = is_numeric(word); 
-  if (success) {
-    cx = map_snprintf(buffer, 64, "Element '%d'.", element_num+1); assert(cx>=0);
-    *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_29);
-    return MAP_FATAL;
-  };
-  
-  node_num = (int)atoi(word); 
-  iter_node = (Node*)list_get_at(&data->node, node_num-1);
-  if (!iter_node) {
-    cx = map_snprintf(buffer, 64, "Element '%d'.", element_num );assert(cx>=0);
-    *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_31);
-    return MAP_FATAL;
-  };
-  
-  new_element->fairlead = iter_node;
-
-  return MAP_SAFE;
-};
+// /**
+//  *
+//  */
+// MAP_ERROR_CODE associate_element_with_fairlead_node(ModelData* data, Element* new_element, const int element_num, char* word, char* map_msg, MAP_ERROR_CODE* ierr)
+// {
+//   Node *iter_node = NULL;
+//   int node_num = 0;
+//   char buffer[64] = "";
+//   int cx = 0;
+//   int success = 0;
+// 
+//   new_element->fairlead = NULL;
+//   
+//   success = is_numeric(word); 
+//   if (success) {
+//     cx = map_snprintf(buffer, 64, "Element '%d'.", element_num+1); assert(cx>=0);
+//     *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_29);
+//     return MAP_FATAL;
+//   };
+//   
+//   node_num = (int)atoi(word); 
+//   iter_node = (Node*)list_get_at(&data->node, node_num-1);
+//   if (!iter_node) {
+//     cx = map_snprintf(buffer, 64, "Element '%d'.", element_num );assert(cx>=0);
+//     *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_31);
+//     return MAP_FATAL;
+//   };
+//   
+//   new_element->fairlead = iter_node;
+// 
+//   return MAP_SAFE;
+// };

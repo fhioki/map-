@@ -231,10 +231,10 @@ size_t node_meter(const void *el)
 
 
 MAP_ERROR_CODE allocate_outlist(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr)
-{
+{ 
   data->yList = malloc(sizeof(OutputList)); 
   if (data->yList==NULL) {
-    *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_46);    
+    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_46);    
     return MAP_FATAL;
   };
   return MAP_SAFE;
@@ -323,10 +323,11 @@ void initialize_vessel_to_null(Vessel* floater)
 MAP_EXTERNCALL InitializationData* MAP_InitInput_Create(char* map_msg, MAP_ERROR_CODE* ierr)
 {
   InitializationData* new_data = NULL;
+
   map_reset_universal_error(map_msg, ierr);
   new_data = malloc(sizeof(InitializationData));
   if (new_data == NULL) {
-    *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_4);    
+    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_4);    
     return new_data;
   } else {
     initialize_init_data_to_null(new_data);
@@ -339,10 +340,11 @@ MAP_EXTERNCALL InitializationData* MAP_InitInput_Create(char* map_msg, MAP_ERROR
 MAP_EXTERNCALL MAP_InitInputType_t* map_create_init_type(char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_InitInputType_t* new_data = NULL;  
+
   *ierr = MAP_SAFE;
   new_data = malloc(sizeof(MAP_InitInputType_t));
   if (new_data==NULL) {
-    *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_4);    
+    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_4);    
   } else {    
     initialize_init_type_to_null(new_data); /* set F2C types to null */
     new_data->object = NULL;
@@ -355,10 +357,11 @@ MAP_EXTERNCALL MAP_InitInputType_t* map_create_init_type(char* map_msg, MAP_ERRO
 MAP_EXTERNCALL ModelData* MAP_OtherState_Create(char* map_msg, MAP_ERROR_CODE* ierr)
 {
   ModelData* new_data = NULL;
+
   map_reset_universal_error(map_msg, ierr);
   new_data = malloc(sizeof(ModelData));
   if (new_data==NULL) {
-    *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_43);    
+    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_43);    
     return new_data;
   } else {
     initialize_model_data_to_null(new_data);
@@ -370,10 +373,11 @@ MAP_EXTERNCALL ModelData* MAP_OtherState_Create(char* map_msg, MAP_ERROR_CODE* i
 MAP_EXTERNCALL MAP_OtherStateType_t* map_create_other_type(char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_OtherStateType_t* new_data = NULL;  
+
   *ierr = MAP_SAFE;
   new_data = malloc(sizeof(MAP_OtherStateType_t)); 
   if (new_data==NULL) {
-    *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_43);    
+    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_43);    
   } else {
     new_data->object = NULL;
     new_data->object = (ModelData*)(uintptr_t)MAP_OtherState_Create(map_msg, ierr);
@@ -385,10 +389,11 @@ MAP_EXTERNCALL MAP_OtherStateType_t* map_create_other_type(char* map_msg, MAP_ER
 MAP_EXTERNCALL MAP_InitOutputType_t* map_create_initout_type(char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_InitOutputType_t* new_type = NULL;  
+
   *ierr = MAP_SAFE;
   new_type = malloc(sizeof(MAP_InitOutputType_t));
   if (new_type==NULL) {
-    *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_11);    
+    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_11);    
   } else {
     new_type->object = NULL;
   };
@@ -399,10 +404,11 @@ MAP_EXTERNCALL MAP_InitOutputType_t* map_create_initout_type(char* map_msg, MAP_
 MAP_EXTERNCALL MAP_InputType_t* map_create_input_type(char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_InputType_t* new_type = NULL;  
+
   *ierr = MAP_SAFE;
   new_type = malloc(sizeof(MAP_InputType_t)); 
   if (new_type == NULL) {
-    *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_5);        
+    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_5);        
   } else { 
     new_type->object = NULL;
   };
@@ -413,10 +419,11 @@ MAP_EXTERNCALL MAP_InputType_t* map_create_input_type(char* map_msg, MAP_ERROR_C
 MAP_EXTERNCALL MAP_ParameterType_t* map_create_parameter_type(char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_ParameterType_t* new_type = NULL;  
+
   *ierr = MAP_SAFE;
   new_type = malloc(sizeof(MAP_ParameterType_t));
   if (new_type==NULL) {
-    *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_6);    
+    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_6);    
   } else {
     new_type->object = NULL;
   };
@@ -427,10 +434,11 @@ MAP_EXTERNCALL MAP_ParameterType_t* map_create_parameter_type(char* map_msg, MAP
 MAP_EXTERNCALL MAP_ConstraintStateType_t* map_create_constraint_type(char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_ConstraintStateType_t* new_type = NULL;  
+
   *ierr = MAP_SAFE;
   new_type = malloc(sizeof(MAP_ConstraintStateType_t)); 
   if (new_type==NULL) {
-    *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_8);    
+    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_8);    
   } else {
     new_type->object = NULL;
   };
@@ -441,10 +449,11 @@ MAP_EXTERNCALL MAP_ConstraintStateType_t* map_create_constraint_type(char* map_m
 MAP_EXTERNCALL MAP_OutputType_t* map_create_output_type(char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_OutputType_t* new_type = NULL;  
+
   *ierr = MAP_SAFE;
   new_type = malloc(sizeof(MAP_OutputType_t));
   if (new_type==NULL) {
-    *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_10);    
+    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_10);    
   } else {
     new_type->object = NULL;
   };
@@ -455,10 +464,11 @@ MAP_EXTERNCALL MAP_OutputType_t* map_create_output_type(char* map_msg, MAP_ERROR
 MAP_EXTERNCALL MAP_ContinuousStateType_t* map_create_continuous_type(char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_ContinuousStateType_t* new_data = NULL;  
+
   *ierr = MAP_SAFE;
   new_data = malloc(sizeof(MAP_ContinuousStateType_t)); 
   if (new_data==NULL) {
-    *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_7);    
+    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_7);    
   } else {
     new_data->object = NULL;    
   };

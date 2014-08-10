@@ -121,76 +121,69 @@ const char MAP_ERROR_STRING[][256] = {
 };
 
 
-// /**
-//  *
-//  */
-// void map_end_unix_color(char* dest)
-// {
-//   if(strlen(dest)+1>MAP_STR_LEN) {
-//     int len = strlen(dest);
-//     dest[len-7] = '\\';
-//     dest[len-5] = '3';
-//     dest[len-4] = '3';
-//     dest[len-3] = '[';
-//     dest[len-2] = '0';
-//     dest[len-1] = 'm';
-//   };
-// };
 
 
-/**
- *
- */
-MAP_ERROR_CODE map_set_universal_error(char* user_string, char* map_msg, const MAP_ERROR_CODE* current, const MAP_ERROR_CODE ierr)
+
+MAP_ERROR_CODE map_set_universal_error(bstring user_msg, char* map_msg, const MAP_ERROR_CODE ierr, const MAP_ERROR_CODE new_error)
 {
-  char buffer[MAP_STR_LEN] = "";
-  int cx = 0;
-  int num = 0;
-  int size = 0;
+  int error_number = 0;
+  int ret = 0;
   bstring out_string = NULL;
-  if (ierr>=MAP_WARNING_1) { /* MAP did not quite fail. Let users know what the error is */
-    num = ierr - MAP_WARNING_1 + 1;
-    cx = map_snprintf( buffer, MAP_STR_LEN, "MAP_WARNING[%d] : %s. %s\n", num, MAP_ERROR_STRING[ierr], user_string);  
-    size = MAP_STR_LEN - strlen(buffer) - strlen(map_msg)-1;
-    if (size>0) {
-      map_strcat( map_msg, size, buffer );
+  bstring message = bformat("%s", map_msg); /* first format map_msg to contain previously raised errors */
+  
+  if (new_error>=MAP_WARNING_1) { /* MAP did not quite fail. Let users know what the error is */    
+    error_number = new_error - MAP_WARNING_1 + 1;
+    if (user_msg==NULL) {
+      out_string = bformat("MAP_WARNING[%d] : %s.\n", error_number, MAP_ERROR_STRING[new_error]);
+    } else {
+      out_string = bformat("MAP_WARNING[%d] : %s. %s\n", error_number, MAP_ERROR_STRING[new_error], user_msg->data);
     };
-    if (*current<=MAP_WARNING) {
+    ret = bconcat(message, out_string);
+    ret = btrunc(message, MAP_ERROR_STRING_LENGTH-1);
+    copy_target_string(map_msg, message->data);
+    ret = bdestroy(out_string);
+    ret = bdestroy(message);
+    if (ierr<=MAP_WARNING) {
       return MAP_WARNING;
-    } else if (*current<=MAP_ERROR) {
+    } else if (ierr<=MAP_ERROR) {
       return MAP_ERROR;
     } else {
       return MAP_FATAL;
     };
-  } else if (ierr >= MAP_ERROR_1 ) { /* MAP failed but recovered */    
-    num = ierr-MAP_ERROR_1+1;
-    cx = map_snprintf( buffer, MAP_STR_LEN, "%sMAP_ERROR[%d] : %s. %s\n%s", MAP_COLOR_YELLOW, num, MAP_ERROR_STRING[ierr], user_string, MAP_COLOR_END);  
-    size = MAP_STR_LEN - strlen(buffer) - strlen(map_msg)-1;
-    if (size>0) {
-      map_strcat( map_msg, size, buffer );
+  } else if (new_error>=MAP_ERROR_1 ) { /* MAP failed but recovered */    
+    error_number = new_error-MAP_ERROR_1+1;    
+    if (user_msg==NULL) {
+      out_string = bformat("MAP_ERROR[%d] : %s.\n", error_number, MAP_ERROR_STRING[new_error]);
+    } else {
+      out_string = bformat("MAP_ERROR[%d] : %s. %s\n", error_number, MAP_ERROR_STRING[new_error], user_msg->data);
     };
-    // map_end_color(map_msg);
-    assert( cx>=0 );
-    if (*current<=MAP_ERROR) {
+    ret = bconcat(message, out_string);
+    ret = btrunc(message, MAP_ERROR_STRING_LENGTH-1);
+    copy_target_string(map_msg, message->data);
+    ret = bdestroy(out_string);
+    ret = bdestroy(message);
+    if (ierr<=MAP_ERROR) {
       return MAP_ERROR;
     } else {
       return MAP_FATAL;
     };
   } else { /* MAP failed and program must end prematurely */    
-    cx = map_snprintf( buffer, MAP_STR_LEN, "%sMAP_FATAL[%d]   : %s. %s\n%s", MAP_COLOR_RED, ierr, MAP_ERROR_STRING[ierr], user_string, MAP_COLOR_END);  
-    size = MAP_STR_LEN - strlen(buffer) - strlen(map_msg)-1;
-    if (size>0) {
-      map_strcat( map_msg, size, buffer );
+    error_number = new_error;
+    if (user_msg==NULL) {
+      out_string = bformat("MAP_FATAL[%d] : %s.\n", error_number, MAP_ERROR_STRING[new_error]);
+    } else {
+      out_string = bformat("MAP_FATAL[%d] : %s. %s\n", error_number, MAP_ERROR_STRING[new_error], user_msg->data);
     };
-    // map_end_color(map_msg);
+    ret = bconcat(message, out_string);
+    ret = btrunc(message, MAP_ERROR_STRING_LENGTH-1);
+    copy_target_string(map_msg, message->data);
+    ret = bdestroy(out_string);
+    ret = bdestroy(message);
     return MAP_FATAL;
   };
 };
 
 
-/*
- *
- */
 void map_reset_universal_error(char* map_msg, MAP_ERROR_CODE* ierr)
 {
   *ierr = MAP_SAFE;

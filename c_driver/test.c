@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
   void* none = NULL;
   int its = 0;
   int i = 0;
-  char map_msg[255] = "\0";
+  char map_msg[1024] = "\0";
   MAP_ERROR_CODE ierr = MAP_SAFE;
   MAP_ERROR_CODE success = MAP_SAFE;
 
@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
    * up. A better, more generic, non-text driven way of setting model parameters should be use. 
    */
   strcpy(line_def[0], "chainup  0.064929 138.73 545000000 1.0 1.0E8 0.6 -1.0 0.05\0");
-  strcpy(line_def[1], "chainup2 0.064929 138.73 545000000 1.0 1.0E8 0.6 -1.0 0.05\0");
+  strcpy(line_def[1], "chainup2 0.064929 138.73 5450h00000 1.0 1.0E8 0.6 -1.0 0.05\0");
   strcpy(node_def[0], "1  fix    0 -520  -120  0 0 # # #\0");
   strcpy(node_def[1], "2  Vessel 0  -20  40    0 0 # # #\0");
   strcpy(element_def[0], "1 chainup  640 1 2 gy_pos h_fair\0");
@@ -65,18 +65,18 @@ int main(int argc, char *argv[])
   strcpy(option_def[1], "inner_ftol 1e-3\0");
   strcpy(option_def[2], "inner_xtol 1e-6\0");
   strcpy(option_def[3], "outer_tol 1e-4\0");
-  strcpy(option_def[4], "hewlp\0");
-  strcpy(option_def[5], "outer_max_its 400\0");
+  strcpy(option_def[4], "helps\0");
+  strcpy(option_def[5], "wave_kinematics \0");
   strcpy(option_def[6], "repeat 90 120 240 55\0");
 
   map_set_sea_depth(p_type, depth);
   map_set_gravity(p_type, g);
   map_set_sea_density(p_type, rho);
   
-  // /* set cable library data */
-  // strcpy(init_type->libraryInputLine, line_def[0]); map_add_cable_library_input_text(init_type); 
-  // strcpy(init_type->libraryInputLine, line_def[1]); map_add_cable_library_input_text(init_type); 
-  // 
+  /* set cable library data */
+  strcpy(init_type->libraryInputLine, line_def[0]); map_add_cable_library_input_text(init_type); 
+  strcpy(init_type->libraryInputLine, line_def[1]); map_add_cable_library_input_text(init_type); 
+   
   // /* set node data */
   // strcpy(init_type->nodeInputLine, node_def[0]); map_add_node_input_text(init_type);  
   // strcpy(init_type->nodeInputLine, node_def[1]); map_add_node_input_text(init_type);
@@ -100,6 +100,9 @@ int main(int argc, char *argv[])
 
 //  strcpy(init_type->summaryFileName,"baseline.sum.map\0"); map_set_summary_file_name(init_type, map_msg, &ierr);
   map_init(init_type, u_type, p_type, x_type, NULL, z_type, other_type, y_type, io_type, &ierr, map_msg);
+  if (ierr!=MAP_SAFE) {
+    printf("%s\n",map_msg);
+  };
 
 
 //  /* OPTIONAL: if you want output headers    <-------------------------------------+   */

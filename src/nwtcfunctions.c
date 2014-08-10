@@ -50,6 +50,7 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
   InitializationData* init_data = init_type->object;   
   ModelData* model_data = other_type->object;
   MAP_ERROR_CODE success = MAP_SAFE;
+  bstring user_msg = NULL;
 
   map_reset_universal_error(map_msg, ierr);
   do { 
@@ -81,9 +82,9 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
     list_init(&model_data->yList->out_list); /* simclist routine */
     list_init(&model_data->yList->out_list_ptr); /* simclist routine */
      
-    success = set_model_options_list(model_data, init_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_33);    
-//    success = set_cable_library_list(model_data, init_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);
-//     
+    success = set_model_options_list(model_data, init_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_33);
+    success = set_cable_library_list(model_data, init_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);
+
 //     success = repeat_nodes(model_data, init_data, map_msg, ierr);
 //     success = repeat_elements(model_data, init_data, map_msg, ierr);
 //     
@@ -124,9 +125,9 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
 //     success = set_line_variables_post_solve(model_data, map_msg, ierr);    
 //     success = write_summary_file(init_data, p_type, model_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_37);           
 //     success = get_iteration_output_stream(y_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
-    free_init_data(init_data, map_msg, ierr); 
-    MAP_InitInput_Delete(init_data);
   } while (0);  
+  free_init_data(init_data, map_msg, ierr); 
+  MAP_InitInput_Delete(init_data);
 };
 
 
@@ -184,6 +185,7 @@ MAP_EXTERNCALL void map_end(MAP_InputType_t* u_type,
   CableLibrary* iterCableLibrary = NULL;
   ModelData* model_data = other_type->object;
   MAP_ERROR_CODE success = MAP_SAFE;
+  bstring user_msg = NULL;
 
    map_reset_universal_error(map_msg, ierr);  
    do {

@@ -20,12 +20,13 @@ Option
 (-)   
 !help
 inner_ftol 1e-12
-inner_gtol 1e-12 
+inner_gtol  1e-12 
 inner_xtol 1e-12 
 pg_cooked 2 3
 repeat    120 240 
 !outer_tol 1e-4
 inner_max_its  400 
-integration_dt 0.2
+wave_kinematics
+ integration_dt 0.2
 outer_epsilon 7
 outer_max_its   100

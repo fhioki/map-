@@ -19,6 +19,7 @@
 
 
 #include "map.h"
+#include "mapsys.h"
 #include "maperror.h"
 #include "protos.h"
 
@@ -491,3 +492,6 @@ MAP_ERROR_CODE print_help_to_screen()
   printf("    \n");
   return MAP_SAFE;
 };
+
+
+

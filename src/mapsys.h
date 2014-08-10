@@ -92,13 +92,13 @@
 #define MAX_INIT_TYPE_STRING_LENGTH 255
 #define MAX_INIT_VERSION_STRING_LENGTH 99
 #define MAX_INIT_COMPILING_DATA_STRING_LENGTH 25
+#define MAP_ERROR_STRING_LENGTH 1024
 
 #define PROGNAME "MAP++ (Mooring Analysis Program++)"
 #define PROGVERSION "1.00.01a"
-#define CHECKERRQ(code) if(success!=MAP_SAFE) {*ierr=map_set_universal_error("", map_msg, ierr, code); break;} 
-#define CHECKERRK(code) if(success!=MAP_SAFE) {*ierr=map_set_universal_error("", map_msg, ierr, code);} 
+#define CHECKERRQ(code) if(success!=MAP_SAFE) {*ierr=map_set_universal_error(user_msg, map_msg, *ierr, code); break;} 
+#define CHECKERRK(code) if(success!=MAP_SAFE) {*ierr=map_set_universal_error(user_msg, map_msg, *ierr, code);} 
 #define MAPFREE(obj) if(obj!=NULL) {free(obj); obj=NULL;} 
-#define MAP_STR_LEN 1024
 #define MapReal double /* this can be set to double, long double, ect as necessary */
 #define DEG2RAD 0.01745329251 /*  pi/180  */
 #define RAD2DEG 57.2957795131 /*  180/pi  */
