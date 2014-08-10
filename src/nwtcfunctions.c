@@ -74,19 +74,25 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
     list_attributes_copy(&model_data->node, node_meter, 1); 
     list_attributes_copy(&model_data->element, cable_element_meter, 1);    
      
-    model_data->sizeOfCableLibrary = init_data->librarySize;
-    model_data->sizeOfNodes = init_data->nodeSize;
-    model_data->sizeOfElements = init_data->elementSize;
+    /* @todo: this shoule be set when cable library, ect are initialized */
+    // @rm: done model_data->sizeOfCableLibrary = init_data->librarySize;
+    // model_data->sizeOfNodes = init_data->nodeSize;
+    // model_data->sizeOfElements = init_data->elementSize;
      
     success = allocate_outlist(model_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_47);
     list_init(&model_data->yList->out_list); /* simclist routine */
     list_init(&model_data->yList->out_list_ptr); /* simclist routine */
-     
+
+    /* The follow routines expand the input file contents based on the number of repeat
+     * angles. If not repeat angles are declared, then expandedNodeInputString=nodeInputString
+     * and expandedElementInputString=elementInputString. This is just a convenient way
+     * to duplicate lines if a symetric mooring is employed
+     */
     success = set_model_options_list(model_data, init_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_33);
     success = set_cable_library_list(model_data, init_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);
 
-//     success = repeat_nodes(model_data, init_data, map_msg, ierr);
-//     success = repeat_elements(model_data, init_data, map_msg, ierr);
+    success = repeat_nodes(model_data, init_data, map_msg, ierr);
+    success = repeat_elements(model_data, init_data, map_msg, ierr);
 //     
 //     success = set_node_list(p_type, u_type, z_type, other_type, y_type, model_data, init_data->expandedNodeInputString, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);    
 //     success = set_element_list(z_type, model_data, init_data->expandedElementInputString, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);    

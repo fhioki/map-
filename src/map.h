@@ -397,11 +397,11 @@ struct InitializationData_t {
   // char** expandedNodeInputString;    /**< full node input string duplicating information in nodeInputString when the 'repeat' flag is used */
   // char** expandedElementInputString; /**< full element input string duplicating information in nodeElementString when the 'repeat' flag is used */
   // char* summaryFileName;             /**< summary file name. Can be set through {@link map_set_summary_file_name()} */
-  int sizeOfFullNodeString;          /**< number of node entries after expansion, i.e., after repeats */
-  int sizeOfFullElementString;       /**< number of element entries after expansion, i.e., after repeats */
-  int librarySize;                   /**< number of cable types defined in the cable library section of the input string */
-  int nodeSize;                      /**< number of nodes after expansion */
-  int elementSize;                   /**< number of elements after expansion */
+  // int sizeOfFullNodeString;          /**< number of node entries after expansion, i.e., after repeats */
+  // int sizeOfFullElementString;       /**< number of element entries after expansion, i.e., after repeats */
+  // int librarySize;                   /**< number of cable types defined in the cable library section of the input string */
+  // int nodeSize;                      /**< number of nodes after expansion */
+  // int elementSize;                   /**< number of elements after expansion */
   int solverOptionsSize;             /**< number of model options. This does not necessarily correspond to solver option, i.e., 'help' */
 }; typedef struct InitializationData_t InitializationData;
 
