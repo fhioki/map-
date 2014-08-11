@@ -75,7 +75,6 @@ int set_element_list(MAP_ConstraintStateType_t* zType, ModelData* data, char** c
 
 size_t vartype_meter(const void* el);
 size_t vartype_ptr_meter(const void *el);
-void set_element_null(Element* ptr);
 MAP_ERROR_CODE associate_element_with_cable_property(Element* in_element, ModelData* data, char* word, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE associate_element_with_anchor_node(ModelData* data, Element* new_element, const int element_num, char* word, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE associate_element_with_fairlead_node(ModelData* data, Element* new_element, const int element_num, char* word, char* map_msg, MAP_ERROR_CODE* ierr);

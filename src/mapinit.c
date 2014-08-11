@@ -1181,7 +1181,6 @@ MAP_ERROR_CODE expand_node_position_z(Vector* position, const double angle, cons
 };
 
 
-
 MAP_ERROR_CODE expand_node_mass(const char* word, bstring line)
 {
   bstring current_entry = NULL;
@@ -1204,6 +1203,7 @@ MAP_ERROR_CODE expand_node_buoyancy(const char* word, bstring line)
   ret = bdestroy(current_entry);
   return MAP_SAFE;
 };
+
 
 MAP_ERROR_CODE expand_node_force_x(double* fx, const char* word)
 {
@@ -1265,32 +1265,32 @@ MAP_ERROR_CODE expand_node_force_z(Vector* force, const double angle, const doub
   ret = bconcat(line, current_entry);
   ret = bdestroy(current_entry);               
   return MAP_SAFE;
-}
+};
+
+
 MAP_ERROR_CODE repeat_nodes(ModelData* model_data, InitializationData* init_data, char* map_msg, MAP_ERROR_CODE* ierr)
 {
+  MAP_ERROR_CODE success = MAP_SAFE;
   int i = 0;
   int j = 0;
-  MAP_ERROR_CODE success = MAP_SAFE;
   int next = 0; 
-  // int ret = 0;
   int i_parsed = 0;
-  const int num_node = init_data->nodeInputString->qty;
   int n_line = 0;
   const int num_repeat = model_data->modelOptions.repeat_angle_size; 
-  const int n = (num_node)*(num_repeat);
-  double current_angle = 0.0;
-  Vector force;     
-  Vector position;
-  Node new_node; 
-  // bstring current_entry = NULL;
-  bstring line = bformat("");            
-  struct bstrList* parsed = NULL;
-  struct tagbstring tokens; 
+  const int num_node = init_data->nodeInputString->qty;
+  const int n = (num_node)*(num_repeat+1);
   const char* word = NULL;  
   double x_position = 0.0;
   double y_position = 0.0;
   double x_force = 0.0;
   double y_force = 0.0;
+  double current_angle = 0.0;
+  bstring line = bformat("");            
+  struct bstrList* parsed = NULL;
+  struct tagbstring tokens; 
+  Vector force;     
+  Vector position;
+  Node new_node; 
 
   cstr2tbstr(tokens," \t\n\r"); /* token for splitting line into indivdual words is a tab and space */   
 
@@ -1304,8 +1304,9 @@ MAP_ERROR_CODE repeat_nodes(ModelData* model_data, InitializationData* init_data
   /* allocate space needed to expand the number of node lines */
   success = bstrListAlloc(init_data->expandedNodeInputString, n+1); 
   init_data->expandedNodeInputString->qty = 0;
+  
   for(i=0 ; i<num_node ; i++) {     
-    init_data->expandedNodeInputString->entry[i] = bstrcpy(init_data->nodeInputString->entry[i]);
+    init_data->expandedNodeInputString->entry[i] = bfromcstr(init_data->nodeInputString->entry[i]->data);// bstrcpy(init_data->nodeInputString->entry[i]);
     init_data->expandedNodeInputString->qty++;
   };
 
@@ -1326,103 +1327,30 @@ MAP_ERROR_CODE repeat_nodes(ModelData* model_data, InitializationData* init_data
               next++;
             } else if (next==1) {
               success = expand_node_type(word, line);/* @todo: checkerrq */
-              // current_entry = bformat("%s   ", word);              
-              // ret = bconcat(line, current_entry);
-              // ret = bdestroy(current_entry);               
               next++;
             } else if (next==2) {
-              success = expand_node_position_x(&x_position, word);
-              // if (is_numeric(word)) { /* if number is numeric */
-              //   x_position = (double)atof(word);                
-              // } else {
-              //   return MAP_FATAL;
-              // };
+              success = expand_node_position_x(&x_position, word);/* @todo: checkerrq */
               next++;
             } else if (next==3) {
-              success = expand_node_position_y(&y_position, word);
-              // if (is_numeric(word)) { /* if number is numeric */
-              //   y_position = (double)atof(word);                
-              // } else {
-              //   return MAP_FATAL;
-              // };
+              success = expand_node_position_y(&y_position, word);/* @todo: checkerrq */
               next++;
             } else if (next==4) {
-              success = expand_node_position_z(&position, current_angle, x_position, y_position, word, line);
-              // position.x =  x_position*cos(current_angle) + y_position*sin(current_angle);
-              // position.y = -x_position*sin(current_angle) + y_position*cos(current_angle);                    
-              // if (is_numeric(word)) { /* if number is numeric */
-              //   position.z = (double)atof(word);                
-              // } else {
-              //   return MAP_FATAL;
-              // };
-              // current_entry = bformat("%1.4f   %1.4f   %1.4f   ",position.x, position.y, position.z);              
-              // ret = bconcat(line, current_entry);
-              // ret = bdestroy(current_entry);               
+              success = expand_node_position_z(&position, current_angle, x_position, y_position, word, line);/* @todo: checkerrq */
               next++;
             } else if (next==5) { /* node mass */
-              success = expand_node_mass(word, line);
-              // current_entry = bformat("%s   ", word);              
-              // ret = bconcat(line, current_entry);
-              // ret = bdestroy(current_entry);               
+              success = expand_node_mass(word, line);/* @todo: checkerrq */
               next++;
             } else if (next==6) { /* node buoyancy */
-              success = expand_node_buoyancy(word, line);
-              //current_entry = bformat("%s   ", word);              
-              //ret = bconcat(line, current_entry);
-              //ret = bdestroy(current_entry);               
+              success = expand_node_buoyancy(word, line);/* @todo: checkerrq */
               next++;
             } else if (next==7) {
-              success = expand_node_force_x(&x_force, word);
-              // if (is_numeric(word)) { /* if number is numeric */
-              //   x_force = (double)atof(word);                
-              // } else if (word[0]=='#') { /* if the nuymber is iterated */
-              //   if (is_numeric(remove_first_character(word))) { 
-              //     x_force = (double)atof(remove_first_character(word));
-              //   } else { /* in this case, it is presumed the force is just '#' */
-              //     x_force = 0.0;                  
-              //   };
-              // } else {
-              //    return MAP_FATAL;
-              // };
+              success = expand_node_force_x(&x_force, word);/* @todo: checkerrq */
               next++;
             } else if (next==8) {
-              success = expand_node_force_y(&y_force, word);
-              // if (is_numeric(word)) { /* if number is numeric */
-              //   y_force = (double)atof(word);                
-              // } else if (word[0]=='#') { /* if the nuymber is iterated */
-              //   if (is_numeric(remove_first_character(word))) { 
-              //     y_force = (double)atof(remove_first_character(word));
-              //   } else { /* in this case, it is presumed the force is just '#' */
-              //     y_force = 0.0;                  
-              //   };
-              // } else {
-              //    return MAP_FATAL;
-              // };
+              success = expand_node_force_y(&y_force, word);/* @todo: checkerrq */
               next++;
             } else if (next==9) {
-              success = expand_node_force_z(&force, current_angle, x_force, y_force, word, line);
-              //force.x =  x_force*cos(current_angle) + y_force*sin(current_angle);
-              //force.y = -x_force*sin(current_angle) + y_force*cos(current_angle);                    
-              //if (is_numeric(word)) { /* if number is numeric */
-              //  force.z = (double)atof(word);                
-              //} else if (word[0]=='#') { /* if the nuymber is iterated */
-              //  if (is_numeric(remove_first_character(word))) { 
-              //    force.z = (double)atof(remove_first_character(word));
-              //  } else { /* in this case, it is presumed the force is just '#' */
-              //    force.z = 0.0;                  
-              //  };
-              //} else {
-              //   return MAP_FATAL;
-              //};
-              //if (word[0]=='#') { 
-              //  force.z = (MapReal)atof(remove_first_character(word));
-              //  current_entry = bformat("#%1.4f   #%1.4f   #%1.4f\n",force.x, force.y, force.z);              
-              //} else {
-              //  force.z = (MapReal)atof(word);
-              //  current_entry = bformat("%1.4f   %1.4f   %1.4f\n",force.x, force.y, force.z);              
-              //};
-              //ret = bconcat(line, current_entry);
-              //ret = bdestroy(current_entry);               
+              success = expand_node_force_z(&force, current_angle, x_force, y_force, word, line);/* @todo: checkerrq */
               next++;
             };
           };
@@ -1432,105 +1360,180 @@ MAP_ERROR_CODE repeat_nodes(ModelData* model_data, InitializationData* init_data
         init_data->expandedNodeInputString->entry[n_line] = bstrcpy(line);
         success = bassigncstr(line, "");
       } while (0);   
+      success = bstrListDestroy(parsed);
     };  
   };
+  success = bdestroy(line);               
 
-  for(i=0 ; i<init_data->expandedNodeInputString->qty ; i++) {
-    printf("%s",init_data->expandedNodeInputString->entry[i]->data);
-  };
+  // for(i=0 ; i<init_data->expandedNodeInputString->qty ; i++) {
+  //   printf("%s\n",init_data->expandedNodeInputString->entry[i]->data);
+  // };
+
   MAP_RETURN;
 };
 
 
-MAP_ERROR_CODE repeat_elements(ModelData* dataObj, InitializationData* init, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE expand_element_number(const int n_line, bstring line)
 {
+  bstring current_entry = NULL;
+  int ret = 0;
+              
+  current_entry = bformat("%d   ", n_line);              
+  ret = bconcat(line, current_entry);
+  ret = bdestroy(current_entry);               
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE expand_element_property_name(const char* word, bstring line)
+{
+  int ret = 0;
+  bstring current_entry = NULL;
+
+  current_entry = bformat("%s   ", word);              
+  ret = bconcat(line, current_entry);
+  ret = bdestroy(current_entry);
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE expand_element_length(const char* word, bstring line)
+{
+  int ret = 0;
+  bstring current_entry = NULL;
+  
+  current_entry = bformat("%s   ", word);              
+  ret = bconcat(line, current_entry);
+  ret = bdestroy(current_entry);
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE expand_element_anchor_number(const char* word, const int index, const int n, bstring line)
+{
+  int ret = 0;
+  bstring current_entry = NULL;
+  int anchor_num = 0;
+
+  if (is_numeric(word)) {
+    anchor_num = (int)atoi(word);
+  } else {
+    return MAP_SAFE;
+  };  
+  current_entry = bformat("%d   ", (index+1)*n+anchor_num);
+  ret = bconcat(line, current_entry);
+  ret = bdestroy(current_entry);
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE expand_element_fairlead_number(const char* word, const int index, const int n, bstring line)
+{
+  int ret = 0;
+  bstring current_entry = NULL;
+  int fairlead_num = 0;
+
+  if (is_numeric(word)) {
+    fairlead_num = (int)atoi(word);
+  } else {
+    return MAP_SAFE;
+  };  
+  current_entry = bformat("%d   ", (index+1)*n+fairlead_num);
+  ret = bconcat(line, current_entry);
+  ret = bdestroy(current_entry);
+  return MAP_SAFE;
+};
+
+MAP_ERROR_CODE expand_element_flag(const char* word, bstring line)
+{
+  int ret = 0;
+  bstring current_entry = NULL;
+  
+  current_entry = bformat("%s   ", word);              
+  ret = bconcat(line, current_entry);
+  ret = bdestroy(current_entry);
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE repeat_elements(ModelData* model_data, InitializationData* init_data, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  MAP_ERROR_CODE success = MAP_SAFE;
   int i = 0;
   int j = 0;
-  int cnt = 0;
-  int success = 0;
-  int sizeOfElementBase = 0;
-  int sizeOfNodeBase = 0;
-  int sizeOfString = 0;
-  int numRepeat = 0;
-  int anchNode = 0.0;
-  int fairNode = 0.0;
-  char buffer[256] = "";
-  char* word = NULL;
-  char lines[256] = "";
-  char** temp_array  = NULL;
-  char temp_string[64] = "";
-  Element newElement;
+  int next = 0; 
+  int i_parsed = 0;
+  int n_line = 0;
+  const int num_repeat = model_data->modelOptions.repeat_angle_size; 
+  const int num_element = init_data->elementInputString->qty;
+  const int num_node = init_data->nodeInputString->qty;
+  const int n = (num_element)*(num_repeat+1);
+  const char* word = NULL;  
+  double current_angle = 0.0;
+  bstring line = bformat("");            
+  struct bstrList* parsed = NULL;
+  struct tagbstring tokens; 
+  Element new_element;
 
-  // sizeOfElementBase = dataObj->sizeOfElements;
-  // sizeOfNodeBase = init->nodeSize;
-  // 
-  // numRepeat = dataObj->modelOptions.repeat_angle_size;
-  // init->sizeOfFullElementString = (sizeOfElementBase)*(numRepeat+1); 
-  // temp_array = malloc( (init->sizeOfFullElementString)*sizeof(char*));
-  // 
-  // for(j=0 ; j<sizeOfElementBase ; j++) { 
-  //   sizeOfString = strlen(init->elementInputString[j]);
-  //   temp_array[j] = malloc(sizeof(char)*(sizeOfString+1));
-  //   strcpy(temp_array[j], init->elementInputString[j]);
-  // };
-  // 
-  // for(i=0 ; i<numRepeat ; i++) { 
-  //   for(j=0 ; j<sizeOfElementBase ; j++) { 
-  //     set_element_null(&newElement);  
-  //     sizeOfString = strlen(init->elementInputString[j]);      
-  //     strcpy(lines, init->elementInputString[j]);
-  //     word = strtok(lines, " ,\n\t\r\0" );    
-  //     cnt = 0;
-  //     buffer[0] = 0;
-  //     temp_string[0] = 0;
-  //     while (word!=NULL) {      
-  //       if (cnt==0) {
-  //         map_snprintf(temp_string, 64, "%d  ", ((i+1)*sizeOfElementBase+j+1));
-  //         map_strcat(buffer, 256, temp_string);
-  //       } else if (cnt==1 ) { 
-  //         map_snprintf(temp_string, 64, "%s  ", word);
-  //         map_strcat(buffer, 256, temp_string);
-  //       } else if (cnt==2) { 
-  //         map_snprintf(temp_string, 64, "%s  ", word);
-  //         map_strcat(buffer, 256, temp_string);
-  //       } else if (cnt==3) { 
-  //         success = is_numeric(word); CHECKERRQ(MAP_FATAL_28);
-  //         if ( !success ) {
-  //           anchNode = (MapReal)atof(word);        
-  //         };
-  //         map_snprintf(temp_string, 64, "%d  ", (i+1)*sizeOfNodeBase+anchNode);
-  //         map_strcat(buffer, 256, temp_string);
-  //       } else if (cnt==4) { 
-  //         success = is_numeric(word); CHECKERRQ(MAP_FATAL_29);
-  //         if ( !success ) {
-  //           fairNode = (MapReal)atof(word);  
-  //         };
-  //         map_snprintf(temp_string, 64, "%d  ", (i+1)*sizeOfNodeBase+fairNode);
-  //         map_strcat(buffer, 256, temp_string);
-  //       } else {
-  //         map_snprintf(temp_string, 64, "%s  ", word);
-  //         map_strcat(buffer, 256, temp_string);
-  //       };
-  //       cnt++;
-  //       word = strtok( NULL, " ,\n\t\r\0" );
-  //     };  
-  //     map_strcat( buffer, 256, "\n" );
-  //     sizeOfString = strlen( buffer );
-  //     temp_array[(i+1)*sizeOfElementBase+j] = malloc(sizeof(char)*(sizeOfString+1));
-  //     strcpy(temp_array[(i+1)*sizeOfElementBase+j], buffer);
-  //   };  
-  // };
-  // 
-  // dataObj->sizeOfElements = init->sizeOfFullElementString;
-  // init->expandedElementInputString = malloc(sizeof(char*)*(init->sizeOfFullElementString));
-  // for(i=0 ; i<init->sizeOfFullElementString ; i++) {    
-  //   init->expandedElementInputString[i] = malloc(sizeof(char)*(strlen(temp_array[i])+1));  
-  //   strcpy(init->expandedElementInputString[i], temp_array[i]);
-  //   MAPFREE(temp_array[i]);
-  // };
-  // MAPFREE(temp_array);
-  // 
-  // return MAP_SAFE;
+  cstr2tbstr(tokens," \t\n\r"); /* token for splitting line into indivdual words is a tab and space */   
+
+  /* allocate space needed to expand the number of node lines */
+  success = bstrListAlloc(init_data->expandedElementInputString, n+1); 
+  init_data->expandedElementInputString->qty = 0;
+  
+  for(i=0 ; i<num_element ; i++) {     
+    init_data->expandedElementInputString->entry[i] = bfromcstr(init_data->elementInputString->entry[i]->data);
+    init_data->expandedElementInputString->qty++;
+  };
+  
+
+  for(i=0 ; i<num_repeat ; i++) { /* this is skipped if not repeat angles are declared */
+    for(j=0 ; j<num_element ; j++) { 
+      success = reset_element(&new_element);  
+      n_line = (i+1)*num_element + j;
+      current_angle = model_data->modelOptions.repeat_angle[i]*(DEG2RAD);
+      parsed = bsplits(init_data->elementInputString->entry[j], &tokens);
+      next = 0;
+      i_parsed = 0;
+      do {  
+        while (i_parsed<parsed->qty-1) { /* iterating through all strings */              
+          if (parsed->entry[i_parsed]->slen) { /* if the string length is not 0 */
+            word = parsed->entry[i_parsed]->data;
+            if (next==0) {
+              success = expand_element_number(n_line+1, line);
+              next++;
+            } else if (next==1) {
+              success = expand_element_property_name(word, line);
+              next++;
+            } else if (next==2) {
+              success = expand_element_length(word, line);
+              next++;
+            } else if (next==3) {
+              success = expand_element_anchor_number(word, i, num_node, line);
+              next++;
+            } else if (next==4) {
+              success = expand_element_fairlead_number(word, i, num_node, line);
+              next++;
+            } else {
+              success = expand_element_flag(word, line);
+              next++;
+            };
+          };
+          i_parsed++;
+        };
+        init_data->expandedElementInputString->qty++;
+        init_data->expandedElementInputString->entry[n_line] = bstrcpy(line);
+        success = bassigncstr(line, "");
+      } while (0);      
+      success = bstrListDestroy(parsed);
+    };
+  };
+  success = bdestroy(line);               
+  
+  for(i=0 ; i<init_data->expandedElementInputString->qty ; i++) {
+    printf("%s\n",init_data->expandedElementInputString->entry[i]->data);
+  };
+  MAP_RETURN;
 };
 
 
@@ -2140,50 +2143,50 @@ size_t vartype_ptr_meter(const void *el)
 };
 
 
-void set_element_null(Element* ptr)
+MAP_ERROR_CODE reset_element(Element* element_ptr)
 {
-  ptr->lineProperty = NULL;      
-  ptr->label = NULL;
-  ptr->lineTension  = NULL;
-  ptr->anchor = NULL;             /* Anchor node */
-  ptr->fairlead = NULL;           /* Fairlead node */
-
-  ptr->psi.name = NULL;
-  ptr->psi.units = NULL;
-  ptr->alpha.name = NULL;
-  ptr->alpha.units = NULL;
-  ptr->alphaAtAnchor.name = NULL;
-  ptr->alphaAtAnchor.units = NULL;
-  ptr->l.name = NULL;
-  ptr->l.units = NULL;
-  ptr->lb.name = NULL;
-  ptr->lb.units = NULL;
-  ptr->h.name = NULL;
-  ptr->h.units = NULL;
-  ptr->H.name = NULL;
-  ptr->H.units = NULL;
-  ptr->V.name = NULL;
-  ptr->V.units = NULL;
-  ptr->HAtAnchor.name = NULL;
-  ptr->HAtAnchor.units = NULL;
-  ptr->VAtAnchor.name = NULL;
-  ptr->VAtAnchor.units = NULL;
-  ptr->forceAtFairlead.fx.name = NULL;
-  ptr->forceAtFairlead.fx.units = NULL;
-  ptr->forceAtFairlead.fy.name = NULL;
-  ptr->forceAtFairlead.fy.units = NULL;
-  ptr->forceAtFairlead.fz.name = NULL;
-  ptr->forceAtFairlead.fz.units = NULL;
-  ptr->forceAtAnchor.fx.name = NULL;
-  ptr->forceAtAnchor.fx.units = NULL;
-  ptr->forceAtAnchor.fy.name = NULL;
-  ptr->forceAtAnchor.fy.units = NULL;
-  ptr->forceAtAnchor.fz.name = NULL;
-  ptr->forceAtAnchor.fz.units = NULL;
-  ptr->T.name = NULL;
-  ptr->T.units = NULL;
-  ptr->TAtAnchor.name = NULL;
-  ptr->TAtAnchor.units = NULL;
+  element_ptr->lineProperty = NULL;      
+  element_ptr->label = NULL;
+  element_ptr->lineTension  = NULL;
+  element_ptr->anchor = NULL;             /* Anchor node */
+  element_ptr->fairlead = NULL;           /* Fairlead node */
+  
+  element_ptr->psi.name = NULL;
+  element_ptr->psi.units = NULL;
+  element_ptr->alpha.name = NULL;
+  element_ptr->alpha.units = NULL;
+  element_ptr->alphaAtAnchor.name = NULL;
+  element_ptr->alphaAtAnchor.units = NULL;
+  element_ptr->l.name = NULL;
+  element_ptr->l.units = NULL;
+  element_ptr->lb.name = NULL;
+  element_ptr->lb.units = NULL;
+  element_ptr->h.name = NULL;
+  element_ptr->h.units = NULL;
+  element_ptr->H.name = NULL;
+  element_ptr->H.units = NULL;
+  element_ptr->V.name = NULL;
+  element_ptr->V.units = NULL;
+  element_ptr->HAtAnchor.name = NULL;
+  element_ptr->HAtAnchor.units = NULL;
+  element_ptr->VAtAnchor.name = NULL;
+  element_ptr->VAtAnchor.units = NULL;
+  element_ptr->forceAtFairlead.fx.name = NULL;
+  element_ptr->forceAtFairlead.fx.units = NULL;
+  element_ptr->forceAtFairlead.fy.name = NULL;
+  element_ptr->forceAtFairlead.fy.units = NULL;
+  element_ptr->forceAtFairlead.fz.name = NULL;
+  element_ptr->forceAtFairlead.fz.units = NULL;
+  element_ptr->forceAtAnchor.fx.name = NULL;
+  element_ptr->forceAtAnchor.fx.units = NULL;
+  element_ptr->forceAtAnchor.fy.name = NULL;
+  element_ptr->forceAtAnchor.fy.units = NULL;
+  element_ptr->forceAtAnchor.fz.name = NULL;
+  element_ptr->forceAtAnchor.fz.units = NULL;
+  element_ptr->T.name = NULL;
+  element_ptr->T.units = NULL;
+  element_ptr->TAtAnchor.name = NULL;
+  element_ptr->TAtAnchor.units = NULL;
 };
 
 
