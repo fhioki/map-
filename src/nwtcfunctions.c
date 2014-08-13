@@ -52,6 +52,8 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
   MAP_ERROR_CODE success = MAP_SAFE;
   bstring user_msg = NULL;
 
+  size_t len = strlen(map_msg);
+  
   map_reset_universal_error(map_msg, ierr);
   do { 
     /*  initialize types; set doubles to -999.9, int=0, pointers=NULL 
@@ -76,7 +78,7 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
      
     /* @todo: this shoule be set when cable library, ect are initialized */
     // @rm: done model_data->sizeOfCableLibrary = init_data->librarySize;
-    // model_data->sizeOfNodes = init_data->nodeSize;
+    // @rm: model_data->sizeOfNodes = init_data->nodeSize;
     // model_data->sizeOfElements = init_data->elementSize;
      
     success = allocate_outlist(model_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_47);
@@ -93,8 +95,8 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
 
     success = repeat_nodes(model_data, init_data, map_msg, ierr);
     success = repeat_elements(model_data, init_data, map_msg, ierr);
-//     
-//     success = set_node_list(p_type, u_type, z_type, other_type, y_type, model_data, init_data->expandedNodeInputString, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);    
+     
+    success = set_node_list(p_type, u_type, z_type, other_type, y_type, model_data, init_data->expandedNodeInputString, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);    
 //     success = set_element_list(z_type, model_data, init_data->expandedElementInputString, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);    
 //     
 //     /* now create an output list to print to and output file. */
@@ -201,7 +203,7 @@ MAP_EXTERNCALL void map_end(MAP_InputType_t* u_type,
      list_destroy(&model_data->yList->out_list_ptr); /* destroy output lists for writting information to output file */
      success = free_outlist(model_data,map_msg,ierr); CHECKERRQ(MAP_FATAL_47);//@rm, should be replaced with a MAPFREE(data->yList)   
 //     success = free_element(&model_data->element);
-//     success = free_node(&model_data->node);
+     success = free_node(&model_data->node);
 //     success = free_vessel(&model_data->vessel);
 //   
 //   

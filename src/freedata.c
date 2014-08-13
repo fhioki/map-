@@ -124,34 +124,36 @@ MAP_ERROR_CODE free_outlist(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr
 MAP_ERROR_CODE free_node(list_t *restrict node)
 {
   Node* iterNode = NULL;
+  MAP_ERROR_CODE success = MAP_SAFE;
   list_iterator_start(node);            /* starting an iteration "session" */
   while (list_iterator_hasnext(node)) { /* tell whether more values available */ 
     iterNode = (Node*)list_iterator_next(node);
-    MAPFREE(iterNode->MApplied.name); 
-    MAPFREE(iterNode->MApplied.units);
-    MAPFREE(iterNode->BApplied.name);
-    MAPFREE(iterNode->BApplied.units);
-    
-    MAPFREE(iterNode->externalForce.fx.name);
-    MAPFREE(iterNode->externalForce.fx.units);
-    MAPFREE(iterNode->externalForce.fy.name);
-    MAPFREE(iterNode->externalForce.fy.units);
-    MAPFREE(iterNode->externalForce.fz.name);
-    MAPFREE(iterNode->externalForce.fz.units);
-    
-    MAPFREE(iterNode->positionPtr.x.name); 
-    MAPFREE(iterNode->positionPtr.x.units);
-    MAPFREE(iterNode->positionPtr.y.name); 
-    MAPFREE(iterNode->positionPtr.y.units);
-    MAPFREE(iterNode->positionPtr.z.name); 
-    MAPFREE(iterNode->positionPtr.z.units);
-    
-    MAPFREE(iterNode->sumForcePtr.fx.name); 
-    MAPFREE(iterNode->sumForcePtr.fx.units);
-    MAPFREE(iterNode->sumForcePtr.fy.name); 
-    MAPFREE(iterNode->sumForcePtr.fy.units);
-    MAPFREE(iterNode->sumForcePtr.fz.name); 
-    MAPFREE(iterNode->sumForcePtr.fz.units);
+
+    success = bdestroy(iterNode->MApplied.name); 
+    success = bdestroy(iterNode->MApplied.units);
+    success = bdestroy(iterNode->BApplied.name);
+    success = bdestroy(iterNode->BApplied.units);
+
+    success = bdestroy(iterNode->externalForce.fx.name);
+    success = bdestroy(iterNode->externalForce.fx.units);
+    success = bdestroy(iterNode->externalForce.fy.name);
+    success = bdestroy(iterNode->externalForce.fy.units);
+    success = bdestroy(iterNode->externalForce.fz.name);
+    success = bdestroy(iterNode->externalForce.fz.units);
+
+    success = bdestroy(iterNode->positionPtr.x.name); 
+    success = bdestroy(iterNode->positionPtr.x.units);
+    success = bdestroy(iterNode->positionPtr.y.name); 
+    success = bdestroy(iterNode->positionPtr.y.units);
+    success = bdestroy(iterNode->positionPtr.z.name); 
+    success = bdestroy(iterNode->positionPtr.z.units);
+
+    success = bdestroy(iterNode->sumForcePtr.fx.name); 
+    success = bdestroy(iterNode->sumForcePtr.fx.units);
+    success = bdestroy(iterNode->sumForcePtr.fy.name); 
+    success = bdestroy(iterNode->sumForcePtr.fy.units);
+    success = bdestroy(iterNode->sumForcePtr.fz.name); 
+    success = bdestroy(iterNode->sumForcePtr.fz.units);
   };
   list_iterator_stop(node);             /* ending the iteration "session" */  
   return MAP_SAFE;

@@ -58,10 +58,10 @@ MAP_ERROR_CODE map_set_universal_error(bstring user_msg, char* map_msg, const MA
  *
  */
 MAP_ERROR_CODE associate_vartype_ptr(VarTypePtr* type, double* arr, int index);
-MAP_ERROR_CODE set_vartype( char* unit, char* alias, const int num, VarType* type, char const* property );
-MAP_ERROR_CODE set_vartype_ptr( char *unit, char *alias, const int num, VarTypePtr* type, char const* property );
-MAP_ERROR_CODE set_vartype_ptr_float(char* unit, char* alias, const int num, VarTypePtr* type, const MapReal value);
-MAP_ERROR_CODE set_element_vartype_ptr( char *unit, char *alias, const int num, VarTypePtr* type);
+// MAP_ERROR_CODE set_vartype            (char* unit, char* alias, const int num, VarType* type, char const* property );
+// MAP_ERROR_CODE set_vartype_ptr        (char* unit, char* alias, const int num, VarTypePtr* type, char const* property );
+// MAP_ERROR_CODE set_vartype_ptr_float  (char* unit, char* alias, const int num, VarTypePtr* type, const MapReal value);
+MAP_ERROR_CODE set_element_vartype_ptr(char* unit, char* alias, const int num, VarTypePtr* type);
 
 const char* remove_first_character(const char* str);
 // void map_end_unix_color( char* dest );
@@ -69,9 +69,6 @@ void initialize_element( Element* ptr, const int ElementNum );
 MAP_ERROR_CODE initialize_external_applied_force(char* unit, char* alias, const int num, VarType* type, char const* property);
 MAP_ERROR_CODE initialize_node_sum_force_ptr(char* unit, char* alias, const int num, VarTypePtr* type);
 void initialize_vartype( char* unit, char* alias, VarType* type, const int num );
-
-int set_node_list(const MAP_ParameterType_t* pType,  MAP_InputType_t* uType, MAP_ConstraintStateType_t* zType, MAP_OtherStateType_t* otherType, MAP_OutputType_t* yType, ModelData* data, char** const nodeInputString, char* map_msg, MAP_ERROR_CODE* ierr);
-int set_element_list(MAP_ConstraintStateType_t* zType, ModelData* data, char** const elementInputString, char* map_msg, MAP_ERROR_CODE* ierr);
 
 size_t vartype_meter(const void* el);
 size_t vartype_ptr_meter(const void *el);

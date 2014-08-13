@@ -51,56 +51,6 @@ const char* remove_first_character(const char* str)
 // };
 
 
-// /**
-//  *
-//  */
-// MAP_ERROR_CODE set_vartype(char* unit, char* alias, const int num, VarType* type, char const* property)
-// {
-//   const char* return_str = NULL;
-// 
-//   type->name = malloc(sizeof(char)*strlen(alias)+1);
-//   type->units = malloc(sizeof(char)*strlen(unit)+1);
-//   
-//   strcpy(type->name, alias);
-//   strcpy(type->units, unit);
-// 
-//   type->referenceCounter = 0;
-//   type->id = num;  
-//   type->value = 0;
-// 
-//   if (property[0]== '#') { 
-//     /* this variable is an iterated parameter */  
-//     type->isFixed = false;
-//     return_str = remove_first_character(property);
-//     if (!strcmp(return_str, "") || !strcmp(return_str, "\n")) {
-//       /* entry in empty in the MAP input file */
-//       type->value = -999.9;
-//       return MAP_SAFE;
-//     } else if (is_numeric(return_str)) { 
-//       /* cannot convert to numeric value */
-//       return MAP_FATAL;
-//     } else {
-//       /* converted to numeric value */
-//       type->value = (MapReal)atof(return_str); 
-//       return MAP_SAFE;
-//     };
-//   } else { 
-//     /* this variable is constant */
-//     type->isFixed = true;
-//     if (is_numeric(property)) 
-//     { 
-//       /* cannot convert to numeric value */
-//       return MAP_FATAL;
-//     } else { 
-//       /* converted to numeric value */
-//       type->value = (MapReal)atof(property);
-//       return MAP_SAFE;
-//     };
-//   };
-//   return MAP_SAFE;
-// };
-
-
 /**
  *
  */
@@ -112,52 +62,6 @@ MAP_ERROR_CODE associate_vartype_ptr(VarTypePtr* type, double* arr, int index)
 
 
 
-// /**
-//  *
-//  */
-// MAP_ERROR_CODE set_vartype_ptr(char* unit, char* alias, const int num, VarTypePtr* type, char const* property)
-// {
-//   const char* return_str = NULL;
-//   
-//   type->name = malloc(sizeof(char)*strlen(alias)+1); /* @todo: this needs to be freed */
-//   type->units = malloc(sizeof(char)*strlen(unit)+1); /* @todo: this needs to be freed */
-//   
-//   strcpy(type->name, alias);
-//   strcpy(type->units, unit);
-//   
-//   type->referenceCounter = 0;
-//   type->id = num;  
-// 
-//   if (property[0]=='#') { 
-//     /* this variable is an iterated parameter */      
-//     type->isFixed = false;
-//     return_str = remove_first_character(property);
-//     if (!strcmp(return_str, "") || !strcmp(return_str, "\n")) {
-//       /* entry in empty in the MAP input file */
-//       *type->value = -999.9;
-//       return MAP_SAFE;
-//     } else if (is_numeric(return_str)) { 
-//       /* cannot convert to numeric value */
-//       return MAP_FATAL;
-//     } else {
-//       /* converted to numeric value */
-//       *type->value = (MapReal)atof(return_str); 
-//       return MAP_SAFE;
-//     };
-//   } else { 
-//     /* this variable is constant */
-//     type->isFixed = true;
-//     if (is_numeric(property)) { 
-//       /* cannot convert to numeric value */
-//       return MAP_FATAL;
-//     } else { 
-//       /* converted to numeric value */
-//       *type->value = (MapReal)atof(property); 
-//       return MAP_SAFE;
-//     };
-//   };
-//   return MAP_SAFE;
-// };
 
 
 

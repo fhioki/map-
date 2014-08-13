@@ -1365,9 +1365,9 @@ MAP_ERROR_CODE repeat_nodes(ModelData* model_data, InitializationData* init_data
   };
   success = bdestroy(line);               
 
-  // for(i=0 ; i<init_data->expandedNodeInputString->qty ; i++) {
-  //   printf("%s\n",init_data->expandedNodeInputString->entry[i]->data);
-  // };
+  for(i=0 ; i<init_data->expandedNodeInputString->qty ; i++) {
+    printf("%s\n",init_data->expandedNodeInputString->entry[i]->data);
+  };
 
   MAP_RETURN;
 };
@@ -1530,277 +1530,352 @@ MAP_ERROR_CODE repeat_elements(ModelData* model_data, InitializationData* init_d
   };
   success = bdestroy(line);               
   
-  for(i=0 ; i<init_data->expandedElementInputString->qty ; i++) {
-    printf("%s\n",init_data->expandedElementInputString->entry[i]->data);
-  };
+  // for(i=0 ; i<init_data->expandedElementInputString->qty ; i++) {
+  //   printf("%s\n",init_data->expandedElementInputString->entry[i]->data);
+  // };
   MAP_RETURN;
 };
 
 
 
-// MAP_ERROR_CODE allocate_types_for_nodes(MAP_InputType_t* uType, MAP_ConstraintStateType_t* zType, MAP_OtherStateType_t* otherType, MAP_OutputType_t* yType, ModelData *data, char** const nodeInputString, char *map_msg, MAP_ERROR_CODE *ierr )
-// {
-//   int i = 0;
-//   int cx = 0;
-//   int cnt = 0;
-//   int fixNum = 0;
-//   int vesselNum = 0;
-//   int connectNum = 0;
-//   int sizeOfString = 0;
-//   char* word = NULL;
-//   char* line = NULL;
-//   char buffer[64] = "";
-// 
-//   /* 
-//      First need to run loop to find the number of inputs, outputs, constraints.
-//      Basically we are just counting the number of VESSEL, FIX, and CONNECT nodes     
-//   */
-//   for(i=0 ; i<=data->sizeOfNodes-1 ; i++) {         
-//     sizeOfString = strlen(nodeInputString[i]);
-//     line = (char*)realloc(line, (sizeOfString+1)*sizeof(char));    
-//     strcpy(line, nodeInputString[i]);
-//     word = strtok(line, " ,\n\t\r\0");
-//     while(word!=NULL) {            
-//       if (cnt==0) {
-//         /* this is ignored because it's not needed for the model assembly */
-//       } else if (cnt==1) { /* compare strings to determine what type of node it is connected to */        
-//         if (!strcicmp("FIX",word)) { 
-//           fixNum++;
-//         } else if (!strcicmp("CONNECT",word)) {
-//           connectNum++;
-//         } else if (!strcicmp("VESSEL",word)) {
-//           vesselNum++;
-//         } else {
-//           /* the node is given an invalid name */
-//           cx = map_snprintf(buffer, 64, "Value '%s'.", word); assert(cx>=0);
-//           *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_25);          
-//         };
-//       };
-//       cnt++;
-//       word = strtok(NULL, " ,\n\t\r\0");
-//     };
-//     cnt=0;
-//   };
-//   MAPFREE(line);
-// 
-//   otherType->x_Len = fixNum;
-//   otherType->y_Len = fixNum;
-//   otherType->z_Len = fixNum;
-//   otherType->x = (double*)malloc(otherType->x_Len*sizeof(double));
-//   otherType->y = (double*)malloc(otherType->y_Len*sizeof(double));
-//   otherType->z = (double*)malloc(otherType->z_Len*sizeof(double));
-// 
-//   /* 
-//      if the node is VESSEL, then the applied force is an output state. Otherwise, it 
-//      has to be an other state because it can't be associated with any other type. 
-//      This is what is done below.
-//   */
-//   otherType->Fx_connect_Len = connectNum;
-//   otherType->Fy_connect_Len = connectNum;
-//   otherType->Fz_connect_Len = connectNum;
-//   otherType->Fx_connect = (double*)malloc(otherType->Fx_connect_Len*sizeof(double));
-//   otherType->Fy_connect = (double*)malloc(otherType->Fy_connect_Len*sizeof(double));
-//   otherType->Fz_connect = (double*)malloc(otherType->Fz_connect_Len*sizeof(double));
-// 
-//   otherType->Fx_anchor_Len = fixNum;
-//   otherType->Fy_anchor_Len = fixNum;
-//   otherType->Fz_anchor_Len = fixNum;
-//   otherType->Fx_anchor = (double*)malloc(otherType->Fx_anchor_Len*sizeof(double));
-//   otherType->Fy_anchor = (double*)malloc(otherType->Fy_anchor_Len*sizeof(double));
-//   otherType->Fz_anchor = (double*)malloc(otherType->Fz_anchor_Len*sizeof(double));
-//   
-//   zType->x_Len = connectNum;          
-//   zType->y_Len = connectNum;          
-//   zType->z_Len = connectNum;          
-//   zType->x = (double*)malloc(zType->x_Len*sizeof(double));
-//   zType->y = (double*)malloc(zType->y_Len*sizeof(double));
-//   zType->z = (double*)malloc(zType->z_Len*sizeof(double));
-//   
-//   uType->x_Len = vesselNum;
-//   uType->y_Len = vesselNum;
-//   uType->z_Len = vesselNum;
-//   yType->Fx_Len = vesselNum;
-//   yType->Fy_Len = vesselNum;
-//   yType->Fz_Len = vesselNum;
-//   uType->x = (double*)malloc(uType->x_Len*sizeof(double));
-//   uType->y = (double*)malloc(uType->y_Len*sizeof(double));
-//   uType->z = (double*)malloc(uType->z_Len*sizeof(double));
-//   yType->Fx = (double*)malloc(yType->Fx_Len*sizeof(double));
-//   yType->Fy = (double*)malloc(yType->Fy_Len*sizeof(double));
-//   yType->Fz = (double*)malloc(yType->Fz_Len*sizeof(double));
-//   return MAP_SAFE;
-// };
+MAP_ERROR_CODE allocate_types_for_nodes(MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type, ModelData* model_data, struct bstrList* node_input_string, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  int i = 0;
+  int i_parsed = 0;
+  int next = 0;
+  int fix_num = 0;
+  int vessel_num = 0;
+  int connect_num = 0;
+  MAP_ERROR_CODE success = MAP_SAFE;
+  bstring user_msg = NULL;
+  const int num_nodes = node_input_string->qty;
+  struct bstrList* parsed = NULL;
+  struct tagbstring tokens; 
+  
+  cstr2tbstr(tokens," \t\n\r"); /* token for splitting line into indivdual words is a tab and space */   
+
+   /* First need to run loop to find the number of inputs, outputs, constraints.
+    * Basically we are just counting the number of VESSEL, FIX, and CONNECT nodes     
+    */
+  for(i=0 ; i<num_nodes ; i++) {             
+    i_parsed = 0;
+    next = 0;
+    parsed = bsplits(node_input_string->entry[i], &tokens);
+    do {  
+      while (i_parsed<parsed->qty-1) { /* iterating through all strings */              
+        if (parsed->entry[i_parsed]->slen) { /* if the string length is not 0 */
+          if (next==1) {
+            if (biseqcstrcaseless(parsed->entry[i_parsed],"FIX")) {
+              fix_num++;
+              break; /* break the while-loop because the agenda is reached */
+            } else if (biseqcstrcaseless(parsed->entry[i_parsed],"CONNECT")) {
+              connect_num++;
+              break; /* break the while-loop because the agenda is reached */
+            } else if (biseqcstrcaseless(parsed->entry[i_parsed],"VESSEL")) {
+              vessel_num++;
+              break; /* break the while-loop because the agenda is reached */
+            } else {
+              user_msg = bformat("Value: <%s>", parsed->entry[i_parsed]->data);
+              *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_25);        
+              success = bdestroy(user_msg); /* clear user_msg to not inavertendly picked up elsewhere */
+              user_msg = NULL;
+            };
+          };          
+          next++;
+        };
+        i_parsed++;
+      };
+    } while (0);
+    success = bstrListDestroy(parsed);
+  }; 
+
+  other_type->x_Len = fix_num;
+  other_type->y_Len = fix_num;
+  other_type->z_Len = fix_num;
+  other_type->x = (double*)malloc(other_type->x_Len*sizeof(double));
+  other_type->y = (double*)malloc(other_type->y_Len*sizeof(double));
+  other_type->z = (double*)malloc(other_type->z_Len*sizeof(double));
+
+  /* If the node is VESSEL, then the applied force is an output state. Otherwise, 
+   * it has to be an other state because it can't be associated with any other type. 
+   * This is what is done below.
+   */
+  other_type->Fx_connect_Len = connect_num;
+  other_type->Fy_connect_Len = connect_num;
+  other_type->Fz_connect_Len = connect_num;
+  other_type->Fx_connect = (double*)malloc(other_type->Fx_connect_Len*sizeof(double));
+  other_type->Fy_connect = (double*)malloc(other_type->Fy_connect_Len*sizeof(double));
+  other_type->Fz_connect = (double*)malloc(other_type->Fz_connect_Len*sizeof(double));
+
+  other_type->Fx_anchor_Len = fix_num;
+  other_type->Fy_anchor_Len = fix_num;
+  other_type->Fz_anchor_Len = fix_num;
+  other_type->Fx_anchor = (double*)malloc(other_type->Fx_anchor_Len*sizeof(double));
+  other_type->Fy_anchor = (double*)malloc(other_type->Fy_anchor_Len*sizeof(double));
+  other_type->Fz_anchor = (double*)malloc(other_type->Fz_anchor_Len*sizeof(double));
+  
+  z_type->x_Len = connect_num;          
+  z_type->y_Len = connect_num;          
+  z_type->z_Len = connect_num;          
+  z_type->x = (double*)malloc(z_type->x_Len*sizeof(double));
+  z_type->y = (double*)malloc(z_type->y_Len*sizeof(double));
+  z_type->z = (double*)malloc(z_type->z_Len*sizeof(double));
+  
+  u_type->x_Len = vessel_num;
+  u_type->y_Len = vessel_num;
+  u_type->z_Len = vessel_num;
+  u_type->x = (double*)malloc(u_type->x_Len*sizeof(double));
+  u_type->y = (double*)malloc(u_type->y_Len*sizeof(double));
+  u_type->z = (double*)malloc(u_type->z_Len*sizeof(double));
+
+  y_type->Fx_Len = vessel_num;
+  y_type->Fy_Len = vessel_num;
+  y_type->Fz_Len = vessel_num;
+  y_type->Fx = (double*)malloc(y_type->Fx_Len*sizeof(double));
+  y_type->Fy = (double*)malloc(y_type->Fy_Len*sizeof(double));
+  y_type->Fz = (double*)malloc(y_type->Fz_Len*sizeof(double));
+
+  return MAP_SAFE;
+};
 
 
-// /**
-//  *
-//  */
-// MAP_ERROR_CODE compare_length(int a, int b)
-// {
-//   if (a!=b) {
-//     return MAP_FATAL;
-//   }; 
-//   return MAP_SAFE;
-// };
+MAP_ERROR_CODE compare_length(int a, int b)
+{
+  if (a!=b) {
+    return MAP_FATAL;
+  }; 
+  return MAP_SAFE;
+};
 
 
-// int set_node_list(const MAP_ParameterType_t* pType,  MAP_InputType_t* uType, MAP_ConstraintStateType_t* zType, MAP_OtherStateType_t* otherType, MAP_OutputType_t* yType, ModelData* data, char** const nodeInputString, char* map_msg, MAP_ERROR_CODE* ierr)
-// {
-//   int i = 0;
-//   int cx = 0;
-//   int cnt = 0;
-//   int success = 0;
-//   int sizeOfString = 0;
-//   int fixNum = 0;
-//   int vesselNum = 0;
-//   int connectNum = 0;
-//   Node newNode;
-//   char buffer[64] = "";
-//   char* word = NULL;
-//   char* line = NULL;
-//   const MapReal depth = pType->depth;
-// 
-//   success = allocate_types_for_nodes(uType, zType, otherType, yType, data, nodeInputString, map_msg, ierr);
-//   
-//   for(i=0 ; i<=data->sizeOfNodes-1 ; i++) {         
-//     set_node_null(&newNode);
-//     sizeOfString = strlen(nodeInputString[i]);
-//     line = (char*)realloc(line, (sizeOfString+1)*sizeof(char));    
-//     strcpy(line, nodeInputString[i]);
-//     word = strtok(line, " ,\n\t\r\0");    
-//     while (word!=NULL) {      
-//       if (cnt==0) {  
-//         /* this is ignored because it's not needed for the model assembly */
-//       } else if (cnt==1) { /* compare strings to determine what type of node it is connected to */
-//         if (!strcicmp("FIX",word)) { 
-//           newNode.type = FIX;
-//           fixNum++;
-//                                          /* VarTypePtr            FAST derived  array index */
-//           success = associate_vartype_ptr(&newNode.positionPtr.x, otherType->x, fixNum);
-//           success = associate_vartype_ptr(&newNode.positionPtr.y, otherType->y, fixNum);
-//           success = associate_vartype_ptr(&newNode.positionPtr.z, otherType->z, fixNum);
-//           success = associate_vartype_ptr(&newNode.sumForcePtr.fx, otherType->Fx_anchor, fixNum);
-//           success = associate_vartype_ptr(&newNode.sumForcePtr.fy, otherType->Fy_anchor, fixNum);
-//           success = associate_vartype_ptr(&newNode.sumForcePtr.fz, otherType->Fz_anchor, fixNum);
-//         } else if (!strcicmp("CONNECT",word)) {
-//           newNode.type = CONNECT;
-//           connectNum++;
-//           success = associate_vartype_ptr(&newNode.positionPtr.x, zType->x, connectNum);
-//           success = associate_vartype_ptr(&newNode.positionPtr.y, zType->y, connectNum);
-//           success = associate_vartype_ptr(&newNode.positionPtr.z, zType->z, connectNum);
-//           success = associate_vartype_ptr(&newNode.sumForcePtr.fx, otherType->Fx_connect, connectNum);
-//           success = associate_vartype_ptr(&newNode.sumForcePtr.fy, otherType->Fy_connect, connectNum);
-//           success = associate_vartype_ptr(&newNode.sumForcePtr.fz, otherType->Fz_connect, connectNum);
-//         } else if (!strcicmp("VESSEL",word)) {
-//           newNode.type = VESSEL;
-//           vesselNum++;
-//           success = associate_vartype_ptr(&newNode.positionPtr.x, uType->x, vesselNum);
-//           success = associate_vartype_ptr(&newNode.positionPtr.y, uType->y, vesselNum);
-//           success = associate_vartype_ptr(&newNode.positionPtr.z, uType->z, vesselNum);
-//           success = associate_vartype_ptr(&newNode.sumForcePtr.fx, yType->Fx, vesselNum);
-//           success = associate_vartype_ptr(&newNode.sumForcePtr.fy, yType->Fy, vesselNum);
-//           success = associate_vartype_ptr(&newNode.sumForcePtr.fz, yType->Fz, vesselNum);
-//         } else {
-//           /* the node is given an invalid name */
-//           cx = map_snprintf(buffer, 64, "Value '%s'.", word); assert(cx>=0);
-//           *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_25);          
-//         };
-//         cx = map_snprintf(buffer, 64, "s(fx)[%d]", i+1); assert(cx>=0);        
-//         success = initialize_node_sum_force_ptr("[N]", buffer, i, &newNode.sumForcePtr.fx); CHECKERRQ(MAP_FATAL_22); 
-//         cx = map_snprintf(buffer, 64, "s(fy)[%d]", i+1); assert(cx>=0);        
-//         success = initialize_node_sum_force_ptr("[N]", buffer, i, &newNode.sumForcePtr.fy); CHECKERRQ(MAP_FATAL_23); 
-//         cx = map_snprintf(buffer, 64, "s(fz)[%d]", i+1); assert(cx>=0);        
-//         success = initialize_node_sum_force_ptr("[N]", buffer, i, &newNode.sumForcePtr.fz); CHECKERRQ(MAP_FATAL_24); 
-//       } else if (cnt==2) { 
-//         /* set initial X node position values */
-//         cx = map_snprintf(buffer, 64, "X[%d]", i+1); assert(cx>=0);        
-//         success = set_vartype_ptr("[m]", buffer, i, &newNode.positionPtr.x, word); CHECKERRQ(MAP_FATAL_17);
-//       } else if (cnt==3) { 
-//         /* set initial Y node position values */
-//         cx = map_snprintf(buffer, 64, "Y[%d]", i+1); assert(cx>=0);        
-//         success = set_vartype_ptr("[m]", buffer, i, &newNode.positionPtr.y, word); CHECKERRQ(MAP_FATAL_18);
-//       } else if (cnt==4) { 
-//         /* set initial Z node position values */
-//         cx = map_snprintf(buffer, 64, "Z[%d]", i+1); assert(cx>=0);        
-//         if (!strcicmp("DEPTH", word)) {          
-//           if (newNode.type!=FIX) { /* can only use 'DEPTH' flag in input file for FIX (anchor) nodes */
-//             *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_71);            
-//           } else {
-//             success = set_vartype_ptr_float("[m]", buffer, i, &newNode.positionPtr.z, depth); CHECKERRQ(MAP_FATAL_19);
-//           };
-//         } else { /* all other nodes not using the 'DEPTH' flag */
-//           success = set_vartype_ptr("[m]", buffer, i, &newNode.positionPtr.z, word); CHECKERRQ(MAP_FATAL_19);
-//         };        
-//       } else if (cnt==5) { 
-//         /* set the node mass */
-//         cx = map_snprintf(buffer, 64, "M[%d]", i+1); assert(cx>=0);        
-//         success = set_vartype("[kg]", buffer, i, &newNode.MApplied, word); CHECKERRQ(MAP_FATAL_20);
-//       } else if (cnt==6) { 
-//         /* set the node buoyancy */
-//         cx = map_snprintf(buffer, 64, "B[%d]", i+1); assert(cx>=0);        
-//         success = set_vartype("[m^3]", buffer, i, &newNode.BApplied, word); CHECKERRQ(MAP_FATAL_21);
-//       } else if (cnt==7) { 
-//         /* set applied X external force (or user guess) of the node */        
-//         cx = map_snprintf(buffer, 64, "FX[%d]", i+1); assert(cx>=0);                
-//         success = initialize_external_applied_force("[N]", buffer, i, &newNode.externalForce.fx, word); CHECKERRQ(MAP_FATAL_22);
-//       } else if (cnt==8) { 
-//         /* set applied Y external force (or user guess) of the node */
-//         cx = map_snprintf(buffer, 64, "FY[%d]", i+1); assert(cx>=0);        
-//         success = initialize_external_applied_force("[N]", buffer, i, &newNode.externalForce.fy, word); CHECKERRQ(MAP_FATAL_23);
-//       } else if (cnt==9) { 
-//         /* set applied Z external force (or user guess) of the node */
-//         cx = map_snprintf(buffer, 64, "FZ[%d]", i+1); assert(cx>=0);        
-//         success = initialize_external_applied_force("[N]", buffer, i, &newNode.externalForce.fz, word); CHECKERRQ(MAP_FATAL_24);
-//       } else { /* too many user inputs are givenin the input file. Let users know in case was not intended */
-//         if (strcmp(" ",word)) {
-//           cx = map_snprintf(buffer, 64, "Value '%s'.", word); assert(cx>=0);
-//           *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_WARNING_2);
-//         };
-//       };
-//       cnt++;
-//       word = strtok(NULL, " ,\n\t\r\0");
-//     };  
-//     list_append(&data->node, &newNode);
-//     cnt = 0;
-//   };
-//   
-//   /* 
-//      check to make sure the number of allocated array spaces for fortran derived types matches 
-//      what was actually set in the node initialization front end.
-//   */     
-//   do {
-//     success = compare_length(otherType->Fx_connect_Len, connectNum); CHECKERRQ(MAP_FATAL_49);
-//     success = compare_length(otherType->Fy_connect_Len, connectNum); CHECKERRQ(MAP_FATAL_49);
-//     success = compare_length(otherType->Fz_connect_Len, connectNum); CHECKERRQ(MAP_FATAL_49);
-// 
-//     success = compare_length(otherType->Fx_anchor_Len, fixNum); CHECKERRQ(MAP_FATAL_49); // @todo: change error code
-//     success = compare_length(otherType->Fy_anchor_Len, fixNum); CHECKERRQ(MAP_FATAL_49); // @todo: change error code
-//     success = compare_length(otherType->Fz_anchor_Len, fixNum); CHECKERRQ(MAP_FATAL_49); // @todo: change error code
-// 
-//     success = compare_length(otherType->x_Len, fixNum); CHECKERRQ(MAP_FATAL_49);
-//     success = compare_length(otherType->y_Len, fixNum); CHECKERRQ(MAP_FATAL_49);
-//     success = compare_length(otherType->z_Len, fixNum); CHECKERRQ(MAP_FATAL_49);
-//               
-//     success = compare_length(uType->x_Len, vesselNum); CHECKERRQ(MAP_FATAL_50);
-//     success = compare_length(uType->y_Len, vesselNum); CHECKERRQ(MAP_FATAL_50);
-//     success = compare_length(uType->z_Len, vesselNum); CHECKERRQ(MAP_FATAL_50);    
-//               
-//     success = compare_length(yType->Fx_Len, vesselNum); CHECKERRQ(MAP_FATAL_51);
-//     success = compare_length(yType->Fy_Len, vesselNum); CHECKERRQ(MAP_FATAL_51);
-//     success = compare_length(yType->Fz_Len, vesselNum); CHECKERRQ(MAP_FATAL_51);    
-//               
-//     success = compare_length(zType->x_Len, connectNum); CHECKERRQ(MAP_FATAL_52);
-//     success = compare_length(zType->y_Len, connectNum); CHECKERRQ(MAP_FATAL_52);
-//     success = compare_length(zType->z_Len, connectNum); CHECKERRQ(MAP_FATAL_52);    
-//   } while (0);  
-//   
-//   MAPFREE(line);
-// 
-//   if (*ierr==MAP_FATAL) {
-//     return 1;
-//   };
-//   return 0;  
-// };
+MAP_ERROR_CODE set_node_list(const MAP_ParameterType_t* p_type,  MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type, ModelData* model_data, struct bstrList* node_input_string, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  MAP_ERROR_CODE success = MAP_SAFE;
+  int i = 0;
+  int i_parsed = 0;
+  int next = 0;
+  const int num_nodes = node_input_string->qty;
+  int fix_num = 0;
+  int vessel_num = 0;
+  int connect_num = 0;
+  Node new_node;
+  struct bstrList* parsed = NULL;
+  struct tagbstring tokens; 
+  bstring user_msg = NULL;
+  bstring alias = NULL;
+  bstring value_string = NULL;
+  const double depth = p_type->depth;
+
+  cstr2tbstr(tokens," \t\n\r"); /* token for splitting line into indivdual words is a tab and space */   
+
+  success = allocate_types_for_nodes(u_type, z_type, other_type, y_type, model_data, node_input_string, map_msg, ierr);
+   
+  for(i=0 ; i<num_nodes ; i++) {         
+    i_parsed = 0;
+    next = 0;
+    parsed = bsplits(node_input_string->entry[i], &tokens);
+    do {  
+      while (i_parsed<parsed->qty-1) { /* iterating through all strings */              
+        if (parsed->entry[i_parsed]->slen) { /* if the string length is not 0 */
+          if (next==0) {
+            success = reset_node(&new_node);
+            next++;
+          } else if (next==1) {
+            if (biseqcstrcaseless(parsed->entry[i_parsed],"FIX")) {
+              new_node.type = FIX;
+              fix_num++;                   /* VarTypePtr              FAST derived  array index */
+              success = associate_vartype_ptr(&new_node.positionPtr.x, other_type->x, fix_num);
+              success = associate_vartype_ptr(&new_node.positionPtr.y, other_type->y, fix_num);
+              success = associate_vartype_ptr(&new_node.positionPtr.z, other_type->z, fix_num);
+              success = associate_vartype_ptr(&new_node.sumForcePtr.fx, other_type->Fx_anchor, fix_num);
+              success = associate_vartype_ptr(&new_node.sumForcePtr.fy, other_type->Fy_anchor, fix_num);
+              success = associate_vartype_ptr(&new_node.sumForcePtr.fz, other_type->Fz_anchor, fix_num);
+            } else if (biseqcstrcaseless(parsed->entry[i_parsed],"CONNECT")) {
+              new_node.type = CONNECT;
+              connect_num++;
+              success = associate_vartype_ptr(&new_node.positionPtr.x, z_type->x, connect_num);
+              success = associate_vartype_ptr(&new_node.positionPtr.y, z_type->y, connect_num);
+              success = associate_vartype_ptr(&new_node.positionPtr.z, z_type->z, connect_num);
+              success = associate_vartype_ptr(&new_node.sumForcePtr.fx, other_type->Fx_connect, connect_num);
+              success = associate_vartype_ptr(&new_node.sumForcePtr.fy, other_type->Fy_connect, connect_num);
+              success = associate_vartype_ptr(&new_node.sumForcePtr.fz, other_type->Fz_connect, connect_num);
+            } else if (biseqcstrcaseless(parsed->entry[i_parsed],"VESSEL")) {
+              new_node.type = VESSEL;
+              vessel_num++;
+              success = associate_vartype_ptr(&new_node.positionPtr.x, u_type->x, vessel_num);
+              success = associate_vartype_ptr(&new_node.positionPtr.y, u_type->y, vessel_num);
+              success = associate_vartype_ptr(&new_node.positionPtr.z, u_type->z, vessel_num);
+              success = associate_vartype_ptr(&new_node.sumForcePtr.fx, y_type->Fx, vessel_num);
+              success = associate_vartype_ptr(&new_node.sumForcePtr.fy, y_type->Fy, vessel_num);
+              success = associate_vartype_ptr(&new_node.sumForcePtr.fz, y_type->Fz, vessel_num);
+            } else {
+              user_msg = bformat("Value: <%s>", parsed->entry[i_parsed]->data);
+              *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_25);        
+              success = bdestroy(user_msg); /* clear user_msg to not inavertendly picked up elsewhere */
+              user_msg = NULL;
+            };
+            next++;
+          } else if (next==2) { /* set initial X node position values */
+            alias = bformat("X[%d]", i+1);                          
+            success = set_vartype_ptr("[m]", alias, i, &new_node.positionPtr.x, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_17);
+            bdestroy(alias);
+            next++;
+          } else if (next==3) { /* set initial Y node position values */
+            alias = bformat("Y[%d]", i+1);                          
+            success = set_vartype_ptr("[m]", alias, i, &new_node.positionPtr.y, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_18);
+            bdestroy(alias);
+            next++;
+          } else if (next==4) { /* set initial Z node position values */
+            alias = bformat("Z[%d]", i+1);                          
+            if (biseqcstrcaseless(parsed->entry[i_parsed],"DEPTH")) {          
+              if (new_node.type!=FIX) { /* can only use 'DEPTH' flag in input file for FIX (anchor) nodes */
+                user_msg = bformat("Value: <%s>", parsed->entry[i_parsed]->data);
+                *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_71); 
+                success = bdestroy(user_msg); /* clear user_msg to not inavertendly picked up elsewhere */
+                user_msg = NULL;
+              } else {
+                value_string = bformat("%f", depth);                          
+                success = set_vartype_ptr("[m]", alias, i, &new_node.positionPtr.z, value_string); CHECKERRQ(MAP_FATAL_19);
+              };
+            } else { /* all other nodes not using the 'DEPTH' flag */
+              success = set_vartype_ptr("[m]", alias, i, &new_node.positionPtr.z, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_19);
+            };        
+            bdestroy(alias);
+            next++;
+          } else if (next==5) { /* set the node mass */            
+            alias = bformat("M[%d]", i+1);                          
+            success = set_vartype("[kg]", alias, i, &new_node.MApplied, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_20);
+            bdestroy(alias);
+            next++;  
+          } else if (next==6) { /* set the node buoyancy */
+            alias = bformat("B[%d]", i+1);                          
+            success = set_vartype("[m^3]", alias, i, &new_node.BApplied, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_21);
+            bdestroy(alias);
+            next++; 
+          } else if (next==7) { /* set applied X external force (or user guess) of the node */                    
+            alias = bformat("FX[%d]", i+1);                          
+            success = set_vartype("[N]", alias, i, &new_node.externalForce.fx, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_22);
+            bdestroy(alias);
+            next++;
+          } else if (next==8) { /* set applied Y external force (or user guess) of the node */            
+            alias = bformat("FY[%d]", i+1);                          
+            success = set_vartype("[N]", alias, i, &new_node.externalForce.fy, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_23);
+            bdestroy(alias);
+            next++;
+          } else if (next==9) { /* set applied Z external force (or user guess) of the node */
+            alias = bformat("FZ[%d]", i+1);                          
+            success = set_vartype("[N]", alias, i, &new_node.externalForce.fz, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_24);
+            bdestroy(alias);
+            next++;
+          } else {            
+            next++;
+          };
+        };
+        i_parsed++;
+      };
+      // printf("Node is fixed: %d\n", new_node.type);
+      // printf("Name: %s\n", new_node.positionPtr.z.name->data);
+      // printf("Name: %f\n", *new_node.positionPtr.z.value);
+      // printf("units: %f\n\n", new_node.externalForce.fz.value);
+        
+      // init_data->expandedNodeInputString->qty++;
+      // init_data->expandedNodeInputString->entry[n_line] = bstrcpy(line);
+      //success = bassigncstr(line, "");
+    } while (0);   
+    success = bstrListDestroy(parsed);
+    list_append(&model_data->node, &new_node);
+  };  
+
+  model_data->sizeOfNodes = list_size(&model_data->node);
+
+
+  /* check to make sure the number of allocated array spaces for fortran derived types matches 
+   * what was actually set in the node initialization front end.
+   */     
+  do {
+    success = compare_length(other_type->Fx_connect_Len, connect_num); CHECKERRQ(MAP_FATAL_49);
+    success = compare_length(other_type->Fy_connect_Len, connect_num); CHECKERRQ(MAP_FATAL_49);
+    success = compare_length(other_type->Fz_connect_Len, connect_num); CHECKERRQ(MAP_FATAL_49);
+
+    success = compare_length(other_type->Fx_anchor_Len, fix_num); CHECKERRQ(MAP_FATAL_49); // @todo: change error code
+    success = compare_length(other_type->Fy_anchor_Len, fix_num); CHECKERRQ(MAP_FATAL_49); // @todo: change error code
+    success = compare_length(other_type->Fz_anchor_Len, fix_num); CHECKERRQ(MAP_FATAL_49); // @todo: change error code
+
+    success = compare_length(other_type->x_Len, fix_num); CHECKERRQ(MAP_FATAL_49);
+    success = compare_length(other_type->y_Len, fix_num); CHECKERRQ(MAP_FATAL_49);
+    success = compare_length(other_type->z_Len, fix_num); CHECKERRQ(MAP_FATAL_49);
+              
+    success = compare_length(u_type->x_Len, vessel_num); CHECKERRQ(MAP_FATAL_50);
+    success = compare_length(u_type->y_Len, vessel_num); CHECKERRQ(MAP_FATAL_50);
+    success = compare_length(u_type->z_Len, vessel_num); CHECKERRQ(MAP_FATAL_50);    
+              
+    success = compare_length(y_type->Fx_Len, vessel_num); CHECKERRQ(MAP_FATAL_51);
+    success = compare_length(y_type->Fy_Len, vessel_num); CHECKERRQ(MAP_FATAL_51);
+    success = compare_length(y_type->Fz_Len, vessel_num); CHECKERRQ(MAP_FATAL_51);    
+              
+    success = compare_length(z_type->x_Len, connect_num); CHECKERRQ(MAP_FATAL_52);
+    success = compare_length(z_type->y_Len, connect_num); CHECKERRQ(MAP_FATAL_52);
+    success = compare_length(z_type->z_Len, connect_num); CHECKERRQ(MAP_FATAL_52);    
+  } while (0);  
+
+  MAP_RETURN;
+};
+
+
+MAP_ERROR_CODE set_vartype(const char* unit, bstring alias, const int num, VarType* type, bstring property )
+{
+  type->name = bstrcpy(alias);
+  type->units = bfromcstr(unit); 
+  type->referenceCounter = 0;
+  type->id = num;  
+
+  if (property->data[0]=='#') { /* this variable is an iterated parameter */      
+    type->isFixed = false;
+    if (property->slen==1) { /* implies that property->data = "#" */
+      type->value = -999.9;
+    } else if (is_numeric(remove_first_character(property->data))) { 
+      type->value = (double)atof(remove_first_character(property->data));
+    } else {
+      return MAP_FATAL;
+    };
+  } else { /* this variable is constant */    
+    type->isFixed = true;
+    if (is_numeric(property->data)) { 
+      type->value = (double)atof(property->data);
+    } else {
+      return MAP_FATAL;
+    };
+  };
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE set_vartype_ptr(const char* unit, bstring alias, const int num, VarTypePtr* type, bstring property)
+{
+  type->name = bstrcpy(alias);
+  type->units = bfromcstr(unit); 
+  type->referenceCounter = 0;
+  type->id = num;  
+
+  if (property->data[0]=='#') { /* this variable is an iterated parameter */      
+    type->isFixed = false;
+    if (property->slen==1) { /* implies that property->data = "#" */
+      *type->value = -999.9;
+    } else if (is_numeric(remove_first_character(property->data))) { 
+      *type->value = (double)atof(remove_first_character(property->data));
+    } else {
+      return MAP_FATAL;
+    };
+  } else { /* this variable is constant */    
+    type->isFixed = true;
+    if (is_numeric(property->data)) { 
+      *type->value = (double)atof(property->data);
+    } else {
+      return MAP_FATAL;
+    };
+  };
+  return MAP_SAFE;
+};
 
 
 // /**
@@ -1897,142 +1972,9 @@ MAP_ERROR_CODE repeat_elements(ModelData* model_data, InitializationData* init_d
 // };
 
 
-
-// /**
-//  *
-//  */
+MAP_ERROR_CODE set_element_list(MAP_ConstraintStateType_t* zType, ModelData* data, struct bstrList* elementInputString, char* map_msg, MAP_ERROR_CODE* ierr)
 // int set_element_list(MAP_ConstraintStateType_t* zType, ModelData* data, char** const elementInputString, char* map_msg, MAP_ERROR_CODE* ierr)
-// {
-//   int i = 0;
-//   int cx = 0;
-//   int cnt = 0;
-//   int success = 0;
-//   int sizeOfString = 0;
-//   char buffer[64] = "";
-//   char* line = NULL;
-//   char* word = NULL;
-//   Element newElement;
-//   Element* elementIter = NULL;
-//   int lineCounter = 0;
-// 
-// 
-//   struct tagbstring b_tokens; cstr2tbstr (b_tokens," \t");
-//   bstring b_line = bfromcstr ("");
-//   bstring b_unit = bfromcstr ("");
-//   bstring b_buffer = bfromcstr ("");
-//   struct bstrList* b_words = NULL;
-// 
-// 
-//   /* @todo ideally this should be set in its own function, not hidden in set_element_list() */
-//   zType->H_Len = data->sizeOfElements;          
-//   zType->V_Len = data->sizeOfElements;          
-//   zType->H = malloc(zType->H_Len*sizeof(double));
-//   zType->V = malloc(zType->V_Len*sizeof(double));
-// 
-//   if (zType->H==NULL) {
-//     *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_53);
-//     return MAP_FATAL;
-//   };
-// 
-//   if (zType->V==NULL) {
-//     *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_53);
-//     return MAP_FATAL;
-//   };
-// 
-//   for(i=0 ; i<=data->sizeOfElements-1 ; i++) {
-//     sizeOfString = strlen(elementInputString[i]);    
-//     
-// 
-//     if (strlen(elementInputString[i])>MAX_INIT_TYPE_LENGTH) {
-//       checkpoint(); /* @todo raise error code; buffer overflow */
-//     } else {
-//       bassigncstr(b_line, elementInputString[i]);
-//       // printf("length is: %d\n<%s>\n",b_line->slen,b_line->data);
-//     };
-//     // REPLACE
-//     line = (char*)realloc(line, (sizeOfString+1)*sizeof(char));    
-//     strcpy(line, elementInputString[i]);    
-//     // REPLACE
-// 
-//     
-//     b_words = bsplits(b_line, &b_tokens);
-//     // REPLACE
-//     word = strtok(line, " ,\n\t\r\0");
-//     // REPLACE
-// 
-// 
-//     int cout1 = 0;
-//     while (word!=NULL) {
-//       do {
-//         // printf("%d %d [%s] <%s>\n",b_words->qty,b_words->mlen,word,b_words->entry[cout1]->data);
-//         cout1+=2;
-//         if (cnt==0) {
-//           /* use this first option as an opportunity to set the run-time flags to false */
-//           initialize_element(&newElement, i+1);
-//           success = associate_vartype_ptr(&newElement.H, zType->H, i+1);
-//           success = associate_vartype_ptr(&newElement.V, zType->V, i+1);          
-//           
-//           b_buffer = bformat("V[%d]",i+1);
-//           cx = map_snprintf(buffer, 64, "V[%d]", i+1);assert(cx>=0);                  
-//           // b(b_line, elementInputString[i]);
-//           success = set_vartype_ptr("[N]", buffer, i, &newElement.V, word); CHECKERRQ(MAP_FATAL_32);
-//           // printf("%s %s\n",b_buffer->data,buffer);
-// 
-//           cx = map_snprintf(buffer, 64, "H[%d]", i+1); assert(cx>=0);                            
-//           success = set_vartype_ptr("[N]", buffer, i, &newElement.H, word); CHECKERRQ(MAP_FATAL_32);
-//         } else if (cnt==1) {
-//           success = associate_element_with_cable_property(&newElement, data, word, map_msg, ierr); CHECKERRQ(MAP_FATAL_32);
-//         } else if (cnt==2) { 
-//           cx = map_snprintf(buffer, 64, "Lu[%d]", i+1); assert(cx>=0);                
-//           success = set_vartype("[m]", buffer, i, &newElement.Lu, word); CHECKERRQ(MAP_FATAL_26);
-//         } else if (cnt==3) {
-//           success = associate_element_with_anchor_node(data, &newElement, i+1, word, map_msg, ierr); CHECKERRQ(MAP_FATAL_32);        
-//         } else if (cnt==4) {
-//           success = associate_element_with_fairlead_node(data, &newElement, i+1, word, map_msg, ierr); CHECKERRQ(MAP_FATAL_32); 
-//         } else { 
-//           success = map_set_option_flags (word, &newElement, map_msg, ierr);
-//         };
-//       } while (0);
-//       cnt++;
-//       word = strtok(NULL, " ,\n\t\r\0");
-//     };  
-//     list_append(&data->element, &newElement);
-//     cnt=0;
-//   };
-// 
-//   success = bstrListDestroy(b_words);
-// 
-// 
-//   /* check EA, Lu errors. These values cannot be negative. */
-//   list_iterator_start(&data->element);            /* starting an iteration "session" */
-//   while (list_iterator_hasnext(&data->element)) { /* tell whether more values available */ 
-//     elementIter = (Element*)list_iterator_next(&data->element);
-//     if(elementIter->Lu.value<=0.0) {
-//       success = MAP_FATAL;
-//       cx = map_snprintf(buffer, 64, "Line segment %d, Lu = %f [m].", lineCounter, elementIter->Lu.value); assert(cx>=0);
-//       *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_56);      
-//     } else if(elementIter->lineProperty->ea<=0.0) {
-//       success = MAP_FATAL;
-//       cx = map_snprintf(buffer, 64, "Line segment %d, EA = %f [N].", lineCounter, elementIter->lineProperty->ea); assert(cx>=0);
-//       *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_57);      
-//     };
-//     lineCounter++;
-//   };
-//   list_iterator_stop(&data->element); /* ending the iteration "session" */    
-// 
-//   MAPFREE(line);
-// 
-//   if (*ierr==MAP_FATAL) {
-//     return MAP_FATAL;
-//   };
-//   return MAP_SAFE;
-// };
-
-
-
-
-// int set_element_list(MAP_ConstraintStateType_t* zType, ModelData* data, char** const elementInputString, char* map_msg, MAP_ERROR_CODE* ierr)
-// {
+{
 //   int i = 0;
 //   int cx = 0;
 //   int cnt = 0;
@@ -2119,7 +2061,8 @@ MAP_ERROR_CODE repeat_elements(ModelData* model_data, InitializationData* init_d
 //     return MAP_FATAL;
 //   };
 //   return MAP_SAFE;
-// };
+  return MAP_SAFE;
+};
 
 
 
@@ -2256,9 +2199,6 @@ MAP_ERROR_CODE reset_element(Element* element_ptr)
 // };
 
 
-// /**
-//  *
-//  */
 // MAP_ERROR_CODE initialize_external_applied_force(char* unit, char* alias, const int num, VarType* type, char const* property)
 // {
 //   type->name = malloc(sizeof(char)*strlen(alias)+1);
