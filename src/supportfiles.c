@@ -51,9 +51,6 @@ const char* remove_first_character(const char* str)
 // };
 
 
-/**
- *
- */
 MAP_ERROR_CODE associate_vartype_ptr(VarTypePtr* type, double* arr, int index)
 {
   type->value = &arr[index-1];

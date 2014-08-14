@@ -65,16 +65,12 @@ MAP_ERROR_CODE set_element_vartype_ptr(char* unit, char* alias, const int num, V
 
 const char* remove_first_character(const char* str);
 // void map_end_unix_color( char* dest );
-void initialize_element( Element* ptr, const int ElementNum );
 MAP_ERROR_CODE initialize_external_applied_force(char* unit, char* alias, const int num, VarType* type, char const* property);
 MAP_ERROR_CODE initialize_node_sum_force_ptr(char* unit, char* alias, const int num, VarTypePtr* type);
-void initialize_vartype( char* unit, char* alias, VarType* type, const int num );
+// void initialize_vartype( char* unit, char* alias, VarType* type, const int num );
 
 size_t vartype_meter(const void* el);
 size_t vartype_ptr_meter(const void *el);
-MAP_ERROR_CODE associate_element_with_cable_property(Element* in_element, ModelData* data, char* word, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE associate_element_with_anchor_node(ModelData* data, Element* new_element, const int element_num, char* word, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE associate_element_with_fairlead_node(ModelData* data, Element* new_element, const int element_num, char* word, char* map_msg, MAP_ERROR_CODE* ierr);
 
 /*
  * This sets the pointers to NULL for the vessel object and gives it default properties. Only 

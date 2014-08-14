@@ -357,12 +357,10 @@
 
 MAP_ERROR_CODE check_help_flag(bstring list)
 {
-  int success = 0;
+  MAP_ERROR_CODE success = 0;
 
   success = biseqcstrcaseless(list,"HELP"); /* string compare */
-  if (success==BSTR_ERR) {
-    return MAP_FATAL;
-  } else if (success) { 
+  if (success) { 
     print_help_to_screen();
   }; 
   return MAP_SAFE;
@@ -1006,9 +1004,9 @@ MAP_ERROR_CODE reset_cable_library(CableLibrary* library_ptr)
   library_ptr->cAdded = 0.0;      
   library_ptr->cDragNormal = 0.0; 
   library_ptr->cDragTangent = 0.0; 
-  if (library_ptr->label) {
-    success = bdestroy(library_ptr->label);
-  };
+  // if (library_ptr->label) {
+  //   success = bdestroy(library_ptr->label);
+  // };
   return MAP_SAFE;
 };
 
@@ -1025,9 +1023,15 @@ MAP_ERROR_CODE set_cable_library_list(ModelData* model_data, InitializationData*
   struct bstrList* parsed = NULL;
   struct tagbstring tokens; 
   CableLibrary new_cable_library;
-
+  CableLibrary* library_iter = NULL;
+  
   cstr2tbstr(tokens," \t\n\r"); /* token for splitting line into indivdual words is a tab and space */   
+  success = reset_cable_library(&new_cable_library);
+
   for (i=0 ; i<=n_lines ; i++) { 
+    list_append(&model_data->cableLibrary, &new_cable_library);
+    library_iter = (CableLibrary*)list_get_at(&model_data->cableLibrary, i);
+
     parsed = bsplits(init_data->libraryInputString->entry[i], &tokens);
     n = 0;
     next = 0;
@@ -1035,39 +1039,39 @@ MAP_ERROR_CODE set_cable_library_list(ModelData* model_data, InitializationData*
       while (n<parsed->qty-1) { /* iterating through all strings */              
         if (parsed->entry[n]->slen) { /* if the string length is not 0 */
           if (next==0) {
-            new_cable_library.label = bstrcpy(parsed->entry[n]);                         
+            library_iter->label = bstrcpy(parsed->entry[n]);                         
             next++;
           } else if (next==1) {
-            success = set_library_diameter(parsed->entry[n], &new_cable_library); CHECKERRQ(MAP_FATAL_12);
-            next++;            
+             success = set_library_diameter(parsed->entry[n], library_iter); CHECKERRQ(MAP_FATAL_12);
+             next++;            
           } else if (next==2) {
-            success = set_library_mass_density(parsed->entry[n], &new_cable_library); CHECKERRQ(MAP_FATAL_13);
-            next++;
+             success = set_library_mass_density(parsed->entry[n], library_iter); CHECKERRQ(MAP_FATAL_13);
+             next++;
           } else if (next==3) {
-            success = set_library_ea(parsed->entry[n], &new_cable_library); CHECKERRQ(MAP_FATAL_14);
+            success = set_library_ea(parsed->entry[n], library_iter); CHECKERRQ(MAP_FATAL_14);
             next++;
           } else if (next==4) {
-            success = set_library_cb(parsed->entry[n], &new_cable_library); CHECKERRQ(MAP_FATAL_15);
+            success = set_library_cb(parsed->entry[n], library_iter); CHECKERRQ(MAP_FATAL_15);
             next++;
           } else if (next==5) {
-            success = set_library_internal_damping(parsed->entry[n], &new_cable_library); CHECKERRQ(MAP_FATAL_81);
+            success = set_library_internal_damping(parsed->entry[n], library_iter); CHECKERRQ(MAP_FATAL_81);
             next++;
           } else if (next==6) {
-            success = set_library_added_mass_coefficient(parsed->entry[n], &new_cable_library); CHECKERRQ(MAP_FATAL_82);
+            success = set_library_added_mass_coefficient(parsed->entry[n], library_iter); CHECKERRQ(MAP_FATAL_82);
             next++;
           } else if (next==7) {
-            success = set_library_cross_flow_drag_coefficient(parsed->entry[n], &new_cable_library); CHECKERRQ(MAP_FATAL_83);
+            success = set_library_cross_flow_drag_coefficient(parsed->entry[n], library_iter); CHECKERRQ(MAP_FATAL_83);
             next++;
           } else if (next==8) {
-            success = set_library_tangent_drag_coefficient(parsed->entry[n], &new_cable_library); CHECKERRQ(MAP_FATAL_84);
+            success = set_library_tangent_drag_coefficient(parsed->entry[n], library_iter); CHECKERRQ(MAP_FATAL_84);
             next++;
           };
         };
         n++;
       };
     } while (0);   
-    list_append(&model_data->cableLibrary, &new_cable_library);
-    success = reset_cable_library(&new_cable_library);
+    // list_append(&model_data->cableLibrary, &new_cable_library);
+    // success = reset_cable_library(&new_cable_library);
     success = bstrListDestroy(parsed);
   };
   model_data->sizeOfCableLibrary = list_size(&model_data->cableLibrary); /* SimCList routine */
@@ -1365,10 +1369,6 @@ MAP_ERROR_CODE repeat_nodes(ModelData* model_data, InitializationData* init_data
   };
   success = bdestroy(line);               
 
-  for(i=0 ; i<init_data->expandedNodeInputString->qty ; i++) {
-    printf("%s\n",init_data->expandedNodeInputString->entry[i]->data);
-  };
-
   MAP_RETURN;
 };
 
@@ -1533,6 +1533,7 @@ MAP_ERROR_CODE repeat_elements(ModelData* model_data, InitializationData* init_d
   // for(i=0 ; i<init_data->expandedElementInputString->qty ; i++) {
   //   printf("%s\n",init_data->expandedElementInputString->entry[i]->data);
   // };
+
   MAP_RETURN;
 };
 
@@ -1659,6 +1660,7 @@ MAP_ERROR_CODE set_node_list(const MAP_ParameterType_t* p_type,  MAP_InputType_t
   int vessel_num = 0;
   int connect_num = 0;
   Node new_node;
+  Node* node_iter = NULL;
   struct bstrList* parsed = NULL;
   struct tagbstring tokens; 
   bstring user_msg = NULL;
@@ -1669,45 +1671,48 @@ MAP_ERROR_CODE set_node_list(const MAP_ParameterType_t* p_type,  MAP_InputType_t
   cstr2tbstr(tokens," \t\n\r"); /* token for splitting line into indivdual words is a tab and space */   
 
   success = allocate_types_for_nodes(u_type, z_type, other_type, y_type, model_data, node_input_string, map_msg, ierr);
+  success = reset_node(&new_node); /* create an empty node */
    
   for(i=0 ; i<num_nodes ; i++) {         
+    list_append(&model_data->node, &new_node); /* append node to list */
+    node_iter = (Node*)list_get_at(&model_data->node, i);
+
     i_parsed = 0;
     next = 0;
     parsed = bsplits(node_input_string->entry[i], &tokens);
     do {  
       while (i_parsed<parsed->qty-1) { /* iterating through all strings */              
         if (parsed->entry[i_parsed]->slen) { /* if the string length is not 0 */
-          if (next==0) {
-            success = reset_node(&new_node);
+          if (next==0) {            
             next++;
           } else if (next==1) {
             if (biseqcstrcaseless(parsed->entry[i_parsed],"FIX")) {
-              new_node.type = FIX;
+              node_iter->type = FIX;
               fix_num++;                   /* VarTypePtr              FAST derived  array index */
-              success = associate_vartype_ptr(&new_node.positionPtr.x, other_type->x, fix_num);
-              success = associate_vartype_ptr(&new_node.positionPtr.y, other_type->y, fix_num);
-              success = associate_vartype_ptr(&new_node.positionPtr.z, other_type->z, fix_num);
-              success = associate_vartype_ptr(&new_node.sumForcePtr.fx, other_type->Fx_anchor, fix_num);
-              success = associate_vartype_ptr(&new_node.sumForcePtr.fy, other_type->Fy_anchor, fix_num);
-              success = associate_vartype_ptr(&new_node.sumForcePtr.fz, other_type->Fz_anchor, fix_num);
+              success = associate_vartype_ptr(&node_iter->positionPtr.x, other_type->x, fix_num);
+              success = associate_vartype_ptr(&node_iter->positionPtr.y, other_type->y, fix_num);
+              success = associate_vartype_ptr(&node_iter->positionPtr.z, other_type->z, fix_num);
+              success = associate_vartype_ptr(&node_iter->sumForcePtr.fx, other_type->Fx_anchor, fix_num);
+              success = associate_vartype_ptr(&node_iter->sumForcePtr.fy, other_type->Fy_anchor, fix_num);
+              success = associate_vartype_ptr(&node_iter->sumForcePtr.fz, other_type->Fz_anchor, fix_num);
             } else if (biseqcstrcaseless(parsed->entry[i_parsed],"CONNECT")) {
-              new_node.type = CONNECT;
+              node_iter->type = CONNECT;
               connect_num++;
-              success = associate_vartype_ptr(&new_node.positionPtr.x, z_type->x, connect_num);
-              success = associate_vartype_ptr(&new_node.positionPtr.y, z_type->y, connect_num);
-              success = associate_vartype_ptr(&new_node.positionPtr.z, z_type->z, connect_num);
-              success = associate_vartype_ptr(&new_node.sumForcePtr.fx, other_type->Fx_connect, connect_num);
-              success = associate_vartype_ptr(&new_node.sumForcePtr.fy, other_type->Fy_connect, connect_num);
-              success = associate_vartype_ptr(&new_node.sumForcePtr.fz, other_type->Fz_connect, connect_num);
+              success = associate_vartype_ptr(&node_iter->positionPtr.x, z_type->x, connect_num);
+              success = associate_vartype_ptr(&node_iter->positionPtr.y, z_type->y, connect_num);
+              success = associate_vartype_ptr(&node_iter->positionPtr.z, z_type->z, connect_num);
+              success = associate_vartype_ptr(&node_iter->sumForcePtr.fx, other_type->Fx_connect, connect_num);
+              success = associate_vartype_ptr(&node_iter->sumForcePtr.fy, other_type->Fy_connect, connect_num);
+              success = associate_vartype_ptr(&node_iter->sumForcePtr.fz, other_type->Fz_connect, connect_num);
             } else if (biseqcstrcaseless(parsed->entry[i_parsed],"VESSEL")) {
-              new_node.type = VESSEL;
+              node_iter->type = VESSEL;
               vessel_num++;
-              success = associate_vartype_ptr(&new_node.positionPtr.x, u_type->x, vessel_num);
-              success = associate_vartype_ptr(&new_node.positionPtr.y, u_type->y, vessel_num);
-              success = associate_vartype_ptr(&new_node.positionPtr.z, u_type->z, vessel_num);
-              success = associate_vartype_ptr(&new_node.sumForcePtr.fx, y_type->Fx, vessel_num);
-              success = associate_vartype_ptr(&new_node.sumForcePtr.fy, y_type->Fy, vessel_num);
-              success = associate_vartype_ptr(&new_node.sumForcePtr.fz, y_type->Fz, vessel_num);
+              success = associate_vartype_ptr(&node_iter->positionPtr.x, u_type->x, vessel_num);
+              success = associate_vartype_ptr(&node_iter->positionPtr.y, u_type->y, vessel_num);
+              success = associate_vartype_ptr(&node_iter->positionPtr.z, u_type->z, vessel_num);
+              success = associate_vartype_ptr(&node_iter->sumForcePtr.fx, y_type->Fx, vessel_num);
+              success = associate_vartype_ptr(&node_iter->sumForcePtr.fy, y_type->Fy, vessel_num);
+              success = associate_vartype_ptr(&node_iter->sumForcePtr.fz, y_type->Fz, vessel_num);
             } else {
               user_msg = bformat("Value: <%s>", parsed->entry[i_parsed]->data);
               *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_25);        
@@ -1717,54 +1722,54 @@ MAP_ERROR_CODE set_node_list(const MAP_ParameterType_t* p_type,  MAP_InputType_t
             next++;
           } else if (next==2) { /* set initial X node position values */
             alias = bformat("X[%d]", i+1);                          
-            success = set_vartype_ptr("[m]", alias, i, &new_node.positionPtr.x, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_17);
+            success = set_vartype_ptr("[m]", alias, i, &node_iter->positionPtr.x, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_17);
             bdestroy(alias);
             next++;
           } else if (next==3) { /* set initial Y node position values */
             alias = bformat("Y[%d]", i+1);                          
-            success = set_vartype_ptr("[m]", alias, i, &new_node.positionPtr.y, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_18);
+            success = set_vartype_ptr("[m]", alias, i, &node_iter->positionPtr.y, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_18);
             bdestroy(alias);
             next++;
           } else if (next==4) { /* set initial Z node position values */
             alias = bformat("Z[%d]", i+1);                          
             if (biseqcstrcaseless(parsed->entry[i_parsed],"DEPTH")) {          
-              if (new_node.type!=FIX) { /* can only use 'DEPTH' flag in input file for FIX (anchor) nodes */
+              if (node_iter->type!=FIX) { /* can only use 'DEPTH' flag in input file for FIX (anchor) nodes */
                 user_msg = bformat("Value: <%s>", parsed->entry[i_parsed]->data);
                 *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_71); 
                 success = bdestroy(user_msg); /* clear user_msg to not inavertendly picked up elsewhere */
                 user_msg = NULL;
               } else {
                 value_string = bformat("%f", depth);                          
-                success = set_vartype_ptr("[m]", alias, i, &new_node.positionPtr.z, value_string); CHECKERRQ(MAP_FATAL_19);
+                success = set_vartype_ptr("[m]", alias, i, &node_iter->positionPtr.z, value_string); CHECKERRQ(MAP_FATAL_19);
               };
             } else { /* all other nodes not using the 'DEPTH' flag */
-              success = set_vartype_ptr("[m]", alias, i, &new_node.positionPtr.z, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_19);
+              success = set_vartype_ptr("[m]", alias, i, &node_iter->positionPtr.z, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_19);
             };        
             bdestroy(alias);
             next++;
           } else if (next==5) { /* set the node mass */            
             alias = bformat("M[%d]", i+1);                          
-            success = set_vartype("[kg]", alias, i, &new_node.MApplied, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_20);
+            success = set_vartype("[kg]", alias, i, &node_iter->MApplied, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_20);
             bdestroy(alias);
             next++;  
           } else if (next==6) { /* set the node buoyancy */
             alias = bformat("B[%d]", i+1);                          
-            success = set_vartype("[m^3]", alias, i, &new_node.BApplied, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_21);
+            success = set_vartype("[m^3]", alias, i, &node_iter->BApplied, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_21);
             bdestroy(alias);
             next++; 
           } else if (next==7) { /* set applied X external force (or user guess) of the node */                    
             alias = bformat("FX[%d]", i+1);                          
-            success = set_vartype("[N]", alias, i, &new_node.externalForce.fx, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_22);
+            success = set_vartype("[N]", alias, i, &node_iter->externalForce.fx, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_22);
             bdestroy(alias);
             next++;
           } else if (next==8) { /* set applied Y external force (or user guess) of the node */            
             alias = bformat("FY[%d]", i+1);                          
-            success = set_vartype("[N]", alias, i, &new_node.externalForce.fy, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_23);
+            success = set_vartype("[N]", alias, i, &node_iter->externalForce.fy, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_23);
             bdestroy(alias);
             next++;
           } else if (next==9) { /* set applied Z external force (or user guess) of the node */
             alias = bformat("FZ[%d]", i+1);                          
-            success = set_vartype("[N]", alias, i, &new_node.externalForce.fz, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_24);
+            success = set_vartype("[N]", alias, i, &node_iter->externalForce.fz, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_24);
             bdestroy(alias);
             next++;
           } else {            
@@ -1783,11 +1788,13 @@ MAP_ERROR_CODE set_node_list(const MAP_ParameterType_t* p_type,  MAP_InputType_t
       //success = bassigncstr(line, "");
     } while (0);   
     success = bstrListDestroy(parsed);
-    list_append(&model_data->node, &new_node);
+    /* @todo: need to make sure next==9; otherwise not enough inputs and an error should
+     *        be thrown
+     */
+    // list_append(&model_data->node, &new_node);    
   };  
 
   model_data->sizeOfNodes = list_size(&model_data->node);
-
 
   /* check to make sure the number of allocated array spaces for fortran derived types matches 
    * what was actually set in the node initialization front end.
@@ -1822,28 +1829,32 @@ MAP_ERROR_CODE set_node_list(const MAP_ParameterType_t* p_type,  MAP_InputType_t
 };
 
 
-MAP_ERROR_CODE set_vartype(const char* unit, bstring alias, const int num, VarType* type, bstring property )
+MAP_ERROR_CODE set_vartype(const char* unit, bstring alias, const int num, VarType* type, bstring property)
 {
   type->name = bstrcpy(alias);
   type->units = bfromcstr(unit); 
   type->referenceCounter = 0;
-  type->id = num;  
-
-  if (property->data[0]=='#') { /* this variable is an iterated parameter */      
-    type->isFixed = false;
-    if (property->slen==1) { /* implies that property->data = "#" */
-      type->value = -999.9;
-    } else if (is_numeric(remove_first_character(property->data))) { 
-      type->value = (double)atof(remove_first_character(property->data));
-    } else {
-      return MAP_FATAL;
-    };
-  } else { /* this variable is constant */    
-    type->isFixed = true;
-    if (is_numeric(property->data)) { 
-      type->value = (double)atof(property->data);
-    } else {
-      return MAP_FATAL;
+  type->id = num;
+  
+  if (!property) { /* this option should only be called for setting element vartypes */
+    type->value = -999.9;
+  } else {
+    if (property->data[0]=='#') { /* this variable is an iterated parameter */      
+      type->isFixed = false;
+      if (property->slen==1) { /* implies that property->data = "#" */
+        type->value = -999.9;
+      } else if (is_numeric(remove_first_character(property->data))) { 
+        type->value = (double)atof(remove_first_character(property->data));
+      } else {
+        return MAP_FATAL;
+      };
+    } else { /* this variable is constant */    
+      type->isFixed = true;
+      if (is_numeric(property->data)) { 
+        type->value = (double)atof(property->data);
+      } else {
+        return MAP_FATAL;
+      };
     };
   };
   return MAP_SAFE;
@@ -1878,103 +1889,196 @@ MAP_ERROR_CODE set_vartype_ptr(const char* unit, bstring alias, const int num, V
 };
 
 
-// /**
-//  *
-//  */
-// MAP_ERROR_CODE map_set_option_flags( char *parsed_word, Element *elem, char *map_msg, MAP_ERROR_CODE *ierr )
-// {
-//   int cx = 0 ;
-//   int success = 0;
-//   char buffer[64] = "";
-//   
-//   if (!strcicmp("PLOT", parsed_word) ) elem->options.plotFlag = true;
-//   else if (!strcicmp("GX_POS", parsed_word)) {
-//     elem->options.gxPosFlag = true;
-//   } else if (!strcicmp("GY_POS", parsed_word)) {
-//     elem->options.gyPosFlag = true;
-//   } else if (!strcicmp("GZ_POS", parsed_word)) {
-//     elem->options.gzPosFlag = true;
-//   } else if (!strcicmp("GX_A_POS", parsed_word)) {
-//     elem->options.gxAnchorPosFlag = true;
-//   } else if (!strcicmp("GY_A_POS", parsed_word)) {
-//     elem->options.gyAnchorPosFlag = true;
-//   } else if (!strcicmp("GZ_A_POS", parsed_word)) {
-//     elem->options.gzAnchorPosFlag = true;
-//   } else if (!strcicmp("GX_FORCE", parsed_word)) {
-//     elem->options.gxForceFlag= true;
-//   } else if (!strcicmp("GY_FORCE", parsed_word)) {
-//     elem->options.gyForceFlag = true;
-//   } else if (!strcicmp("GZ_FORCE", parsed_word)) {
-//     elem->options.gzForceFlag = true;
-//   } else if (!strcicmp("H_FAIR", parsed_word)) {
-//     elem->options.HFlag = true;
-//   } else if (!strcicmp("H_ANCH", parsed_word)) {
-//     elem->options.HAnchorFlag = true;
-//   } else if (!strcicmp("V_FAIR", parsed_word)) {
-//     elem->options.VFlag = true;
-//   } else if (!strcicmp("V_ANCH", parsed_word)) {
-//     elem->options.VAnchorFlag = true;
-//   } else if (!strcicmp("TENSION_FAIR", parsed_word)) {
-//     elem->options.fairleadTensionFlag = true;
-//   } else if (!strcicmp("TENSION_ANCH", parsed_word)) {
-//     elem->options.anchorTensionFlag = true;
-//   } else if (!strcicmp("X_EXCURSION", parsed_word)) {
-//     elem->options.horizontalExcursionFlag = true;
-//   } else if (!strcicmp("Z_EXCURSION", parsed_word)) {
-//     elem->options.verticalExcursionFlag = true;
-//   } else if (!strcicmp("AZIMUTH", parsed_word)) {
-//     elem->options.azimuthFlag = true;
-//   } else if (!strcicmp("ALTITUDE", parsed_word)) {
-//     elem->options.altitudeFlag = true;
-//   } else if (!strcicmp("ALTITUDE_A", parsed_word)) {
-//     elem->options.altitudeAnchorFlag = true;
-//   } else if (!strcicmp("LINE_TENSION", parsed_word)) {
-//     elem->options.lineTensionFlag = true;
-//   } else if (!strcicmp("OMIT_CONTACT", parsed_word)) {
-//     elem->options.omitContact = true;
-//   } else if (!strcicmp("SEG_SIZE", parsed_word)) {
-//     parsed_word = strtok(NULL, " ,\n\t\r\0");
-//     success = is_numeric(parsed_word);
-//     if (success==MAP_SAFE) {
-//       elem->segmentSize = (MapReal)atof(parsed_word);
-//     } else { /* should not cancel the simulation; simply ignore it */      
-//       *ierr=map_set_universal_error(buffer, map_msg, ierr, MAP_ERROR_18); 
-//     };          
-//   } else if (!strcicmp("LAY_LENGTH", parsed_word)) {
-//     elem->options.layLengthFlag = true;
-//   } else if (!strcicmp("DAMAGE_TIME", parsed_word)) {
-//     parsed_word = strtok(NULL, " ,\n\t\r\0");
-//     success = is_numeric(parsed_word);
-//     if (success==MAP_SAFE) {
-//       elem->options.damageTimeFlag = true;
-//       elem->damageTime = (MapReal)atof(parsed_word);
-//     } else { /* should not cancel the simulation; simply ignore it */     
-//   *ierr=map_set_universal_error(buffer, map_msg, ierr, MAP_ERROR_1);
-//     };          
-//   } else if (!strcicmp("DIAGNOSTIC", parsed_word)) {
-//     parsed_word = strtok(NULL, " ,\n\t\r\0");
-//     success = is_numeric(parsed_word);
-//     if (success==MAP_SAFE) {
-//       elem->options.diagnosticsFlag = true;
-//       elem->diagnosticType = (int)atoi(parsed_word);
-//     } else {
-//       /* should not cancel the simulation; simply ignore it */
-//       *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_ERROR_14);
-//       elem->options.diagnosticsFlag = true;
-//       elem->diagnosticType = 0;
-//     };          
-//   } else {
-//     /* should not cancel the simulation; simply ignore it */
-//     cx = map_snprintf(buffer, 64, "Option '%s'.", parsed_word); assert(cx>=0);
-//     *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_WARNING_3);
-//   };
-//   return MAP_SAFE;
-// };
-
-
-MAP_ERROR_CODE set_element_list(MAP_ConstraintStateType_t* zType, ModelData* data, struct bstrList* elementInputString, char* map_msg, MAP_ERROR_CODE* ierr)
-// int set_element_list(MAP_ConstraintStateType_t* zType, ModelData* data, char** const elementInputString, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE set_element_option_flags(bstring word, Element* element_ptr, char* map_msg, MAP_ERROR_CODE* ierr)
 {
+  MAP_ERROR_CODE success = MAP_SAFE;
+  bstring user_msg = NULL;
+
+  if (biseqcstrcaseless(word,"PLOT")) {    
+    element_ptr->options.plotFlag = true;
+  } else if (biseqcstrcaseless(word, "GX_POS")) {
+    element_ptr->options.gxPosFlag = true;
+  } else if (biseqcstrcaseless(word, "GY_POS")) {
+    element_ptr->options.gyPosFlag = true;
+  } else if (biseqcstrcaseless(word, "GZ_POS")) {
+    element_ptr->options.gzPosFlag = true;
+  } else if (biseqcstrcaseless(word, "GX_A_POS")) {
+    element_ptr->options.gxAnchorPosFlag = true;
+  } else if (biseqcstrcaseless(word, "GY_A_POS")) {
+    element_ptr->options.gyAnchorPosFlag = true;
+  } else if (biseqcstrcaseless(word, "GZ_A_POS")) {
+    element_ptr->options.gzAnchorPosFlag = true;
+  } else if (biseqcstrcaseless(word, "GX_FORCE")) {
+    element_ptr->options.gxForceFlag= true;
+  } else if (biseqcstrcaseless(word, "GY_FORCE")) {
+    element_ptr->options.gyForceFlag = true;
+  } else if (biseqcstrcaseless(word, "GZ_FORCE")) {
+    element_ptr->options.gzForceFlag = true;
+  } else if (biseqcstrcaseless(word, "H_FAIR")) {
+    element_ptr->options.HFlag = true;
+  } else if (biseqcstrcaseless(word, "H_ANCH")) {
+    element_ptr->options.HAnchorFlag = true;
+  } else if (biseqcstrcaseless(word, "V_FAIR")) {
+    element_ptr->options.VFlag = true;
+  } else if (biseqcstrcaseless(word, "V_ANCH")) {
+    element_ptr->options.VAnchorFlag = true;
+  } else if (biseqcstrcaseless(word, "TENSION_FAIR")) {
+    element_ptr->options.fairleadTensionFlag = true;
+  } else if (biseqcstrcaseless(word, "TENSION_ANCH")) {
+    element_ptr->options.anchorTensionFlag = true;
+  } else if (biseqcstrcaseless(word, "X_EXCURSION")) {
+    element_ptr->options.horizontalExcursionFlag = true;
+  } else if (biseqcstrcaseless(word, "Z_EXCURSION")) {
+    element_ptr->options.verticalExcursionFlag = true;
+  } else if (biseqcstrcaseless(word, "AZIMUTH")) {
+    element_ptr->options.azimuthFlag = true;
+  } else if (biseqcstrcaseless(word, "ALTITUDE")) {
+    element_ptr->options.altitudeFlag = true;
+  } else if (biseqcstrcaseless(word, "ALTITUDE_A")) {
+    element_ptr->options.altitudeAnchorFlag = true;
+  } else if (biseqcstrcaseless(word, "LINE_TENSION")) {
+    element_ptr->options.lineTensionFlag = true;
+  } else if (biseqcstrcaseless(word, "OMIT_CONTACT")) {
+    element_ptr->options.omitContact = true;
+  } else if (biseqcstrcaseless(word, "SEG_SIZE")) {
+    if (is_numeric(word->data)) {
+      element_ptr->segmentSize = (MapReal)atof(word->data);
+    } else { /* should not cancel the simulation; simply ignore it */      
+      user_msg = bformat("Option <%s>", word->data);
+      *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_ERROR_18);
+      success = bdestroy(user_msg); /* clear user_msg to not inavertendly picked up elsewhere */
+      user_msg = NULL;
+      // *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_ERROR_18); 
+    };          
+  } else if (biseqcstrcaseless(word, "LAY_LENGTH")) {
+    element_ptr->options.layLengthFlag = true;
+  // } else if (biseqcstrcaseless("DAMAGE_TIME", word)) {
+  //   word = strtok(NULL, " ,\n\t\r\0");
+  //   success = is_numeric(word);
+  //   if (success==MAP_SAFE) {
+  //     elem->options.damageTimeFlag = true;
+  //     elem->damageTime = (MapReal)atof(word);
+  //   } else { /* should not cancel the simulation; simply ignore it */     
+  // *ierr=map_set_universal_error(buffer, map_msg, ierr, MAP_ERROR_1);
+  //   };          
+  // } else if (biseqcstrcaseless("DIAGNOSTIC", word)) {
+  //   word = strtok(NULL, " ,\n\t\r\0");
+  //   success = is_numeric(word);
+  //   if (success==MAP_SAFE) {
+  //     elem->options.diagnosticsFlag = true;
+  //     elem->diagnosticType = (int)atoi(word);
+  //   } else {
+  //     /* should not cancel the simulation; simply ignore it */
+  //     *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_ERROR_14);
+  //     elem->options.diagnosticsFlag = true;
+  //     elem->diagnosticType = 0;
+  //   };          
+  } else {
+    /* should not cancel the simulation; simply ignore it */
+    user_msg = bformat("Option <%s>", word->data);
+    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_WARNING_3);
+    success = bdestroy(user_msg); /* clear user_msg to not inavertendly picked up elsewhere */
+    user_msg = NULL;
+  };
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE set_element_list(MAP_ConstraintStateType_t* z_type, ModelData* model_data, struct bstrList* element_input_string, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  MAP_ERROR_CODE success = MAP_SAFE;
+  int i = 0;
+  int i_parsed = 0;
+  int next = 0;
+  const int num_elements = element_input_string->qty;
+  Element new_element;
+  Element* element_iter = NULL;
+  struct bstrList* parsed = NULL;
+  struct tagbstring tokens; 
+  bstring user_msg = NULL;
+  bstring alias = NULL;
+
+  cstr2tbstr(tokens," \t\n\r"); /* token for splitting line into indivdual words is a tab and space */   
+  success = reset_element(&new_element);
+
+  model_data->sizeOfElements = num_elements;
+
+  z_type->H_Len = model_data->sizeOfElements;          
+  z_type->V_Len = model_data->sizeOfElements;          
+  z_type->H = (double*)malloc(z_type->H_Len*sizeof(double));
+  z_type->V = (double*)malloc(z_type->V_Len*sizeof(double));
+
+  if (z_type->H==NULL || z_type->V==NULL) {
+    user_msg = bformat("Failed allocation of a z_type");
+    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_53);
+    success = bdestroy(user_msg); /* clear user_msg to not inavertendly picked up elsewhere */
+    user_msg = NULL;
+    return MAP_FATAL;
+  };
+  
+  for(i=0 ; i<num_elements ; i++) {         
+    list_append(&model_data->element, &new_element);
+    element_iter = (Element*)list_get_at(&model_data->element, i);
+    success = set_element_vartype(element_iter); /* @todo: check error */
+
+    i_parsed = 0;
+    next = 0;
+    parsed = bsplits(element_input_string->entry[i], &tokens);
+    do {  
+      while (i_parsed<parsed->qty-1) { /* iterating through all strings */              
+        if (parsed->entry[i_parsed]->slen) { /* if the string length is not 0 */
+          if (next==0) { /* use this first option as an opportunity to set the run-time flags to false */             
+            success = associate_vartype_ptr(&element_iter->H, z_type->H, i+1);
+            success = associate_vartype_ptr(&element_iter->V, z_type->V, i+1);
+
+            element_iter->H.isFixed = false;
+            alias = bformat("H[%d]", i+1);
+            success = set_vartype_ptr("[N]", alias, i, &element_iter->H, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_32);            
+            success = bdestroy(alias);
+
+            element_iter->V.isFixed = false;
+            alias = bformat("V[%d]", i+1);
+            success = set_vartype_ptr("[N]", alias, i, &element_iter->V, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_32);                        
+            success = bdestroy(alias);
+             
+            next++;
+          } else if (next==1) {
+            success = associate_element_with_cable_property(element_iter, model_data, parsed->entry[i_parsed]->data, map_msg, ierr); CHECKERRQ(MAP_FATAL_32);           
+            next++;
+          } else if (next==2) { 
+            alias = bformat("Lu[%d]", i+1);
+            success = set_vartype("[m]", alias, i, &element_iter->Lu, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_26);
+            success = bdestroy(alias);
+            next++;
+          } else if (next==3) { 
+            success = associate_element_with_anchor_node(element_iter, model_data, i+1, parsed->entry[i_parsed]->data,  map_msg, ierr); CHECKERRQ(MAP_FATAL_32);        
+            next++;
+          } else if (next==4) { 
+            success = associate_element_with_fairlead_node(element_iter, model_data, i+1, parsed->entry[i_parsed]->data,  map_msg, ierr); CHECKERRQ(MAP_FATAL_32);        
+            next++;
+          } else { /* set the node mass */            
+            success = set_element_option_flags(parsed->entry[i_parsed], element_iter, map_msg, ierr);
+            // next++;  
+          };
+        };
+        i_parsed++;
+      };
+      // printf("Node is fixed: %d\n", new_node.type);
+      // printf("Name: %s\n", new_node.positionPtr.z.name->data);
+      // printf("Name: %f\n", *new_node.positionPtr.z.value);
+      // printf("units: %f\n\n", new_node.externalForce.fz.value);
+        
+      // init_data->expandedNodeInputString->qty++;
+      // init_data->expandedNodeInputString->entry[n_line] = bstrcpy(line);
+      //success = bassigncstr(line, "");
+    } while (0);   
+    success = bstrListDestroy(parsed);
+  };  
+
+
+
+
+
 //   int i = 0;
 //   int cx = 0;
 //   int cnt = 0;
@@ -2088,6 +2192,39 @@ size_t vartype_ptr_meter(const void *el)
 
 MAP_ERROR_CODE reset_element(Element* element_ptr)
 {
+  element_ptr->event.LuRestore = 0.0;
+  element_ptr->event.dLu = 0.0;
+  element_ptr->event.LuMax = 0.0;
+  element_ptr->event.payinFlag = false;
+
+  /* run-time flags */
+  element_ptr->options.plotFlag = false;
+  element_ptr->options.gxPosFlag = false;
+  element_ptr->options.gyPosFlag = false;
+  element_ptr->options.gzPosFlag = false;
+  element_ptr->options.gxAnchorPosFlag = false;
+  element_ptr->options.gyAnchorPosFlag = false;
+  element_ptr->options.gzAnchorPosFlag = false;
+  element_ptr->options.gxForceFlag = false;
+  element_ptr->options.gyForceFlag = false;
+  element_ptr->options.gzForceFlag = false;
+  element_ptr->options.HFlag = false;
+  element_ptr->options.HAnchorFlag = false;
+  element_ptr->options.VFlag = false;
+  element_ptr->options.VAnchorFlag = false;
+  element_ptr->options.fairleadTensionFlag = false;
+  element_ptr->options.anchorTensionFlag = false;
+  element_ptr->options.horizontalExcursionFlag = false;
+  element_ptr->options.verticalExcursionFlag = false;
+  element_ptr->options.azimuthFlag = false;
+  element_ptr->options.altitudeFlag = false;
+  element_ptr->options.altitudeAnchorFlag = false;
+  element_ptr->options.lineTensionFlag = false;
+  element_ptr->options.omitContact = false;
+  element_ptr->options.layLengthFlag = false;
+  element_ptr->options.damageTimeFlag = false;
+  element_ptr->options.diagnosticsFlag = false;
+  
   element_ptr->lineProperty = NULL;      
   element_ptr->label = NULL;
   element_ptr->lineTension  = NULL;
@@ -2130,73 +2267,85 @@ MAP_ERROR_CODE reset_element(Element* element_ptr)
   element_ptr->T.units = NULL;
   element_ptr->TAtAnchor.name = NULL;
   element_ptr->TAtAnchor.units = NULL;
+
+  element_ptr->damageTime = -999.9;
+  element_ptr->diagnosticType = -9999;
+  element_ptr->segmentSize = 10;
+
 };
 
 
-// /**
-//  *
-//  */
-// void initialize_element(Element* ptr, const int elementNum)
-// {
-//   ptr->event.LuRestore = 0.0;
-//   ptr->event.dLu = 0.0;
-//   ptr->event.LuMax = 0.0;
-//   ptr->event.payinFlag = false;
-//   
-//   ptr->options.plotFlag = false;
-//   ptr->options.gxPosFlag = false;
-//   ptr->options.gyPosFlag = false;
-//   ptr->options.gzPosFlag = false;
-//   ptr->options.gxAnchorPosFlag = false;
-//   ptr->options.gyAnchorPosFlag = false;
-//   ptr->options.gzAnchorPosFlag = false;
-//   ptr->options.gxForceFlag = false;
-//   ptr->options.gyForceFlag = false;
-//   ptr->options.gzForceFlag = false;
-//   ptr->options.HFlag = false;
-//   ptr->options.HAnchorFlag = false;
-//   ptr->options.VFlag = false;
-//   ptr->options.VAnchorFlag = false;
-//   ptr->options.fairleadTensionFlag = false;
-//   ptr->options.anchorTensionFlag = false;
-//   ptr->options.horizontalExcursionFlag = false;
-//   ptr->options.verticalExcursionFlag = false;
-//   ptr->options.azimuthFlag = false;
-//   ptr->options.altitudeFlag = false;
-//   ptr->options.altitudeAnchorFlag = false;
-//   ptr->options.lineTensionFlag = false;
-//   ptr->options.omitContact = false;
-//   ptr->options.layLengthFlag = false;
-//   ptr->options.damageTimeFlag = false;
-//   ptr->options.diagnosticsFlag = false;
-// 
-//   initialize_vartype("[deg]", "psi", &ptr->psi, elementNum); 
-//   initialize_vartype("[deg]", "alpha", &ptr->alpha, elementNum); 
-//   initialize_vartype("[deg]", "alpha_a", &ptr->alphaAtAnchor, elementNum); 
-//   initialize_vartype("[m]", "l", &ptr->l, elementNum); 
-//   initialize_vartype("[m]", "lb", &ptr->lb, elementNum);
-//   initialize_vartype("[m]", "h", &ptr->h, elementNum);  
-//   initialize_vartype("[N]", "H_a", &ptr->HAtAnchor, elementNum); 
-//   initialize_vartype("[N]", "fx", &ptr->forceAtFairlead.fx, elementNum); 
-//   initialize_vartype("[N]", "fy", &ptr->forceAtFairlead.fy, elementNum);
-//   initialize_vartype("[N]", "fz", &ptr->forceAtFairlead.fz, elementNum);  
-//   initialize_vartype("[N]", "fx_a", &ptr->forceAtAnchor.fx, elementNum); 
-//   initialize_vartype("[N]", "fy_a", &ptr->forceAtAnchor.fy, elementNum); 
-//   initialize_vartype("[N]", "fz_a", &ptr->forceAtAnchor.fz, elementNum); 
-//   initialize_vartype("[N]", "V_a" , &ptr->VAtAnchor, elementNum); 
-//   initialize_vartype("[m]", "T", &ptr->T, elementNum); 
-//   initialize_vartype("[m]", "T_a", &ptr->TAtAnchor, elementNum); 
-// 
-//   ptr->H.name = NULL;
-//   ptr->V.name = NULL;
-//   ptr->H.units = NULL;
-//   ptr->V.units = NULL;
-//   
-//   /* */
-//   ptr->damageTime = -999.9;
-//   ptr->diagnosticType = -9999;
-//   ptr->segmentSize = 10;
-// };
+MAP_ERROR_CODE set_element_vartype(Element* element_ptr)
+{
+  MAP_ERROR_CODE success = MAP_SAFE;
+  bstring alias = NULL;
+
+  alias = bformat("psi");                          
+  success = set_vartype("[deg]", alias, 0, &element_ptr->psi, NULL); /* @todo: check error */
+  bdestroy(alias);
+
+  alias = bformat("alpha");                          
+  success = set_vartype("[deg]", alias, 0, &element_ptr->alpha, NULL); /* @todo: check error */
+  bdestroy(alias);
+
+  alias = bformat("alpha_a");                          
+  success = set_vartype("[deg]", alias, 0, &element_ptr->alphaAtAnchor, NULL); /* @todo: check error */
+  bdestroy(alias);
+
+  alias = bformat("l");                          
+  success = set_vartype("[m]", alias, 0, &element_ptr->l, NULL); /* @todo: check error */
+  bdestroy(alias);
+
+  alias = bformat("lb");                          
+  success = set_vartype("[m]", alias, 0, &element_ptr->lb, NULL); /* @todo: check error */
+  bdestroy(alias);
+
+  alias = bformat("h");                          
+  success = set_vartype("[m]", alias, 0, &element_ptr->h, NULL); /* @todo: check error */
+  bdestroy(alias);
+
+  alias = bformat("H_a");                          
+  success = set_vartype("[N]", alias, 0, &element_ptr->HAtAnchor, NULL); /* @todo: check error */
+  bdestroy(alias);
+
+  alias = bformat("fx");                          
+  success = set_vartype("[N]", alias, 0, &element_ptr->forceAtFairlead.fx, NULL); /* @todo: check error */
+  bdestroy(alias);
+
+  alias = bformat("fy");                          
+  success = set_vartype("[N]", alias, 0, &element_ptr->forceAtFairlead.fy, NULL); /* @todo: check error */
+  bdestroy(alias);
+
+  alias = bformat("fz");                          
+  success = set_vartype("[N]", alias, 0, &element_ptr->forceAtFairlead.fz, NULL); /* @todo: check error */
+  bdestroy(alias);
+
+  alias = bformat("fx_a");                          
+  success = set_vartype("[N]", alias, 0, &element_ptr->forceAtAnchor.fx, NULL); /* @todo: check error */
+  bdestroy(alias);
+
+  alias = bformat("fy_a");                          
+  success = set_vartype("[N]", alias, 0, &element_ptr->forceAtAnchor.fy, NULL); /* @todo: check error */
+  bdestroy(alias);
+
+  alias = bformat("fz_a");                          
+  success = set_vartype("[N]", alias, 0, &element_ptr->forceAtAnchor.fz, NULL); /* @todo: check error */
+  bdestroy(alias);
+
+  alias = bformat("V_a");                          
+  success = set_vartype("[N]", alias, 0, &element_ptr->VAtAnchor, NULL); /* @todo: check error */
+  bdestroy(alias);
+
+  alias = bformat("T");                          
+  success = set_vartype("[N]", alias, 0, &element_ptr->T, NULL); /* @todo: check error */
+  bdestroy(alias);
+
+  alias = bformat("T_a");                          
+  success = set_vartype("[N]", alias, 0, &element_ptr->TAtAnchor, NULL); /* @todo: check error */
+  bdestroy(alias);
+
+  return MAP_SAFE;
+};
 
 
 // MAP_ERROR_CODE initialize_external_applied_force(char* unit, char* alias, const int num, VarType* type, char const* property)
@@ -2280,95 +2429,95 @@ MAP_ERROR_CODE reset_node(Node* node_ptr)
 };
 
 
-// /**
-//  *
-//  */
-// MAP_ERROR_CODE associate_element_with_cable_property(Element* newElement, ModelData* data, char* word, char* map_msg, MAP_ERROR_CODE* ierr)
-// {
-//   CableLibrary* iterCableLibrary = NULL;
-//   iterCableLibrary = NULL;
-//   newElement->lineProperty = NULL;
-// 
-//   list_iterator_start(&data->cableLibrary); /* starting an iteration session */
-//   while (list_iterator_hasnext(&data->cableLibrary)) { /* tell whether more values available */
-//     iterCableLibrary = (CableLibrary*)list_iterator_next(&data->cableLibrary);
-//     if (!strcicmp(iterCableLibrary->label, word)) {
-//       newElement->lineProperty = iterCableLibrary;
-//       list_iterator_stop(&data->cableLibrary); /* ending the iteration session */  
-//       break;
-//     }; 
-//   };
-//   list_iterator_stop(&data->cableLibrary); /* ending the iteration session */  
-//   if (newElement->lineProperty==NULL) {        
-//     *ierr = map_set_universal_error(word, map_msg, ierr, MAP_FATAL_27);
-//     return MAP_FATAL;
-//   };
-//   return MAP_SAFE;
-// };
+MAP_ERROR_CODE associate_element_with_cable_property(Element* element_ptr, ModelData* model_data, const char* word, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  MAP_ERROR_CODE success = MAP_SAFE;
+  CableLibrary* library_iterator = NULL;
+  bstring user_msg = NULL;
+
+  library_iterator = NULL;
+  element_ptr->lineProperty = NULL;
+
+  list_iterator_start(&model_data->cableLibrary); /* starting an iteration session */
+  while (list_iterator_hasnext(&model_data->cableLibrary)) { /* tell whether more values available */
+    library_iterator = (CableLibrary*)list_iterator_next(&model_data->cableLibrary);
+    if (biseqcstrcaseless(library_iterator->label, word)) {      
+      element_ptr->lineProperty = library_iterator;
+      list_iterator_stop(&model_data->cableLibrary); /* ending the iteration session */  
+      break;
+    }; 
+  };
+  list_iterator_stop(&model_data->cableLibrary); /* ending the iteration session */  
+  if (element_ptr->lineProperty==NULL) {        
+    user_msg = bformat("No libraries match <%s>.", word);
+    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_27);
+    success = bdestroy(user_msg); 
+    user_msg = NULL;
+    return MAP_FATAL;
+  };
+  return MAP_SAFE;
+};
 
 
-// /**
-//  *
-//  */
-// MAP_ERROR_CODE associate_element_with_anchor_node(ModelData* data, Element* new_element, const int element_num, char* word, char* map_msg, MAP_ERROR_CODE* ierr)
-// {
-//   Node* iter_node = NULL;
-//   int node_num = 0;
-//   char buffer[64] = "";
-//   int cx = 0;
-//   int success = 0;
-// 
-//   new_element->anchor = NULL;
-//   
-//   success = is_numeric(word); 
-//   if (success) {
-//     cx = map_snprintf(buffer, 64, "Element '%d'.", element_num+1);assert(cx>=0);
-//     *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_28);
-//     return MAP_FATAL;
-//   };
-//   
-//   node_num = (int)atoi(word); 
-//   iter_node = (Node*)list_get_at(&data->node, node_num-1);
-//   if (!iter_node) {
-//     cx = map_snprintf( buffer, 64, "Element '%d'.", element_num+1); assert(cx>=0);
-//     *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_30);
-//     return MAP_FATAL;
-//   };
-// 
-//   new_element->anchor = iter_node;
-//   return MAP_SAFE;
-// };
+MAP_ERROR_CODE associate_element_with_anchor_node(Element* element_ptr, ModelData* model_data, const int element_num, const char* word, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  MAP_ERROR_CODE success = MAP_SAFE;
+  Node* node_iter = NULL;
+  int node_num = 0;
+  bstring user_msg = NULL;
+
+  element_ptr->anchor = NULL;
+  
+  if (is_numeric(word)) {
+    node_num = (int)atoi(word); 
+    node_iter = (Node*)list_get_at(&model_data->node, node_num-1);
+    element_ptr->anchor = node_iter; /* create the associate with anchor here */
+    if (!node_iter) {
+      user_msg = bformat("Element %d.", element_num);
+      *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_30);        
+      success = bdestroy(user_msg); /* clear user_msg to not inavertendly picked up elsewhere */
+      user_msg = NULL;
+      return MAP_FATAL;
+    };
+  } else {
+    user_msg = bformat("Element %d.", element_num);
+    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_28);        
+    success = bdestroy(user_msg); 
+    user_msg = NULL;
+    return MAP_FATAL;
+  };
+  return MAP_SAFE;
+};
 
 
-// /**
-//  *
-//  */
-// MAP_ERROR_CODE associate_element_with_fairlead_node(ModelData* data, Element* new_element, const int element_num, char* word, char* map_msg, MAP_ERROR_CODE* ierr)
-// {
-//   Node *iter_node = NULL;
-//   int node_num = 0;
-//   char buffer[64] = "";
-//   int cx = 0;
-//   int success = 0;
-// 
-//   new_element->fairlead = NULL;
-//   
-//   success = is_numeric(word); 
-//   if (success) {
-//     cx = map_snprintf(buffer, 64, "Element '%d'.", element_num+1); assert(cx>=0);
-//     *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_29);
-//     return MAP_FATAL;
-//   };
-//   
-//   node_num = (int)atoi(word); 
-//   iter_node = (Node*)list_get_at(&data->node, node_num-1);
-//   if (!iter_node) {
-//     cx = map_snprintf(buffer, 64, "Element '%d'.", element_num );assert(cx>=0);
-//     *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_31);
-//     return MAP_FATAL;
-//   };
-//   
-//   new_element->fairlead = iter_node;
-// 
-//   return MAP_SAFE;
-// };
+MAP_ERROR_CODE associate_element_with_fairlead_node(Element* element_ptr, ModelData* model_data, const int element_num, const char* word, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  Node* node_iter = NULL;
+  int node_num = 0;
+  MAP_ERROR_CODE success = MAP_SAFE;
+  bstring user_msg = NULL;
+
+  element_ptr->fairlead = NULL;
+
+  if (is_numeric(word)) {
+    node_num = (int)atoi(word); 
+    node_iter = (Node*)list_get_at(&model_data->node, node_num-1);
+    element_ptr->fairlead = node_iter; /* create the associate with anchor here */
+    // printf("element type %s\n", element_ptr->fairlead->positionPtr.x.name->data);
+    if (!node_iter) {
+      user_msg = bformat("Element %d.", element_num);
+      *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_31);        
+      success = bdestroy(user_msg); /* clear user_msg to not inavertendly picked up elsewhere */
+      user_msg = NULL;
+      return MAP_FATAL;
+    };
+  } else {
+    user_msg = bformat("Element %d.", element_num);
+    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_29);        
+    success = bdestroy(user_msg); 
+    user_msg = NULL;
+    return MAP_FATAL;
+  };
+  return MAP_SAFE;
+
+};
