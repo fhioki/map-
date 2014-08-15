@@ -25,61 +25,56 @@
 //#include "pyprotos.h"
 #include "bstring/bstrlib.h"
 #include "mapinit.h"
+//#include "lineroutines.h"
 
-// /**
-//  * This sets the pointers to NULL for the vessel object and gives it default properties. Only 
-//  * to be used in the python glue code. 
-//  *
-//  * @todo: need to associate the node with inputs
-//  * @acceses: set_vartype_float( )
-//  * @calledby: mapcall_msqs_init( )
-//  */
-// MAP_ERROR_CODE set_vessel(Vessel* floater, const MAP_InputType_t* uType, char* map_msg, MAP_ERROR_CODE* ierr)
-// {
-//   MAP_ERROR_CODE success = MAP_SAFE;
-//   int i = 0;
-//   int N = uType->x_Len;
-// 
-//   do {
-//     /* vessel displacement */
-//     success = set_vartype_float("[m]", "Vessel_X", -999.9, &floater->displacement.x, 0.0); CHECKERRQ(MAP_FATAL_68);
-//     success = set_vartype_float("[m]", "Vessel_Y", -999.9, &floater->displacement.y, 0.0); CHECKERRQ(MAP_FATAL_68);
-//     success = set_vartype_float("[m]", "Vessel_Z", -999.9, &floater->displacement.z, 0.0); CHECKERRQ(MAP_FATAL_68);
-//   
-//     /* vessel reference origin. When ==[0.0, 0.0, 0.0], then the reference origin is aligned with the SWL */
-//     success = set_vartype_float("[m]", "Vessel_Xref", -999.9, &floater->refOrigin.x, 0.0); CHECKERRQ(MAP_FATAL_68);
-//     success = set_vartype_float("[m]", "Vessel_Yref", -999.9, &floater->refOrigin.y, 0.0); CHECKERRQ(MAP_FATAL_68);
-//     success = set_vartype_float("[m]", "Vessel_Zref", -999.9, &floater->refOrigin.z, 0.0); CHECKERRQ(MAP_FATAL_68);
-//   
-//     /* sum force of all fairleads connecte to the vessel */
-//     success = set_vartype_float("[N]", "Vessel_fx", -999.9, &floater->lineSumForce.fx, 0.0); CHECKERRQ(MAP_FATAL_68);
-//     success = set_vartype_float("[N]", "Vessel_fy", -999.9, &floater->lineSumForce.fy, 0.0); CHECKERRQ(MAP_FATAL_68);
-//     success = set_vartype_float("[N]", "Vessel_fz", -999.9, &floater->lineSumForce.fz, 0.0); CHECKERRQ(MAP_FATAL_68);
-//   
-//     /* orientation of the vessel. This is used as input from the user */
-//     success = set_vartype_float("[deg]", "Vessel_phi", -999.9, &floater->orientation.phi, 0.0); CHECKERRQ(MAP_FATAL_68);
-//     success = set_vartype_float("[deg]", "Vessel_the", -999.9, &floater->orientation.the, 0.0); CHECKERRQ(MAP_FATAL_68);
-//     success = set_vartype_float("[deg]", "Vessel_psi", -999.9, &floater->orientation.psi, 0.0); CHECKERRQ(MAP_FATAL_68);
-//   } while(0);
-// 
-//   floater->xi = (double*)malloc(N*sizeof(double));  
-//   floater->yi = (double*)malloc(N*sizeof(double));  
-//   floater->zi = (double*)malloc(N*sizeof(double));  
-// 
-//   if (floater->xi==NULL || floater->yi==NULL || floater->zi==NULL) {
-//     return MAP_FATAL;
-//   };
-//   
-//   for (i=0 ; i<N ; i++) {
-//     floater->xi[i] = uType->x[i];
-//     floater->yi[i] = uType->y[i];
-//     floater->zi[i] = uType->z[i];
-//   };
-//     
-//   return MAP_SAFE;
-// };
-// 
-// 
+
+MAP_ERROR_CODE set_vessel(Vessel* floater, const MAP_InputType_t* u_type, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  MAP_ERROR_CODE success = MAP_SAFE;
+  int i = 0;
+  int n = u_type->x_Len;
+  bstring user_msg = NULL;
+
+  do {
+    /* vessel displacement */
+    success = set_vartype_float("[m]", "Vessel_X", -999, &floater->displacement.x, 0.0); CHECKERRQ(MAP_FATAL_68);
+    success = set_vartype_float("[m]", "Vessel_Y", -999, &floater->displacement.y, 0.0); CHECKERRQ(MAP_FATAL_68);
+    success = set_vartype_float("[m]", "Vessel_Z", -999, &floater->displacement.z, 0.0); CHECKERRQ(MAP_FATAL_68);
+     
+    /* vessel reference origin. When ==[0.0, 0.0, 0.0], then the reference origin is aligned with the SWL */
+    success = set_vartype_float("[m]", "Vessel_Xref", -999, &floater->refOrigin.x, 0.0); CHECKERRQ(MAP_FATAL_68);
+    success = set_vartype_float("[m]", "Vessel_Yref", -999, &floater->refOrigin.y, 0.0); CHECKERRQ(MAP_FATAL_68);
+    success = set_vartype_float("[m]", "Vessel_Zref", -999, &floater->refOrigin.z, 0.0); CHECKERRQ(MAP_FATAL_68);
+    
+    /* sum force of all fairleads connecte to the vessel */
+    success = set_vartype_float("[N]", "Vessel_fx", -999, &floater->lineSumForce.fx, 0.0); CHECKERRQ(MAP_FATAL_68);
+    success = set_vartype_float("[N]", "Vessel_fy", -999, &floater->lineSumForce.fy, 0.0); CHECKERRQ(MAP_FATAL_68);
+    success = set_vartype_float("[N]", "Vessel_fz", -999, &floater->lineSumForce.fz, 0.0); CHECKERRQ(MAP_FATAL_68);
+    
+    /* orientation of the vessel. This is used as input from the user */
+    success = set_vartype_float("[deg]", "Vessel_phi", -999, &floater->orientation.phi, 0.0); CHECKERRQ(MAP_FATAL_68);
+    success = set_vartype_float("[deg]", "Vessel_the", -999, &floater->orientation.the, 0.0); CHECKERRQ(MAP_FATAL_68);
+    success = set_vartype_float("[deg]", "Vessel_psi", -999, &floater->orientation.psi, 0.0); CHECKERRQ(MAP_FATAL_68);
+  } while(0);
+
+  floater->xi = (double*)malloc(n*sizeof(double));  
+  floater->yi = (double*)malloc(n*sizeof(double));  
+  floater->zi = (double*)malloc(n*sizeof(double));  
+
+  if (floater->xi==NULL || floater->yi==NULL || floater->zi==NULL) {
+    return MAP_FATAL;
+  };
+  
+  for (i=0 ; i<n ; i++) {
+    floater->xi[i] = u_type->x[i];
+    floater->yi[i] = u_type->y[i];
+    floater->zi[i] = u_type->z[i];
+  };
+    
+  return MAP_SAFE;
+};
+
+
 // /**
 //  *  OBTAINED FROM THE CMINPACK SOURCE. The following defintions of the inputs for lmder(...) are provided in the cminpack docmentation.  
 //  *  
@@ -132,63 +127,79 @@
 // };
 
 
-// /**
-//  * @see mapcall_msqs_init( )
-//  * @see mapcall_msqs_end( )
-//  * @see free_outer_solve_data( ) for where this data is deallocated
-//  */
-// MAP_ERROR_CODE allocate_outer_solve_data(OuterSolveAttributes* ns, const int size, char* map_msg, MAP_ERROR_CODE* ierr)
-// {
-//   int i = 0;
-//   const int SIZE = 3*size;
-// 
-//   ns->jac = (double**)malloc(SIZE*sizeof(double*));
-//   ns->l = (double**)malloc(SIZE*sizeof(double*));  
-//   ns->u = (double**)malloc(SIZE*sizeof(double*));  
-//   ns->x = (double*)malloc(SIZE*sizeof(double));
-//   ns->b = (double*)malloc(SIZE*sizeof(double));
-//   ns->y = (double*)malloc(SIZE*sizeof(double*));  
-//   
-//   if (ns->jac==NULL) {
-//     *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_8);    
-//     return MAP_FATAL;
-//   };
-// 
-//   if (ns->x==NULL) {
-//     *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_8);    
-//     return MAP_FATAL;
-//   };
-// 
-//   if (ns->b==NULL) {
-//     *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_8);    
-//     return MAP_FATAL;
-//   };
-// 
-//   if (ns->l==NULL) {
-//     *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_8);    
-//     return MAP_FATAL;
-//   };
-// 
-//   if (ns->u==NULL) {
-//     *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_8);    
-//     return MAP_FATAL;
-//   };
-// 
-//   if (ns->y==NULL) {
-//     *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_8);    
-//     return MAP_FATAL;
-//   };
-// 
-//   for(i=0 ; i<SIZE ; i++) {
-//     ns->jac[i] = (double*)malloc(SIZE*sizeof(double));    
-//     ns->l[i] = (double*)malloc(SIZE*sizeof(double));    
-//     ns->u[i] = (double*)malloc(SIZE*sizeof(double));    
-//   };
-// 
-//   return MAP_SAFE;
-// };
-// 
-// 
+MAP_ERROR_CODE allocate_outer_solve_data(OuterSolveAttributes* ns, const int size, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  int ret = 0;
+  bstring user_msg = NULL;
+  const int THREE = 3;  
+  const int SIZE = THREE*size;
+  int i = 0;
+
+  ns->jac = (double**)malloc(SIZE*sizeof(double*));
+  ns->l = (double**)malloc(SIZE*sizeof(double*));  
+  ns->u = (double**)malloc(SIZE*sizeof(double*));  
+  ns->x = (double*)malloc(SIZE*sizeof(double));
+  ns->b = (double*)malloc(SIZE*sizeof(double));
+  ns->y = (double*)malloc(SIZE*sizeof(double*));  
+  
+  if (ns->jac==NULL) {
+    user_msg = bformat("allocate_outer_solve_data(...).");
+    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_8);        
+    ret = bdestroy(user_msg); 
+    user_msg = NULL;
+    return MAP_FATAL;
+  };
+
+  if (ns->x==NULL) {
+    user_msg = bformat("allocate_outer_solve_data(...).");
+    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_8);        
+    ret = bdestroy(user_msg); 
+    user_msg = NULL;
+    return MAP_FATAL;
+  };
+
+  if (ns->b==NULL) {
+    user_msg = bformat("allocate_outer_solve_data(...).");
+    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_8);        
+    ret = bdestroy(user_msg); 
+    user_msg = NULL;
+    return MAP_FATAL;
+  };
+
+  if (ns->l==NULL) {
+    user_msg = bformat("allocate_outer_solve_data(...).");
+    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_8);        
+    ret = bdestroy(user_msg); 
+    user_msg = NULL;
+    return MAP_FATAL;
+  };
+
+  if (ns->u==NULL) {
+    user_msg = bformat("allocate_outer_solve_data(...).");
+    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_8);        
+    ret = bdestroy(user_msg); 
+    user_msg = NULL;
+    return MAP_FATAL;
+  };
+
+  if (ns->y==NULL) {
+    user_msg = bformat("allocate_outer_solve_data(...).");
+    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_8);        
+    ret = bdestroy(user_msg); 
+    user_msg = NULL;
+    return MAP_FATAL;
+  };
+
+  for(i=0 ; i<SIZE ; i++) {
+    ns->jac[i] = (double*)malloc(SIZE*sizeof(double));    
+    ns->l[i] = (double*)malloc(SIZE*sizeof(double));    
+    ns->u[i] = (double*)malloc(SIZE*sizeof(double));    
+  };
+
+  return MAP_SAFE;
+};
+
+
 // /**
 //  *
 //  */
@@ -1079,46 +1090,42 @@ MAP_ERROR_CODE set_cable_library_list(ModelData* model_data, InitializationData*
 };
 
 
-// /**
-//  * Initialized omega (weight per unit length) and cross-section area of a cable. The formula is 
-//  *
-//  *   A=\pi*\frac{radius^{2}}{4}
-//  *   \omega=g*(\mu-A*\rho_{seawater})
-//  *
-//  * @acceses: none
-//  * @calledby: mapcall_msqs_init( )
-//  */
-// MAP_ERROR_CODE initialize_cable_library_variables(ModelData* data, MAP_ParameterType_t* paramFortType, char* map_msg, MAP_ERROR_CODE* ierr)
-// {
-//   MapReal radius = 0.0;
-//   MapReal area = 0.0;
-//   MapReal muCable = 0.0;
-//   MapReal rhoFluid = 0.0; 
-//   const MapReal g = paramFortType->g;
-//   const MapReal PI = 3.14159264;
-//   CableLibrary* iterCableLibrary=NULL;
-// 
-//   list_iterator_start(&data->cableLibrary); /* starting an iteration "session" */
-//   while ( list_iterator_hasnext(&data->cableLibrary)) { /* tell whether more values available */ 
-//     iterCableLibrary = (CableLibrary*)list_iterator_next(&data->cableLibrary);
-//     radius = iterCableLibrary->diam/2;
-//     area = PI*pow(radius,2);
-//     muCable = iterCableLibrary->massDensityInAir;
-//     rhoFluid = paramFortType->rhoSea;
-//     iterCableLibrary->omega = g*(muCable-area*rhoFluid);
-// 
-//     iterCableLibrary->a = area;
-//     if (fabs(iterCableLibrary->omega)<=1) {
-//       *ierr = map_set_universal_error("", map_msg, ierr, MAP_WARNING_5);
-//     };
-//   };
-//   list_iterator_stop(&data->cableLibrary); /* ending the iteration "session" */    
-//   
-//   if (fabs(iterCableLibrary->omega)<=1e-3) {
-//     return MAP_FATAL;
-//   }
-//   return MAP_SAFE;
-// };
+MAP_ERROR_CODE initialize_cable_library_variables(ModelData* model_data, MAP_ParameterType_t* p_type, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  MAP_ERROR_CODE success = MAP_SAFE;
+  double radius = 0.0;
+  double area = 0.0;
+  double muCable = 0.0;
+  double rhoFluid = 0.0; 
+  const double g = p_type->g;
+  const double PI = 3.14159264;
+  CableLibrary* library_iter = NULL;
+  bstring user_msg = NULL;
+
+  list_iterator_start(&model_data->cableLibrary); /* starting an iteration "session" */
+  while ( list_iterator_hasnext(&model_data->cableLibrary)) { /* tell whether more values available */ 
+    library_iter = (CableLibrary*)list_iterator_next(&model_data->cableLibrary);
+    radius = library_iter->diam/2;
+    area = PI*pow(radius,2);
+    muCable = library_iter->massDensityInAir;
+    rhoFluid = p_type->rhoSea;
+    library_iter->omega = g*(muCable-area*rhoFluid);
+
+    library_iter->a = area;
+    if (fabs(library_iter->omega)<=1) {
+      user_msg = bformat("omega = %f <= 1.0", library_iter->omega);
+      *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_WARNING_5);
+      success = bdestroy(user_msg); /* clear user_msg to not inavertendly picked up elsewhere */
+      user_msg = NULL;
+    };
+  };
+  list_iterator_stop(&model_data->cableLibrary); /* ending the iteration "session" */    
+  
+  if (fabs(library_iter->omega)<=1e-3) {
+    return MAP_FATAL;
+  }
+  return MAP_SAFE;
+};
 
 
 MAP_ERROR_CODE expand_node_number(const int n_line, bstring line)
@@ -1829,6 +1836,18 @@ MAP_ERROR_CODE set_node_list(const MAP_ParameterType_t* p_type,  MAP_InputType_t
 };
 
 
+MAP_ERROR_CODE set_vartype_float(const char* unit, const char* alias, const int num, VarType* type, const double value)
+{
+  type->name = bfromcstr(alias);
+  type->units = bfromcstr(unit); 
+  type->referenceCounter = 0;
+  type->id = num;
+  type->value = value;
+
+  return MAP_SAFE;
+};
+
+
 MAP_ERROR_CODE set_vartype(const char* unit, bstring alias, const int num, VarType* type, bstring property)
 {
   type->name = bstrcpy(alias);
@@ -2170,10 +2189,157 @@ MAP_ERROR_CODE set_element_list(MAP_ConstraintStateType_t* z_type, ModelData* mo
 
 
 
+MAP_ERROR_CODE set_output_list(ModelData* model_data, MAP_InitOutputType_t* io_type, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  Element* element_iter = NULL;
+  OutputList* yList = model_data->yList;
+  
+  list_iterator_start(&model_data->element); /* starting an iteration "session" */
+  while (list_iterator_hasnext(&model_data->element)) { /* tell whether more values available */ 
+    element_iter = (Element*)list_iterator_next(&model_data->element);    
+    
+    if (element_iter->options.gxAnchorPosFlag) {
+      list_append(&yList->out_list_ptr, &element_iter->anchor->positionPtr.x);      
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.gyAnchorPosFlag) {
+      list_append(&yList->out_list_ptr, &element_iter->anchor->positionPtr.y);
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.gzAnchorPosFlag) {
+      list_append(&yList->out_list_ptr, &element_iter->anchor->positionPtr.z);
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.gxPosFlag) {
+      list_append(&yList->out_list_ptr, &element_iter->fairlead->positionPtr.x);
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.gyPosFlag) {
+      list_append(&yList->out_list_ptr, &element_iter->fairlead->positionPtr.y);
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.gzPosFlag) {
+      list_append(&yList->out_list_ptr, &element_iter->fairlead->positionPtr.z);
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.HFlag) {
+      list_append(&yList->out_list_ptr, &element_iter->H);
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.VFlag) {
+      list_append(&yList->out_list_ptr, &element_iter->V);
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+    
+    if (element_iter->options.HAnchorFlag) {
+      list_append(&yList->out_list, &element_iter->HAtAnchor);
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.VAnchorFlag) {
+      list_append(&yList->out_list, &element_iter->VAtAnchor);
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.anchorTensionFlag) {
+      list_append(&yList->out_list, &element_iter->TAtAnchor);
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.altitudeAnchorFlag) {
+      list_append(&yList->out_list, &element_iter->alphaAtAnchor);
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.gxForceFlag) {
+      list_append(&yList->out_list, &element_iter->forceAtFairlead.fx); /* @todo: this is not correct. Should point to fairlead->sumForce.fx */
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.gyForceFlag) {
+      list_append(&yList->out_list, &element_iter->forceAtFairlead.fy); /* @todo: this is not correct. Should point to fairlead->sumForce.fy */
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.gzForceFlag) {
+      list_append(&yList->out_list, &element_iter->forceAtFairlead.fz); /* @todo: this is not correct. Should point to fairlead->sumForce.fz */
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.VFlag) {
+      list_append(&yList->out_list, &element_iter->forceAtFairlead.fz); /* @todo: this is not correct. Doubled up with above */
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.fairleadTensionFlag) {
+      list_append(&yList->out_list, &element_iter->T);
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.horizontalExcursionFlag) {
+      list_append(&yList->out_list, &element_iter->l);
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.verticalExcursionFlag) {
+      list_append(&yList->out_list, &element_iter->h);
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.layLengthFlag) {
+      list_append(&yList->out_list, &element_iter->lb);
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.azimuthFlag) {
+      list_append(&yList->out_list, &element_iter->psi);
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.altitudeFlag) {
+      list_append(&yList->out_list, &element_iter->alpha);
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+  };
+  list_iterator_stop(&model_data->element); /* ending the iteration session */  
+
+  return MAP_SAFE;
+};
+
+
 /**
  * this function returns the size of elements 
  */
-size_t vartype_meter(const void *el) 
+size_t vartype_meter(const void* el) 
 {
   /* every element has the constant size of a rectangle structure */
   return sizeof(VarType);
@@ -2183,7 +2349,7 @@ size_t vartype_meter(const void *el)
 /**
  * this function returns the size of elements 
  */
-size_t vartype_ptr_meter(const void *el) 
+size_t vartype_ptr_meter(const void* el) 
 {
   /* every element has the constant size of a rectangle structure */
   return sizeof(VarTypePtr);

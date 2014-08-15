@@ -30,7 +30,6 @@
 
 void copy_target_string(char* target, unsigned char* source);
 MAP_EXTERNCALL void map_offset_vessel(MAP_OtherStateType_t* otherType, MAP_InputType_t* uType, double x, double y, double z, double phi, double the, double psi, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE set_vessel(Vessel* floater, const MAP_InputType_t* uType, char* map_msg, MAP_ERROR_CODE* ierr);
 int strcicmp( char const* a, char const* b );
 MAP_ERROR_CODE is_numeric ( const char* s );
 void end_color( char* dest, const char* src );
@@ -73,24 +72,12 @@ size_t vartype_meter(const void* el);
 size_t vartype_ptr_meter(const void *el);
 
 /*
- * This sets the pointers to NULL for the vessel object and gives it default properties. Only 
- * to be used in the python glue code. 
- *
- * @todo: need to associate the node with inputs
- * @acceses: set_vartype_float( )
- * @calledby: mapcall_msqs_init( )
- */
-MAP_ERROR_CODE set_vartype_float(char* unit, char* alias, const double num, VarType* type, MapReal const value);
-
-
-/*
  * Sets init data to NULL or -9999
  *
  * @acceses: none
  * @calledby: mapcall_msqs_init( )
  */
 MAP_ERROR_CODE first_solve(ModelData* data, MAP_InputType_t* uType, MAP_ConstraintStateType_t* zType, MAP_OtherStateType_t* otherType, MAP_OutputType_t* yType, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE allocate_outer_solve_data(OuterSolveAttributes* ns, const int size, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE free_outer_solve_data(OuterSolveAttributes* ns, const int size, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE solve_line(ModelData* data, double time, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE node_solve_sequence(ModelData* data, MAP_InputType_t* uType, MAP_ConstraintStateType_t* zType, MAP_OtherStateType_t* otherType, char* map_msg, MAP_ERROR_CODE* ierr);
@@ -105,8 +92,6 @@ MAP_ERROR_CODE line_solve_sequence(ModelData* otherType, double t, char* map_msg
  * @acceses: none
  * @calledby: mapcall_msqs_init( )
  */                                                   
-MAP_ERROR_CODE initialize_cable_library_variables(ModelData *data, MAP_ParameterType_t* paramFortType, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE set_line_variables_pre_solve(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE set_element_initial_guess(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE set_line_variables_post_solve(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE calculate_node_sum_force(ModelData* data);
@@ -125,7 +110,7 @@ void add_to_sum_fz(Node* node, const MapReal fz);
  */
 int inner_function_evals(void* elementPtr, int m, int n, const __cminpack_real__* x, __cminpack_real__* fvec, __cminpack_real__* fjac, int ldfjac, int iflag);
 MAP_ERROR_CODE call_minpack_lmder(Element* element, InnerSolveAttributes* inner_opt, ModelOptions* opt, const int lineNum, const double time, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE set_psi(Element* element, char* map_msg, MAP_ERROR_CODE* ierr);
+
 MAP_ERROR_CODE lu(OuterSolveAttributes* ns, const int n, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE lu_back_substitution(OuterSolveAttributes* ns, const int n, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE forward_difference_jacobian(MAP_OtherStateType_t* otherType, MAP_ConstraintStateType_t* zType, ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr);
@@ -153,8 +138,6 @@ MapReal jacobian_dxdv_contact(const MapReal V, const MapReal H, const MapReal w,
 MapReal jacobian_dzdh_contact(const MapReal V, const MapReal H, const MapReal w, const MapReal Lu, const MapReal EA, const MapReal cb);
 MapReal jacobian_dzdv_contact(const MapReal V, const MapReal H, const MapReal w, const MapReal Lu, const MapReal EA, const MapReal cb);
 
-MapReal set_vertical_excursion(Element* element);
-MapReal set_horizontal_excursion(Element* element);
 MAP_ERROR_CODE check_maximum_line_length(Element* element, const bool contactFlag, char* map_msg, MAP_ERROR_CODE* ierr);
 MapReal get_maximum_line_length(Element* element);
 MAP_ERROR_CODE set_element_initial_guess(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr);

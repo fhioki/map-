@@ -46,13 +46,14 @@ MAP_EXTERNCALL int free_init_data (InitializationData* init_data, char* map_msg,
   int ret = 0;
 
   ret = bdestroy(init_data->summaryFileName);
-  // MAPFREE(init->summaryFileName);
+  // ret = bdestroy(init->summaryFileName);
   ret = bstrListDestroy(init_data->expandedNodeInputString);
   ret = bstrListDestroy(init_data->expandedElementInputString);
   ret = bstrListDestroy(init_data->libraryInputString);  
   ret = bstrListDestroy(init_data->nodeInputString);
   ret = bstrListDestroy(init_data->elementInputString);
   ret = bstrListDestroy(init_data->solverOptionsString);
+
   return MAP_SAFE;
 };
 /*@}*/
@@ -65,60 +66,60 @@ MAP_ERROR_CODE free_outlist(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr
 };
 
 
-// MAP_ERROR_CODE free_element(list_t *restrict element) 
-// {
-//   Element* iterElem = NULL;
-//   list_iterator_start(element); /* starting an iteration "session" */
-//   while (list_iterator_hasnext(element)) { /* tell whether more values available */
-//     iterElem = (Element*)list_iterator_next(element);
-//     MAPFREE( iterElem->psi.name ); 
-//     MAPFREE( iterElem->psi.units );
-//     MAPFREE( iterElem->alpha.name );
-//     MAPFREE( iterElem->alpha.units );
-//     MAPFREE( iterElem->alphaAtAnchor.name );
-//     MAPFREE( iterElem->alphaAtAnchor.units );
-//     MAPFREE( iterElem->l.name ); 
-//     MAPFREE( iterElem->l.units );
-//     MAPFREE( iterElem->lb.name ); 
-//     MAPFREE( iterElem->lb.units );
-//     MAPFREE( iterElem->Lu.name ); 
-//     MAPFREE( iterElem->Lu.units );
-//     MAPFREE( iterElem->h.name ); 
-//     MAPFREE( iterElem->h.units );
-//     MAPFREE( iterElem->H.name ); 
-//     MAPFREE( iterElem->H.units );
-//     MAPFREE( iterElem->V.name ); 
-//     MAPFREE( iterElem->V.units );
-//     MAPFREE( iterElem->HAtAnchor.name ); 
-//     MAPFREE( iterElem->HAtAnchor.units );
-//     MAPFREE( iterElem->VAtAnchor.name ); 
-//     MAPFREE( iterElem->VAtAnchor.units );
-//     MAPFREE( iterElem->forceAtFairlead.fx.name ); 
-//     MAPFREE( iterElem->forceAtFairlead.fx.units );
-//     MAPFREE( iterElem->forceAtFairlead.fy.name );
-//     MAPFREE( iterElem->forceAtFairlead.fy.units );
-//     MAPFREE( iterElem->forceAtFairlead.fz.name ); 
-//     MAPFREE( iterElem->forceAtFairlead.fz.units );
-//     MAPFREE( iterElem->forceAtAnchor.fx.name );
-//     MAPFREE( iterElem->forceAtAnchor.fx.units );
-//     MAPFREE( iterElem->forceAtAnchor.fy.name );
-//     MAPFREE( iterElem->forceAtAnchor.fy.units );
-//     MAPFREE( iterElem->forceAtAnchor.fz.name ); 
-//     MAPFREE( iterElem->forceAtAnchor.fz.units );
-//     MAPFREE( iterElem->T.name );
-//     MAPFREE( iterElem->T.units );
-//     MAPFREE( iterElem->TAtAnchor.name );
-//     MAPFREE( iterElem->TAtAnchor.units );
-//   
-//     /* don't let any pointers dangle */
-//     iterElem->lineProperty = NULL;      
-//     iterElem->label = NULL;
-//     iterElem->lineTension = NULL;
-//     iterElem->anchor = NULL; 
-//     iterElem->fairlead = NULL;
-//   };
-//   list_iterator_stop(element); /* ending the iteration "session" */  
-// };
+MAP_ERROR_CODE free_element(list_t* restrict element) 
+{
+  Element* element_iter = NULL;
+  list_iterator_start(element); /* starting an iteration "session" */
+  while (list_iterator_hasnext(element)) { /* tell whether more values available */
+    element_iter = (Element*)list_iterator_next(element);
+    bdestroy(element_iter->psi.name); 
+    bdestroy(element_iter->psi.units);
+    bdestroy(element_iter->alpha.name);
+    bdestroy(element_iter->alpha.units);
+    bdestroy(element_iter->alphaAtAnchor.name);
+    bdestroy(element_iter->alphaAtAnchor.units);
+    bdestroy(element_iter->l.name); 
+    bdestroy(element_iter->l.units);
+    bdestroy(element_iter->lb.name); 
+    bdestroy(element_iter->lb.units);
+    bdestroy(element_iter->Lu.name); 
+    bdestroy(element_iter->Lu.units);
+    bdestroy(element_iter->h.name); 
+    bdestroy(element_iter->h.units);
+    bdestroy(element_iter->H.name); 
+    bdestroy(element_iter->H.units);
+    bdestroy(element_iter->V.name); 
+    bdestroy(element_iter->V.units);
+    bdestroy(element_iter->HAtAnchor.name); 
+    bdestroy(element_iter->HAtAnchor.units);
+    bdestroy(element_iter->VAtAnchor.name); 
+    bdestroy(element_iter->VAtAnchor.units);
+    bdestroy(element_iter->forceAtFairlead.fx.name); 
+    bdestroy(element_iter->forceAtFairlead.fx.units);
+    bdestroy(element_iter->forceAtFairlead.fy.name);
+    bdestroy(element_iter->forceAtFairlead.fy.units);
+    bdestroy(element_iter->forceAtFairlead.fz.name); 
+    bdestroy(element_iter->forceAtFairlead.fz.units);
+    bdestroy(element_iter->forceAtAnchor.fx.name);
+    bdestroy(element_iter->forceAtAnchor.fx.units);
+    bdestroy(element_iter->forceAtAnchor.fy.name);
+    bdestroy(element_iter->forceAtAnchor.fy.units);
+    bdestroy(element_iter->forceAtAnchor.fz.name); 
+    bdestroy(element_iter->forceAtAnchor.fz.units);
+    bdestroy(element_iter->T.name);
+    bdestroy(element_iter->T.units);
+    bdestroy(element_iter->TAtAnchor.name);
+    bdestroy(element_iter->TAtAnchor.units);
+  
+    /* don't let any pointers dangle */
+    element_iter->lineProperty = NULL;      
+    element_iter->label = NULL;
+    element_iter->lineTension = NULL;
+    element_iter->anchor = NULL; 
+    element_iter->fairlead = NULL;
+  };
+  list_iterator_stop(element); /* ending the iteration "session" */  
+};
 
 
 MAP_ERROR_CODE free_node(list_t *restrict node)
@@ -155,45 +156,45 @@ MAP_ERROR_CODE free_node(list_t *restrict node)
     success = bdestroy(iterNode->sumForcePtr.fz.name); 
     success = bdestroy(iterNode->sumForcePtr.fz.units);
   };
-  list_iterator_stop(node);             /* ending the iteration "session" */  
+  list_iterator_stop(node); /* ending the iteration "session" */  
   return MAP_SAFE;
 };
 
 
 MAP_ERROR_CODE free_vessel(Vessel* floater) 
 {
-    /* Now delete the vessel information */
+  /* Now delete the vessel information */
   MAPFREE(floater->xi);
   MAPFREE(floater->yi);
   MAPFREE(floater->zi);
 
-  MAPFREE(floater->displacement.x.name);
-  MAPFREE(floater->displacement.x.units);
-  MAPFREE(floater->displacement.y.name);
-  MAPFREE(floater->displacement.y.units);
-  MAPFREE(floater->displacement.z.name);
-  MAPFREE(floater->displacement.z.units);
+  bdestroy(floater->displacement.x.name);
+  bdestroy(floater->displacement.x.units);
+  bdestroy(floater->displacement.y.name);
+  bdestroy(floater->displacement.y.units);
+  bdestroy(floater->displacement.z.name);
+  bdestroy(floater->displacement.z.units);
+  
+  bdestroy(floater->refOrigin.x.name);
+  bdestroy(floater->refOrigin.x.units);
+  bdestroy(floater->refOrigin.y.name);
+  bdestroy(floater->refOrigin.y.units);
+  bdestroy(floater->refOrigin.z.name);
+  bdestroy(floater->refOrigin.z.units);
           
-  MAPFREE(floater->refOrigin.x.name);
-  MAPFREE(floater->refOrigin.x.units);
-  MAPFREE(floater->refOrigin.y.name);
-  MAPFREE(floater->refOrigin.y.units);
-  MAPFREE(floater->refOrigin.z.name);
-  MAPFREE(floater->refOrigin.z.units);
-          
-  MAPFREE(floater->lineSumForce.fx.name);
-  MAPFREE(floater->lineSumForce.fx.units);
-  MAPFREE(floater->lineSumForce.fy.name);
-  MAPFREE(floater->lineSumForce.fy.units);
-  MAPFREE(floater->lineSumForce.fz.name);
-  MAPFREE(floater->lineSumForce.fz.units);
-          
-  MAPFREE(floater->orientation.phi.name);
-  MAPFREE(floater->orientation.phi.units);
-  MAPFREE(floater->orientation.the.name);
-  MAPFREE(floater->orientation.the.units);
-  MAPFREE(floater->orientation.psi.name);
-  MAPFREE(floater->orientation.psi.units);
+  bdestroy(floater->lineSumForce.fx.name);
+  bdestroy(floater->lineSumForce.fx.units);
+  bdestroy(floater->lineSumForce.fy.name);
+  bdestroy(floater->lineSumForce.fy.units);
+  bdestroy(floater->lineSumForce.fz.name);
+  bdestroy(floater->lineSumForce.fz.units);
+
+  bdestroy(floater->orientation.phi.name);
+  bdestroy(floater->orientation.phi.units);
+  bdestroy(floater->orientation.the.name);
+  bdestroy(floater->orientation.the.units);
+  bdestroy(floater->orientation.psi.name);
+  bdestroy(floater->orientation.psi.units);
   return MAP_SAFE;
 }
 

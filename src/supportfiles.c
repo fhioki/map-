@@ -149,23 +149,6 @@ MAP_ERROR_CODE associate_vartype_ptr(VarTypePtr* type, double* arr, int index)
 //   *(type->value) = -999.9;
 //   return MAP_SAFE;
 // };
-// 
-// 
-// MAP_ERROR_CODE set_vartype_float(char* unit, char* alias, const double num, VarType* type, MapReal const value)
-// {
-//   type->name = malloc(sizeof(char)*strlen(alias)+1);
-//   type->units = malloc(sizeof(char)*strlen(unit)+1);
-// 
-//   strcpy(type->name, alias);
-//   strcpy(type->units, unit);
-// 
-//   type->isFixed = false;
-//   type->referenceCounter = 0;
-//   type->id = num;  
-//   type->value = value;
-// 
-//   return MAP_SAFE;
-// };
 
 
 /**

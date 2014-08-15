@@ -93,35 +93,33 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
      
     success = set_node_list(p_type, u_type, z_type, other_type, y_type, model_data, init_data->expandedNodeInputString, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);    
     success = set_element_list(z_type, model_data, init_data->expandedElementInputString, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);    
-//     
-//     /* now create an output list to print to and output file. */
-//     list_attributes_copy(&model_data->yList->out_list, vartype_meter, 1);  
-//     list_attributes_copy(&model_data->yList->out_list_ptr, vartype_ptr_meter, 1);  
-//     success = set_output_list(model_data, io_type, map_msg, ierr); 
-//     success = set_vessel(&model_data->vessel, u_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_69);
-//     
-//     /*
-//       @todo: possible include hook for LM model here eventually place MAP_SOVE = LM;
-//     */
-//     if (z_type->x_Len!=0) {
-//       success = allocate_outer_solve_data(&model_data->outer_loop, z_type->x_Len, map_msg, ierr); CHECKERRQ(MAP_FATAL_72);
-//       model_data->MAP_SOLVE_TYPE = PARTITIONED;      
-//     } else {
-//       model_data->MAP_SOLVE_TYPE = MONOLITHIC;
-//     };
-//     
-// #ifdef DEBUG
-//     print_machine_name_to_screen( );
-// #endif /* if DEBUG is raised in CCFLAGS, then MAP version number is printed to screen */
-//     
-//     printf("MAP environment properties (set externally)...\n");
-//     printf("    Gravity constant          [m/s^2]  : %1.2f\n", p_type->g ); 
-//     printf("    Sea density               [kg/m^3] : %1.2f\n", p_type->rhoSea );
-//     printf("    Water depth               [m]      : %1.2f\n", p_type->depth );
-//     printf("    Vessel reference position [m]      : %1.2f , %1.2f , %1.2f\n", model_data->vessel.refOrigin.x.value, model_data->vessel.refOrigin.y.value, model_data->vessel.refOrigin.z.value); 
-//     
-//     success = initialize_cable_library_variables(model_data, p_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_41);
-//     success = set_line_variables_pre_solve(model_data, map_msg, ierr);
+    
+    /* now create an output list to print to and output file. */
+    list_attributes_copy(&model_data->yList->out_list, vartype_meter, 1);  
+    list_attributes_copy(&model_data->yList->out_list_ptr, vartype_ptr_meter, 1);  
+    success = set_output_list(model_data, io_type, map_msg, ierr); 
+    success = set_vessel(&model_data->vessel, u_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_69);
+    
+    /* @todo: possible include hook for LM model here eventually place MAP_SOVE = LM */
+    if (z_type->x_Len!=0) { /* this means there are no connect nodes. This does NOT mean z_type->H_len==0 */
+      success = allocate_outer_solve_data(&model_data->outer_loop, z_type->x_Len, map_msg, ierr); CHECKERRQ(MAP_FATAL_72);
+      model_data->MAP_SOLVE_TYPE = PARTITIONED;      
+    } else {
+      model_data->MAP_SOLVE_TYPE = MONOLITHIC;
+    };
+     
+#ifdef DEBUG
+    print_machine_name_to_screen( );
+#endif /* if DEBUG is raised in CCFLAGS, then MAP version number is printed to screen */
+     
+    printf("MAP environment properties (set externally)...\n");
+    printf("    Gravity constant          [m/s^2]  : %1.2f\n", p_type->g ); 
+    printf("    Sea density               [kg/m^3] : %1.2f\n", p_type->rhoSea );
+    printf("    Water depth               [m]      : %1.2f\n", p_type->depth );
+    printf("    Vessel reference position [m]      : %1.2f , %1.2f , %1.2f\n", model_data->vessel.refOrigin.x.value, model_data->vessel.refOrigin.y.value, model_data->vessel.refOrigin.z.value); 
+   
+    success = initialize_cable_library_variables(model_data, p_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_41);
+    success = set_line_variables_pre_solve(model_data, map_msg, ierr);
 //     success = reset_node_force_to_zero(model_data, map_msg, ierr);
 //     success = set_element_initial_guess(model_data, map_msg, ierr);
 //     success = first_solve(model_data, u_type, z_type, other_type, y_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_39);
@@ -197,18 +195,18 @@ MAP_EXTERNCALL void map_end(MAP_InputType_t* u_type,
      list_destroy(&model_data->yList->out_list);    /* destroy output lists for writting information to output file */
      list_destroy(&model_data->yList->out_list_ptr); /* destroy output lists for writting information to output file */
      success = free_outlist(model_data,map_msg,ierr); CHECKERRQ(MAP_FATAL_47);//@rm, should be replaced with a MAPFREE(data->yList)   
-//     success = free_element(&model_data->element);
+     success = free_element(&model_data->element);
      success = free_node(&model_data->node);
-//     success = free_vessel(&model_data->vessel);
-//   
-//   
-//     list_iterator_start(&model_data->cableLibrary);          /* starting an iteration "session" */
-//     while ( list_iterator_hasnext(&model_data->cableLibrary)) { /* tell whether more values available */
-//       iterCableLibrary = (CableLibrary*)list_iterator_next(&model_data->cableLibrary);
-//       MAPFREE(iterCableLibrary->label);
-//     };
-//     list_iterator_stop(&model_data->cableLibrary);             /* ending the iteration "session" */  
-//     
+     success = free_vessel(&model_data->vessel);
+   
+   
+     list_iterator_start(&model_data->cableLibrary);          /* starting an iteration "session" */
+     while ( list_iterator_hasnext(&model_data->cableLibrary)) { /* tell whether more values available */
+       iterCableLibrary = (CableLibrary*)list_iterator_next(&model_data->cableLibrary);
+       bdestroy(iterCableLibrary->label);
+     };
+     list_iterator_stop(&model_data->cableLibrary);             /* ending the iteration "session" */  
+     
      list_destroy(&model_data->element);
      list_destroy(&model_data->node);
      list_destroy(&model_data->cableLibrary);

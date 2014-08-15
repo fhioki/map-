@@ -13,8 +13,8 @@ Node Type       X     Y     Z     M     B     FX    FY    FZ
 ---------------------- LINE PROPERTIES ---------------------------------------
 Element  LineType  UnstrLen    NodeAnch  NodeFair  Flags
 (-)      (-)       (m)         (-)       (-)       (-)
-1       Material   402.2        1         2        seg_size 15 d jdsh   shdjh   hdhdh
-2       material   500.0        2         3         
+1       Material   402.2        1         2        seg_size 15 
+2       material   500.0        2         3         x_excursion  z_excursion  azimuth  tension_fair omit_contact
 ---------------------- SOLVER OPTIONS-----------------------------------------
 Option
 (-)   

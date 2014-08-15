@@ -58,7 +58,8 @@ OBJ       = lmder.o \
 	mapinit.o \
 	nwtcfunctions.o \
 	maperror.o \
-	MAP_Types.o 
+	MAP_Types.o \
+	lineroutines.o 
 
 all : $(OBJ)
 	$(CC_TOOLS) $(LDFLAGS) -o libmap-1.00.01.so $(DEBUG) $(OBJ) -lm

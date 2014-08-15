@@ -132,16 +132,6 @@ MAP_ERROR_CODE get_iteration_output_stream(MAP_OutputType_t *y_type, MAP_OtherSt
 
 /**
  * @brief
- * @param model_data internal state data {@link ModelData}
- * @param io_type initialization output type, native C struct {@link MAP_InitOutputType_t}
- * @param map_msg error message
- * @param ierr error code
- */
-MAP_ERROR_CODE set_output_list(ModelData* model_data, MAP_InitOutputType_t* io_type, char* map_msg, MAP_ERROR_CODE* ierr);
-
-
-/**
- * @brief
  * @param init_data MAP internal initialization data structure
  * @param param_type parmeter type, native C struct {@link MAP_ParameterType_t}
  * @param model_data internal state data {@link ModelData}
