@@ -994,6 +994,8 @@ MAP_ERROR_CODE expand_node_position_x(double* x, const char* word)
 {
   if (is_numeric(word)) { /* if number is numeric */
     *x = (double)atof(word);                
+  } else if (word[0]=='#') {    
+    *x = (double)atof(remove_first_character(word));
   } else {
     return MAP_FATAL;
   };
@@ -1005,6 +1007,8 @@ MAP_ERROR_CODE expand_node_position_y(double* y, const char* word)
 {
   if (is_numeric(word)) { /* if number is numeric */
     *y = (double)atof(word);                
+  } else if (word[0]=='#') {    
+    *y = (double)atof(remove_first_character(word));    
   } else {
     return MAP_FATAL;
   };
@@ -1015,16 +1019,27 @@ MAP_ERROR_CODE expand_node_position_y(double* y, const char* word)
 MAP_ERROR_CODE expand_node_position_z(Vector* position, const double angle, const double x, const double y, const char* word, bstring line)
 {
   bstring current_entry = NULL;
+  bstring compared_word = NULL;
   int ret = 0;
 
   position->x =  x*cos(angle) + y*sin(angle);
   position->y = -x*sin(angle) + y*cos(angle);                    
+  compared_word = bformat("%s", word);
   if (is_numeric(word)) { /* if number is numeric */
     position->z = (double)atof(word);                
+    current_entry = bformat("%1.4f   %1.4f   %1.4f   ",position->x, position->y, position->z);
+  } else if (word[0]=='#') {    
+    position->z = (double)atof(remove_first_character(word));    
+    current_entry = bformat("#%1.4f   #%1.4f   #%1.4f   ",position->x, position->y, position->z);
+  } else if (biseqcstrcaseless(compared_word,"DEPTH")) {
+    current_entry = bformat("%1.4f   %1.4f   depth   ",position->x, position->y, position->z);
   } else {
+    bdestroy(compared_word);
     return MAP_FATAL;
   };
-  current_entry = bformat("%1.4f   %1.4f   %1.4f   ",position->x, position->y, position->z);
+
+  bdestroy(compared_word);  
+  printf("%s\n",current_entry->data);
   ret = bconcat(line, current_entry);
   ret = bdestroy(current_entry);
   return MAP_SAFE;
@@ -1171,7 +1186,7 @@ MAP_ERROR_CODE repeat_nodes(ModelData* model_data, InitializationData* init_data
       do {  
         while (i_parsed<parsed->qty-1) { /* iterating through all strings */              
           if (parsed->entry[i_parsed]->slen) { /* if the string length is not 0 */
-            word = parsed->entry[i_parsed]->data;
+            word = parsed->entry[i_parsed]->data;      
             if (next==0) {
               success = expand_node_number(n_line+1, line);/* @todo: checkerrq */
               next++;
@@ -1186,6 +1201,7 @@ MAP_ERROR_CODE repeat_nodes(ModelData* model_data, InitializationData* init_data
               next++;
             } else if (next==4) {
               success = expand_node_position_z(&position, current_angle, x_position, y_position, word, line);/* @todo: checkerrq */
+               printf("expanded noe positions: %f %f\n",x_position,y_position);
               next++;
             } else if (next==5) { /* node mass */
               success = expand_node_mass(word, line);/* @todo: checkerrq */
