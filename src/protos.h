@@ -28,13 +28,8 @@
  * system prototypes
  */
 
-void copy_target_string(char* target, unsigned char* source);
 MAP_EXTERNCALL void map_offset_vessel(MAP_OtherStateType_t* otherType, MAP_InputType_t* uType, double x, double y, double z, double phi, double the, double psi, char* map_msg, MAP_ERROR_CODE* ierr);
-int strcicmp( char const* a, char const* b );
-MAP_ERROR_CODE is_numeric ( const char* s );
 void end_color( char* dest, const char* src );
-MAP_ERROR_CODE map_get_version(MAP_InitOutputType_t* ioType);
-MAP_ERROR_CODE print_help_to_screen();
 void map_reset_universal_error( char* user_str, MAP_ERROR_CODE* ierr );
 
 /**
@@ -56,51 +51,20 @@ MAP_ERROR_CODE map_set_universal_error(bstring user_msg, char* map_msg, const MA
 /*
  *
  */
-MAP_ERROR_CODE associate_vartype_ptr(VarTypePtr* type, double* arr, int index);
-// MAP_ERROR_CODE set_vartype            (char* unit, char* alias, const int num, VarType* type, char const* property );
-// MAP_ERROR_CODE set_vartype_ptr        (char* unit, char* alias, const int num, VarTypePtr* type, char const* property );
-// MAP_ERROR_CODE set_vartype_ptr_float  (char* unit, char* alias, const int num, VarTypePtr* type, const MapReal value);
 MAP_ERROR_CODE set_element_vartype_ptr(char* unit, char* alias, const int num, VarTypePtr* type);
 
 const char* remove_first_character(const char* str);
-// void map_end_unix_color( char* dest );
 MAP_ERROR_CODE initialize_external_applied_force(char* unit, char* alias, const int num, VarType* type, char const* property);
 MAP_ERROR_CODE initialize_node_sum_force_ptr(char* unit, char* alias, const int num, VarTypePtr* type);
-// void initialize_vartype( char* unit, char* alias, VarType* type, const int num );
 
 size_t vartype_meter(const void* el);
 size_t vartype_ptr_meter(const void *el);
-
-/*
- * Sets init data to NULL or -9999
- *
- * @acceses: none
- * @calledby: mapcall_msqs_init( )
- */
-MAP_ERROR_CODE first_solve(ModelData* data, MAP_InputType_t* uType, MAP_ConstraintStateType_t* zType, MAP_OtherStateType_t* otherType, MAP_OutputType_t* yType, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE free_outer_solve_data(OuterSolveAttributes* ns, const int size, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE solve_line(ModelData* data, double time, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE node_solve_sequence(ModelData* data, MAP_InputType_t* uType, MAP_ConstraintStateType_t* zType, MAP_OtherStateType_t* otherType, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE line_solve_sequence(ModelData* otherType, double t, char* map_msg, MAP_ERROR_CODE* ierr);
-
-/*
- * Initialized omega (weight per unit length) and cross-section area of a cable. The formula is 
- *
- *   A=\pi*\frac{radius^{2}}{4}
- *   \omega=g*(\mu-A*\rho_{seawater})
- *
- * @acceses: none
- * @calledby: mapcall_msqs_init( )
- */                                                   
-MAP_ERROR_CODE set_element_initial_guess(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE set_line_variables_post_solve(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE calculate_node_sum_force(ModelData* data);
 void print_machine_name_to_screen( );
 
 /*
  * stuff for nodes...
  */
-MAP_ERROR_CODE reset_node_force_to_zero(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr);
 void add_to_sum_fx(Node* node, const MapReal fx);
 void add_to_sum_fy(Node* node, const MapReal fy);
 void add_to_sum_fz(Node* node, const MapReal fz);
@@ -109,8 +73,6 @@ void add_to_sum_fz(Node* node, const MapReal fz);
  * Numeric routines
  */
 int inner_function_evals(void* elementPtr, int m, int n, const __cminpack_real__* x, __cminpack_real__* fvec, __cminpack_real__* fjac, int ldfjac, int iflag);
-MAP_ERROR_CODE call_minpack_lmder(Element* element, InnerSolveAttributes* inner_opt, ModelOptions* opt, const int lineNum, const double time, char* map_msg, MAP_ERROR_CODE* ierr);
-
 MAP_ERROR_CODE lu(OuterSolveAttributes* ns, const int n, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE lu_back_substitution(OuterSolveAttributes* ns, const int n, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE forward_difference_jacobian(MAP_OtherStateType_t* otherType, MAP_ConstraintStateType_t* zType, ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr);
@@ -124,23 +86,6 @@ MAP_ERROR_CODE backward_difference_jacobian(MAP_OtherStateType_t* otherType, MAP
 /*
  * MARK: numeric helper functions
  */
-MapReal residual_function_length_no_contact(const MapReal V, const MapReal H, const MapReal w, const MapReal Lu, const MapReal EA, const MapReal l);
-MapReal residual_function_height_no_contact(const MapReal V, const MapReal H, const MapReal w, const MapReal Lu, const MapReal EA, const MapReal h);
-MapReal jacobian_dxdh_no_contact(const MapReal V, const MapReal H, const MapReal w, const MapReal Lu, const MapReal EA);
-MapReal jacobian_dxdv_no_contact(const MapReal V, const MapReal H, const MapReal w, const MapReal Lu, const MapReal EA);
-MapReal jacobian_dzdh_no_contact(const MapReal V, const MapReal H, const MapReal w, const MapReal Lu, const MapReal EA);
-MapReal jacobian_dzdv_no_contact(const MapReal V, const MapReal H, const MapReal w, const MapReal Lu, const MapReal EA);
-
-MapReal residual_function_length_contact(const MapReal V, const MapReal H, const MapReal w, const MapReal Lu, const MapReal EA, const MapReal l, const MapReal cb);
-MapReal residual_function_height_contact(const MapReal V, const MapReal H, const MapReal w, const MapReal Lu, const MapReal EA, const MapReal h, const MapReal cb);
-MapReal jacobian_dxdh_contact(const MapReal V, const MapReal H, const MapReal w, const MapReal Lu, const MapReal EA, const MapReal cb);
-MapReal jacobian_dxdv_contact(const MapReal V, const MapReal H, const MapReal w, const MapReal Lu, const MapReal EA, const MapReal cb);
-MapReal jacobian_dzdh_contact(const MapReal V, const MapReal H, const MapReal w, const MapReal Lu, const MapReal EA, const MapReal cb);
-MapReal jacobian_dzdv_contact(const MapReal V, const MapReal H, const MapReal w, const MapReal Lu, const MapReal EA, const MapReal cb);
-
-MAP_ERROR_CODE check_maximum_line_length(Element* element, const bool contactFlag, char* map_msg, MAP_ERROR_CODE* ierr);
-MapReal get_maximum_line_length(Element* element);
-MAP_ERROR_CODE set_element_initial_guess(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr);
 
 MAP_ERROR_CODE increment_dof_by_delta(double* inputType, const MapReal delta, const int size);
 MAP_ERROR_CODE restore_original_displacement(double* inputType, const double* initialValue, const int size);

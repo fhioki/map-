@@ -119,11 +119,11 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
     printf("    Vessel reference position [m]      : %1.2f , %1.2f , %1.2f\n", model_data->vessel.refOrigin.x.value, model_data->vessel.refOrigin.y.value, model_data->vessel.refOrigin.z.value); 
    
     success = initialize_cable_library_variables(model_data, p_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_41);
-    success = set_line_variables_pre_solve(model_data, map_msg, ierr);
-//     success = reset_node_force_to_zero(model_data, map_msg, ierr);
-//     success = set_element_initial_guess(model_data, map_msg, ierr);
-//     success = first_solve(model_data, u_type, z_type, other_type, y_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_39);
-//     success = set_line_variables_post_solve(model_data, map_msg, ierr);    
+    // success = set_line_variables_pre_solve(model_data, map_msg, ierr); @rm, not needed. This is called in line_solve_sequence
+    // success = reset_node_force_to_zero(model_data, map_msg, ierr); @rm, not needed. This is called in line_solve_sequence
+    success = set_element_initial_guess(model_data, map_msg, ierr);
+    success = first_solve(model_data, u_type, z_type, other_type, y_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_39);
+//     success = set_line_variables_post_solve(model_data, map_msg, ierr);    @rm, not needed. This is called in line_solve_sequence
 //     success = write_summary_file(init_data, p_type, model_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_37);           
 //     success = get_iteration_output_stream(y_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
   } while (0);  

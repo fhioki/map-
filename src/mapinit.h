@@ -596,4 +596,61 @@ MAP_ERROR_CODE allocate_outer_solve_data(OuterSolveAttributes* ns, const int siz
 MAP_ERROR_CODE initialize_cable_library_variables(ModelData* model_data, MAP_ParameterType_t* p_type, char* map_msg, MAP_ERROR_CODE* ierr);
 
 
+/**
+ * Sets init data to NULL or -9999
+ *
+ * @acceses: none
+ * @calledby: mapcall_msqs_init( )
+ *
+ *  OBTAINED FROM THE CMINPACK SOURCE. The following defintions of the inputs for lmder(...) are provided in the cminpack docmentation.  
+ *  
+ *  info = __cminpack_func__(lmder)( inner_function_evals, elementIter, m, n, x, fvec, fjac, ldfjac, ftol, xtol, gtol, 
+ *                                   maxfev, diag, mode, factor, nprint, &nfev, &njev, ipvt, qtf, wa1, wa2, wa3, wa4);
+ *     
+ *      - ftol          : a nonnegative input variable. Termination occurs when both the actual and predicted relative reductions in the sum of squares are at most ftol. Therefore, ftol measures the relative error desired in the sum of squares.
+ *      - xtol          : a nonnegative input variable. Termination occurs when the relative error between two consecutive iterates is at most xtol. Therefore, xtol measures the relative error desired in the approximate solution.
+ *      - gtol          : a nonnegative input variable. Termination occurs when the cosine of the angle between fvec and any column of the Jacobian is at most gtol in absolute value. Therefore, gtol measures the orthogonality desired between the function vector and the columns of the Jacobian.
+ *      - maxfev        : a positive integer input variable. Termination occurs when the number of calls to fcn is at least maxfev by the end of an iteration.
+ *      - diag          : an array of length n. If mode = 1 (see below), diag is internally set. If mode = 2, diag must contain positive entries that serve as multiplicative scale factors for the variables.
+ *      - mode          : an integer input variable. If mode = 1, the variables will be scaled internally. If mode = 2, the scaling is specified by the input diag. Other values of mode are equivalent to mode = 1.
+ *      - factor        : a positive input variable used in determining the initial step bound. This bound is set to the product of factor and the euclidean norm of diag*x if the latter is nonzero, or else to factor itself. In most cases factor should lie in the interval (.1,100.). 100. is a generally recommended value.
+ *      - nprint        : an integer input variable that enables controlled printing of iterates if it is positive. In this case, fcn is called with iflag = 0 at the beginning of the first iteration and every nprint iterations thereafter and immediately prior to return, with x and fvec available for printing. If nprint is not positive, no special calls of fcn with iflag = 0 are made.
+ *      - info          : an integer output variable. If the user has terminated execution, info is set to the (negative) value of iflag. See description of fcn. Otherwise, info is set as follows.
+ *      - info=0        : improper input parameters.
+ *      - info=1        : both actual and predicted relative reductions in the sum of squares are at most ftol.
+ *      - info=2        : relative error between two consecutive iterates is at most xtol.
+ *      - info=3        : conditions for info = 1 and info = 2 both hold.
+ *      - info=4        : the cosine of the angle between fvec and any column of the Jacobian is at most gtol in absolute value.
+ *      - info=5        : number of calls to fcn has reached or exceeded maxfev.
+ *      - info=6        : ftol is too small. No further reduction in the sum of squares is possible.
+ *      - info=7        : xtol is too small. No further improvement in the approximate solution x is possible.
+ *      - info=8        : gtol is too small. fvec is orthogonal to the columns of the Jacobian to machine precision.
+ *      - nfev          : an integer output variable set to the number of calls to fcn with iflag = 1.
+ *      - njev          : an integer output variable set to the number of calls to fcn with iflag = 2.
+ *      - ipvt          : an integer output array of length n. ipvt defines a permutation matrix p such that jac*p = q*r, where jac is the final calculated Jacobian, q is orthogonal (not stored), and r is upper triangular with diagonal elements of nonincreasing magnitude. Column j of p is column ipvt(j) of the identity matrix.
+ *      - qtf           : an output array of length n which contains the first n elements of the vector (q transpose)*fvec.
+ *      - wa1, wa2, wa3 : are work arrays of length n.
+ *      - wa4           : a work array of length m.  
+ */
+MAP_ERROR_CODE first_solve(ModelData* model_data, MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type, char* map_msg, MAP_ERROR_CODE* ierr);
+
+
+/**
+ * Check if a string can be converted to a valid numeric value
+ *
+ * 0 (MAP_SAFE) is reserved for 'safe' exit out of functions. 
+ *
+ * @param s     must point to a user-provided memory location
+ * @return      0 for success, 3 for failure
+ *
+ * @see MAP_ERROR_CODE
+ */
+MAP_ERROR_CODE is_numeric(const char* string);
+
+MAP_ERROR_CODE associate_vartype_ptr(VarTypePtr* type, double* arr, int index);
+void copy_target_string(char* target, unsigned char* source);
+MAP_ERROR_CODE map_get_version(MAP_InitOutputType_t* io_type);
+MAP_ERROR_CODE print_help_to_screen();
+
+
 #endif /* _INITIALIZATION_H */

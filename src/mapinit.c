@@ -25,7 +25,7 @@
 //#include "pyprotos.h"
 #include "bstring/bstrlib.h"
 #include "mapinit.h"
-//#include "lineroutines.h"
+#include "lineroutines.h"
 
 
 MAP_ERROR_CODE set_vessel(Vessel* floater, const MAP_InputType_t* u_type, char* map_msg, MAP_ERROR_CODE* ierr)
@@ -75,56 +75,25 @@ MAP_ERROR_CODE set_vessel(Vessel* floater, const MAP_InputType_t* u_type, char* 
 };
 
 
-// /**
-//  *  OBTAINED FROM THE CMINPACK SOURCE. The following defintions of the inputs for lmder(...) are provided in the cminpack docmentation.  
-//  *  
-//  *  info = __cminpack_func__(lmder)( inner_function_evals, elementIter, m, n, x, fvec, fjac, ldfjac, ftol, xtol, gtol, 
-//  *                                   maxfev, diag, mode, factor, nprint, &nfev, &njev, ipvt, qtf, wa1, wa2, wa3, wa4);
-//  *     
-//  *      - ftol          : a nonnegative input variable. Termination occurs when both the actual and predicted relative reductions in the sum of squares are at most ftol. Therefore, ftol measures the relative error desired in the sum of squares.
-//  *      - xtol          : a nonnegative input variable. Termination occurs when the relative error between two consecutive iterates is at most xtol. Therefore, xtol measures the relative error desired in the approximate solution.
-//  *      - gtol          : a nonnegative input variable. Termination occurs when the cosine of the angle between fvec and any column of the Jacobian is at most gtol in absolute value. Therefore, gtol measures the orthogonality desired between the function vector and the columns of the Jacobian.
-//  *      - maxfev        : a positive integer input variable. Termination occurs when the number of calls to fcn is at least maxfev by the end of an iteration.
-//  *      - diag          : an array of length n. If mode = 1 (see below), diag is internally set. If mode = 2, diag must contain positive entries that serve as multiplicative scale factors for the variables.
-//  *      - mode          : an integer input variable. If mode = 1, the variables will be scaled internally. If mode = 2, the scaling is specified by the input diag. Other values of mode are equivalent to mode = 1.
-//  *      - factor        : a positive input variable used in determining the initial step bound. This bound is set to the product of factor and the euclidean norm of diag*x if the latter is nonzero, or else to factor itself. In most cases factor should lie in the interval (.1,100.). 100. is a generally recommended value.
-//  *      - nprint        : an integer input variable that enables controlled printing of iterates if it is positive. In this case, fcn is called with iflag = 0 at the beginning of the first iteration and every nprint iterations thereafter and immediately prior to return, with x and fvec available for printing. If nprint is not positive, no special calls of fcn with iflag = 0 are made.
-//  *      - info          : an integer output variable. If the user has terminated execution, info is set to the (negative) value of iflag. See description of fcn. Otherwise, info is set as follows.
-//  *      - info=0        : improper input parameters.
-//  *      - info=1        : both actual and predicted relative reductions in the sum of squares are at most ftol.
-//  *      - info=2        : relative error between two consecutive iterates is at most xtol.
-//  *      - info=3        : conditions for info = 1 and info = 2 both hold.
-//  *      - info=4        : the cosine of the angle between fvec and any column of the Jacobian is at most gtol in absolute value.
-//  *      - info=5        : number of calls to fcn has reached or exceeded maxfev.
-//  *      - info=6        : ftol is too small. No further reduction in the sum of squares is possible.
-//  *      - info=7        : xtol is too small. No further improvement in the approximate solution x is possible.
-//  *      - info=8        : gtol is too small. fvec is orthogonal to the columns of the Jacobian to machine precision.
-//  *      - nfev          : an integer output variable set to the number of calls to fcn with iflag = 1.
-//  *      - njev          : an integer output variable set to the number of calls to fcn with iflag = 2.
-//  *      - ipvt          : an integer output array of length n. ipvt defines a permutation matrix p such that jac*p = q*r, where jac is the final calculated Jacobian, q is orthogonal (not stored), and r is upper triangular with diagonal elements of nonincreasing magnitude. Column j of p is column ipvt(j) of the identity matrix.
-//  *      - qtf           : an output array of length n which contains the first n elements of the vector (q transpose)*fvec.
-//  *      - wa1, wa2, wa3 : are work arrays of length n.
-//  *      - wa4           : a work array of length m.  
-//  */
-// MAP_ERROR_CODE first_solve(ModelData* data, MAP_InputType_t* uType, MAP_ConstraintStateType_t* zType,  MAP_OtherStateType_t* otherType, MAP_OutputType_t* yType, char* map_msg, MAP_ERROR_CODE* ierr)
-// {
-//   MAP_ERROR_CODE success = MAP_SAFE;
-// 
-//   if (data->MAP_SOLVE_TYPE==MONOLITHIC) {
-//     success = line_solve_sequence(data, 0.0, map_msg, ierr);
-//   } else {
-//     success = node_solve_sequence(data, uType, zType, otherType, map_msg, ierr); // @todo CHECKERRQ()
-//   };
-// 
-//   /* @todo replace with MAP_RETURN? */
-//   if (success==MAP_SAFE) {
-//     return MAP_SAFE;
-//   } else if (success==MAP_ERROR) {
-//     return MAP_ERROR;
-//   } else {
-//     return MAP_FATAL;
-//   };
-// };
+MAP_ERROR_CODE first_solve(ModelData* model_data, MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  MAP_ERROR_CODE success = MAP_SAFE;
+
+  if (model_data->MAP_SOLVE_TYPE==MONOLITHIC) {
+    success = line_solve_sequence(model_data, 0.0, map_msg, ierr); /* @todo CHECKERRQ() */
+  } else {
+    success = node_solve_sequence(model_data, u_type, z_type, other_type, map_msg, ierr); /* @todo CHECKERRQ() */
+  };
+
+  /* @todo replace with MAP_RETURN? */
+  if (success==MAP_SAFE) {
+    return MAP_SAFE;
+  } else if (success==MAP_ERROR) {
+    return MAP_ERROR;
+  } else {
+    return MAP_FATAL;
+  };
+};
 
 
 MAP_ERROR_CODE allocate_outer_solve_data(OuterSolveAttributes* ns, const int size, char* map_msg, MAP_ERROR_CODE* ierr)
@@ -234,136 +203,6 @@ MAP_ERROR_CODE allocate_outer_solve_data(OuterSolveAttributes* ns, const int siz
 //   MAPFREE(ns->y);
 //   return MAP_SAFE;
 // };
-
-
-// /**
-//  * MAP_InputType_t* uType,
-//  * MAP_ConstraintStateType_t* zType,
-//  * MAP_OtherStateType_t* otherType,
-//  * MAP_OutputType_t* yType,
-//  */
-// MAP_ERROR_CODE node_solve_sequence(ModelData* data, MAP_InputType_t* uType, MAP_ConstraintStateType_t* zType, MAP_OtherStateType_t* otherType, char* map_msg, MAP_ERROR_CODE* ierr)
-// {
-// 
-//   OuterSolveAttributes* ns = &data->outer_loop;
-//   MAP_ERROR_CODE success = MAP_SAFE;
-//   Element* elementIter = NULL;
-//   const int THREE = 3;
-//   const int N = zType->z_Len;
-//   const int m = THREE*(otherType->Fz_connect_Len); // rows
-//   const int n = THREE*(zType->z_Len);              // columns
-//   double error = 0.0;
-//   int SIZE = THREE*N;
-//   int col = 0;
-//   int row = 0;
-//   int i = 0;
-//   int j = 0;
-//   int lineCounter = 0;
-// 
-//   ns->iterationCount = 1;
-//   do {
-//     error = 0.0;
-//     success = line_solve_sequence(data, 0.0, map_msg, ierr); CHECKERRQ(MAP_FATAL_79);
-//     switch (ns->fd) {
-//     case BACKWARD_DIFFERENCE :
-//       success = backward_difference_jacobian(otherType, zType, data, map_msg, ierr); CHECKERRQ(MAP_FATAL_75);
-//       break;
-//     case CENTRAL_DIFFERENCE :
-//       success = central_difference_jacobian(otherType, zType, data, map_msg, ierr); CHECKERRQ(MAP_FATAL_76);
-//       break;
-//     case FORWARD_DIFFERENCE :
-//       success = forward_difference_jacobian(otherType, zType, data, map_msg, ierr); CHECKERRQ(MAP_FATAL_77);
-//       break;
-//     }
-// 
-//     success = line_solve_sequence(data, 0.0, map_msg, ierr);
-//     success = lu(ns, SIZE, map_msg, ierr); CHECKERRQ(MAP_FATAL_74);
-//     success = lu_back_substitution(ns, SIZE, map_msg, ierr); CHECKERRQ(MAP_FATAL_74);
-//   
-//     /* 
-//        Note that: ns->x = J^(-1) * F
-//        [x,y,z]_i+1 =  [x,y,z]_i - J^(-1) * F        
-//     */   
-//     for (i=0 ; i<N ; i++) { 
-//       zType->x[i] -= ns->x[THREE*i];
-//       zType->y[i] -= ns->x[THREE*i+1];
-//       zType->z[i] -= ns->x[THREE*i+2];
-//       error += (pow(otherType->Fx_connect[i],2)+ pow(otherType->Fy_connect[i],2) + pow(otherType->Fz_connect[i],2));
-//     };
-//     ns->iterationCount++;
-//     if (ns->iterationCount>ns->maxIts) {
-//       *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_80);      
-//       break;
-//     };
-//     // printf("Error: %f, tol=%f\n",sqrt(error),ns->tol);
-//     /* 
-//        @todo: end when iterations is exceeded. need some way to indicate that simulation did not suuficiently 
-//        meet termination criteria
-//     */
-//   } while (sqrt(error)>ns->tol);
-// 
-//   if (success==MAP_SAFE) {
-//     return MAP_SAFE;
-//   } else if (success==MAP_ERROR) {
-//     return MAP_ERROR;
-//   } else {
-//     return MAP_FATAL;
-//   };
-// };
-
-
-
-// /**
-//  *
-//  */
-// MAP_ERROR_CODE solve_line(ModelData* data, double time, char* map_msg, MAP_ERROR_CODE* ierr)
-// {
-//   MAP_ERROR_CODE success = MAP_SAFE;
-//   Element* elementIter = NULL;
-//   int lineCounter = 1;
-//   int cx = 0;
-//   char buffer[64] = "";
-//       
-//   list_iterator_start(&data->element);            /* starting an iteration "session" */
-//   while (list_iterator_hasnext(&data->element)) { /* tell whether more values available */ 
-//     elementIter = (Element*)list_iterator_next(&data->element);
-//  
-//     /* 
-//        check for fatal errors 
-//        @todo: this should handle the exception of a perfectly vertical cable. Added to the priority list
-//     */    
-//     if (elementIter->l.value<=0.0) {
-//       cx = map_snprintf(buffer, 64, "Line segment %d, l = %f [m].", lineCounter, elementIter->l.value); assert(cx>=0);
-//       *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_54);      
-//       list_iterator_stop(&data->element); /* ending the iteration session */   
-//       break; 
-//     } else if (elementIter->h.value<=-MACHINE_EPSILON) {
-//       cx = map_snprintf(buffer, 64, "Line segment %d, h = %f [m].", lineCounter, elementIter->h.value); assert(cx>=0);
-//       *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_55);      
-//       list_iterator_stop(&data->element); /* ending the iteration session */   
-//       break; 
-//     } else if (elementIter->lineProperty->omega>0.0) {
-//       success = check_maximum_line_length(elementIter, elementIter->options.omitContact, map_msg, ierr);
-//       if (success) {        
-//         cx = map_snprintf(buffer, 64, "Line segment %d.", lineCounter); assert(cx>=0);
-//         *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_59);
-//         break;
-//       };
-//     };    
-//     success = call_minpack_lmder(elementIter, &data->inner_loop, &data->modelOptions, lineCounter, time, map_msg, ierr); CHECKERRQ(MAP_FATAL_79);
-//     lineCounter++;
-//   };
-//   list_iterator_stop(&data->element); /* ending the iteration "session" */    
-// 
-//   if (*ierr==MAP_SAFE) {
-//     return MAP_SAFE;
-//   } else if (*ierr==MAP_ERROR) {
-//     return MAP_ERROR;
-//   } else {
-//     return MAP_FATAL;
-//   };
-// };
-
 
 
 MAP_ERROR_CODE check_help_flag(bstring list)
@@ -2687,3 +2526,205 @@ MAP_ERROR_CODE associate_element_with_fairlead_node(Element* element_ptr, ModelD
   return MAP_SAFE;
 
 };
+
+
+MAP_ERROR_CODE is_numeric(const char* string)
+{
+  char* p = NULL;
+  if (string==NULL || *string=='\0' || isspace(*string)) {
+    return MAP_SAFE;
+  };
+  strtod (string, &p);
+  if (*p=='\0') {
+    return MAP_FATAL;
+  } else {
+    return MAP_SAFE;
+  };
+};
+
+
+MAP_ERROR_CODE associate_vartype_ptr(VarTypePtr* type, double* arr, int index)
+{
+  type->value = &arr[index-1];
+  return MAP_SAFE;
+};
+
+
+void copy_target_string(char* target, unsigned char* source)
+{
+  while (*source) {
+    *target = *source;
+    source++;
+    target++;
+  };
+  *target = '\0';
+};
+
+
+MAP_ERROR_CODE map_get_version(MAP_InitOutputType_t* io_type)
+{
+  bstring out_string = NULL;
+  int ret = 0;
+
+  /* first set the program version defined in the mapsys.h header file 
+   * @todo: program version should be tied to the gi revision numner
+   */
+  out_string = bformat("<%s>",PROGVERSION);
+  if (out_string->slen>MAX_INIT_VERSION_STRING_LENGTH) { /* overflow */
+    return MAP_FATAL; /* @todo: give proper error code */
+  };
+  copy_target_string(io_type->version, out_string->data);
+  ret = bdestroy(out_string);
+
+  /* the set the compiling date. This is #defined in the mapsys.h header */
+  out_string = bformat("<%c%c%c-%c%c-%c%c%c%c>",BUILD_MONTH_CH0,BUILD_MONTH_CH1,BUILD_MONTH_CH2,BUILD_DAY_CH0,BUILD_DAY_CH1,BUILD_YEAR_CH0,BUILD_YEAR_CH1,BUILD_YEAR_CH2,BUILD_YEAR_CH3);
+  if (out_string->slen>MAX_INIT_COMPILING_DATA_STRING_LENGTH) { /* overflow */
+    return MAP_FATAL; /* @todo: give proper error code */
+  };
+  copy_target_string(io_type->compilingData, out_string->data);
+  ret = bdestroy(out_string);
+  return MAP_SAFE;
+};
+
+
+void print_machine_name_to_screen( ) {
+  // __get_machine_name(name);
+  printf( "%s Ver. %s ", PROGNAME, PROGVERSION); 
+  printf( "%c",BUILD_MONTH_CH0 );// build month
+  printf( "%c",BUILD_MONTH_CH1 );
+  printf( "%c",BUILD_MONTH_CH2 );
+  printf( "-" );
+  printf( "%c",BUILD_DAY_CH0 );// build day
+  printf( "%c",BUILD_DAY_CH1 );
+  printf( "-" );
+  printf( "%c",BUILD_YEAR_CH0 ); // build year 
+  printf( "%c",BUILD_YEAR_CH1 );
+  printf( "%c",BUILD_YEAR_CH2 );
+  printf( "%c\n",BUILD_YEAR_CH3 );
+}
+
+
+// /**
+//  * @see: http://stackoverflow.com/questions/504810/how-do-i-find-the-current-machines-full-hostname-in-c-hostname-and-domain-info
+//  */
+// void __get_machine_name(char* machineName)
+// {
+//   char name[150];  
+//   
+// #if defined(_WIN32) || defined(_WIN64)
+//   int i = 0;
+//   TCHAR infoBuf[150];
+//   DWORD bufCharCount = 150;
+//   memset(name, 0, 150);
+//   if (GetComputerName(infoBuf, &bufCharCount)) {
+//     for (i=0 ; i<150 ; i++) {
+//       name[i] = infoBuf[i];
+//     };
+//   } else {
+//     strcpy(name, "Unknown_Host_Name");
+//   };
+// #else
+//   memset(name, 0, 150);
+//   gethostname(name, 150);
+// #endif
+//   strncpy(machineName ,name, 150);
+// };
+
+
+MAP_ERROR_CODE print_help_to_screen()
+{
+  print_machine_name_to_screen( );
+
+  printf("MAP Input file section defitions:\n");
+  printf("  Line dictionary definitions:\n");   
+  printf("    -LineType, --User-defined name of line [-]  \n");   
+  printf("    -Diam,     --Line diamater, used to calulate area and line displacement per unit length [m]  \n");   
+  printf("    -MassDen,  --Mass (in air) per unit length [kg/m]  \n");   
+  printf("    -EA,       --Axial stiffness [N] \n");   
+  printf("    -CB,       --Cable/seabed Coulumb friction coefficient [-]  \n");   
+  printf("    -CIntDamp, --Internal structural damping coefficient [Pa-s]  \n");   
+  printf("    -Ca,       --Cross-flow added-mass coeficient [-]\n");   
+  printf("    -Cdn,      --Cross-flow drag coefficient [-]\n");   
+  printf("    -Cdt,      --Tangent (skin) drag coefficient[-]\n");   
+  printf("  Node property definitions:\n");
+  printf("    -Node,     --Node number; first starts at 1 [-]\n");
+  printf("    -Type,     --Type of node. Must be one of: VESSEL, FIX, CONNECT [-]\n");
+  printf("    -X,        --Node X position. '#' must prefix CONNECT nodes; constitutes user initial guess [m]\n");
+  printf("    -Y,        --Node Y position. '#' must prefix CONNECT nodes; constitutes user initial guess [m]\n");
+  printf("    -Z,        --Node Z position. '#' must prefix CONNECT nodes; constitutes user initial guess [m]\n");
+  printf("    -M,        --Applied point mass at node [kg]\n");
+  printf("    -B,        --Applied point buoyancy module at node [m^3]\n");  
+  printf("    -FX,       --Applied X external force at node. '#' must prefix VESSEL and FIX nodes [N]\n");
+  printf("    -FY,       --Applied Y external force at node. '#' must prefix VESSEL and FIX nodes [N]\n");
+  printf("    -FZ,       --Applied Z external force at node. '#' must prefix VESSEL and FIX nodes [N]\n");
+  printf("  Element property definitions:\n");
+  printf("    -Element,  --Element number; first starts at 1 [-]\n");
+  printf("    -LineType, --Must match property defined in 'Line Dictions'[-]\n");
+  printf("    -UnstrLen, --Unstretched line length [m]\n");
+  printf("    -NodeAnch, --Anchor node number corresponding to 'Node Property Definitions' section [-]\n");
+  printf("    -NodeFair, --Fairlead node number corresponding to 'Node Property Definitions' section [-]\n");
+  printf("    -Flags,    --User run-time flag; see below [-]\n");
+
+  printf("    \n");
+  printf("  Element run-time options definitions\n");
+  printf("    Outputs:\n");
+  printf("      -gx_pos,       --Fairlead posiion in global X [m]\n");
+  printf("      -gy_pos,       --Fairlead posiion in global Y [m]\n");
+  printf("      -gx_pos,       --Fairlead posiion in global Z [m]\n");
+  printf("      -gx_a_pos,     --Anchor posiion in global X [m]\n");
+  printf("      -gy_a_pos,     --Anchor posiion in global Y [m]\n");
+  printf("      -gz_a_pos,     --Anchor posiion in global Z [m]\n");
+  printf("      -gx_force,     --Fairlead force in global X (include applied forces) [N]\n");
+  printf("      -gy_force,     --Fairlead force in global Y (include applied forces) [N]\n");
+  printf("      -gz_force,     --Fairlead force in global Z (include applied forces) [N]\n");
+  printf("      -h_fair,       --Horizontal force at fairlead (does NOT include applied forces) [N]\n");
+  printf("      -v_fair,       --Vertical force at fairlead (does NOT include applied forces) [N]\n");
+  printf("      -h_anch,       --Horizontal force at anchor (does NOT include applied forces) [N]\n");
+  printf("      -v_anch,       --Vertical force at anchor (does NOT include applied forces) [N]\n");
+  printf("      -tension_fair, --Line force-magnitude at fairlead (include applied loads) [N]\n");
+  printf("      -tension_anch, --Line force-magnitude at anchor (include applied loads) [N]\n");
+  printf("      -azimuth,      --Line lateral offset angle global X axis [deg]\n");
+  printf("      -altitude,     --Line inclination angle relative to global XY plane at fiarlead [deg]\n");
+  printf("      -lay_length,   --Length of line on seabed [m]\n");
+  printf("      -line_tension, -- \n");
+  printf("    Model features:\n");
+  printf("      -omit_contact,       --Ignore cable/seabed contact\n");
+  printf("      -seg_size <10>,      --Number of discrete elements in line\n");
+  printf("      -damage_time <NULL>, --Line breakage occurs at specified time [s]\n");
+  printf("      -diagnostic,         --Run line solver diagnostics until specified time [s]\n");
+  printf("\n");
+  printf("  Model option definitions\n");
+  printf("    General model features:\n");
+  printf("      -ref_position <0.0> <0.0> <0.0>\n");
+  printf("      -repeat <NULL> ... <NULL>\n");
+  printf("    MSQS solver options:\n");
+  printf("      -inner_ftol <float>,\n");
+  printf("      -inner_gtol <float>,\n");
+  printf("      -inner_xtol <float>,\n");
+  printf("      -inner_max_its <int>,\n");
+  printf("      -outer_tol <float>,\n");
+  printf("      -outer_max_its <int>,\n");
+  printf("      -outer_epsilon <float>,\n");
+  printf("      -outer_bd,\n");
+  printf("      -outer_cd,\n");
+  printf("      -outer_fd,\n");
+  printf("      -pg_cooked <1000.0> <1.0>,\n");
+  printf("      -integration_dt <0.01>,\n");
+  printf("    LM model feature (not suported yet):\n");
+  printf("      -kb_default      --Seabed stiffness parameter\n");
+  printf("      -cb_default      --Seabed damping parameter\n");
+  printf("      -wave_kinematics --Enables wave kinematics to drag interaction from surface waves\n");
+  printf( "\nMAP++ Copyright (C) 2014 and GNU GPL by Marco Masciola and others\n" );
+  printf( "SimCList Copyright (C) 2010 by Mij <http://mij.oltrelinux.com/devel/simclist/>\n" );
+  printf( "MinPack Copyright (C) 1999 by the University of Chicago\n" );
+  printf( "Modifications to MinPack by Frederic Devernay <http://devernay.free.fr/hacks/cminpack/>\n" );
+  printf( "\nMAP++ is free software; see the source for copying conditions.\n" );
+  printf( "This software is distributed on an \"AS IS\" BASIS, WITHOUT WARRANTIES\n" );
+  printf( "OR CONDITIONS OF ANY KIND, either express or implied. See\n" );
+  printf( "<https://gnu.org/licenses/gpl.html> for more details.\n" );
+  printf("    \n");
+  return MAP_SAFE;
+};
+
+
+
