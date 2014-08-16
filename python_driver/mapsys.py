@@ -122,7 +122,7 @@ class Map(object):
     MapContinuous_Type = POINTER(ContinuousData_Type)
 
     # read file stuff
-    # lib.set_init_to_null.argtype=[MapInit_Type, c_char_p, POINTER(c_int) ]
+    lib.set_init_to_null.argtype=[MapInit_Type, c_char_p, POINTER(c_int) ]
 #    lib.map_set_summary_file_name.argtype=[MapInit_Type, c_char_p, POINTER(c_int) ]
 #     lib.map_add_cable_library_input_text.argtype=[MapInit_Type]
 #     lib.map_add_node_input_text.argtype=[MapInit_Type]
@@ -232,8 +232,8 @@ class Map(object):
         self.f_type_z       = self.CreateConstraintState( )
         self.f_type_init    = self.CreateInitState( )
         self.f_type_initout = self.CreateInitoutState( )
-        # Map.lib.set_init_to_null(self.f_type_init, self.status, pointer(self.ierr) )
-        # self.summary_file("outlist.map.sum")
+        Map.lib.set_init_to_null(self.f_type_init, self.status, pointer(self.ierr) )
+        self.summary_file("outlist.map.sum")
 
 
     def init( self ):
@@ -260,15 +260,15 @@ class Map(object):
     MAP_EXTERNCALL void MAP_Output_Delete( InputData* y )
     MAP_EXTERNCALL void MAP_OtherState_Delete( ModelData* data )
     """
-    def end( self ):
-        Map.lib.map_end( self.f_type_u, self.f_type_p, self.f_type_x, None, self.f_type_z, self.f_type_d, self.f_type_y, pointer(self.ierr), self.status )
+    def end(self):
+        Map.lib.map_end(self.f_type_u, self.f_type_p, self.f_type_x, None, self.f_type_z, self.f_type_d, self.f_type_y, pointer(self.ierr), self.status)
 
-#     """
-#     Set a name for the MAP summary file. Does not need to be called. If not called, the default name is 'outlist.sum.map'
-#     """
-#     def summary_file( self, echo_file ):
-#         self.f_type_init.contents.summaryFileName = echo_file
-#         Map.lib.map_set_summary_file_name(self.f_type_init, self.status, pointer(self.ierr) )
+    """
+    Set a name for the MAP summary file. Does not need to be called. If not called, the default name is 'outlist.sum.map'
+    """
+    def summary_file(self, echo_file):
+        self.f_type_init.contents.summaryFileName = echo_file
+        Map.lib.map_set_summary_file_name(self.f_type_init, self.status, pointer(self.ierr) )
 
 
     """

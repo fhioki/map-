@@ -23,6 +23,9 @@
 #define _OUTPUT_STREAM_H
 
 
+#include <time.h>
+#include "map.h"
+#include "maperror.h"
 #include "MAP_Types.h"
 
 

@@ -60,7 +60,8 @@ OBJ       = lmder.o \
 	maperror.o \
 	MAP_Types.o \
 	lineroutines.o \
-	numeric.o
+	numeric.o \
+	outputstream.o
 
 all : $(OBJ)
 	$(CC_TOOLS) $(LDFLAGS) -o libmap-1.00.01.so $(DEBUG) $(OBJ) -lm

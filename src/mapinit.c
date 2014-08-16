@@ -78,7 +78,7 @@ MAP_ERROR_CODE set_vessel(Vessel* floater, const MAP_InputType_t* u_type, char* 
 MAP_ERROR_CODE first_solve(ModelData* model_data, MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_ERROR_CODE success = MAP_SAFE;
-
+  
   if (model_data->MAP_SOLVE_TYPE==MONOLITHIC) {
     success = line_solve_sequence(model_data, 0.0, map_msg, ierr); /* @todo CHECKERRQ() */
   } else {
@@ -128,7 +128,7 @@ MAP_ERROR_CODE allocate_outer_solve_data(OuterSolveAttributes* ns, const int siz
   };
 
   if (ns->b==NULL) {
-    user_msg = bformat("allocate_outer_solve_data(...).");
+    user_msg = bformat("In allocate_outer_solve_data(...).");
     *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_8);        
     ret = bdestroy(user_msg); 
     user_msg = NULL;
@@ -136,7 +136,7 @@ MAP_ERROR_CODE allocate_outer_solve_data(OuterSolveAttributes* ns, const int siz
   };
 
   if (ns->l==NULL) {
-    user_msg = bformat("allocate_outer_solve_data(...).");
+    user_msg = bformat("In allocate_outer_solve_data(...).");
     *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_8);        
     ret = bdestroy(user_msg); 
     user_msg = NULL;
@@ -144,7 +144,7 @@ MAP_ERROR_CODE allocate_outer_solve_data(OuterSolveAttributes* ns, const int siz
   };
 
   if (ns->u==NULL) {
-    user_msg = bformat("allocate_outer_solve_data(...).");
+    user_msg = bformat("In allocate_outer_solve_data(...).");
     *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_8);        
     ret = bdestroy(user_msg); 
     user_msg = NULL;
@@ -152,7 +152,7 @@ MAP_ERROR_CODE allocate_outer_solve_data(OuterSolveAttributes* ns, const int siz
   };
 
   if (ns->y==NULL) {
-    user_msg = bformat("allocate_outer_solve_data(...).");
+    user_msg = bformat("In allocate_outer_solve_data(...).");
     *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_8);        
     ret = bdestroy(user_msg); 
     user_msg = NULL;
@@ -1578,14 +1578,14 @@ MAP_ERROR_CODE set_node_list(const MAP_ParameterType_t* p_type,  MAP_InputType_t
             next++;
           } else if (next==4) { /* set initial Z node position values */
             alias = bformat("Z[%d]", i+1);                          
-            if (biseqcstrcaseless(parsed->entry[i_parsed],"DEPTH")) {          
+            if (biseqcstrcaseless(parsed->entry[i_parsed],"DEPTH")) {         
               if (node_iter->type!=FIX) { /* can only use 'DEPTH' flag in input file for FIX (anchor) nodes */
                 user_msg = bformat("Value: <%s>", parsed->entry[i_parsed]->data);
                 *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_71); 
                 success = bdestroy(user_msg); /* clear user_msg to not inavertendly picked up elsewhere */
                 user_msg = NULL;
               } else {
-                value_string = bformat("%f", depth);                          
+                value_string = bformat("%f", -depth);                          
                 success = set_vartype_ptr("[m]", alias, i, &node_iter->positionPtr.z, value_string); CHECKERRQ(MAP_FATAL_19);
               };
             } else { /* all other nodes not using the 'DEPTH' flag */
@@ -1932,97 +1932,6 @@ MAP_ERROR_CODE set_element_list(MAP_ConstraintStateType_t* z_type, ModelData* mo
     } while (0);   
     success = bstrListDestroy(parsed);
   };  
-
-
-
-
-
-//   int i = 0;
-//   int cx = 0;
-//   int cnt = 0;
-//   int success = 0;
-//   int sizeOfString = 0;
-//   char buffer[64] = "";
-//   char* line = NULL;
-//   char* word = NULL;
-//   Element newElement;
-//   Element* elementIter = NULL;
-//   int lineCounter = 0;
-// 
-//   zType->H_Len = data->sizeOfElements;          
-//   zType->V_Len = data->sizeOfElements;          
-//   zType->H = (double*)malloc(zType->H_Len*sizeof(double));
-//   zType->V = (double*)malloc(zType->V_Len*sizeof(double));
-// 
-//   if (zType->H==NULL) {
-//     *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_53);
-//     return MAP_FATAL;
-//   };
-// 
-//   if (zType->V==NULL) {
-//     *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_53);
-//     return MAP_FATAL;
-//   };
-// 
-//   for(i=0 ; i<=data->sizeOfElements-1 ; i++) {
-//     sizeOfString = strlen(elementInputString[i]);
-//     line = (char*)realloc(line, (sizeOfString+1)*sizeof(char));    
-//     strcpy(line, elementInputString[i]);    
-//     word = strtok(line, " ,\n\t\r\0");
-//     while (word!=NULL) {
-//       do {
-//         if (cnt==0) {
-//           /* use this first option as an opportunity to set the run-time flags to false */
-//           initialize_element(&newElement, i+1);
-//           success = associate_vartype_ptr(&newElement.H, zType->H, i+1);
-//           success = associate_vartype_ptr(&newElement.V, zType->V, i+1);          
-//           cx = map_snprintf(buffer, 64, "V[%d]", i+1);assert(cx>=0);                  
-//           success = set_vartype_ptr("[N]", buffer, i, &newElement.V, word); CHECKERRQ(MAP_FATAL_32);
-//           cx = map_snprintf(buffer, 64, "H[%d]", i+1); assert(cx>=0);                            
-//           success = set_vartype_ptr("[N]", buffer, i, &newElement.H, word); CHECKERRQ(MAP_FATAL_32);
-//         } else if (cnt==1) {
-//           success = associate_element_with_cable_property(&newElement, data, word, map_msg, ierr); CHECKERRQ(MAP_FATAL_32);
-//         } else if (cnt==2) { 
-//           cx = map_snprintf(buffer, 64, "Lu[%d]", i+1); assert(cx>=0);                
-//           success = set_vartype("[m]", buffer, i, &newElement.Lu, word); CHECKERRQ(MAP_FATAL_26);
-//         } else if (cnt==3) {
-//           success = associate_element_with_anchor_node(data, &newElement, i+1, word, map_msg, ierr); CHECKERRQ(MAP_FATAL_32);        
-//         } else if (cnt==4) {
-//           success = associate_element_with_fairlead_node(data, &newElement, i+1, word, map_msg, ierr); CHECKERRQ(MAP_FATAL_32); 
-//         } else { 
-//           success = map_set_option_flags (word, &newElement, map_msg, ierr);
-//         };
-//       } while (0);
-//       cnt++;
-//       word = strtok(NULL, " ,\n\t\r\0");
-//     };  
-//     list_append(&data->element, &newElement);
-//     cnt=0;
-//   };
-// 
-//   /* check EA, Lu errors. These values cannot be negative. */
-//   list_iterator_start(&data->element);            /* starting an iteration "session" */
-//   while (list_iterator_hasnext(&data->element)) { /* tell whether more values available */ 
-//     elementIter = (Element*)list_iterator_next(&data->element);
-//     if(elementIter->Lu.value<=0.0) {
-//       success = MAP_FATAL;
-//       cx = map_snprintf(buffer, 64, "Line segment %d, Lu = %f [m].", lineCounter, elementIter->Lu.value); assert(cx>=0);
-//       *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_56);      
-//     } else if(elementIter->lineProperty->ea<=0.0) {
-//       success = MAP_FATAL;
-//       cx = map_snprintf(buffer, 64, "Line segment %d, EA = %f [N].", lineCounter, elementIter->lineProperty->ea); assert(cx>=0);
-//       *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_57);      
-//     };
-//     lineCounter++;
-//   };
-//   list_iterator_stop(&data->element); /* ending the iteration "session" */    
-// 
-//   MAPFREE(line);
-// 
-//   if (*ierr==MAP_FATAL) {
-//     return MAP_FATAL;
-//   };
-//   return MAP_SAFE;
   return MAP_SAFE;
 };
 

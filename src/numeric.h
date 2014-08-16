@@ -48,5 +48,16 @@ MapReal jacobian_dxdv_contact(const MapReal V, const MapReal H, const MapReal w,
 MapReal jacobian_dzdh_contact(const MapReal V, const MapReal H, const MapReal w, const MapReal Lu, const MapReal EA, const MapReal cb);
 MapReal jacobian_dzdv_contact(const MapReal V, const MapReal H, const MapReal w, const MapReal Lu, const MapReal EA, const MapReal cb);
 
+MAP_ERROR_CODE forward_difference_jacobian(MAP_OtherStateType_t* other_type, MAP_ConstraintStateType_t* z_type, ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE backward_difference_jacobian(MAP_OtherStateType_t* other_type, MAP_ConstraintStateType_t* z_type, ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE central_difference_jacobian(MAP_OtherStateType_t* other_type, MAP_ConstraintStateType_t* z_type, ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE lu(OuterSolveAttributes* ns, const int n, char* map_msg, MAP_ERROR_CODE* ierr);
+
+
+/**
+ * Ax = b -> LUx = b. Then y is defined to be Ux
+ */
+MAP_ERROR_CODE lu_back_substitution(OuterSolveAttributes* ns, const int n, char* map_msg, MAP_ERROR_CODE* ierr);
+
 
 #endif // _NUMERIC_H

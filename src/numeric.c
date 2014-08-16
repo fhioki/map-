@@ -42,20 +42,20 @@ int inner_function_evals(void* element_ptr, int m, int n, const __cminpack_real_
        fvec[0] = residual_function_length_no_contact(Fv, Fh, omega, Lu, EA, length);
        fvec[1] = residual_function_height_no_contact(Fv, Fh, omega, Lu, EA, height); 
      } else { /* true when a portion of the line rests on the seabed and the anchor tension is nonzero */
-//       fvec[0] = residual_function_length_contact(Fv, Fh, omega, Lu, EA, length, cb);
-//       fvec[1] = residual_function_height_contact(Fv, Fh, omega, Lu, EA, height, cb); 
+       fvec[0] = residual_function_length_contact(Fv, Fh, omega, Lu, EA, length, cb);
+       fvec[1] = residual_function_height_contact(Fv, Fh, omega, Lu, EA, height, cb); 
      };
   } else {
      if (contactFlag==true || omega<0.0 || (Fv-omega*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
-//       fjac[0] = jacobian_dxdh_no_contact(Fv, Fh, omega, Lu, EA);
-//       fjac[1] = jacobian_dxdv_no_contact(Fv, Fh, omega, Lu, EA);
-//       fjac[2] = jacobian_dzdh_no_contact(Fv, Fh, omega, Lu, EA);
-//       fjac[3] = jacobian_dzdv_no_contact(Fv, Fh, omega, Lu, EA);
+       fjac[0] = jacobian_dxdh_no_contact(Fv, Fh, omega, Lu, EA);
+       fjac[1] = jacobian_dxdv_no_contact(Fv, Fh, omega, Lu, EA);
+       fjac[2] = jacobian_dzdh_no_contact(Fv, Fh, omega, Lu, EA);
+       fjac[3] = jacobian_dzdv_no_contact(Fv, Fh, omega, Lu, EA);
      } else { /* true when a portion of the line rests on the seabed and the anchor tension is nonzero */
-//       fjac[0] = jacobian_dxdh_contact(Fv, Fh, omega, Lu, EA, cb);
-//       fjac[1] = jacobian_dxdv_contact(Fv, Fh, omega, Lu, EA, cb);
-//       fjac[2] = jacobian_dzdh_contact(Fv, Fh, omega, Lu, EA, cb);
-//       fjac[3] = jacobian_dzdv_contact(Fv, Fh, omega, Lu, EA, cb);
+       fjac[0] = jacobian_dxdh_contact(Fv, Fh, omega, Lu, EA, cb);
+       fjac[1] = jacobian_dxdv_contact(Fv, Fh, omega, Lu, EA, cb);
+       fjac[2] = jacobian_dzdh_contact(Fv, Fh, omega, Lu, EA, cb);
+       fjac[3] = jacobian_dzdv_contact(Fv, Fh, omega, Lu, EA, cb);
      };
   };
   return 0;
@@ -441,404 +441,404 @@ double get_maximum_line_length(Element* element)
 };
 
 
-// /**
-//  * Ax = b -> LUx = b. Then y is defined to be Ux
-//  */
-// MAP_ERROR_CODE lu_back_substitution(OuterSolveAttributes* ns, const int n, char* map_msg, MAP_ERROR_CODE* ierr)
-// {
-//   int i = 0;
-//   int j = 0;
-// 
-//   /* Forward solve Ly = b */
-//   for (i=0 ; i<n ; i++) {
-//     ns->y[i] = ns->b[i];
-//     for (j=0 ; j<i ; j++) {
-//       ns->y[i] -= (ns->l[i][j])*(ns->y[j]);
-//     };
-//     if (fabs(ns->l[i][i])<MACHINE_EPSILON) {
-//       return MAP_FATAL;
-//     };
-//     ns->y[i] /= ns->l[i][i];    
-//   };
-// 
-//   /* Backward solve Ux = y */
-//   for (i=n-1 ; i>=0 ; i--) {
-//     ns->x[i] = ns->y[i];
-//     for (j=i+1 ; j<n ; j++) {
-//       ns->x[i] -= (ns->u[i][j])*(ns->x[j]);
-//     };    
-//     if (fabs(ns->u[i][i])<MACHINE_EPSILON) {
-//       return MAP_FATAL;
-//     };
-//     ns->x[i] /= ns->u[i][i];
-//   };
-//   return MAP_SAFE;
-// };
-// 
-// 
-// /**
-//  *
-//  */
-// MAP_ERROR_CODE lu(OuterSolveAttributes* ns, const int n, char* map_msg, MAP_ERROR_CODE* ierr)
-// {
-//   int i = 0;
-//   int j = 0;
-//   int k = 0;
-// 
-//   for (i=0 ; i<n ; i++) {
-//     ns->l[i][i] = 1.0;
-//     for (j=i+1 ; j<n ; j++) {
-//       if (fabs(ns->jac[i][i])<MACHINE_EPSILON) {
-//         return MAP_FATAL;
-//       };
-//       ns->l[j][i] = (ns->jac[j][i])/(ns->jac[i][i]);
-//       /* ns->jac[j][j] = ns->l[j][j] */
-//       for (k=i+1 ; k<n ; k++) {
-//         ns->jac[j][k] = ns->jac[j][k] - (ns->l[j][i])*(ns->jac[i][k]);
-//       };
-//     };
-//     
-//     for (k=i ; k<n ; k++) {
-//       ns->u[i][k] = ns->jac[i][k] ;
-//     };
-//   };
-// 
-//   return MAP_SAFE;
-// };
-// 
-// 
-// /**
-//  * Forward difference jacobian
-//  */
-// MAP_ERROR_CODE forward_difference_jacobian(MAP_OtherStateType_t* otherType, MAP_ConstraintStateType_t* zType, ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr)
-// {
-//   OuterSolveAttributes* ns = &data->outer_loop;
-//   MAP_ERROR_CODE success = MAP_SAFE;
-//   double originalDisplacement = 0.0;
-//   const int THREE = 3;
-//   const int N = zType->z_Len;
-//   const int m = THREE*(otherType->Fz_connect_Len); // rows
-//   const int n = THREE*(zType->z_Len);              // columns
-//   char buffer[64] = "";
-//   int cx = 0;
-//   int i = 0;
-//   int j = 0;
-//   
-//   for (i=0 ; i<N ; i++) {
-//     ns->b[THREE*i] = otherType->Fx_connect[i];
-//     ns->b[THREE*i+1] = otherType->Fy_connect[i];
-//     ns->b[THREE*i+2] = otherType->Fz_connect[i];      
-//   }
-// 
-//   /* 
-//      First store the connect node force before applying ns->epsilon displacement      
-//   */
-//   for (i=0 ; i<n ; i++) {            
-//     for (j=0 ; j<N ; j++) {            
-//       ns->jac[THREE*j][i] = -otherType->Fx_connect[j];
-//       ns->jac[THREE*j+1][i] = -otherType->Fy_connect[j];
-//       ns->jac[THREE*j+2][i] = -otherType->Fz_connect[j];
-//     };
-//   };
-//     
-//   for (j=0 ; j<N ; j++) {   // column               
-//     for (i=0 ; i<N ; i++) { // rows           
-//       originalDisplacement = zType->x[j];
-//       zType->x[j] += ns->epsilon;
-//       success = line_solve_sequence(data, 0.0, map_msg, ierr);
-//       if (success) {
-//         cx = map_snprintf(buffer, 64, "Forward difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j); assert(cx>=0);
-//         *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_78);      
-//         return MAP_FATAL;
-//       };
-//       ns->jac[THREE*i][THREE*j] += otherType->Fx_connect[i];
-//       ns->jac[THREE*i][THREE*j] /= ns->epsilon;
-//       ns->jac[THREE*i+1][THREE*j] += otherType->Fy_connect[i];
-//       ns->jac[THREE*i+1][THREE*j] /= ns->epsilon;
-//       ns->jac[THREE*i+2][THREE*j] += otherType->Fz_connect[i];
-//       ns->jac[THREE*i+2][THREE*j] /= ns->epsilon;
-//       zType->x[j] = originalDisplacement;
-//         
-//       originalDisplacement = zType->y[j];
-//       zType->y[j] += ns->epsilon;
-//       success = line_solve_sequence(data, 0.0, map_msg, ierr);
-//       if (success) {
-//         cx = map_snprintf(buffer, 64, "Forward difference, y[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j); assert(cx>=0);
-//         *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_78);      
-//         return MAP_FATAL;
-//       };
-//       ns->jac[THREE*i][THREE*j+1] += otherType->Fx_connect[i];
-//       ns->jac[THREE*i][THREE*j+1] /= ns->epsilon;
-//       ns->jac[THREE*i+1][THREE*j+1] += otherType->Fy_connect[i];
-//       ns->jac[THREE*i+1][THREE*j+1] /= ns->epsilon;
-//       ns->jac[THREE*i+2][THREE*j+1] += otherType->Fz_connect[i];
-//       ns->jac[THREE*i+2][THREE*j+1] /= ns->epsilon;
-//       zType->y[j] = originalDisplacement;
-//     
-//       originalDisplacement = zType->z[j];
-//       zType->z[j] += ns->epsilon;
-//       success = line_solve_sequence(data, 0.0, map_msg, ierr);
-//       if (success) {
-//         cx = map_snprintf(buffer, 64, "Forward difference, z[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j); assert(cx>=0);
-//         *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_78);      
-//         return MAP_FATAL;
-//       };
-//       ns->jac[THREE*i][THREE*j+2] += otherType->Fx_connect[i];
-//       ns->jac[THREE*i][THREE*j+2] /= ns->epsilon;
-//       ns->jac[THREE*i+1][THREE*j+2] += otherType->Fy_connect[i];
-//       ns->jac[THREE*i+1][THREE*j+2] /= ns->epsilon;
-//       ns->jac[THREE*i+2][THREE*j+2] += otherType->Fz_connect[i];
-//       ns->jac[THREE*i+2][THREE*j+2] /= ns->epsilon;
-//       zType->z[j] = originalDisplacement;
-//     };
-//   };
-// 
-//   /* read flag to set scaling parameter */
-//   if (ns->pg) {
-//     for (i=0 ; i<THREE*N ; i++) { 
-//       ns->jac[i][i] += (ns->ds/pow(ns->iterationCount,1.5)+ns->d);
-//     };
-//   };
-// 
-//   return MAP_SAFE;
-// };
+MAP_ERROR_CODE lu_back_substitution(OuterSolveAttributes* ns, const int n, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  int i = 0;
+  int j = 0;
+
+  /* Forward solve Ly = b */
+  for (i=0 ; i<n ; i++) {
+    ns->y[i] = ns->b[i];
+    for (j=0 ; j<i ; j++) {
+      ns->y[i] -= (ns->l[i][j])*(ns->y[j]);
+    };
+    if (fabs(ns->l[i][i])<MACHINE_EPSILON) {
+      return MAP_FATAL;
+    };
+    ns->y[i] /= ns->l[i][i];    
+  };
+
+  /* Backward solve Ux = y */
+  for (i=n-1 ; i>=0 ; i--) {
+    ns->x[i] = ns->y[i];
+    for (j=i+1 ; j<n ; j++) {
+      ns->x[i] -= (ns->u[i][j])*(ns->x[j]);
+    };    
+    if (fabs(ns->u[i][i])<MACHINE_EPSILON) {
+      return MAP_FATAL;
+    };
+    ns->x[i] /= ns->u[i][i];
+  };
+  return MAP_SAFE;
+};
 
 
-// /**
-//  * Backward difference jacobian
-//  */
-// MAP_ERROR_CODE backward_difference_jacobian(MAP_OtherStateType_t* otherType, MAP_ConstraintStateType_t* zType, ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr)
-// {
-//   OuterSolveAttributes* ns = &data->outer_loop;
-//   MAP_ERROR_CODE success = MAP_SAFE;
-//   double originalDisplacement = 0.0;
-//   const int THREE = 3;
-//   const int N = zType->z_Len;
-//   const int m = THREE*(otherType->Fz_connect_Len); // rows
-//   const int n = THREE*(zType->z_Len);              // columns
-//   char buffer[64] = "";
-//   int cx = 0;
-//   int i = 0;
-//   int j = 0;
-//   
-//   for (i=0 ; i<N ; i++) {
-//     ns->b[THREE*i] = otherType->Fx_connect[i];
-//     ns->b[THREE*i+1] = otherType->Fy_connect[i];
-//     ns->b[THREE*i+2] = otherType->Fz_connect[i];      
-//   }
-// 
-//   /* 
-//      First store the connect node force before applying ns->epsilon displacement      
-//   */
-//   for (i=0 ; i<n ; i++) {            
-//     for (j=0 ; j<N ; j++) {            
-//       ns->jac[THREE*j][i] = otherType->Fx_connect[j];
-//       ns->jac[THREE*j+1][i] = otherType->Fy_connect[j];
-//       ns->jac[THREE*j+2][i] = otherType->Fz_connect[j];
-//     };
-//   };
-// 
-//   for (j=0 ; j<N ; j++) {   // column               
-//     for (i=0 ; i<N ; i++) { // rows           
-//       originalDisplacement = zType->x[j];
-//       zType->x[j] -= ns->epsilon;
-//       success = line_solve_sequence(data, 0.0, map_msg, ierr);
-//       if (success) {
-//         cx = map_snprintf(buffer, 64, "Backward difference, x[%d]-delta, row %d, col %d.", j+1, THREE*i, THREE*j); assert(cx>=0);
-//         *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_78);      
-//         return MAP_FATAL;
-//       };
-//       ns->jac[THREE*i][THREE*j] -= otherType->Fx_connect[i];
-//       ns->jac[THREE*i][THREE*j] /= ns->epsilon;
-//       ns->jac[THREE*i+1][THREE*j] -= otherType->Fy_connect[i];
-//       ns->jac[THREE*i+1][THREE*j] /= ns->epsilon;
-//       ns->jac[THREE*i+2][THREE*j] -= otherType->Fz_connect[i];
-//       ns->jac[THREE*i+2][THREE*j] /= ns->epsilon;
-//       zType->x[j] = originalDisplacement;
-//         
-//       originalDisplacement = zType->y[j];
-//       zType->y[j] -= ns->epsilon;
-//       success = line_solve_sequence(data, 0.0, map_msg, ierr);
-//       if (success) {
-//         cx = map_snprintf(buffer, 64, "Backward difference, y[%d]-delta, row %d, col %d.", j+1, THREE*i, THREE*j); assert(cx>=0);
-//         *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_78);      
-//         return MAP_FATAL;
-//       };
-//       ns->jac[THREE*i][THREE*j+1] -= otherType->Fx_connect[i];
-//       ns->jac[THREE*i][THREE*j+1] /= ns->epsilon;
-//       ns->jac[THREE*i+1][THREE*j+1] -= otherType->Fy_connect[i];
-//       ns->jac[THREE*i+1][THREE*j+1] /= ns->epsilon;
-//       ns->jac[THREE*i+2][THREE*j+1] -= otherType->Fz_connect[i];
-//       ns->jac[THREE*i+2][THREE*j+1] /= ns->epsilon;
-//       zType->y[j] = originalDisplacement;
-//     
-//       originalDisplacement = zType->z[j];
-//       zType->z[j] -= ns->epsilon;
-//       success = line_solve_sequence(data, 0.0, map_msg, ierr);
-//       if (success) {
-//         cx = map_snprintf(buffer, 64, "Backward difference, z[%d]-delta, row %d, col %d.", j+1, THREE*i, THREE*j); assert(cx>=0);
-//         *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_78);      
-//         return MAP_FATAL;
-//       };
-//       ns->jac[THREE*i][THREE*j+2] -= otherType->Fx_connect[i];
-//       ns->jac[THREE*i][THREE*j+2] /= ns->epsilon;
-//       ns->jac[THREE*i+1][THREE*j+2] -= otherType->Fy_connect[i];
-//       ns->jac[THREE*i+1][THREE*j+2] /= ns->epsilon;
-//       ns->jac[THREE*i+2][THREE*j+2] -= otherType->Fz_connect[i];
-//       ns->jac[THREE*i+2][THREE*j+2] /= ns->epsilon;
-//       zType->z[j] = originalDisplacement;
-//     };
-//   };
-// 
-//   /* read flag to set scaling parameter */
-//   if (ns->pg) {
-//     for (i=0 ; i<THREE*N ; i++) { 
-//       ns->jac[i][i] += (ns->ds/pow(ns->iterationCount,1.5)+ns->d);
-//     };
-//   };
-// 
-//   return MAP_SAFE;
-// };
-// 
-// 
-// /**
-//  * central difference jacobian
-//  */
-// MAP_ERROR_CODE central_difference_jacobian(MAP_OtherStateType_t* otherType, MAP_ConstraintStateType_t* zType, ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr)
-// {
-//   OuterSolveAttributes* ns = &data->outer_loop;
-//   MAP_ERROR_CODE success = MAP_SAFE;
-//   double originalDisplacement = 0.0;
-//   const int THREE = 3;
-//   const int N = zType->z_Len;
-//   const int m = THREE*(otherType->Fz_connect_Len); // rows
-//   const int n = THREE*(zType->z_Len);              // columns
-//   char buffer[64] = "";
-//   int cx = 0;
-//   int i = 0;
-//   int j = 0;
-//   
-//   for (i=0 ; i<N ; i++) {
-//     ns->b[THREE*i] = otherType->Fx_connect[i];
-//     ns->b[THREE*i+1] = otherType->Fy_connect[i];
-//     ns->b[THREE*i+2] = otherType->Fz_connect[i];      
-//   }
-// 
-//   /* 
-//      First store the connect node force before applying ns->epsilon displacement      
-//   */
-//   for (j=0 ; j<N ; j++) {   // column               
-//     for (i=0 ; i<N ; i++) { // rows           
-//       originalDisplacement = zType->x[j];
-//       zType->x[j] += ns->epsilon;
-//       success = line_solve_sequence(data, 0.0, map_msg, ierr);
-//       if (success) {
-//         cx = map_snprintf(buffer, 64, "Central difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j); assert(cx>=0);
-//         *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_78);      
-//         return MAP_FATAL;
-//       };
-//       ns->jac[THREE*i][THREE*j] = otherType->Fx_connect[i];      
-//       ns->jac[THREE*i+1][THREE*j] = otherType->Fy_connect[i];
-//       ns->jac[THREE*i+2][THREE*j] = otherType->Fz_connect[i];
-//       zType->x[j] = originalDisplacement;
-//         
-//       originalDisplacement = zType->y[j];
-//       zType->y[j] += ns->epsilon;
-//       if (success) {
-//         cx = map_snprintf(buffer, 64, "Central difference, y[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j); assert(cx>=0);
-//         *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_78);      
-//         return MAP_FATAL;
-//       };
-//       success = line_solve_sequence(data, 0.0, map_msg, ierr);
-//       ns->jac[THREE*i][THREE*j+1] = otherType->Fx_connect[i];
-//       ns->jac[THREE*i+1][THREE*j+1] = otherType->Fy_connect[i];
-//       ns->jac[THREE*i+2][THREE*j+1] = otherType->Fz_connect[i];
-//       zType->y[j] = originalDisplacement;
-//     
-//       originalDisplacement = zType->z[j];
-//       zType->z[j] += ns->epsilon;
-//       if (success) {
-//         cx = map_snprintf(buffer, 64, "Central difference, z[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j); assert(cx>=0);
-//         *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_78);      
-//         return MAP_FATAL;
-//       };
-//       success = line_solve_sequence(data, 0.0, map_msg, ierr);
-//       ns->jac[THREE*i][THREE*j+2] = otherType->Fx_connect[i];
-//       ns->jac[THREE*i+1][THREE*j+2] = otherType->Fy_connect[i];
-//       ns->jac[THREE*i+2][THREE*j+2] = otherType->Fz_connect[i];
-//       zType->z[j] = originalDisplacement;
-//     };
-//   };
-//     
-//   for (j=0 ; j<N ; j++) {   // column               
-//     for (i=0 ; i<N ; i++) { // rows           
-//       originalDisplacement = zType->x[j];
-//       zType->x[j] -= ns->epsilon;
-//       if (success) {
-//         cx = map_snprintf(buffer, 64, "Central difference, x[%d]-delta, row %d, col %d.", j+1, THREE*i, THREE*j); assert(cx>=0);
-//         *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_78);      
-//         return MAP_FATAL;
-//       };
-//       success = line_solve_sequence(data, 0.0, map_msg, ierr);
-//       ns->jac[THREE*i][THREE*j] -= otherType->Fx_connect[i];
-//       ns->jac[THREE*i][THREE*j] /= (2*ns->epsilon);
-//       ns->jac[THREE*i+1][THREE*j] -= otherType->Fy_connect[i];
-//       ns->jac[THREE*i+1][THREE*j] /= (2*ns->epsilon);
-//       ns->jac[THREE*i+2][THREE*j] -= otherType->Fz_connect[i];
-//       ns->jac[THREE*i+2][THREE*j] /= (2*ns->epsilon);
-//       zType->x[j] = originalDisplacement;
-//         
-//       originalDisplacement = zType->y[j];
-//       zType->y[j] -= ns->epsilon;
-//       success = line_solve_sequence(data, 0.0, map_msg, ierr);
-//       if (success) {
-//         cx = map_snprintf(buffer, 64, "Central difference, y[%d]-delta, row %d, col %d.", j+1, THREE*i, THREE*j); assert(cx>=0);
-//         *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_78);      
-//         return MAP_FATAL;
-//       };
-//       ns->jac[THREE*i][THREE*j+1] -= otherType->Fx_connect[i];
-//       ns->jac[THREE*i][THREE*j+1] /= (2*ns->epsilon);
-//       ns->jac[THREE*i+1][THREE*j+1] -= otherType->Fy_connect[i];
-//       ns->jac[THREE*i+1][THREE*j+1] /= (2*ns->epsilon);
-//       ns->jac[THREE*i+2][THREE*j+1] -= otherType->Fz_connect[i];
-//       ns->jac[THREE*i+2][THREE*j+1] /= (2*ns->epsilon);
-//       zType->y[j] = originalDisplacement;
-//     
-//       originalDisplacement = zType->z[j];
-//       zType->z[j] -= ns->epsilon;
-//       success = line_solve_sequence(data, 0.0, map_msg, ierr);
-//       if (success) {
-//         cx = map_snprintf(buffer, 64, "Central difference, z[%d]-delta, row %d, col %d.", j+1, THREE*i, THREE*j); assert(cx>=0);
-//         *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_78);      
-//         return MAP_FATAL;
-//       };
-//       ns->jac[THREE*i][THREE*j+2] -= otherType->Fx_connect[i];
-//       ns->jac[THREE*i][THREE*j+2] /= (2*ns->epsilon);
-//       ns->jac[THREE*i+1][THREE*j+2] -= otherType->Fy_connect[i];
-//       ns->jac[THREE*i+1][THREE*j+2] /= (2*ns->epsilon);
-//       ns->jac[THREE*i+2][THREE*j+2] -= otherType->Fz_connect[i];
-//       ns->jac[THREE*i+2][THREE*j+2] /= (2*ns->epsilon);
-//       zType->z[j] = originalDisplacement;
-//     };
-//   };
-// 
-//   /* read flag to set scaling parameter */
-//   if (ns->pg) {
-//     ns->coef = pow(ns->iterationCount,1.5);
-//     for (i=0 ; i<THREE*N ; i++) { 
-//       ns->jac[i][i] += (ns->ds/ns->coef + ns->d);
-//     };
-//   };
-// 
-//   return MAP_SAFE;
-// };
+
+MAP_ERROR_CODE lu(OuterSolveAttributes* ns, const int n, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  int i = 0;
+  int j = 0;
+  int k = 0;
+
+  for (i=0 ; i<n ; i++) {
+    ns->l[i][i] = 1.0;
+    for (j=i+1 ; j<n ; j++) {
+      if (fabs(ns->jac[i][i])<MACHINE_EPSILON) {
+        return MAP_FATAL;
+      };
+      ns->l[j][i] = (ns->jac[j][i])/(ns->jac[i][i]);
+      /* ns->jac[j][j] = ns->l[j][j] */
+      for (k=i+1 ; k<n ; k++) {
+        ns->jac[j][k] = ns->jac[j][k] - (ns->l[j][i])*(ns->jac[i][k]);
+      };
+    };
+    
+    for (k=i ; k<n ; k++) {
+      ns->u[i][k] = ns->jac[i][k] ;
+    };
+  };
+
+  return MAP_SAFE;
+};
+
+
+
+MAP_ERROR_CODE forward_difference_jacobian(MAP_OtherStateType_t* other_type, MAP_ConstraintStateType_t* z_type, ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  OuterSolveAttributes* ns = &model_data->outer_loop;
+  MAP_ERROR_CODE success = MAP_SAFE;
+  double original_displacement = 0.0;
+  const int THREE = 3;
+  const int z_size = z_type->z_Len; 
+  const int m = THREE*(other_type->Fz_connect_Len); // rows
+  const int n = THREE*(z_type->z_Len);              // columns
+  bstring user_msg = NULL;
+  int i = 0;
+  int j = 0;
+  
+  for (i=0 ; i<z_size ; i++) {
+    ns->b[THREE*i] = other_type->Fx_connect[i];
+    ns->b[THREE*i+1] = other_type->Fy_connect[i];
+    ns->b[THREE*i+2] = other_type->Fz_connect[i];      
+  }
+
+  /* First store the connect node force before applying ns->epsilon displacement */
+  for (i=0 ; i<n ; i++) {            
+    for (j=0 ; j<z_size ; j++) {            
+      ns->jac[THREE*j][i] = -other_type->Fx_connect[j];
+      ns->jac[THREE*j+1][i] = -other_type->Fy_connect[j];
+      ns->jac[THREE*j+2][i] = -other_type->Fz_connect[j];
+    };
+  };
+    
+  for (j=0 ; j<z_size ; j++) {   // column               
+    for (i=0 ; i<z_size ; i++) { // rows           
+      original_displacement = z_type->x[j];
+      z_type->x[j] += ns->epsilon;
+      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+      if (success) {
+        user_msg = bformat("Forward difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
+        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_78);        
+        success = bdestroy(user_msg); 
+        user_msg = NULL;
+        return MAP_FATAL;
+      };
+      ns->jac[THREE*i][THREE*j] += other_type->Fx_connect[i];
+      ns->jac[THREE*i][THREE*j] /= ns->epsilon;
+      ns->jac[THREE*i+1][THREE*j] += other_type->Fy_connect[i];
+      ns->jac[THREE*i+1][THREE*j] /= ns->epsilon;
+      ns->jac[THREE*i+2][THREE*j] += other_type->Fz_connect[i];
+      ns->jac[THREE*i+2][THREE*j] /= ns->epsilon;
+      z_type->x[j] = original_displacement;
+        
+      original_displacement = z_type->y[j];
+      z_type->y[j] += ns->epsilon;
+      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+      if (success) {
+        user_msg = bformat("Forward difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
+        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_78);        
+        success = bdestroy(user_msg); 
+        user_msg = NULL;
+        return MAP_FATAL;
+      };
+      ns->jac[THREE*i][THREE*j+1] += other_type->Fx_connect[i];
+      ns->jac[THREE*i][THREE*j+1] /= ns->epsilon;
+      ns->jac[THREE*i+1][THREE*j+1] += other_type->Fy_connect[i];
+      ns->jac[THREE*i+1][THREE*j+1] /= ns->epsilon;
+      ns->jac[THREE*i+2][THREE*j+1] += other_type->Fz_connect[i];
+      ns->jac[THREE*i+2][THREE*j+1] /= ns->epsilon;
+      z_type->y[j] = original_displacement;
+    
+      original_displacement = z_type->z[j];
+      z_type->z[j] += ns->epsilon;
+      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+      if (success) {
+        user_msg = bformat("Forward difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
+        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_78);        
+        success = bdestroy(user_msg); 
+        user_msg = NULL;
+        return MAP_FATAL;
+      };
+      ns->jac[THREE*i][THREE*j+2] += other_type->Fx_connect[i];
+      ns->jac[THREE*i][THREE*j+2] /= ns->epsilon;
+      ns->jac[THREE*i+1][THREE*j+2] += other_type->Fy_connect[i];
+      ns->jac[THREE*i+1][THREE*j+2] /= ns->epsilon;
+      ns->jac[THREE*i+2][THREE*j+2] += other_type->Fz_connect[i];
+      ns->jac[THREE*i+2][THREE*j+2] /= ns->epsilon;
+      z_type->z[j] = original_displacement;
+    };
+  };
+
+  /* read flag to set scaling parameter */
+  if (ns->pg) {
+    for (i=0 ; i<THREE*z_size ; i++) { 
+      ns->jac[i][i] += (ns->ds/pow(ns->iterationCount,1.5)+ns->d);
+    };
+  };
+
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE backward_difference_jacobian(MAP_OtherStateType_t* other_type, MAP_ConstraintStateType_t* z_type, ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  OuterSolveAttributes* ns = &model_data->outer_loop;
+  MAP_ERROR_CODE success = MAP_SAFE;
+  double original_displacement = 0.0;
+  const int THREE = 3;
+  const int z_size = z_type->z_Len; // N
+  const int m = THREE*(other_type->Fz_connect_Len); // rows
+  const int n = THREE*(z_type->z_Len);              // columns
+  bstring user_msg = NULL;
+  int i = 0;
+  int j = 0;
+  
+  for (i=0 ; i<z_size ; i++) {
+    ns->b[THREE*i] = other_type->Fx_connect[i];
+    ns->b[THREE*i+1] = other_type->Fy_connect[i];
+    ns->b[THREE*i+2] = other_type->Fz_connect[i];      
+  }
+
+  /* First store the connect node force before applying ns->epsilon displacement */
+  for (i=0 ; i<n ; i++) {            
+    for (j=0 ; j<z_size ; j++) {            
+      ns->jac[THREE*j][i] = other_type->Fx_connect[j];
+      ns->jac[THREE*j+1][i] = other_type->Fy_connect[j];
+      ns->jac[THREE*j+2][i] = other_type->Fz_connect[j];
+    };
+  };
+
+  for (j=0 ; j<z_size ; j++) {   // column               
+    for (i=0 ; i<z_size ; i++) { // rows           
+      original_displacement = z_type->x[j];
+      z_type->x[j] -= ns->epsilon;
+      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+      if (success) {
+        user_msg = bformat("Backward difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
+        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_78);        
+        success = bdestroy(user_msg); 
+        user_msg = NULL;
+        return MAP_FATAL;
+      };
+      ns->jac[THREE*i][THREE*j] -= other_type->Fx_connect[i];
+      ns->jac[THREE*i][THREE*j] /= ns->epsilon;
+      ns->jac[THREE*i+1][THREE*j] -= other_type->Fy_connect[i];
+      ns->jac[THREE*i+1][THREE*j] /= ns->epsilon;
+      ns->jac[THREE*i+2][THREE*j] -= other_type->Fz_connect[i];
+      ns->jac[THREE*i+2][THREE*j] /= ns->epsilon;
+      z_type->x[j] = original_displacement;
+        
+      original_displacement = z_type->y[j];
+      z_type->y[j] -= ns->epsilon;
+      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+      if (success) {
+        user_msg = bformat("Backward difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
+        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_78);        
+        success = bdestroy(user_msg); 
+        user_msg = NULL;
+        return MAP_FATAL;
+      };
+      ns->jac[THREE*i][THREE*j+1] -= other_type->Fx_connect[i];
+      ns->jac[THREE*i][THREE*j+1] /= ns->epsilon;
+      ns->jac[THREE*i+1][THREE*j+1] -= other_type->Fy_connect[i];
+      ns->jac[THREE*i+1][THREE*j+1] /= ns->epsilon;
+      ns->jac[THREE*i+2][THREE*j+1] -= other_type->Fz_connect[i];
+      ns->jac[THREE*i+2][THREE*j+1] /= ns->epsilon;
+      z_type->y[j] = original_displacement;
+    
+      original_displacement = z_type->z[j];
+      z_type->z[j] -= ns->epsilon;
+      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+      if (success) {
+        user_msg = bformat("Backward difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
+        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_78);        
+        success = bdestroy(user_msg); 
+        user_msg = NULL;
+        return MAP_FATAL;
+      };
+      ns->jac[THREE*i][THREE*j+2] -= other_type->Fx_connect[i];
+      ns->jac[THREE*i][THREE*j+2] /= ns->epsilon;
+      ns->jac[THREE*i+1][THREE*j+2] -= other_type->Fy_connect[i];
+      ns->jac[THREE*i+1][THREE*j+2] /= ns->epsilon;
+      ns->jac[THREE*i+2][THREE*j+2] -= other_type->Fz_connect[i];
+      ns->jac[THREE*i+2][THREE*j+2] /= ns->epsilon;
+      z_type->z[j] = original_displacement;
+    };
+  };
+
+  /* read flag to set scaling parameter */
+  if (ns->pg) {
+    for (i=0 ; i<THREE*z_size ; i++) { 
+      ns->jac[i][i] += (ns->ds/pow(ns->iterationCount,1.5)+ns->d);
+    };
+  };
+
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE central_difference_jacobian(MAP_OtherStateType_t* other_type, MAP_ConstraintStateType_t* z_type, ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  OuterSolveAttributes* ns = &model_data->outer_loop;
+  MAP_ERROR_CODE success = MAP_SAFE;
+  double original_displacement = 0.0;
+  const int THREE = 3;
+  const int z_size = z_type->z_Len; //M
+  const int m = THREE*(other_type->Fz_connect_Len); // rows
+  const int n = THREE*(z_type->z_Len);              // columns
+  bstring user_msg = NULL;
+  int i = 0;
+  int j = 0;
+  
+  for (i=0 ; i<z_size ; i++) {
+    ns->b[THREE*i] = other_type->Fx_connect[i];
+    ns->b[THREE*i+1] = other_type->Fy_connect[i];
+    ns->b[THREE*i+2] = other_type->Fz_connect[i];      
+  }
+
+  /* First store the connect node force before applying ns->epsilon displacement */
+  for (j=0 ; j<z_size ; j++) {   // column               
+    for (i=0 ; i<z_size ; i++) { // rows           
+      original_displacement = z_type->x[j];
+      z_type->x[j] += ns->epsilon;
+      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+      if (success) {
+        user_msg = bformat("Central difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
+        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_78);        
+        success = bdestroy(user_msg); 
+        user_msg = NULL;
+        return MAP_FATAL;
+      };
+      ns->jac[THREE*i][THREE*j] = other_type->Fx_connect[i];      
+      ns->jac[THREE*i+1][THREE*j] = other_type->Fy_connect[i];
+      ns->jac[THREE*i+2][THREE*j] = other_type->Fz_connect[i];
+      z_type->x[j] = original_displacement;
+        
+      original_displacement = z_type->y[j];
+      z_type->y[j] += ns->epsilon;
+      if (success) {
+        user_msg = bformat("Central difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
+        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_78);        
+        success = bdestroy(user_msg); 
+        user_msg = NULL;
+        return MAP_FATAL;
+      };
+      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+      ns->jac[THREE*i][THREE*j+1] = other_type->Fx_connect[i];
+      ns->jac[THREE*i+1][THREE*j+1] = other_type->Fy_connect[i];
+      ns->jac[THREE*i+2][THREE*j+1] = other_type->Fz_connect[i];
+      z_type->y[j] = original_displacement;
+    
+      original_displacement = z_type->z[j];
+      z_type->z[j] += ns->epsilon;
+      if (success) {
+        user_msg = bformat("Central difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
+        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_78);        
+        success = bdestroy(user_msg); 
+        user_msg = NULL;
+        return MAP_FATAL;
+      };
+      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+      ns->jac[THREE*i][THREE*j+2] = other_type->Fx_connect[i];
+      ns->jac[THREE*i+1][THREE*j+2] = other_type->Fy_connect[i];
+      ns->jac[THREE*i+2][THREE*j+2] = other_type->Fz_connect[i];
+      z_type->z[j] = original_displacement;
+    };
+  };
+    
+  for (j=0 ; j<z_size ; j++) {   // column               
+    for (i=0 ; i<z_size ; i++) { // rows           
+      original_displacement = z_type->x[j];
+      z_type->x[j] -= ns->epsilon;
+      if (success) {
+        user_msg = bformat("Central difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
+        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_78);        
+        success = bdestroy(user_msg); 
+        user_msg = NULL;
+        return MAP_FATAL;
+      };
+      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+      ns->jac[THREE*i][THREE*j] -= other_type->Fx_connect[i];
+      ns->jac[THREE*i][THREE*j] /= (2*ns->epsilon);
+      ns->jac[THREE*i+1][THREE*j] -= other_type->Fy_connect[i];
+      ns->jac[THREE*i+1][THREE*j] /= (2*ns->epsilon);
+      ns->jac[THREE*i+2][THREE*j] -= other_type->Fz_connect[i];
+      ns->jac[THREE*i+2][THREE*j] /= (2*ns->epsilon);
+      z_type->x[j] = original_displacement;
+        
+      original_displacement = z_type->y[j];
+      z_type->y[j] -= ns->epsilon;
+      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+      if (success) {
+        user_msg = bformat("Central difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
+        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_78);        
+        success = bdestroy(user_msg); 
+        user_msg = NULL;
+        return MAP_FATAL;
+      };
+      ns->jac[THREE*i][THREE*j+1] -= other_type->Fx_connect[i];
+      ns->jac[THREE*i][THREE*j+1] /= (2*ns->epsilon);
+      ns->jac[THREE*i+1][THREE*j+1] -= other_type->Fy_connect[i];
+      ns->jac[THREE*i+1][THREE*j+1] /= (2*ns->epsilon);
+      ns->jac[THREE*i+2][THREE*j+1] -= other_type->Fz_connect[i];
+      ns->jac[THREE*i+2][THREE*j+1] /= (2*ns->epsilon);
+      z_type->y[j] = original_displacement;
+    
+      original_displacement = z_type->z[j];
+      z_type->z[j] -= ns->epsilon;
+      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+      if (success) {
+        user_msg = bformat("Central difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
+        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_78);        
+        success = bdestroy(user_msg); 
+        user_msg = NULL;
+        return MAP_FATAL;
+      };
+      ns->jac[THREE*i][THREE*j+2] -= other_type->Fx_connect[i];
+      ns->jac[THREE*i][THREE*j+2] /= (2*ns->epsilon);
+      ns->jac[THREE*i+1][THREE*j+2] -= other_type->Fy_connect[i];
+      ns->jac[THREE*i+1][THREE*j+2] /= (2*ns->epsilon);
+      ns->jac[THREE*i+2][THREE*j+2] -= other_type->Fz_connect[i];
+      ns->jac[THREE*i+2][THREE*j+2] /= (2*ns->epsilon);
+      z_type->z[j] = original_displacement;
+    };
+  };
+
+  /* read flag to set scaling parameter */
+  if (ns->pg) {
+    ns->coef = pow(ns->iterationCount,1.5);
+    for (i=0 ; i<THREE*z_size ; i++) { 
+      ns->jac[i][i] += (ns->ds/ns->coef + ns->d);
+    };
+  };
+
+  return MAP_SAFE;
+};
 
 
 
 MAP_ERROR_CODE call_minpack_lmder(Element* element, InnerSolveAttributes* inner_opt, ModelOptions* opt, const int line_num, const double time, char* map_msg, MAP_ERROR_CODE* ierr)
 {
-  // char buffer[64] = "";
-  // int cx = 0;
   MAP_ERROR_CODE success = MAP_SAFE;
   bstring user_msg = NULL;
 

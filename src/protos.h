@@ -73,10 +73,6 @@ void add_to_sum_fz(Node* node, const MapReal fz);
  * Numeric routines
  */
 int inner_function_evals(void* elementPtr, int m, int n, const __cminpack_real__* x, __cminpack_real__* fvec, __cminpack_real__* fjac, int ldfjac, int iflag);
-MAP_ERROR_CODE lu(OuterSolveAttributes* ns, const int n, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE lu_back_substitution(OuterSolveAttributes* ns, const int n, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE forward_difference_jacobian(MAP_OtherStateType_t* otherType, MAP_ConstraintStateType_t* zType, ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE backward_difference_jacobian(MAP_OtherStateType_t* otherType, MAP_ConstraintStateType_t* zType, ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr);
 
 
 

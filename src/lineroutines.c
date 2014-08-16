@@ -354,11 +354,11 @@ MAP_ERROR_CODE node_solve_sequence(ModelData* model_data, MAP_InputType_t* u_typ
   MAP_ERROR_CODE success = MAP_SAFE;
   Element* element_iter = NULL;
   const int THREE = 3;
-  const int N = z_type->z_Len;
+  const int z_size = z_type->z_Len; //N
   const int m = THREE*(other_type->Fz_connect_Len); /* rows */
   const int n = THREE*(z_type->z_Len);              /* columns */
   double error = 0.0;
-  int SIZE = THREE*N;
+  int SIZE = THREE*z_size;
   int col = 0;
   int row = 0;
   int i = 0;
@@ -368,39 +368,41 @@ MAP_ERROR_CODE node_solve_sequence(ModelData* model_data, MAP_InputType_t* u_typ
 
   ns->iterationCount = 1;
   do {
+    checkpoint();
     error = 0.0;
     success = line_solve_sequence(model_data, 0.0, map_msg, ierr); CHECKERRQ(MAP_FATAL_79);
     switch (ns->fd) {
     case BACKWARD_DIFFERENCE :
-      // success = backward_difference_jacobian(other_type, zType, data, map_msg, ierr); CHECKERRQ(MAP_FATAL_75);
+      success = backward_difference_jacobian(other_type, z_type, model_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_75);
       break;
     case CENTRAL_DIFFERENCE :
-      // success = central_difference_jacobian(other_type, zType, data, map_msg, ierr); CHECKERRQ(MAP_FATAL_76);
+      success = central_difference_jacobian(other_type, z_type, model_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_76);
       break;
     case FORWARD_DIFFERENCE :
-      // success = forward_difference_jacobian(other_type, zType, data, map_msg, ierr); CHECKERRQ(MAP_FATAL_77);
+      success = forward_difference_jacobian(other_type, z_type, model_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_77);
       break;
     };
-
-  //   success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
-  //   success = lu(ns, SIZE, map_msg, ierr); CHECKERRQ(MAP_FATAL_74);
-  //   success = lu_back_substitution(ns, SIZE, map_msg, ierr); CHECKERRQ(MAP_FATAL_74);
-  // 
-  //   /* Note that: ns->x = J^(-1) * F
-  //    *  [x,y,z]_i+1 =  [x,y,z]_i - J^(-1) * F        
-  //    */   
-  //   for (i=0 ; i<N ; i++) { 
-  //     z_type->x[i] -= ns->x[THREE*i];
-  //     z_type->y[i] -= ns->x[THREE*i+1];
-  //     z_type->z[i] -= ns->x[THREE*i+2];
-  //     error += (pow(otherType->Fx_connect[i],2)+ pow(otherType->Fy_connect[i],2) + pow(otherType->Fz_connect[i],2));
-  //   };
-  //   ns->iterationCount++;
-  //   if (ns->iterationCount>ns->maxIts) {
-  //     *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_80);      
-  //     break;
-  //   };
-  //   // printf("Error: %f, tol=%f\n",sqrt(error),ns->tol);
+    success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+    success = lu(ns, SIZE, map_msg, ierr); CHECKERRQ(MAP_FATAL_74);
+    success = lu_back_substitution(ns, SIZE, map_msg, ierr); CHECKERRQ(MAP_FATAL_74);
+    
+    /* Note that: ns->x = J^(-1) * F
+     *  [x,y,z]_i+1 =  [x,y,z]_i - J^(-1) * F        
+     */   
+    for (i=0 ; i<z_size ; i++) { 
+      z_type->x[i] -= ns->x[THREE*i];
+      z_type->y[i] -= ns->x[THREE*i+1];
+      z_type->z[i] -= ns->x[THREE*i+2];
+      error += (pow(other_type->Fx_connect[i],2)+ pow(other_type->Fy_connect[i],2) + pow(other_type->Fz_connect[i],2));
+    };
+    ns->iterationCount++;
+    if (ns->iterationCount>ns->maxIts) {
+      *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_80);
+      break;
+    };
+    
+    printf("Error: %f, tol=%f\n",sqrt(error),ns->tol);
+    
     /* @todo: end when iterations is exceeded. need some way to indicate that simulation did not suuficiently 
      * meet termination criteria
      */

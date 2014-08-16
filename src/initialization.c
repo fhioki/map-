@@ -29,6 +29,18 @@
  */
 
 
+/**
+ * Fortran binding routine
+ * SUBROUTINE MAP_set_initinput_to_null(interf,msg,err) bind(C,name='set_init_to_null') 
+ */
+MAP_EXTERNCALL void set_init_to_null(MAP_InitInputType_t* init_type, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  InitializationData* init = init_type->object; 
+
+  init->summaryFileName = NULL;  
+};
+
+
 /** @addtogroup FortranCall */
 /* @{ */
 MAP_EXTERNCALL void map_set_sea_depth(MAP_ParameterType_t* p_type, const MapReal depth)

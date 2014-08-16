@@ -34,8 +34,6 @@
 // #include "nwtcfunctions.h"
 
 
-/** @addtogroup FortranCall */
-/* @{ */
 MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type, 
                              MAP_InputType_t* u_type,
                              MAP_ParameterType_t* p_type,
@@ -107,10 +105,11 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
     } else {
       model_data->MAP_SOLVE_TYPE = MONOLITHIC;
     };
-     
-#ifdef DEBUG
+
+    /* if DEBUG is raised in CCFLAGS, then MAP version number is printed to screen */    
+#   ifdef DEBUG
     print_machine_name_to_screen( );
-#endif /* if DEBUG is raised in CCFLAGS, then MAP version number is printed to screen */
+#   endif 
      
     printf("MAP environment properties (set externally)...\n");
     printf("    Gravity constant          [m/s^2]  : %1.2f\n", p_type->g ); 
@@ -119,13 +118,13 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
     printf("    Vessel reference position [m]      : %1.2f , %1.2f , %1.2f\n", model_data->vessel.refOrigin.x.value, model_data->vessel.refOrigin.y.value, model_data->vessel.refOrigin.z.value); 
    
     success = initialize_cable_library_variables(model_data, p_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_41);
-    // success = set_line_variables_pre_solve(model_data, map_msg, ierr); @rm, not needed. This is called in line_solve_sequence
-    // success = reset_node_force_to_zero(model_data, map_msg, ierr); @rm, not needed. This is called in line_solve_sequence
+    success = set_line_variables_pre_solve(model_data, map_msg, ierr); // @rm, not needed. This is called in line_solve_sequence
+    success = reset_node_force_to_zero(model_data, map_msg, ierr); // @rm, not needed. This is called in line_solve_sequence
     success = set_element_initial_guess(model_data, map_msg, ierr);
     success = first_solve(model_data, u_type, z_type, other_type, y_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_39);
-//     success = set_line_variables_post_solve(model_data, map_msg, ierr);    @rm, not needed. This is called in line_solve_sequence
-//     success = write_summary_file(init_data, p_type, model_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_37);           
-//     success = get_iteration_output_stream(y_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+    success = set_line_variables_post_solve(model_data, map_msg, ierr);    // @rm, not needed. This is called in line_solve_sequence
+    success = write_summary_file(init_data, p_type, model_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_37);           
+    // success = get_iteration_output_stream(y_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
   } while (0);  
   free_init_data(init_data, map_msg, ierr); 
   MAP_InitInput_Delete(init_data);
@@ -214,4 +213,3 @@ MAP_EXTERNCALL void map_end(MAP_InputType_t* u_type,
      MAP_OtherState_Delete(model_data);
    } while (0);
 };
-/* @} */
