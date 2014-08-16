@@ -15,9 +15,9 @@ Node  Type       X       Y       Z      M     B     FX      FY      FZ
 ---------------------- LINEP ROPERTIES ---------------------------------------
 Element  LineType  UnstrLen  NodeAnch  NodeFair  Flags
 (-)      (-)       (m)       (-)       (-)       (-)
-1        lower     122       1         2        gx_pos  gy_pos  gz_a_pos  H_ANCH  omit_contact 
-2        middle    122       2         3        	  altitude_a omit_contact
-3        upper     50        3         4        x_excursion  z_excursion  azimuth  tension_fair omit_contact
+1        lower     122       1         2        gy_pos  gz_a_pos  H_ANCH  omit_contact seg_size 19  damage_time 12
+2        middle    122       2         3        altitude_a omit_contact
+3        upper     50        3         4        x_excursion  z_excursion  azimuth  tension_fair omit_contact diagnostic 99
 4        upper     50        3         5        tension_anch omit_contact
 ---------------------- SOLVER OPTIONS-----------------------------------------
 Option 

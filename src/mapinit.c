@@ -169,9 +169,6 @@ MAP_ERROR_CODE allocate_outer_solve_data(OuterSolveAttributes* ns, const int siz
 };
 
 
-// /**
-//  *
-//  */
 // MAP_ERROR_CODE free_outer_solve_data(OuterSolveAttributes* ns, const int size, char* map_msg, MAP_ERROR_CODE* ierr)
 // {
 //   const int SIZE = 3*size;
@@ -1039,7 +1036,6 @@ MAP_ERROR_CODE expand_node_position_z(Vector* position, const double angle, cons
   };
 
   bdestroy(compared_word);  
-  printf("%s\n",current_entry->data);
   ret = bconcat(line, current_entry);
   ret = bdestroy(current_entry);
   return MAP_SAFE;
@@ -1201,7 +1197,6 @@ MAP_ERROR_CODE repeat_nodes(ModelData* model_data, InitializationData* init_data
               next++;
             } else if (next==4) {
               success = expand_node_position_z(&position, current_angle, x_position, y_position, word, line);/* @todo: checkerrq */
-               printf("expanded noe positions: %f %f\n",x_position,y_position);
               next++;
             } else if (next==5) { /* node mass */
               success = expand_node_mass(word, line);/* @todo: checkerrq */
@@ -1763,93 +1758,113 @@ MAP_ERROR_CODE set_vartype_ptr(const char* unit, bstring alias, const int num, V
 };
 
 
-MAP_ERROR_CODE set_element_option_flags(bstring word, Element* element_ptr, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE set_element_option_flags(struct bstrList* words, int* i_parsed, Element* element_ptr, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_ERROR_CODE success = MAP_SAFE;
+  int index = *i_parsed;
   bstring user_msg = NULL;
-
-  if (biseqcstrcaseless(word,"PLOT")) {    
+  
+  if (biseqcstrcaseless(words->entry[index],"PLOT")) {    
     element_ptr->options.plotFlag = true;
-  } else if (biseqcstrcaseless(word, "GX_POS")) {
+  } else if (biseqcstrcaseless(words->entry[index], "GX_POS")) {
     element_ptr->options.gxPosFlag = true;
-  } else if (biseqcstrcaseless(word, "GY_POS")) {
+  } else if (biseqcstrcaseless(words->entry[index], "GY_POS")) {
     element_ptr->options.gyPosFlag = true;
-  } else if (biseqcstrcaseless(word, "GZ_POS")) {
+  } else if (biseqcstrcaseless(words->entry[index], "GZ_POS")) {
     element_ptr->options.gzPosFlag = true;
-  } else if (biseqcstrcaseless(word, "GX_A_POS")) {
+  } else if (biseqcstrcaseless(words->entry[index], "GX_A_POS")) {
     element_ptr->options.gxAnchorPosFlag = true;
-  } else if (biseqcstrcaseless(word, "GY_A_POS")) {
+  } else if (biseqcstrcaseless(words->entry[index], "GY_A_POS")) {
     element_ptr->options.gyAnchorPosFlag = true;
-  } else if (biseqcstrcaseless(word, "GZ_A_POS")) {
+  } else if (biseqcstrcaseless(words->entry[index], "GZ_A_POS")) {
     element_ptr->options.gzAnchorPosFlag = true;
-  } else if (biseqcstrcaseless(word, "GX_FORCE")) {
+  } else if (biseqcstrcaseless(words->entry[index], "GX_FORCE")) {
     element_ptr->options.gxForceFlag= true;
-  } else if (biseqcstrcaseless(word, "GY_FORCE")) {
+  } else if (biseqcstrcaseless(words->entry[index], "GY_FORCE")) {
     element_ptr->options.gyForceFlag = true;
-  } else if (biseqcstrcaseless(word, "GZ_FORCE")) {
+  } else if (biseqcstrcaseless(words->entry[index], "GZ_FORCE")) {
     element_ptr->options.gzForceFlag = true;
-  } else if (biseqcstrcaseless(word, "H_FAIR")) {
+  } else if (biseqcstrcaseless(words->entry[index], "H_FAIR")) {
     element_ptr->options.HFlag = true;
-  } else if (biseqcstrcaseless(word, "H_ANCH")) {
+  } else if (biseqcstrcaseless(words->entry[index], "H_ANCH")) {
     element_ptr->options.HAnchorFlag = true;
-  } else if (biseqcstrcaseless(word, "V_FAIR")) {
+  } else if (biseqcstrcaseless(words->entry[index], "V_FAIR")) {
     element_ptr->options.VFlag = true;
-  } else if (biseqcstrcaseless(word, "V_ANCH")) {
+  } else if (biseqcstrcaseless(words->entry[index], "V_ANCH")) {
     element_ptr->options.VAnchorFlag = true;
-  } else if (biseqcstrcaseless(word, "TENSION_FAIR")) {
+  } else if (biseqcstrcaseless(words->entry[index], "TENSION_FAIR")) {
     element_ptr->options.fairleadTensionFlag = true;
-  } else if (biseqcstrcaseless(word, "TENSION_ANCH")) {
+  } else if (biseqcstrcaseless(words->entry[index], "TENSION_ANCH")) {
     element_ptr->options.anchorTensionFlag = true;
-  } else if (biseqcstrcaseless(word, "X_EXCURSION")) {
+  } else if (biseqcstrcaseless(words->entry[index], "X_EXCURSION")) {
     element_ptr->options.horizontalExcursionFlag = true;
-  } else if (biseqcstrcaseless(word, "Z_EXCURSION")) {
+  } else if (biseqcstrcaseless(words->entry[index], "Z_EXCURSION")) {
     element_ptr->options.verticalExcursionFlag = true;
-  } else if (biseqcstrcaseless(word, "AZIMUTH")) {
+  } else if (biseqcstrcaseless(words->entry[index], "AZIMUTH")) {
     element_ptr->options.azimuthFlag = true;
-  } else if (biseqcstrcaseless(word, "ALTITUDE")) {
+  } else if (biseqcstrcaseless(words->entry[index], "ALTITUDE")) {
     element_ptr->options.altitudeFlag = true;
-  } else if (biseqcstrcaseless(word, "ALTITUDE_A")) {
+  } else if (biseqcstrcaseless(words->entry[index], "ALTITUDE_A")) {
     element_ptr->options.altitudeAnchorFlag = true;
-  } else if (biseqcstrcaseless(word, "LINE_TENSION")) {
+  } else if (biseqcstrcaseless(words->entry[index], "LINE_TENSION")) {
     element_ptr->options.lineTensionFlag = true;
-  } else if (biseqcstrcaseless(word, "OMIT_CONTACT")) {
+  } else if (biseqcstrcaseless(words->entry[index], "OMIT_CONTACT")) {
     element_ptr->options.omitContact = true;
-  } else if (biseqcstrcaseless(word, "SEG_SIZE")) {
-    if (is_numeric(word->data)) {
-      element_ptr->segmentSize = (MapReal)atof(word->data);
+  } else if (biseqcstrcaseless(words->entry[index], "SEG_SIZE")) {
+    do {
+      index++;
+      if (words->qty-1<=index) {
+        break;
+      };
+    } while (words->entry[index]->slen<1);
+    if (is_numeric(words->entry[index]->data)) {
+      element_ptr->segmentSize = (MapReal)atof(words->entry[index]->data);
+      *i_parsed = index;
     } else { /* should not cancel the simulation; simply ignore it */      
-      user_msg = bformat("Option <%s>", word->data);
+      user_msg = bformat("Option <%s>", words->entry[index]->data);
       *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_ERROR_18);
-      success = bdestroy(user_msg); /* clear user_msg to not inavertendly picked up elsewhere */
-      user_msg = NULL;
-      // *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_ERROR_18); 
+      success = bdestroy(user_msg); 
+      user_msg = NULL;    
     };          
-  } else if (biseqcstrcaseless(word, "LAY_LENGTH")) {
+  } else if (biseqcstrcaseless(words->entry[index], "LAY_LENGTH")) {
     element_ptr->options.layLengthFlag = true;
-  // } else if (biseqcstrcaseless("DAMAGE_TIME", word)) {
-  //   word = strtok(NULL, " ,\n\t\r\0");
-  //   success = is_numeric(word);
-  //   if (success==MAP_SAFE) {
-  //     elem->options.damageTimeFlag = true;
-  //     elem->damageTime = (MapReal)atof(word);
-  //   } else { /* should not cancel the simulation; simply ignore it */     
-  // *ierr=map_set_universal_error(buffer, map_msg, ierr, MAP_ERROR_1);
-  //   };          
-  // } else if (biseqcstrcaseless("DIAGNOSTIC", word)) {
-  //   word = strtok(NULL, " ,\n\t\r\0");
-  //   success = is_numeric(word);
-  //   if (success==MAP_SAFE) {
-  //     elem->options.diagnosticsFlag = true;
-  //     elem->diagnosticType = (int)atoi(word);
-  //   } else {
-  //     /* should not cancel the simulation; simply ignore it */
-  //     *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_ERROR_14);
-  //     elem->options.diagnosticsFlag = true;
-  //     elem->diagnosticType = 0;
-  //   };          
+  } else if (biseqcstrcaseless(words->entry[index], "DAMAGE_TIME")) {
+    do {
+      index++;
+      if (words->qty-1<=index) {
+        break;
+      };
+    } while (words->entry[index]->slen<1);
+    if (is_numeric(words->entry[index]->data)) {
+      element_ptr->options.damageTimeFlag = true;
+      element_ptr->damageTime = (MapReal)atof(words->entry[index]->data);
+      *i_parsed = index;
+    } else { /* should not cancel the simulation; simply ignore it */      
+      user_msg = bformat("Option <%s>", words->entry[index]->data);
+      *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_ERROR_1);
+      success = bdestroy(user_msg); 
+      user_msg = NULL;    
+    };          
+  } else if (biseqcstrcaseless(words->entry[index], "DIAGNOSTIC")) {
+    do {
+      index++;
+      if (words->qty-1<=index) {
+        break;
+      };
+    } while (words->entry[index]->slen<1);
+    if (is_numeric(words->entry[index]->data)) {
+      element_ptr->options.diagnosticsFlag = true;
+      element_ptr->diagnosticType = (int)atoi(words->entry[index]->data);
+      *i_parsed = index;
+    } else { /* should not cancel the simulation; simply ignore it */      
+      user_msg = bformat("Option <%s>", words->entry[index]->data);
+      *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_ERROR_14);
+      success = bdestroy(user_msg); 
+      user_msg = NULL;    
+    };          
   } else {
     /* should not cancel the simulation; simply ignore it */
-    user_msg = bformat("Option <%s>", word->data);
+    user_msg = bformat("Option <%s>", words->entry[index]->data);
     *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_WARNING_3);
     success = bdestroy(user_msg); /* clear user_msg to not inavertendly picked up elsewhere */
     user_msg = NULL;
@@ -1931,8 +1946,7 @@ MAP_ERROR_CODE set_element_list(MAP_ConstraintStateType_t* z_type, ModelData* mo
             success = associate_element_with_fairlead_node(element_iter, model_data, i+1, parsed->entry[i_parsed]->data,  map_msg, ierr); CHECKERRQ(MAP_FATAL_32);        
             next++;
           } else { /* set the node mass */            
-            success = set_element_option_flags(parsed->entry[i_parsed], element_iter, map_msg, ierr);
-            // next++;  
+            success = set_element_option_flags(parsed, &i_parsed, element_iter, map_msg, ierr);
           };
         };
         i_parsed++;

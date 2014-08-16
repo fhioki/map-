@@ -544,7 +544,7 @@ MAP_ERROR_CODE set_element_vartype(Element* element_ptr);
 MAP_ERROR_CODE associate_element_with_cable_property(Element* element_ptr, ModelData* model_data, const char* word, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE associate_element_with_anchor_node(Element* element_ptr, ModelData* model_data, const int element_num, const char* word, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE associate_element_with_fairlead_node(Element* element_ptr, ModelData* model_data, const int element_num, const char* word, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE set_element_option_flags(bstring word, Element* element_ptr, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE set_element_option_flags(struct bstrList* word, int* index, Element* element_ptr, char* map_msg, MAP_ERROR_CODE* ierr);
 
 /**
  * @brief

@@ -359,7 +359,6 @@ MAP_ERROR_CODE node_solve_sequence(ModelData* model_data, MAP_InputType_t* u_typ
 
   ns->iterationCount = 1;
   do {
-    checkpoint();
     error = 0.0;
     success = line_solve_sequence(model_data, 0.0, map_msg, ierr); CHECKERRQ(MAP_FATAL_79);
     switch (ns->fd) {
@@ -392,7 +391,7 @@ MAP_ERROR_CODE node_solve_sequence(ModelData* model_data, MAP_InputType_t* u_typ
       break;
     };
     
-    printf("Error: %f, tol=%f\n",sqrt(error),ns->tol);
+    // printf("Error: %f, tol=%f\n",sqrt(error),ns->tol);
     
     /* @todo: end when iterations is exceeded. need some way to indicate that simulation did not suuficiently 
      * meet termination criteria
