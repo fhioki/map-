@@ -65,9 +65,6 @@ void print_machine_name_to_screen( );
 /*
  * stuff for nodes...
  */
-void add_to_sum_fx(Node* node, const MapReal fx);
-void add_to_sum_fy(Node* node, const MapReal fy);
-void add_to_sum_fz(Node* node, const MapReal fz);
 
 /**
  * Numeric routines

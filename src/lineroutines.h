@@ -105,4 +105,24 @@ MAP_ERROR_CODE check_maximum_line_length(Element* element, const bool contact_fl
  */
 MAP_ERROR_CODE calculate_node_sum_force(ModelData* model_data);
 
+
+
+/**
+ * increment sum force value by (f) if node is fairlead; (-f) is node is anchor. 
+ */
+void add_to_sum_fx(Node* node, const MapReal fx);
+
+
+/**
+ * increment sum force value by (f) if node is fairlead; (-f) is node is anchor. 
+ */
+void add_to_sum_fy(Node* node, const MapReal fy);
+
+
+/**
+ * increment sum force value by (f) if node is fairlead; (-f) is node is anchor. 
+ */
+void add_to_sum_fz(Node* node, const MapReal fz);
+
+
 #endif /* _LINEROUTINES_H */

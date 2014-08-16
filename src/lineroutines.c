@@ -39,82 +39,73 @@ MAP_ERROR_CODE reset_node_force_to_zero(ModelData* model_data, char* map_msg, MA
 
 MAP_ERROR_CODE calculate_node_sum_force(ModelData* model_data)
 {
-  // Node* node_iter = NULL;
-  // Element* element_iter = NULL;
-  // MapReal psi = 0.0;
-  // MapReal fx = 0.0;
-  // MapReal fy = 0.0;
-  // MapReal fz = 0.0;
-  // MapReal fx_a = 0.0;
-  // MapReal fy_a = 0.0;
-  // MapReal fz_a = 0.0;
-  // 
-  // list_iterator_start(&data->element);         /* starting an iteration "session" */
-  // while (list_iterator_hasnext(&data->element)) { /* tell whether more values available */
-  //   element_iter = (Element*)list_iterator_next(&data->element);
-  //   psi = element_iter->psi.value;
-  //   fx = *(element_iter->H.value)*cos(psi);
-  //   fx_a = -(element_iter->HAtAnchor.value)*cos(psi);
-  // 
-  //   fy = *(element_iter->H.value)*sin(psi);
-  //   fy_a = -(element_iter->HAtAnchor.value)*sin(psi);
-  //   
-  //   fz = *(element_iter->V.value);
-  //   fz_a = -(element_iter->VAtAnchor.value);
-  // 
-  //   add_to_sum_fx(element_iter->fairlead, fx);
-  //   add_to_sum_fx(element_iter->anchor, fx_a);
-  // 
-  //   add_to_sum_fy(element_iter->fairlead, fy);
-  //   add_to_sum_fy(element_iter->anchor, fy_a);
-  // 
-  //   add_to_sum_fz(element_iter->fairlead, fz);
-  //   add_to_sum_fz(element_iter->anchor, fz_a);
-  // }; 
-  // list_iterator_stop(&model_data->element); /* ending the iteration "session" */    
-  // 
-  // list_iterator_start(&model_data->node);            /* starting an iteration "session" */
-  // while (list_iterator_hasnext(&model_data->node)) { /* tell whether more values available */
-  //   node_iter = (Node*)list_iterator_next(&model_data->node);
-  //   if (node_iter->type==CONNECT) {
-  //     add_to_sum_fx(node_iter, -(node_iter->externalForce.fx.value));
-  //     add_to_sum_fy(node_iter, -(node_iter->externalForce.fy.value));
-  //     add_to_sum_fz(node_iter, -(node_iter->externalForce.fz.value));
-  //   };
-  // }; 
-  // list_iterator_stop(&model_data->node); /* ending the iteration "session" */    
+  Element* element_iter = NULL;
+  Node* node_iter = NULL;
+  double psi = 0.0;
+  double fx = 0.0;
+  double fy = 0.0;
+  double fz = 0.0;
+  double fx_a = 0.0;
+  double fy_a = 0.0;
+  double fz_a = 0.0;
+
+  list_iterator_start(&model_data->element);         /* starting an iteration "session" */
+  while (list_iterator_hasnext(&model_data->element)) { /* tell whether more values available */
+    element_iter = (Element*)list_iterator_next(&model_data->element);
+    psi = element_iter->psi.value;
+    fx = *(element_iter->H.value)*cos(psi);
+    fx_a = -(element_iter->HAtAnchor.value)*cos(psi);
+  
+    fy = *(element_iter->H.value)*sin(psi);
+    fy_a = -(element_iter->HAtAnchor.value)*sin(psi);
+    
+    fz = *(element_iter->V.value);
+    fz_a = -(element_iter->VAtAnchor.value);
+  
+    add_to_sum_fx(element_iter->fairlead, fx);
+    add_to_sum_fx(element_iter->anchor, fx_a);
+  
+    add_to_sum_fy(element_iter->fairlead, fy);
+    add_to_sum_fy(element_iter->anchor, fy_a);
+  
+    add_to_sum_fz(element_iter->fairlead, fz);
+    add_to_sum_fz(element_iter->anchor, fz_a);
+  }; 
+  list_iterator_stop(&model_data->element); /* ending the iteration "session" */    
+
+  list_iterator_start(&model_data->node);            /* starting an iteration "session" */
+  while (list_iterator_hasnext(&model_data->node)) { /* tell whether more values available */
+    node_iter = (Node*)list_iterator_next(&model_data->node);
+    if (node_iter->type==CONNECT) {
+      add_to_sum_fx(node_iter, -(node_iter->externalForce.fx.value));
+      add_to_sum_fy(node_iter, -(node_iter->externalForce.fy.value));
+      add_to_sum_fz(node_iter, -(node_iter->externalForce.fz.value));
+     };
+  }; 
+  list_iterator_stop(&model_data->node); /* ending the iteration "session" */    
   return MAP_SAFE;
 }
 
 
-/**
- * increment sum force value by (f) if node is fairlead; (-f) is node is anchor. 
- */
-// void add_to_sum_fx(Node* node, const MapReal fx)
-// {
-//   *(node->sumForcePtr.fx.value) += fx;
-// };
-// 
-// 
-// /**
-//  * increment sum force value by (f) if node is fairlead; (-f) is node is anchor. 
-//  */
-// void add_to_sum_fy(Node* node, const MapReal fy)
-// {
-//   *(node->sumForcePtr.fy.value) += fy;
-// };
-// 
-// 
-// /**
-//  * increment sum force value by (f) if node is fairlead; (-f) is node is anchor. 
-//  */
-// void add_to_sum_fz(Node* node, const MapReal fz)
-// {
-//   *(node->sumForcePtr.fz.value) += fz;
-// };
-// 
-// 
-// 
+void add_to_sum_fx(Node* node, const MapReal fx)
+{
+  *(node->sumForcePtr.fx.value) += fx;
+};
+
+
+void add_to_sum_fy(Node* node, const MapReal fy)
+{
+  *(node->sumForcePtr.fy.value) += fy;
+};
+
+
+void add_to_sum_fz(Node* node, const MapReal fz)
+{
+  *(node->sumForcePtr.fz.value) += fz;
+};
+
+
+
 // MAP_EXTERNCALL void map_get_fairlead_force_2d(double* H, double* V, MAP_OtherStateType_t* other_type, int index, char* map_msg, MAP_ERROR_CODE* ierr)
 // {
 //   Element* iter_element = NULL;
