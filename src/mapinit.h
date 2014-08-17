@@ -24,8 +24,9 @@
 #ifndef _MAPINIT_H
 #define _MAPINIT_H
 
-#include "bstring/bstrlib.h"
-#include "MAP_Types.h"
+
+#include "map.h"
+
 
 /**
  * @brief   Sets model solver options corresponding to the MAP input file parameters 

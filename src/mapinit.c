@@ -21,9 +21,6 @@
  ****************************************************************/
 
 
-#include "map.h"
-#include "maperror.h"
-#include "bstring/bstrlib.h"
 #include "mapinit.h"
 #include "lineroutines.h"
 

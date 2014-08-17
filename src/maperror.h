@@ -25,6 +25,9 @@
 #define _MAPERROR_H
 
 
+#include "map.h"
+
+
 typedef enum MAP_ERROR_CODE {
   MAP_SAFE     ,  // = 0 by default
   MAP_WARNING  ,  // = 1

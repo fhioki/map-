@@ -22,6 +22,8 @@
 
 
 #include "numeric.h"
+#include "lineroutines.h"
+
 
 int inner_function_evals(void* element_ptr, int m, int n, const __cminpack_real__* x, __cminpack_real__* fvec, __cminpack_real__* fjac, int ldfjac, int iflag) 
 {

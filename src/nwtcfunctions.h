@@ -25,6 +25,9 @@
 #define _NWTC_FUNCTIONS_H
 
 
+#include "map.h"
+
+
 /**
  * @brief     Initializes the MAP model and allocates memory. Inconsistencies with the input file is reported here. 
  *            This should only be called once. 

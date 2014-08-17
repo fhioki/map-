@@ -24,7 +24,9 @@
 #ifndef _INITIALIZATION_H
 #define _INITIALIZATION_H
 
-#include "MAP_Types.h"
+
+#include "map.h"
+
 
 MAP_EXTERNCALL void set_init_to_null(MAP_InitInputType_t* init_type, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_EXTERNCALL void map_add_cable_library_input_text(MAP_InitInputType_t* init_type);

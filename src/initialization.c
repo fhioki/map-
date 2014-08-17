@@ -21,10 +21,8 @@
  ****************************************************************/
 
 
-#include "map.h"
-#include "maperror.h"
 #include "initialization.h"
-#include "bstring/bstrlib.h"
+
 
 /**
  * @file 

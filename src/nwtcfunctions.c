@@ -28,13 +28,12 @@
  */
 
 
-#include "map.h"
-#include "maperror.h"
-#include "MAP_Types.h"
 #include "initialization.h"
 #include "freedata.h"
 #include "mapinit.h"
 #include "nwtcfunctions.h"
+#include "lineroutines.h"
+#include "outputstream.h"
 
 
 MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type, 

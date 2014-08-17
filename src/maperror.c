@@ -21,8 +21,8 @@
  ****************************************************************/
 
 
-#include "map.h"
 #include "maperror.h"
+#include "mapinit.h"
 
 
 const char MAP_ERROR_STRING[][256] = {

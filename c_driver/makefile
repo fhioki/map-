@@ -6,7 +6,7 @@ CCFLAGS = -g -O1 -fsanitize=address -fno-omit-frame-pointer
 else
 CC_TOOLS  = gcc
 #CCFLAGS = -g -O1 -fsanitize=address -fno-omit-frame-pointer
-CCFLAGS = -g -O1 
+CCFLAGS = -g -std=c99 -O1 
 endif
 
 OBJ = test.o

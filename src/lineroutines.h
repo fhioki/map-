@@ -26,8 +26,6 @@
 
 
 #include "map.h"
-#include "maperror.h"
-#include "MAP_Types.h"
 
 
 /**

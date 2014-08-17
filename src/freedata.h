@@ -25,7 +25,7 @@
 #define _FREE_DATA_H
 
 
-#include "MAP_Types.h"
+#include "map.h"
 
 
 MAP_ERROR_CODE map_free_types(MAP_InputType_t* u_type, MAP_ParameterType_t* p_type, MAP_ContinuousStateType_t* x_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type);

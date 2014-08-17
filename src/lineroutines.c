@@ -22,7 +22,7 @@
 
 
 #include "lineroutines.h"
-#include "mapinit.h"
+#include "numeric.h"
 
 extern const char MAP_ERROR_STRING[][1024];
 

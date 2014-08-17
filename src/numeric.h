@@ -25,10 +25,6 @@
 #define _NUMERIC_H
 
 #include "map.h"
-#include "maperror.h"
-#include "cminpack/minpack.h"
-#include "cminpack/cminpack.h"
-#include "MAP_Types.h"
 
 
 MAP_ERROR_CODE call_minpack_lmder(Element* element, InnerSolveAttributes* inner_opt, ModelOptions* opt, const int line_num, const double time, char* map_msg, MAP_ERROR_CODE* ierr);

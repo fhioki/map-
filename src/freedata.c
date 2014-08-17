@@ -25,8 +25,7 @@
  * @file 
  */
 
-#include "map.h"
-#include "maperror.h"
+
 #include "freedata.h"
 
 

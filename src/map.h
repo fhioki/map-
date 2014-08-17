@@ -26,8 +26,17 @@
 
 
 #include "mapsys.h"
+
 #include "simclist/simclist.h"
+
 #include "bstring/bstrlib.h"
+
+#include "cminpack/cminpack.h"
+#include "cminpack/cminpackP.h"
+#include "cminpack/minpack.h"
+
+#include "MAP_Types.h"
+#include "maperror.h"
 
 
 /**
