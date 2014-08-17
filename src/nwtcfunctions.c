@@ -29,9 +29,9 @@
 #include "maperror.h"
 #include "MAP_Types.h"
 #include "initialization.h"
-#include "protos.h"
 #include "freedata.h"
-// #include "nwtcfunctions.h"
+#include "mapinit.h"
+#include "nwtcfunctions.h"
 
 
 MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type, 

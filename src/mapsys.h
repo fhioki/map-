@@ -39,19 +39,16 @@
 #  include "stdbool.h"
 #  define map_snprintf _snprintf
 #  define map_strcat(a,b,c) strcat_s(a,b,c)
-// #  define map_end_color(a)
 #  define MAP_EXTERNCALL __declspec( dllexport )
 #elif _WIN32 
 #  include "stdbool.h"
 #  define map_snprintf _snprintf
 #  define map_strcat(a,b,c) strcat_s(a,b,c)
-// #  define map_end_color(a)
 #  define MAP_EXTERNCALL __declspec( dllexport )
 #else
 #  include <stdbool.h>
 #  define map_snprintf snprintf
 #  define map_strcat(a,b,c) strncat(a,c,b)
-// #  define map_end_color(a) map_end_unix_color(a)
 #  define MAP_EXTERNCALL 
 #endif
 
@@ -109,10 +106,9 @@
 #define MAP_RETURN if(*ierr==MAP_FATAL) { return MAP_FATAL; }; return MAP_SAFE;
 
 
-/**
- * Text Coloring (OS dependant)
+/* Text Coloring (OS dependant)
  *
- * Used for text coloring in the terminal. If we are on a non-Unix OS, then:
+ * Not used any longer, but can color text at the terminal. If we are on a non-Unix OS, then:
  *   -- set the strings to "" (empty) so that garbage is not printed
  */
 #ifdef __posix 

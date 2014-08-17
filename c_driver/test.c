@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
    * 3) after initialization, delete init_type
    */
 
-//  strcpy(init_type->summaryFileName,"baseline.sum.map\0"); map_set_summary_file_name(init_type, map_msg, &ierr);
+  strcpy(init_type->summaryFileName,"baseline.sum.map\0"); map_set_summary_file_name(init_type, map_msg, &ierr);
   map_init(init_type, u_type, p_type, x_type, NULL, z_type, other_type, y_type, io_type, &ierr, map_msg);
   if (ierr!=MAP_SAFE) {
     printf("%s\n",map_msg);

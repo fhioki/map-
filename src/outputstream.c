@@ -141,7 +141,7 @@ MAP_ERROR_CODE write_summary_file(InitializationData* init, MAP_ParameterType_t*
   tm_info = localtime(&timer);
   
   if (file==NULL) {
-    *ierr = map_set_universal_error(init->summaryFileName->data, map_msg, *ierr, MAP_FATAL_38);
+    *ierr = map_set_universal_error(init->summaryFileName, map_msg, *ierr, MAP_FATAL_38);
     return MAP_FATAL;
   };
   

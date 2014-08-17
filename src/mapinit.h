@@ -1,29 +1,31 @@
-/***************************************************************************
- *   Copyright (C) 2014 mdm                                                *
- *   marco[dot]masciola at gmail                                           *
- *                                                                         *
- *   MAP++ is free software; you can redistribute it and/or modify it      *
- *   under the terms of the GNU General Public License as published by     *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- *   This program is distributed in the hope that it will be useful,       *
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU General Public License for more details.                          *
- *                                                                         *
- *   You should have received a copy of the GNU General Public License     *
- *   along with this program; if not, write to the                         *
- *   Free Software Foundation, Inc.,                                       *
- *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.           *
- ***************************************************************************/
+/****************************************************************
+ *   Copyright (C) 2014 mdm                                     *
+ *   marco[dot]masciola[at]gmail                                *
+ *                                                              *
+ * Licensed to the Apache Software Foundation (ASF) under one   *
+ * or more contributor license agreements.  See the NOTICE file *
+ * distributed with this work for additional information        *
+ * regarding copyright ownership.  The ASF licenses this file   *
+ * to you under the Apache License, Version 2.0 (the            *
+ * "License"); you may not use this file except in compliance   *
+ * with the License.  You may obtain a copy of the License at   *
+ *                                                              *
+ *   http://www.apache.org/licenses/LICENSE-2.0                 *
+ *                                                              *
+ * Unless required by applicable law or agreed to in writing,   *
+ * software distributed under the License is distributed on an  *
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY       *
+ * KIND, either express or implied.  See the License for the    *
+ * specific language governing permissions and limitations      *      
+ * under the License.                                           *  
+ ****************************************************************/
 
 
 #ifndef _MAPINIT_H
 #define _MAPINIT_H
 
 #include "bstring/bstrlib.h"
-
+#include "MAP_Types.h"
 
 /**
  * @brief   Sets model solver options corresponding to the MAP input file parameters 
@@ -649,8 +651,13 @@ MAP_ERROR_CODE is_numeric(const char* string);
 
 MAP_ERROR_CODE associate_vartype_ptr(VarTypePtr* type, double* arr, int index);
 void copy_target_string(char* target, unsigned char* source);
+MAP_ERROR_CODE initialize_external_applied_force(char* unit, char* alias, const int num, VarType* type, char const* property);
+MAP_ERROR_CODE initialize_node_sum_force_ptr(char* unit, char* alias, const int num, VarTypePtr* type);
 MAP_ERROR_CODE map_get_version(MAP_InitOutputType_t* io_type);
 MAP_ERROR_CODE print_help_to_screen();
-
+size_t vartype_meter(const void* el);
+size_t vartype_ptr_meter(const void *el);
+const char* remove_first_character(const char* string);
+void print_machine_name_to_screen();
 
 #endif /* _INITIALIZATION_H */

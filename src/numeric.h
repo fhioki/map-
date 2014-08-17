@@ -23,8 +23,6 @@
 
 #include "map.h"
 #include "maperror.h"
-#include "protos.h"
-#include "pyprotos.h"
 #include "cminpack/minpack.h"
 #include "cminpack/cminpack.h"
 // #include "MAP_Types.h"

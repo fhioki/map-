@@ -1,31 +1,34 @@
-/*
- * Copyright (c) 2014 mdm <marco.masciola@gmail.com>
- *
- * This file is part of MAP++.
- *
- * MAP++ is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * MAP++ is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with MAP++. If not, see <http://www.gnu.org/licenses/>.
- */
+/****************************************************************
+ *   Copyright (C) 2014 mdm                                     *
+ *   marco[dot]masciola[at]gmail                                *
+ *                                                              *
+ * Licensed to the Apache Software Foundation (ASF) under one   *
+ * or more contributor license agreements.  See the NOTICE file *
+ * distributed with this work for additional information        *
+ * regarding copyright ownership.  The ASF licenses this file   *
+ * to you under the Apache License, Version 2.0 (the            *
+ * "License"); you may not use this file except in compliance   *
+ * with the License.  You may obtain a copy of the License at   *
+ *                                                              *
+ *   http://www.apache.org/licenses/LICENSE-2.0                 *
+ *                                                              *
+ * Unless required by applicable law or agreed to in writing,   *
+ * software distributed under the License is distributed on an  *
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY       *
+ * KIND, either express or implied.  See the License for the    *
+ * specific language governing permissions and limitations      *      
+ * under the License.                                           *  
+ ****************************************************************/
 
 
 #include "map.h"
 #include "maperror.h"
-#include "protos.h"
-//#include "cminpack/minpack.h"
-//#include "pyprotos.h"
 #include "bstring/bstrlib.h"
 #include "mapinit.h"
 #include "lineroutines.h"
+
+
+extern const char MAP_ERROR_STRING[][1024];
 
 
 MAP_ERROR_CODE set_vessel(Vessel* floater, const MAP_InputType_t* u_type, char* map_msg, MAP_ERROR_CODE* ierr)
@@ -167,39 +170,6 @@ MAP_ERROR_CODE allocate_outer_solve_data(OuterSolveAttributes* ns, const int siz
 
   return MAP_SAFE;
 };
-
-
-// MAP_ERROR_CODE free_outer_solve_data(OuterSolveAttributes* ns, const int size, char* map_msg, MAP_ERROR_CODE* ierr)
-// {
-//   const int SIZE = 3*size;
-//   int i = 0;
-// 
-//   if (ns->jac) { /* is it allocated? */
-//     for(i=0 ; i<SIZE ; i++) {
-//       MAPFREE(ns->jac[i]);
-//     };
-//   };
-//  
-//   if (ns->l) { /* is it allocated? */
-//     for(i=0 ; i<SIZE ; i++) {
-//      MAPFREE(ns->l[i]);
-//     };
-//   };
-// 
-//   if (ns->u) { /* is it allocated? */
-//     for(i=0 ; i<SIZE ; i++) {
-//       MAPFREE(ns->u[i]);
-//    };  
-//   };
-// 
-//   MAPFREE(ns->jac);
-//   MAPFREE(ns->l);
-//   MAPFREE(ns->u);
-//   MAPFREE(ns->b);
-//   MAPFREE(ns->x);  
-//   MAPFREE(ns->y);
-//   return MAP_SAFE;
-// };
 
 
 MAP_ERROR_CODE check_help_flag(bstring list)
@@ -2447,7 +2417,6 @@ MAP_ERROR_CODE associate_element_with_fairlead_node(Element* element_ptr, ModelD
     node_num = (int)atoi(word); 
     node_iter = (Node*)list_get_at(&model_data->node, node_num-1);
     element_ptr->fairlead = node_iter; /* create the associate with anchor here */
-    // printf("element type %s\n", element_ptr->fairlead->positionPtr.x.name->data);
     if (!node_iter) {
       user_msg = bformat("Element %d.", element_num);
       *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_31);        
@@ -2542,6 +2511,11 @@ void print_machine_name_to_screen( ) {
   printf( "%c\n",BUILD_YEAR_CH3 );
 }
 
+
+const char* remove_first_character(const char* string)
+{
+  return string+1;
+};
 
 // /**
 //  * @see: http://stackoverflow.com/questions/504810/how-do-i-find-the-current-machines-full-hostname-in-c-hostname-and-domain-info
@@ -2664,6 +2638,3 @@ MAP_ERROR_CODE print_help_to_screen()
   printf("    \n");
   return MAP_SAFE;
 };
-
-
-

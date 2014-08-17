@@ -1,21 +1,24 @@
-/**
- * Copyright (c) 2014 mdm <marco.masciola@gmail.com>
- *
- * This file is part of MAP++.
- *
- * MAP++ is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * MAP++ is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with MAP++. If not, see <http://www.gnu.org/licenses/>.
- */
+/****************************************************************
+ *   Copyright (C) 2014 mdm                                     *
+ *   marco[dot]masciola[at]gmail                                *
+ *                                                              *
+ * Licensed to the Apache Software Foundation (ASF) under one   *
+ * or more contributor license agreements.  See the NOTICE file *
+ * distributed with this work for additional information        *
+ * regarding copyright ownership.  The ASF licenses this file   *
+ * to you under the Apache License, Version 2.0 (the            *
+ * "License"); you may not use this file except in compliance   *
+ * with the License.  You may obtain a copy of the License at   *
+ *                                                              *
+ *   http://www.apache.org/licenses/LICENSE-2.0                 *
+ *                                                              *
+ * Unless required by applicable law or agreed to in writing,   *
+ * software distributed under the License is distributed on an  *
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY       *
+ * KIND, either express or implied.  See the License for the    *
+ * specific language governing permissions and limitations      *      
+ * under the License.                                           *  
+ ****************************************************************/
 
 
 #ifndef _LINEROUTINES_H
@@ -24,9 +27,69 @@
 
 #include "map.h"
 #include "maperror.h"
-#include "protos.h"
 #include "MAP_Types.h"
 
+
+/**
+ * success = incremenet_x_dof_by_delta(uType, -epsilon);
+ */
+MAP_ERROR_CODE increment_dof_by_delta(double* inputType, const MapReal delta, const int size);
+
+
+/**
+ * success = restore_original_displacement(uType->x, xOriginal, N);
+ */
+MAP_ERROR_CODE restore_original_displacement(double* inputType, const double* initialValue, const int size);
+
+
+/**
+ * success = reset_force_to_zero(yType, N);
+ */
+MAP_ERROR_CODE reset_force_to_zero(double* fx, double* fy, double* fz, double* mx, double* my, double* mz, const int size);
+
+
+/**
+ * success = set_force_plus(yType->Fx, fx, N);
+ */
+MAP_ERROR_CODE set_force_minus(const double* inputType, double* force, const int size);
+
+
+/**
+ * success = set_force_plus(yType->Fx, fx, N);
+ */
+MAP_ERROR_CODE set_force_plus(const double* inputType, double* force, const int size);
+
+
+MAP_ERROR_CODE calculate_stiffness(double* K, double* force, const double delta, const int size);
+
+
+/**
+ * success = set_moment_minus(yType, vessel, mx, my, mz, N)
+ */
+MAP_ERROR_CODE set_moment_minus(const MAP_OutputType_t* outputType, const Vessel* vessel, double* mx, double* my, double* mz, const int size);
+
+
+MAP_ERROR_CODE set_moment_plus(const MAP_OutputType_t* outputType, const Vessel* vessel, double* mx, double* my, double* mz, const int size);
+
+
+MAP_ERROR_CODE increment_phi_dof_by_delta(MAP_InputType_t* uType, const Vessel* vessel, const double delta, const int size);
+
+
+MAP_ERROR_CODE increment_the_dof_by_delta(MAP_InputType_t* uType, const Vessel* vessel, const double delta, const int size);
+
+
+MAP_ERROR_CODE increment_psi_dof_by_delta(MAP_InputType_t* uType, const Vessel* vessel, const double delta, const int size);
+
+
+MAP_ERROR_CODE fd_x_sequence(MAP_OtherStateType_t* otherType, MAP_InputType_t* uType, MAP_OutputType_t* yType, MAP_ConstraintStateType_t* zType, Fd* force, const double epsilon, const int size, const double* originalPos, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE fd_y_sequence(MAP_OtherStateType_t* otherType, MAP_InputType_t* uType, MAP_OutputType_t* yType, MAP_ConstraintStateType_t* zType, Fd* force, const double epsilon, const int size, const double* originalPos, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE fd_z_sequence(MAP_OtherStateType_t* otherType, MAP_InputType_t* uType, MAP_OutputType_t* yType, MAP_ConstraintStateType_t* zType, Fd* force, const double epsilon, const int size, const double* originalPos, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE fd_phi_sequence(MAP_OtherStateType_t* otherType, MAP_InputType_t* uType, MAP_OutputType_t* yType, MAP_ConstraintStateType_t* zType, Fd* force, const double epsilon, const int size, const double* originalX, const double* originalY, const double* originalZ, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE fd_the_sequence(MAP_OtherStateType_t* otherType, MAP_InputType_t* uType, MAP_OutputType_t* yType, MAP_ConstraintStateType_t* zType, Fd* force, const double epsilon, const int size, const double* originalX, const double* originalY, const double* originalZ, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE fd_psi_sequence(MAP_OtherStateType_t* otherType, MAP_InputType_t* uType, MAP_OutputType_t* yType, MAP_ConstraintStateType_t* zType, Fd* force, const double epsilon, const int size, const double* originalX, const double* originalY, const double* originalZ, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE calculate_stiffness_2(double* K, Fd* force, const double delta, const int size);
+MAP_ERROR_CODE set_moment_plus_2(const MAP_InputType_t* uType, const MAP_OutputType_t* outputType, const Vessel* vessel, double* mx, double* my, double* mz, const int size);
+MAP_ERROR_CODE set_moment_minus_2(const MAP_InputType_t* uType, const MAP_OutputType_t* outputType, const Vessel* vessel, double* mx, double* my, double* mz, const int size);
 
 /**
  * sets cable excursions (l and h) and reference frame psi rotation

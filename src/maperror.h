@@ -143,4 +143,24 @@ typedef enum MAP_ERROR_CODE {
 } MAP_ERROR_CODE ;
 
 
+void map_reset_universal_error(char* map_msg, MAP_ERROR_CODE* ierr);
+
+
+/**
+ * @brief   Set error code with customized message
+ * @details Can be called in any routine to set the contents of map_message. The routine
+ *          checks to ensure map_msg is not longer than MAX_ERROR_STRING_LENGTH. If it is,
+ *          then the message is truncated. The error code returned depends on the max 
+ *          level reached previously durring program execusion. A MAP_WARNING will not 
+ *          override a MAP_FATAL or MAP_ERROR level. 
+ * @param   user_string, custom message appending the error message
+ * @param   map_msg, error message of length no greater than MAP_ERROR_STRING_LENGTH
+ * @param   ierr, ierr status before function is invoked, should be MAP_SAFE, MAP_WARNING, MAP_ERROR, MAP_FATAL
+ * @param   new_error, new MAP warning code; any entry in enum MAP_ERROR_CODE
+ * @return  MAP error code
+ */
+MAP_ERROR_CODE map_set_universal_error(bstring user_msg, char* map_msg, const MAP_ERROR_CODE ierr, const MAP_ERROR_CODE new_error);
+
+
+
 #endif // _MAPERROR_H

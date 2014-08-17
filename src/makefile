@@ -32,6 +32,7 @@ LDFLAGS   = -g -fsanitize=address -fno-omit-frame-pointer -dynamiclib
 else ifeq ($(PLATFORM),Linux)
 CC_TOOLS  = gcc
 #CFLAGS    = -g -O1 -fsanitize=address -fno-omit-frame-pointer -fPIC -D DEBUG -DGITVERSION=\"$(GIT_VERSION)\" -Icminpack -Isimclist
+#CFLAGS    = -g -fPIC -std=c99 -Wuninitialized -Wall -D DEBUG -DGITVERSION=\"$(GIT_VERSION)\" 
 CFLAGS    = -g -fPIC -D DEBUG -DGITVERSION=\"$(GIT_VERSION)\" 
 LDFLAGS   = -g -shared 
 endif
@@ -52,7 +53,6 @@ OBJ       = lmder.o \
 	simclist.o \
 	bstrlib.o \
 	bstraux.o \
-	supportfiles.o \
 	freedata.o \
 	initialization.o \
 	mapinit.o \
@@ -61,7 +61,8 @@ OBJ       = lmder.o \
 	MAP_Types.o \
 	lineroutines.o \
 	numeric.o \
-	outputstream.o
+	outputstream.o \
+	mapapi.o
 
 all : $(OBJ)
 	$(CC_TOOLS) $(LDFLAGS) -o libmap-1.00.01.so $(DEBUG) $(OBJ) -lm

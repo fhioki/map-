@@ -153,40 +153,40 @@ class Map(object):
     lib.map_set_sea_density.argtypes = [ MapParameter_Type, c_double ]
     
 #     # numeric routines
-#     lib.pyget_residual_function_length.restype = c_double
-#     lib.pyget_residual_function_height.restype = c_double
-#     lib.pyget_jacobian_dxdh.restype            = c_double
-#     lib.pyget_jacobian_dxdv.restype            = c_double
-#     lib.pyget_jacobian_dzdh.restype            = c_double
-#     lib.pyget_jacobian_dzdv.restype            = c_double
+#     lib.map_residual_function_length.restype = c_double
+#     lib.map_residual_function_height.restype = c_double
+#     lib.map_jacobian_dxdh.restype            = c_double
+#     lib.map_jacobian_dxdv.restype            = c_double
+#     lib.map_jacobian_dzdh.restype            = c_double
+#     lib.map_jacobian_dzdv.restype            = c_double
 # 
-#     lib.pyget_residual_function_length.argtypes = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
-#     lib.pyget_residual_function_height.argtypes = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
-#     lib.pyget_jacobian_dxdh.argtypes            = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
-#     lib.pyget_jacobian_dxdv.argtypes            = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
-#     lib.pyget_jacobian_dzdh.argtypes            = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
-#     lib.pyget_jacobian_dzdv.argtypes            = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
+#     lib.map_residual_function_length.argtypes = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
+#     lib.map_residual_function_height.argtypes = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
+#     lib.map_jacobian_dxdh.argtypes            = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
+#     lib.map_jacobian_dxdv.argtypes            = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
+#     lib.map_jacobian_dzdh.argtypes            = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
+#     lib.map_jacobian_dzdv.argtypes            = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
 # 
 #     
 #     lib.map_get_fairlead_force_2d.argtypes = [POINTER(c_double), POINTER(c_double), MapData_Type, c_int, c_char_p, POINTER(c_int)]
 # 
 #     
 #     # plot routines
-#     lib.pyget_plot_x.argtypes = [ MapData_Type, c_int, c_int, c_char_p, POINTER(c_int) ]
-#     lib.pyget_plot_x.restype  = POINTER(c_double)
-#     lib.pyget_plot_y.argtypes = [ MapData_Type, c_int, c_int, c_char_p, POINTER(c_int) ]
-#     lib.pyget_plot_y.restype  = POINTER(c_double)
-#     lib.pyget_plot_z.argtypes = [ MapData_Type, c_int, c_int, c_char_p, POINTER(c_int) ]
-#     lib.pyget_plot_z.restype  = POINTER(c_double)
-#     lib.pyget_plot_array_free.argtypes = [ POINTER(c_double) ]
+#     lib.map_plot_x_array.argtypes = [ MapData_Type, c_int, c_int, c_char_p, POINTER(c_int) ]
+#     lib.map_plot_x_array.restype  = POINTER(c_double)
+#     lib.map_plot_y_array.argtypes = [ MapData_Type, c_int, c_int, c_char_p, POINTER(c_int) ]
+#     lib.map_plot_y_array.restype  = POINTER(c_double)
+#     lib.map_plot_z_array.argtypes = [ MapData_Type, c_int, c_int, c_char_p, POINTER(c_int) ]
+#     lib.map_plot_z_array.restype  = POINTER(c_double)
+#     lib.map_plot_array_free.argtypes = [ POINTER(c_double) ]
 # 
 #     
 # 
 #     # modifyers
 #     lib.map_offset_vessel.argtypes = [MapData_Type, MapInput_Type, c_double, c_double, c_double, c_double, c_double, c_double, c_char_p, POINTER(c_int)]        
-#     lib.py_linearize_matrix.argtypes = [MapInput_Type, MapData_Type, MapOutput_Type, MapConstraint_Type, c_double, c_char_p, POINTER(c_int)]        
-#     lib.py_linearize_matrix.restype  = POINTER(POINTER(c_double))
-#     lib.py_free_linearize_matrix.argtypes = [POINTER(POINTER(c_double))]
+#     lib.map_linearize_matrix.argtypes = [MapInput_Type, MapData_Type, MapOutput_Type, MapConstraint_Type, c_double, c_char_p, POINTER(c_int)]        
+#     lib.map_linearize_matrix.restype  = POINTER(POINTER(c_double))
+#     lib.map_free_linearize_matrix.argtypes = [POINTER(POINTER(c_double))]
 
     lib.map_init.argtypes = [ MapInit_Type,
                               MapInput_Type,
@@ -421,7 +421,7 @@ class Map(object):
 # 
 # 
 #     def funcl( self, i ) :
-#         self.val = Map.lib.pyget_residual_function_length( self.f_type_d, i, self.status, pointer(self.ierr) )
+#         self.val = Map.lib.map_residual_function_length( self.f_type_d, i, self.status, pointer(self.ierr) )
 #         if self.ierr.value != 0 :
 #             print self.status.value        
 #             self.MAP_End( )
@@ -429,7 +429,7 @@ class Map(object):
 #         return self.val
 # 
 #     def funch( self, i ) :
-#         self.val = Map.lib.pyget_residual_function_height( self.f_type_d, i, self.status, pointer(self.ierr) )
+#         self.val = Map.lib.map_residual_function_height( self.f_type_d, i, self.status, pointer(self.ierr) )
 #         if self.ierr.value != 0 :
 #             print self.status.value        
 #             self.MAP_End( )
@@ -437,7 +437,7 @@ class Map(object):
 #         return self.val
 # 
 #     def dxdh( self, i ) :
-#         self.val = Map.lib.pyget_jacobian_dxdh( self.f_type_d, i, self.status, pointer(self.ierr) )
+#         self.val = Map.lib.map_jacobian_dxdh( self.f_type_d, i, self.status, pointer(self.ierr) )
 #         if self.ierr.value != 0 :
 #             print self.status.value        
 #             self.MAP_End( )
@@ -446,7 +446,7 @@ class Map(object):
 # 
 # 
 #     def dxdv( self, i ) :
-#         self.val = Map.lib.pyget_jacobian_dxdv( self.f_type_d, i, self.status, pointer(self.ierr) )
+#         self.val = Map.lib.map_jacobian_dxdv( self.f_type_d, i, self.status, pointer(self.ierr) )
 #         if self.ierr.value != 0 :
 #             print self.status.value        
 #             self.MAP_End( )
@@ -454,7 +454,7 @@ class Map(object):
 #         return self.val
 # 
 #     def dzdh( self, i ) :
-#         self.val = Map.lib.pyget_jacobian_dzdh( self.f_type_d, i, self.status, pointer(self.ierr) )
+#         self.val = Map.lib.map_jacobian_dzdh( self.f_type_d, i, self.status, pointer(self.ierr) )
 #         if self.ierr.value != 0 :
 #             print self.status.value        
 #             self.MAP_End( )
@@ -462,7 +462,7 @@ class Map(object):
 #         return self.val
 # 
 #     def dzdv( self, i ) :
-#         self.val = Map.lib.pyget_jacobian_dzdv( self.f_type_d, i, self.status, pointer(self.ierr) )
+#         self.val = Map.lib.map_jacobian_dzdv( self.f_type_d, i, self.status, pointer(self.ierr) )
 #         if self.ierr.value != 0 :
 #             print self.status.value        
 #             self.MAP_End( )
@@ -473,26 +473,26 @@ class Map(object):
 #     def plot_x( self, elementNum, length ) :
 #         arr = [None]*length
 #         array = POINTER(c_double)
-#         array = Map.lib.pyget_plot_x( self.f_type_d, elementNum, length, self.status, pointer(self.ierr) )        
+#         array = Map.lib.map_plot_x_array( self.f_type_d, elementNum, length, self.status, pointer(self.ierr) )        
 #         if self.ierr.value != 0 :
 #             print self.status.value        
 #             self.MAP_End( )
-#             Map.lib.pyget_plot_array_free( array )        
+#             Map.lib.map_plot_array_free( array )        
 #             sys.exit('MAP terminated premature.')
 #         arr = [array[j] for j in range(length)]        
-#         Map.lib.pyget_plot_array_free( array )        
+#         Map.lib.map_plot_array_free( array )        
 #         return arr 
 # 
 # 
 #     def linear( self, epsilon ) :
 #         array = POINTER(POINTER(c_double))
-#         array = Map.lib.py_linearize_matrix( self.f_type_u, self.f_type_d, self.f_type_y, self.f_type_z, epsilon, self.status, pointer(self.ierr) )        
+#         array = Map.lib.map_linearize_matrix( self.f_type_u, self.f_type_d, self.f_type_y, self.f_type_z, epsilon, self.status, pointer(self.ierr) )        
 #         if self.ierr.value != 0 :
 #            print self.status.value        
 #            self.MAP_End( )
 #            sys.exit('MAP terminated premature.')
 #         arr = [[array[j][i] for i in range(6)] for j in range(6)]
-#         Map.lib.py_free_linearize_matrix(array)        
+#         Map.lib.map_free_linearize_matrix(array)        
 #         return arr
 #     
 # 
@@ -507,28 +507,28 @@ class Map(object):
 #     def plot_y( self, elementNum, length ) :
 #         arr = [None]*length
 #         array = POINTER(c_double)
-#         array = Map.lib.pyget_plot_y( self.f_type_d, elementNum, length, self.status, pointer(self.ierr) )        
+#         array = Map.lib.map_plot_y_array( self.f_type_d, elementNum, length, self.status, pointer(self.ierr) )        
 #         if self.ierr.value != 0 :
 #             print self.status.value        
 #             self.MAP_End( )
-#             Map.lib.pyget_plot_array_free( array )        
+#             Map.lib.map_plot_array_free( array )        
 #             sys.exit('MAP terminated premature.')
 #         arr = [array[j] for j in range(length)]        
-#         Map.lib.pyget_plot_array_free( array )        
+#         Map.lib.map_plot_array_free( array )        
 #         return arr 
 # 
 # 
 #     def plot_z( self, elementNum, length ) :
 #         arr = [None]*length
 #         array = POINTER(c_double)
-#         array = Map.lib.pyget_plot_z( self.f_type_d, elementNum, length, self.status, pointer(self.ierr) )        
+#         array = Map.lib.map_plot_z_array( self.f_type_d, elementNum, length, self.status, pointer(self.ierr) )        
 #         if self.ierr.value != 0 :
 #             print self.status.value        
 #             self.MAP_End( )
-#             Map.lib.pyget_plot_array_free( array )        
+#             Map.lib.map_plot_array_free( array )        
 #             sys.exit('MAP terminated premature.')
 #         arr = [array[j] for j in range(length)]        
-#         Map.lib.pyget_plot_array_free( array )        
+#         Map.lib.map_plot_array_free( array )        
 #         return arr 
     
 

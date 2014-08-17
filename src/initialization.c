@@ -21,7 +21,6 @@
 #include "map.h"
 #include "maperror.h"
 #include "initialization.h"
-#include "protos.h"
 #include "bstring/bstrlib.h"
 
 /**
