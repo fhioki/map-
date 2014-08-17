@@ -25,13 +25,14 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#include "../src/bstring/bstrlib.h"
 #include "../src/MAP_Types.h"
 #include "../src/maperror.h"
 #include "../src/map.h"
-#include "../src/protos.h"
 #include "../src/initialization.h"
 #include "../src/outputstream.h"
 #include "../src/nwtcfunctions.h"
+
 
 int main(int argc, char *argv[]) 
 {

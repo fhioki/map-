@@ -722,116 +722,138 @@ MAP_ERROR_CODE write_element_information_to_summary_file(FILE* file, ModelData* 
   const unsigned int num_elements = list_size(&model_data->element);
   bstring user_msg = NULL;
   Element* element_iter = NULL;  
-  char line0[256] = "";
-  char line1[256] = "";
-  char line2[256] = "";
-  char line3[256] = "";
-  char line4[256] = "";
-  char line5[256] = "";
-  char line6[256] = "";
-  char line7[256] = "";
-  char line8[256] = "";
-  char line9[256] = "";
-  char line10[256] = "";
+  bstring line0 = NULL;
+  bstring line1 = NULL;
+  bstring line2 = NULL;
+  bstring line3 = NULL;
+  bstring line4 = NULL;
+  bstring line5 = NULL;
+  bstring line6 = NULL;
+  bstring line7 = NULL;
+  bstring line8 = NULL;
+  bstring line9 = NULL;
+  bstring line10 = NULL;
   int i = 0;  
 
   for (i=0 ; i<num_elements ; i++) {
     element_iter = (Element*)list_get_at(&model_data->element, i);
-    
+
+    line0 = bformat("");
+    line1 = bformat("");
+    line2 = bformat("");
+    line3 = bformat("");
+    line4 = bformat("");
+    line5 = bformat("");
+    line6 = bformat("");
+    line7 = bformat("");
+    line8 = bformat("");
+    line9 = bformat("");
+    line10 = bformat("");
+
     if (element_iter->Lu.value>0.0) {
-      map_strcat(line0, 256, " ");
+      bconchar(line0,' ');      
     };
     if (element_iter->lb.value>0.0) {
-      map_strcat(line1, 256, " ");
+      bconchar(line1,' ');      
     };
     if (*(element_iter->H.value)>0.0) {
-        map_strcat(line2, 256, " ");
+      bconchar(line2,' ');      
     };
     if (*(element_iter->V.value)>0.0) {
-      map_strcat(line3, 256, " ");
+      bconchar(line3,' ');      
     };
     if (element_iter->T.value>0.0) {
-      map_strcat(line4, 256, " ");
+      bconchar(line4,' ');      
     };
     if (element_iter->alpha.value>0.0) {
-      map_strcat(line5, 256, " ");
+      bconchar(line5,' ');      
     };
     if (element_iter->HAtAnchor.value>0.0) {
-      map_strcat(line6, 256, " ");
+      bconchar(line6,' ');      
     };
     if (element_iter->VAtAnchor.value>0.0) {
-      map_strcat(line7, 256, " ");
+      bconchar(line7,' ');      
     };
     if (element_iter->TAtAnchor.value>0.0) {
-      map_strcat(line8, 256, " ");
+      bconchar(line8,' ');      
     };
     if (element_iter->alphaAtAnchor.value>0.0) {
-      map_strcat(line9, 256, " ");
+      bconchar(line9,' ');      
     };
         
     switch (element_iter->convergeReason) {
     case 0 :
-      map_strcat(line10, 256, "Improver input parameter for inner loop solver.");
+      line10 = bformat("Improver input parameter for inner loop solver.");
+      //map_strcat(line10, 256, "Improver input parameter for inner loop solver.");
       break;
     case 1 :
-      map_strcat(line10, 256, "SQRT( H^2 + V^2 ) <= INNER_FTOL.");
+      line10 = bformat("SQRT( H^2 + V^2 ) <= INNER_FTOL.");
+      // map_strcat(line10, 256, "SQRT( H^2 + V^2 ) <= INNER_FTOL.");
       break;
     case 2 :
-      map_strcat(line10, 256, "||x_i - x_{i-1}||  <= INNER_XTOL.");
+      line10 = bformat("||x_i - x_{i-1}||  <= INNER_XTOL.");
+      // map_strcat(line10, 256, "||x_i - x_{i-1}||  <= INNER_XTOL.");
       break;
     case 3 :
-      map_strcat(line10, 256, "Both SQRT( H^2 + V^2 )<=INNER_FTOL and ||x_i - x_{i-1}||  <= INNER_XTOL.");
+      line10 = bformat("Both SQRT( H^2 + V^2 )<=INNER_FTOL and ||x_i - x_{i-1}||  <= INNER_XTOL.");
+      // map_strcat(line10, 256, "Both SQRT( H^2 + V^2 )<=INNER_FTOL and ||x_i - x_{i-1}||  <= INNER_XTOL.");
       break;
     case 4 :
-      map_strcat(line10, 256, "The cosine of the angle between [H, V] and any column of the Jacobian is at most INNER_GTOL in absolute value.");
+      line10 = bformat("The cosine of the angle between [H, V] and any column of the Jacobian is at most INNER_GTOL in absolute value.");
+      // map_strcat(line10, 256, "The cosine of the angle between [H, V] and any column of the Jacobian is at most INNER_GTOL in absolute value.");
       break;
     case 5 :
-      map_strcat(line10, 256, "INNER_MAX_ITS reached. Try increasing the maximum allowable iteration count.");
+      line10 = bformat("INNER_MAX_ITS reached. Try increasing the maximum allowable iteration count.");
+      //map_strcat(line10, 256, "INNER_MAX_ITS reached. Try increasing the maximum allowable iteration count.");
       break;
     case 6 :
-      map_strcat(line10, 256, "INNER_FTOL si too small. SQRT( H^2 + V^2 ) cannot be reduced further.");
+      line10 = bformat("INNER_FTOL si too small. SQRT( H^2 + V^2 ) cannot be reduced further.");
+      //map_strcat(line10, 256, "INNER_FTOL si too small. SQRT( H^2 + V^2 ) cannot be reduced further.");
       break;
     case 7 :
-      map_strcat(line10, 256, "INNER_XTOL is too small. No further refinements can be made in [H, V].");
+      line10 = bformat("INNER_XTOL is too small. No further refinements can be made in [H, V].");
+      //map_strcat(line10, 256, "INNER_XTOL is too small. No further refinements can be made in [H, V].");
       break;
     case 8 :
-      map_strcat(line10, 256, "INNER_GTOL is too small. The iterated variable vector [H, V] is orthogonal to the Jacobian columns.");
+      line10 = bformat("INNER_GTOL is too small. The iterated variable vector [H, V] is orthogonal to the Jacobian columns.");
+      // map_strcat(line10, 256, "INNER_GTOL is too small. The iterated variable vector [H, V] is orthogonal to the Jacobian columns.");
       break;
     default :
-      map_strcat(line10, 256, "Uncaught error.");
+      line10 = bformat("Uncaught error.");
+      // map_strcat(line10, 256, "Uncaught error.");
       break;
     };
 
     fprintf(file, "                | Element %d\n", i+1);    
     fprintf(file, "                | ---------------------------------------\n");    
     fprintf(file, "Material        |  %s\n", element_iter->lineProperty->label->data);
-    fprintf(file, "Lu        [m]   | %s%1.3f\n", line0, element_iter->Lu.value);
-    fprintf(file, "Lb        [m]   | %s%1.3f\n", line1, element_iter->lb.value); 
-    fprintf(file, "H         [N]   | %s%1.3f\n", line2, *(element_iter->H.value));
-    fprintf(file, "V         [N]   | %s%1.3f\n", line3, *(element_iter->V.value));
-    fprintf(file, "T         [N]   | %s%1.3f\n", line4, element_iter->T.value);
-    fprintf(file, "Alpha     [deg] | %s%1.3f\n", line5, element_iter->alpha.value*RAD2DEG); 
-    fprintf(file, "HAnch     [N]   | %s%1.3f\n", line6, element_iter->HAtAnchor.value);
-    fprintf(file, "VAnch     [N]   | %s%1.3f\n", line7, element_iter->VAtAnchor.value);
-    fprintf(file, "TAnch     [N]   | %s%1.3f\n", line8, element_iter->TAtAnchor.value);
-    fprintf(file, "AlphaAnch [deg] | %s%1.3f\n", line9, element_iter->alphaAtAnchor.value*RAD2DEG);
+    fprintf(file, "Lu        [m]   | %s%1.3f\n", line0->data, element_iter->Lu.value);
+    fprintf(file, "Lb        [m]   | %s%1.3f\n", line1->data, element_iter->lb.value); 
+    fprintf(file, "H         [N]   | %s%1.3f\n", line2->data, *(element_iter->H.value));
+    fprintf(file, "V         [N]   | %s%1.3f\n", line3->data, *(element_iter->V.value));
+    fprintf(file, "T         [N]   | %s%1.3f\n", line4->data, element_iter->T.value);
+    fprintf(file, "Alpha     [deg] | %s%1.3f\n", line5->data, element_iter->alpha.value*RAD2DEG); 
+    fprintf(file, "HAnch     [N]   | %s%1.3f\n", line6->data, element_iter->HAtAnchor.value);
+    fprintf(file, "VAnch     [N]   | %s%1.3f\n", line7->data, element_iter->VAtAnchor.value);
+    fprintf(file, "TAnch     [N]   | %s%1.3f\n", line8->data, element_iter->TAtAnchor.value);
+    fprintf(file, "AlphaAnch [deg] | %s%1.3f\n", line9->data, element_iter->alphaAtAnchor.value*RAD2DEG);
     fprintf(file, "L^2-Norm        |  %1.7g\n", element_iter->residualNorm);
     fprintf(file, "Function Evals  |  %d\n", element_iter->numFuncEvals);
     fprintf(file, "Jacobian Evals  |  %d\n", element_iter->numJacEvals);
-    fprintf(file, "Term. criteria  |  %d : %s\n", element_iter->convergeReason, line10);
+    fprintf(file, "Term. criteria  |  %d : %s\n", element_iter->convergeReason, line10->data);
     fprintf(file, "\n\n");
 
-    line0[0] = 0;
-    line1[0] = 0;
-    line2[0] = 0;
-    line3[0] = 0;
-    line4[0] = 0;
-    line5[0] = 0;
-    line6[0] = 0;
-    line7[0] = 0;
-    line8[0] = 0;
-    line9[0] = 0;
-    line10[0] = 0;
+    bdestroy(line0);
+    bdestroy(line1);
+    bdestroy(line2);
+    bdestroy(line3);
+    bdestroy(line4);
+    bdestroy(line5);
+    bdestroy(line6);
+    bdestroy(line7);
+    bdestroy(line8);
+    bdestroy(line9);
+    bdestroy(line10);
   };
   return MAP_SAFE;
 };
