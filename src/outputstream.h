@@ -162,6 +162,7 @@ MAP_ERROR_CODE write_summary_file(InitializationData* init_data, MAP_ParameterTy
  */
 MAP_ERROR_CODE write_cable_library_information_to_summary_file(FILE* file, ModelData* model_data);
 
+
 /**
  * @brief writes the node type. Can be VESSEL, CONNECT, or FIX
  *        <pre>
@@ -172,7 +173,8 @@ MAP_ERROR_CODE write_cable_library_information_to_summary_file(FILE* file, Model
  * @param node_type identifies the node type as a NONE, CONNECT, FIX, or VESSEL
  * @param line_char output string terminated with '\n'
  */
-MAP_ERROR_CODE write_node_type_to_summary_file(const int num_col, const int count_to_four, const NodeType node_type, char* line_char);
+MAP_ERROR_CODE write_node_type_to_summary_file(const int num_col, const int count_to_four, const NodeType node_type, bstring line);
+
 
 /**
  * @brief header for the node block. Prints the node number. 
@@ -184,7 +186,8 @@ MAP_ERROR_CODE write_node_type_to_summary_file(const int num_col, const int coun
  * @param node_num
  * @param line_char output string terminated with '\n'
  */
-MAP_ERROR_CODE write_node_header_to_summary_file(const int num_col, const int count_to_four, const int node_num, char* line_char);
+MAP_ERROR_CODE write_node_header_to_summary_file(const int num_col, const int count_to_four, const int node_num, bstring line);
+
 
 /**
  * @brief writes the node x global displacement (position) to the node output block. Units are in [m]: 
@@ -196,7 +199,8 @@ MAP_ERROR_CODE write_node_header_to_summary_file(const int num_col, const int co
  * @param x_pos node global x position [m]
  * @param line_char output string terminated with '\n'
  */
-MAP_ERROR_CODE write_node_x_position_to_summary_file(const int num_col, const int count_to_four, VarTypePtr* x_pos, char* line_char);
+MAP_ERROR_CODE write_node_x_position_to_summary_file(const int num_col, const int count_to_four, VarTypePtr* x_pos, bstring line);
+
 
 /**
  * @brief writes the node y global displacement (position) to the node output block. Units are in [m]: 
@@ -208,7 +212,8 @@ MAP_ERROR_CODE write_node_x_position_to_summary_file(const int num_col, const in
  * @param y_pos node global y position [m]
  * @param line_char output string terminated with '\n'
  */
-MAP_ERROR_CODE write_node_y_position_to_summary_file(const int num_col, const int count_to_four, VarTypePtr* y_pos, char* line_char);
+MAP_ERROR_CODE write_node_y_position_to_summary_file(const int num_col, const int count_to_four, VarTypePtr* y_pos, bstring line);
+
 
 /**
  * @brief writes the node z global displacement (position) to the node output block. Units are in [m]: 
@@ -220,7 +225,7 @@ MAP_ERROR_CODE write_node_y_position_to_summary_file(const int num_col, const in
  * @param z_pos node global z position [m]
  * @param line_char output string terminated with '\n'
  */
-MAP_ERROR_CODE write_node_z_position_to_summary_file(const int num_col, const int count_to_four, VarTypePtr* z_pos, char* line_char);
+MAP_ERROR_CODE write_node_z_position_to_summary_file(const int num_col, const int count_to_four, VarTypePtr* z_pos, bstring line);
 
 /**
  * @brief writes the node point mass value to the output block. Units are in [kg]: 
@@ -232,7 +237,8 @@ MAP_ERROR_CODE write_node_z_position_to_summary_file(const int num_col, const in
  * @param point_mass node point mass [kg]
  * @param line_char output string terminated with '\n'
  */
-MAP_ERROR_CODE write_node_mass_information_to_summary_file(const int num_col, const int count_to_four, VarType* point_mass, char* line_char);
+MAP_ERROR_CODE write_node_mass_information_to_summary_file(const int num_col, const int count_to_four, VarType* point_mass, bstring line);
+
 
 /**
  * @brief writes the volumetric displacement of the buoyancy module to the node output block. Units are in [m^3]: 
@@ -244,7 +250,8 @@ MAP_ERROR_CODE write_node_mass_information_to_summary_file(const int num_col, co
  * @param point_buoyancy node point buoyancy [m^3]
  * @param line_char output string terminated with '\n'
  */
-MAP_ERROR_CODE write_node_buoyancy_information_to_summary_file(const int num_col, const int count_to_four, VarType* point_buoy, char* line_char);
+MAP_ERROR_CODE write_node_buoyancy_information_to_summary_file(const int num_col, const int count_to_four, VarType* point_buoy, bstring line);
+
 
 /**
  * @brief writes the x-direction sum force to the node output block. Units are in [N]: 
@@ -256,7 +263,8 @@ MAP_ERROR_CODE write_node_buoyancy_information_to_summary_file(const int num_col
  * @param x_sum_force node global x sum force (including external forces) [N]
  * @param line_char output string terminated with '\n'
  */
-MAP_ERROR_CODE write_node_x_sum_force_to_summary_file(const int num_col, const int count_to_four, VarTypePtr* x_sum_force, char* line_char);
+MAP_ERROR_CODE write_node_x_sum_force_to_summary_file(const int num_col, const int count_to_four, VarTypePtr* x_sum_force, bstring line);
+
 
 /**
  * @brief writes the y-direction sum force to the node output block. Units are in [N]: 
@@ -268,7 +276,8 @@ MAP_ERROR_CODE write_node_x_sum_force_to_summary_file(const int num_col, const i
  * @param y_sum_force node global y sum force (including external forces) [N]
  * @param line_char output string terminated with '\n'
  */
-MAP_ERROR_CODE write_node_y_sum_force_to_summary_file(const int num_col, const int count_to_four, VarTypePtr* y_sum_force, char* line_char);
+MAP_ERROR_CODE write_node_y_sum_force_to_summary_file(const int num_col, const int count_to_four, VarTypePtr* y_sum_force, bstring line);
+
 
 /**
  * @brief writes the z-direction sum force to the node output block. Units are in [N]: 
@@ -280,7 +289,8 @@ MAP_ERROR_CODE write_node_y_sum_force_to_summary_file(const int num_col, const i
  * @param z_sum_force node global z sum force (including external forces) [N]
  * @param line_char output string terminated with '\n'
  */
-MAP_ERROR_CODE write_node_z_sum_force_to_summary_file(const int num_col, const int count_to_four, VarTypePtr* z_sum_force, char* line_char);
+MAP_ERROR_CODE write_node_z_sum_force_to_summary_file(const int num_col, const int count_to_four, VarTypePtr* z_sum_force, bstring line);
+
 
 /**
  * @brief write the complete node block to the summary file
