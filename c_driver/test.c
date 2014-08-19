@@ -112,12 +112,13 @@ int main(int argc, char *argv[])
    * 3) after initialization, delete init_type
    */
 
-  strcpy(init_type->summaryFileName,"baseline.sum.map\0"); map_set_summary_file_name(init_type, map_msg, &ierr);
+
+  strcpy(init_type->summaryFileName,"baseline.sum.map"); 
+  map_set_summary_file_name(init_type, map_msg, &ierr);
   map_init(init_type, u_type, p_type, x_type, NULL, z_type, other_type, y_type, io_type, &ierr, map_msg);
   if (ierr!=MAP_SAFE) {
     printf("%s\n",map_msg);
   };
-
 
 //  /* OPTIONAL: if you want output headers    <-------------------------------------+   */
 //  header_array = malloc(sizeof(char*)*(io_type->writeOutputHdr_Len));        //    |
@@ -148,17 +149,16 @@ int main(int argc, char *argv[])
   MAPFREE(init_type); 
   MAPFREE(io_type); 
 
-//  do {
-//    /* 
-//       1) update the input states in u_type.x, u_type.y, u_type.z (fairlead displacements) 
-//          Alternatively, call py_offset_vessel to displace fairlead positions. 
-//       2) call map_update_states()       
-//       3) call map_calc_output() (optional is you don't want outlist to be updated)
-//       4) get outputs from y_type.fx, y_type.fy, y_type.fz (fairlead node sum-force). You have to calculate
-//          the moments manually, i.e., cross(r,f).
-//    */
-//
-//    time = (double)its*dt;
+  do {
+    /* 1) update the input states in u_type.x, u_type.y, u_type.z (fairlead displacements) 
+     *     Alternatively, call py_offset_vessel to displace fairlead positions. 
+     *  2) call map_update_states()       
+     *  3) call map_calc_output() (optional is you don't want outlist to be updated)
+     *  4) get outputs from y_type.fx, y_type.fy, y_type.fz (fairlead node sum-force). You have to calculate
+     *     the moments manually, i.e., cross(r,f).
+     */
+    
+    time = (double)its*dt;
 //    vessel_y_position = its;
 //    
 //    u_type->y[0] = vessel_y_position;
@@ -181,8 +181,8 @@ int main(int argc, char *argv[])
 //    /* ------------------------------------------------------------------------------+   */
 //
 //
-//    its++;
-//  } while (its<10); 
+    its++;
+  } while (its<10); 
    
   /* first delete internal data type, then delete derived data types...  */
   map_end(u_type, p_type, x_type, NULL, z_type, other_type, y_type, &ierr, map_msg);

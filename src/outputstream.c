@@ -35,10 +35,6 @@ MAP_EXTERNCALL void map_set_summary_file_name(MAP_InitInputType_t* init_type, ch
 {  
   InitializationData* init_data = init_type->object; 
   
-  if (init_data->summaryFileName!=NULL) {
-    MAPFREE(init_data->summaryFileName);
-  };
-
   init_data->summaryFileName = bformat("%s", init_type->summaryFileName);
 };
 
@@ -682,9 +678,9 @@ MAP_ERROR_CODE write_node_information_to_summary_file(FILE* file, ModelData* mod
         success = write_node_z_position_to_summary_file(col-i, col_cnt, &node_iter->positionPtr.z, line4); CHECKERRQ(MAP_FATAL_70);
         success = write_node_mass_information_to_summary_file(col-i, col_cnt, &node_iter->MApplied, line5); CHECKERRQ(MAP_FATAL_70);
         success = write_node_buoyancy_information_to_summary_file(col-i, col_cnt, &node_iter->BApplied, line6); CHECKERRQ(MAP_FATAL_70);
-        success = write_node_x_sum_force_to_summary_file(col-i, col_cnt, &node_iter->sumForcePtr.fx, line7); CHECKERRQ(MAP_FATAL_70);
-        success = write_node_y_sum_force_to_summary_file(col-i, col_cnt, &node_iter->sumForcePtr.fy, line8); CHECKERRQ(MAP_FATAL_70);
-        success = write_node_z_sum_force_to_summary_file(col-i, col_cnt, &node_iter->sumForcePtr.fz, line9); CHECKERRQ(MAP_FATAL_70);
+        //success = write_node_x_sum_force_to_summary_file(col-i, col_cnt, &node_iter->sumForcePtr.fx, line7); CHECKERRQ(MAP_FATAL_70);
+        //success = write_node_y_sum_force_to_summary_file(col-i, col_cnt, &node_iter->sumForcePtr.fy, line8); CHECKERRQ(MAP_FATAL_70);
+        // success = write_node_z_sum_force_to_summary_file(col-i, col_cnt, &node_iter->sumForcePtr.fz, line9); CHECKERRQ(MAP_FATAL_70);
         col_cnt++;
       };
       col_cnt = 0;
@@ -748,7 +744,6 @@ MAP_ERROR_CODE write_element_information_to_summary_file(FILE* file, ModelData* 
     line7 = bformat("");
     line8 = bformat("");
     line9 = bformat("");
-    line10 = bformat("");
 
     if (element_iter->Lu.value>0.0) {
       bconchar(line0,' ');      
@@ -784,43 +779,33 @@ MAP_ERROR_CODE write_element_information_to_summary_file(FILE* file, ModelData* 
     switch (element_iter->convergeReason) {
     case 0 :
       line10 = bformat("Improver input parameter for inner loop solver.");
-      //map_strcat(line10, 256, "Improver input parameter for inner loop solver.");
       break;
     case 1 :
       line10 = bformat("SQRT( H^2 + V^2 ) <= INNER_FTOL.");
-      // map_strcat(line10, 256, "SQRT( H^2 + V^2 ) <= INNER_FTOL.");
       break;
     case 2 :
       line10 = bformat("||x_i - x_{i-1}||  <= INNER_XTOL.");
-      // map_strcat(line10, 256, "||x_i - x_{i-1}||  <= INNER_XTOL.");
       break;
     case 3 :
       line10 = bformat("Both SQRT( H^2 + V^2 )<=INNER_FTOL and ||x_i - x_{i-1}||  <= INNER_XTOL.");
-      // map_strcat(line10, 256, "Both SQRT( H^2 + V^2 )<=INNER_FTOL and ||x_i - x_{i-1}||  <= INNER_XTOL.");
       break;
     case 4 :
       line10 = bformat("The cosine of the angle between [H, V] and any column of the Jacobian is at most INNER_GTOL in absolute value.");
-      // map_strcat(line10, 256, "The cosine of the angle between [H, V] and any column of the Jacobian is at most INNER_GTOL in absolute value.");
       break;
     case 5 :
       line10 = bformat("INNER_MAX_ITS reached. Try increasing the maximum allowable iteration count.");
-      //map_strcat(line10, 256, "INNER_MAX_ITS reached. Try increasing the maximum allowable iteration count.");
       break;
     case 6 :
       line10 = bformat("INNER_FTOL si too small. SQRT( H^2 + V^2 ) cannot be reduced further.");
-      //map_strcat(line10, 256, "INNER_FTOL si too small. SQRT( H^2 + V^2 ) cannot be reduced further.");
       break;
     case 7 :
       line10 = bformat("INNER_XTOL is too small. No further refinements can be made in [H, V].");
-      //map_strcat(line10, 256, "INNER_XTOL is too small. No further refinements can be made in [H, V].");
       break;
     case 8 :
       line10 = bformat("INNER_GTOL is too small. The iterated variable vector [H, V] is orthogonal to the Jacobian columns.");
-      // map_strcat(line10, 256, "INNER_GTOL is too small. The iterated variable vector [H, V] is orthogonal to the Jacobian columns.");
       break;
     default :
       line10 = bformat("Uncaught error.");
-      // map_strcat(line10, 256, "Uncaught error.");
       break;
     };
 

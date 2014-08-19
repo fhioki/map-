@@ -197,16 +197,6 @@ void initialize_init_data_to_null(InitializationData* init_data)
   init_data->solverOptionsString = bstrListCreate();
   init_data->expandedNodeInputString = bstrListCreate();
   init_data->expandedElementInputString = bstrListCreate();
-  init_data->summaryFileName = bfromcstr ("");  
-
-  // init_data->sizeOfFullNodeString = 0;
-  // init_data->sizeOfFullElementString = 0;  
-  // init_data->sizeOfFullNodeString = 0; 
-  // init_data->sizeOfFullElementString = 0; 
-  // init_data->librarySize = 0;
-  // init_data->nodeSize = 0;
-  // init_data->elementSize = 0;
-  // init_data->solverOptionsSize = 0;
 };
 
 
