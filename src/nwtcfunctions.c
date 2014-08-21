@@ -120,7 +120,7 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
     printf("    Vessel reference position [m]      : %1.2f , %1.2f , %1.2f\n", model_data->vessel.refOrigin.x.value, model_data->vessel.refOrigin.y.value, model_data->vessel.refOrigin.z.value); 
    
     success = initialize_cable_library_variables(model_data, p_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_41);
-    success = set_line_variables_pre_solve(model_data, map_msg, ierr); // @rm, not needed. This is called in line_solve_sequence
+    success = set_line_variables_pre_solve(model_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_86);// @rm, not needed. This is called in line_solve_sequence
     success = reset_node_force_to_zero(model_data, map_msg, ierr); // @rm, not needed. This is called in line_solve_sequence
     success = set_element_initial_guess(model_data, map_msg, ierr);
     success = first_solve(model_data, u_type, z_type, other_type, y_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_39);
@@ -191,7 +191,7 @@ MAP_EXTERNCALL void map_end(MAP_InputType_t* u_type,
 
    map_reset_universal_error(map_msg, ierr);  
    do {
-//     success = free_outer_solve_data(&model_data->outer_loop, z_type->x_Len, map_msg, ierr); CHECKERRQ(MAP_FATAL_73);
+     success = free_outer_solve_data(&model_data->outer_loop, z_type->x_Len, map_msg, ierr); CHECKERRQ(MAP_FATAL_73);
      success = map_free_types(u_type, p_type, x_type, z_type, other_type, y_type); 
      list_destroy(&model_data->yList->out_list);    /* destroy output lists for writting information to output file */
      list_destroy(&model_data->yList->out_list_ptr); /* destroy output lists for writting information to output file */

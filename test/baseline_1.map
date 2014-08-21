@@ -10,16 +10,17 @@ Node  Type       X       Y       Z      M     B     FX    FY    FZ
 ---------------------- LINE P ROPERTIES ---------------------------------------
 Element  LineType  UnstrLen  NodeAnch  NodeFair  Flags
 (-)      (-)       (m)       (-)       (-)       (-)
-1        chainup   640        1         2        plot gx_pos gy_pos gz_a_pos H_ANCH damage_time 99 diagnostic 99 
+1        chainup   640        1         2        plot gx_pos gy_pos gz_a_pos H_ANCH 
 ---------------------- SOLVER OPTIONS-----------------------------------------
 Option 
 (-) 
-help
+ help
 inner_ftol 1e-6
 inner_gtol 1e-12
 inner_xtol 1e-6
 outer_tol 1e-4
 inner_max_its 400
+wave_kinematics 
 outer_max_its 400
 !ref_position 1 2 3
 repeat 90 120 240 55

@@ -247,35 +247,35 @@ MAP_ERROR_CODE map_free_types(MAP_InputType_t* u_type, MAP_ParameterType_t* p_ty
 };
 
 
-// MAP_ERROR_CODE free_outer_solve_data(OuterSolveAttributes* ns, const int size, char* map_msg, MAP_ERROR_CODE* ierr)
-// {
-//   const int SIZE = 3*size;
-//   int i = 0;
-// 
-//   if (ns->jac) { /* is it allocated? */
-//     for(i=0 ; i<SIZE ; i++) {
-//       MAPFREE(ns->jac[i]);
-//     };
-//   };
-//  
-//   if (ns->l) { /* is it allocated? */
-//     for(i=0 ; i<SIZE ; i++) {
-//      MAPFREE(ns->l[i]);
-//     };
-//   };
-// 
-//   if (ns->u) { /* is it allocated? */
-//     for(i=0 ; i<SIZE ; i++) {
-//       MAPFREE(ns->u[i]);
-//    };  
-//   };
-// 
-//   MAPFREE(ns->jac);
-//   MAPFREE(ns->l);
-//   MAPFREE(ns->u);
-//   MAPFREE(ns->b);
-//   MAPFREE(ns->x);  
-//   MAPFREE(ns->y);
-//   return MAP_SAFE;
-// };
+MAP_ERROR_CODE free_outer_solve_data(OuterSolveAttributes* ns, const int size, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  const int SIZE = 3*size;
+  int i = 0;
+
+  if (ns->jac) { /* is it allocated? */
+    for(i=0 ; i<SIZE ; i++) {
+      MAPFREE(ns->jac[i]);
+    };
+  };
+ 
+  if (ns->l) { /* is it allocated? */
+    for(i=0 ; i<SIZE ; i++) {
+     MAPFREE(ns->l[i]);
+    };
+  };
+
+  if (ns->u) { /* is it allocated? */
+    for(i=0 ; i<SIZE ; i++) {
+      MAPFREE(ns->u[i]);
+   };  
+  };
+
+  MAPFREE(ns->jac);
+  MAPFREE(ns->l);
+  MAPFREE(ns->u);
+  MAPFREE(ns->b);
+  MAPFREE(ns->x);  
+  MAPFREE(ns->y);
+  return MAP_SAFE;
+};
 

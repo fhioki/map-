@@ -99,7 +99,7 @@ MAP_ERROR_CODE first_solve(ModelData* model_data, MAP_InputType_t* u_type, MAP_C
 MAP_ERROR_CODE allocate_outer_solve_data(OuterSolveAttributes* ns, const int size, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   int ret = 0;
-  bstring user_msg = NULL;
+  // bstring user_msg = NULL;
   const int THREE = 3;  
   const int SIZE = THREE*size;
   int i = 0;
@@ -112,50 +112,32 @@ MAP_ERROR_CODE allocate_outer_solve_data(OuterSolveAttributes* ns, const int siz
   ns->y = (double*)malloc(SIZE*sizeof(double*));  
   
   if (ns->jac==NULL) {
-    user_msg = bformat("allocate_outer_solve_data(...).");
-    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_8);        
-    ret = bdestroy(user_msg); 
-    user_msg = NULL;
+    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_8);        
     return MAP_FATAL;
   };
 
   if (ns->x==NULL) {
-    user_msg = bformat("allocate_outer_solve_data(...).");
-    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_8);        
-    ret = bdestroy(user_msg); 
-    user_msg = NULL;
+    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_8);        
     return MAP_FATAL;
   };
 
   if (ns->b==NULL) {
-    user_msg = bformat("In allocate_outer_solve_data(...).");
-    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_8);        
-    ret = bdestroy(user_msg); 
-    user_msg = NULL;
+    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_8);        
     return MAP_FATAL;
   };
 
   if (ns->l==NULL) {
-    user_msg = bformat("In allocate_outer_solve_data(...).");
-    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_8);        
-    ret = bdestroy(user_msg); 
-    user_msg = NULL;
+    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_8);        
     return MAP_FATAL;
   };
 
   if (ns->u==NULL) {
-    user_msg = bformat("In allocate_outer_solve_data(...).");
-    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_8);        
-    ret = bdestroy(user_msg); 
-    user_msg = NULL;
+    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_8);        
     return MAP_FATAL;
   };
 
   if (ns->y==NULL) {
-    user_msg = bformat("In allocate_outer_solve_data(...).");
-    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_8);        
-    ret = bdestroy(user_msg); 
-    user_msg = NULL;
+    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_8);        
     return MAP_FATAL;
   };
 
@@ -1565,6 +1547,7 @@ MAP_ERROR_CODE set_node_list(const MAP_ParameterType_t* p_type,  MAP_InputType_t
               } else {
                 value_string = bformat("%f", -depth);                          
                 success = set_vartype_ptr("[m]", alias, i, &node_iter->positionPtr.z, value_string); CHECKERRQ(MAP_FATAL_19);
+                success = bdestroy(value_string);
               };
             } else { /* all other nodes not using the 'DEPTH' flag */
               success = set_vartype_ptr("[m]", alias, i, &node_iter->positionPtr.z, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_19);
@@ -2179,6 +2162,28 @@ MAP_ERROR_CODE reset_element(Element* element_ptr)
   element_ptr->TAtAnchor.name = NULL;
   element_ptr->TAtAnchor.units = NULL;
 
+
+
+
+  element_ptr->psi.value = -999.9;
+  element_ptr->alpha.value = -999.9;
+  element_ptr->alphaAtAnchor.value = -999.9;
+  element_ptr->l.value = -999.9;
+  element_ptr->lb.value = -999.9;
+  element_ptr->h.value = -999.9;
+  element_ptr->H.value = NULL;
+  element_ptr->V.value = NULL;
+  element_ptr->HAtAnchor.value = -999.9;
+  element_ptr->VAtAnchor.value = -999.9;
+  element_ptr->forceAtFairlead.fx.value = -999.9;
+  element_ptr->forceAtFairlead.fy.value = -999.9;
+  element_ptr->forceAtFairlead.fz.value = -999.9;
+  element_ptr->forceAtAnchor.fx.value = -999.9;
+  element_ptr->forceAtAnchor.fy.value = -999.9;
+  element_ptr->forceAtAnchor.fz.value = -999.9;
+  element_ptr->T.value = -999.9;
+
+  element_ptr->residualNorm = 999.9;
   element_ptr->damageTime = -999.9;
   element_ptr->diagnosticType = -9999;
   element_ptr->segmentSize = 10;
@@ -2337,6 +2342,12 @@ MAP_ERROR_CODE reset_node(Node* node_ptr)
   node_ptr->externalForce.fy.units = NULL;
   node_ptr->externalForce.fz.name = NULL;
   node_ptr->externalForce.fz.units = NULL;
+
+  node_ptr->MApplied.value = -999.9;
+  node_ptr->BApplied.value = -999.9; 
+  node_ptr->externalForce.fx.value = -999.9;
+  node_ptr->externalForce.fy.value = -999.9;
+  node_ptr->externalForce.fz.value = -999.9;
 };
 
 

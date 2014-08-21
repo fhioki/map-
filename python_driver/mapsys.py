@@ -194,14 +194,14 @@ class Map(object):
 #     lib.map_get_fairlead_force_2d.argtypes = [POINTER(c_double), POINTER(c_double), MapData_Type, c_int, c_char_p, POINTER(c_int)]
 # 
 #     
-#     # plot routines
-#     lib.map_plot_x_array.argtypes = [ MapData_Type, c_int, c_int, c_char_p, POINTER(c_int) ]
-#     lib.map_plot_x_array.restype  = POINTER(c_double)
-#     lib.map_plot_y_array.argtypes = [ MapData_Type, c_int, c_int, c_char_p, POINTER(c_int) ]
-#     lib.map_plot_y_array.restype  = POINTER(c_double)
-#     lib.map_plot_z_array.argtypes = [ MapData_Type, c_int, c_int, c_char_p, POINTER(c_int) ]
-#     lib.map_plot_z_array.restype  = POINTER(c_double)
-#     lib.map_plot_array_free.argtypes = [ POINTER(c_double) ]
+    # plot routines
+    lib.map_plot_x_array.argtypes = [ MapData_Type, c_int, c_int, c_char_p, POINTER(c_int) ]
+    lib.map_plot_x_array.restype  = POINTER(c_double)
+    lib.map_plot_y_array.argtypes = [ MapData_Type, c_int, c_int, c_char_p, POINTER(c_int) ]
+    lib.map_plot_y_array.restype  = POINTER(c_double)
+    lib.map_plot_z_array.argtypes = [ MapData_Type, c_int, c_int, c_char_p, POINTER(c_int) ]
+    lib.map_plot_z_array.restype  = POINTER(c_double)
+    lib.map_plot_array_free.argtypes = [ POINTER(c_double) ]
 # 
 #     
 # 
@@ -384,7 +384,45 @@ class Map(object):
     def map_set_sea_density( self, rho ):
         Map.lib.map_set_sea_density( self.f_type_p, rho )
 
+    def plot_x( self, elementNum, length ) :
+        arr = [None]*length
+        array = POINTER(c_double)
+        array = Map.lib.map_plot_x_array( self.f_type_d, elementNum, length, self.status, pointer(self.ierr) )        
+        if self.ierr.value != 0 :
+            print self.status.value        
+            self.MAP_End( )
+            Map.lib.map_plot_array_free( array )        
+            sys.exit('MAP terminated premature.')
+        arr = [array[j] for j in range(length)]        
+        Map.lib.map_plot_array_free( array )        
+        return arr 
 
+    def plot_y( self, elementNum, length ) :
+        arr = [None]*length
+        array = POINTER(c_double)
+        array = Map.lib.map_plot_y_array( self.f_type_d, elementNum, length, self.status, pointer(self.ierr) )        
+        if self.ierr.value != 0 :
+            print self.status.value        
+            self.MAP_End( )
+            Map.lib.map_plot_array_free( array )        
+            sys.exit('MAP terminated premature.')
+        arr = [array[j] for j in range(length)]        
+        Map.lib.map_plot_array_free( array )        
+        return arr 
+
+
+    def plot_z( self, elementNum, length ) :
+        arr = [None]*length
+        array = POINTER(c_double)
+        array = Map.lib.map_plot_z_array( self.f_type_d, elementNum, length, self.status, pointer(self.ierr) )        
+        if self.ierr.value != 0 :
+            print self.status.value        
+            self.MAP_End( )
+            Map.lib.map_plot_array_free( array )        
+            sys.exit('MAP terminated premature.')
+        arr = [array[j] for j in range(length)]        
+        Map.lib.map_plot_array_free( array )        
+        return arr 
 
 
 
@@ -493,19 +531,7 @@ class Map(object):
 #         return self.val
 # 
 # 
-#     def plot_x( self, elementNum, length ) :
-#         arr = [None]*length
-#         array = POINTER(c_double)
-#         array = Map.lib.map_plot_x_array( self.f_type_d, elementNum, length, self.status, pointer(self.ierr) )        
-#         if self.ierr.value != 0 :
-#             print self.status.value        
-#             self.MAP_End( )
-#             Map.lib.map_plot_array_free( array )        
-#             sys.exit('MAP terminated premature.')
-#         arr = [array[j] for j in range(length)]        
-#         Map.lib.map_plot_array_free( array )        
-#         return arr 
-# 
+
 # 
 #     def linear( self, epsilon ) :
 #         array = POINTER(POINTER(c_double))
@@ -524,36 +550,7 @@ class Map(object):
 #         if self.ierr.value != 0 :
 #             print self.status.value        
 #             self.MAP_End( )
-#             sys.exit('MAP terminated premature.')
-# 
-#     
-#     def plot_y( self, elementNum, length ) :
-#         arr = [None]*length
-#         array = POINTER(c_double)
-#         array = Map.lib.map_plot_y_array( self.f_type_d, elementNum, length, self.status, pointer(self.ierr) )        
-#         if self.ierr.value != 0 :
-#             print self.status.value        
-#             self.MAP_End( )
-#             Map.lib.map_plot_array_free( array )        
-#             sys.exit('MAP terminated premature.')
-#         arr = [array[j] for j in range(length)]        
-#         Map.lib.map_plot_array_free( array )        
-#         return arr 
-# 
-# 
-#     def plot_z( self, elementNum, length ) :
-#         arr = [None]*length
-#         array = POINTER(c_double)
-#         array = Map.lib.map_plot_z_array( self.f_type_d, elementNum, length, self.status, pointer(self.ierr) )        
-#         if self.ierr.value != 0 :
-#             print self.status.value        
-#             self.MAP_End( )
-#             Map.lib.map_plot_array_free( array )        
-#             sys.exit('MAP terminated premature.')
-#         arr = [array[j] for j in range(length)]        
-#         Map.lib.map_plot_array_free( array )        
-#         return arr 
-    
+#             sys.exit('MAP terminated premature.')    
 
     def read_file( self, fileName ):
         f           = open(fileName, 'r')

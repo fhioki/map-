@@ -112,6 +112,7 @@ const char MAP_ERROR_STRING[][256] = {
   /* MAP_FATAL_83   */  "Failed to convert Cdn cross-flow drag coefficient parameter in the cable library to a MapReal. Check the MAP input file",
   /* MAP_FATAL_84   */  "Failed to convert Cdt tangent-flow drag coefficient parameter in the cable library to a MapReal. Check the MAP input file",
   /* MAP_FATAL_85   */  "Error processing 'HELP' flag in the MAP input file",
+  /* MAP_FATAL_86   */  "Element out of range. This error was triggered in the initialization. This is likely due to incorrect settings in the MAP input file",
   /* MAP_ERROR_1    */  "Element option 'DAMGE_TIME' does not trail with a valid value. Ignoring this run-time flag. Chek the MAP input file",
   /* MAP_ERROR_2    */  "Value for 'INNER_FTOL' is not a valid numeric value. Using the default value <1e-6>",
   /* MAP_ERROR_3    */  "Value for 'OUTER_TOL' is not a valid numeric value. Using the default value <1e-6>",

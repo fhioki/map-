@@ -121,10 +121,18 @@ MAP_ERROR_CODE set_line_variables_pre_solve(ModelData* model_data, char* map_msg
   list_iterator_start(&model_data->element);            /* starting an iteration "session" */
   while (list_iterator_hasnext(&model_data->element)) { /* tell whether more values available */ 
     element_iter = (Element*)list_iterator_next(&model_data->element);    
-    
-    /* horizontal cable excursion*/
-    element_iter->l.value = set_horizontal_excursion(element_iter);
+        
+    /* no fairlead or anchor was not set. End program gracefully. 
+     * there is likely an error in the input file 
+     */
+    if (!element_iter->fairlead || !element_iter->anchor) {
+      *ierr = MAP_FATAL;      
+      break;
+    };
 
+    /* horizontal cable excursion */
+    element_iter->l.value = set_horizontal_excursion(element_iter);
+    
     /* vertical cable excursion */
     element_iter->h.value = set_vertical_excursion(element_iter);
 
@@ -139,7 +147,7 @@ MAP_ERROR_CODE set_line_variables_pre_solve(ModelData* model_data, char* map_msg
     i++;
   };
   list_iterator_stop(&model_data->element); /* ending the iteration "session" */    
-  return MAP_SAFE;
+  MAP_RETURN;//return MAP_SAFE;
 };
 
 
@@ -227,7 +235,7 @@ MapReal set_horizontal_excursion(Element* element)
   const MapReal fairleadX = *(element->fairlead->positionPtr.x.value);
   const MapReal fairleadY = *(element->fairlead->positionPtr.y.value);
   const MapReal anchorX = *(element->anchor->positionPtr.x.value);
-  const MapReal anchorY = *(element->anchor->positionPtr.y.value);
+  const MapReal anchorY = *(element->anchor->positionPtr.y.value);  
   return sqrt(pow((fairleadX-anchorX),2) + pow((fairleadY-anchorY),2));
 };
 
