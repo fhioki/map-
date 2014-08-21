@@ -35,7 +35,7 @@ MAP_EXTERNCALL MapReal map_jacobian_dxdh(MAP_OtherStateType_t* otherFortType, in
 MAP_EXTERNCALL MapReal map_jacobian_dxdv(MAP_OtherStateType_t* otherFortType, int i, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_EXTERNCALL MapReal map_jacobian_dzdh(MAP_OtherStateType_t* otherFortType, int i, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_EXTERNCALL MapReal map_jacobian_dzdv(MAP_OtherStateType_t* otherFortType, int i, char* map_msg, MAP_ERROR_CODE* ierr);
-
+MAP_EXTERNCALL int map_size_elements(MAP_OtherStateType_t* other_type, MAP_ERROR_CODE* ierr, char* map_msg);
 
 /**
  * @brief   Returns vertical and horizontal fairlead force along element plane

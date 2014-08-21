@@ -143,17 +143,17 @@ MAP_EXTERNCALL void map_update_states(double t,
                                       MAP_OtherStateType_t* other_type,
                                       MAP_ERROR_CODE* ierr,
                                       char* map_msg ) {
-//   ModelData* model_data = other_type->object;
-//   MAP_ERROR_CODE success = MAP_SAFE;
-//   
-//   map_reset_universal_error(map_msg, ierr);
-//   do {
-//     if (model_data->MAP_SOLVE_TYPE==MONOLITHIC) {
-//       success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
-//     } else {
-//       success = node_solve_sequence(model_data, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
-//     };    
-//   } while (0);
+   ModelData* model_data = other_type->object;
+   MAP_ERROR_CODE success = MAP_SAFE;
+   
+   map_reset_universal_error(map_msg, ierr);
+   do {
+     if (model_data->MAP_SOLVE_TYPE==MONOLITHIC) {
+       success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+     } else {
+       success = node_solve_sequence(model_data, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+     };    
+   } while (0);
 };    
 
 
@@ -167,10 +167,10 @@ MAP_EXTERNCALL void map_calc_output(double t,
                                     MAP_OutputType_t* y_type,
                                     MAP_ERROR_CODE* ierr,
                                     char* map_msg ) {
-//   ModelData* model_data = other_type->object;
-//   MAP_ERROR_CODE success = MAP_SAFE;
-//   map_reset_universal_error(map_msg, ierr);
-//   success = get_iteration_output_stream(y_type, other_type, map_msg, ierr); // @todo: CHECKERRQ();
+   ModelData* model_data = other_type->object;
+   MAP_ERROR_CODE success = MAP_SAFE;
+   map_reset_universal_error(map_msg, ierr);
+   success = get_iteration_output_stream(y_type, other_type, map_msg, ierr); // @todo: CHECKERRQ();
 };
 
 

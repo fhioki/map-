@@ -703,3 +703,10 @@ MAP_EXTERNCALL void map_plot_array_free(MapReal* array)
 //     /* @todo: throw error: element out of range */
 //   };
 // }
+
+
+MAP_EXTERNCALL int map_size_elements(MAP_OtherStateType_t* other_type, MAP_ERROR_CODE* ierr, char* map_msg)
+{
+  ModelData* model_data = other_type->object;
+  return list_size(&model_data->element);
+}

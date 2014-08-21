@@ -171,10 +171,13 @@ class Map(object):
     lib.map_create_output_type.restype     = MapOutput_Type
     lib.map_create_continuous_type.restype = MapContinuous_Type
 
+
     lib.map_set_sea_depth.argtypes   = [ MapParameter_Type, c_double ]
     lib.map_set_gravity.argtypes     = [ MapParameter_Type, c_double ]
     lib.map_set_sea_density.argtypes = [ MapParameter_Type, c_double ]
     
+    lib.map_size_elements.restype = c_int
+
 #     # numeric routines
 #     lib.map_residual_function_length.restype = c_double
 #     lib.map_residual_function_height.restype = c_double
@@ -202,11 +205,11 @@ class Map(object):
     lib.map_plot_z_array.argtypes = [ MapData_Type, c_int, c_int, c_char_p, POINTER(c_int) ]
     lib.map_plot_z_array.restype  = POINTER(c_double)
     lib.map_plot_array_free.argtypes = [ POINTER(c_double) ]
-# 
-#     
-# 
-#     # modifyers
-#     lib.map_offset_vessel.argtypes = [MapData_Type, MapInput_Type, c_double, c_double, c_double, c_double, c_double, c_double, c_char_p, POINTER(c_int)]        
+ 
+     
+ 
+    # modifyers
+    lib.map_offset_vessel.argtypes = [MapData_Type, MapInput_Type, c_double, c_double, c_double, c_double, c_double, c_double, c_char_p, POINTER(c_int)]        
 #     lib.map_linearize_matrix.argtypes = [MapInput_Type, MapData_Type, MapOutput_Type, MapConstraint_Type, c_double, c_char_p, POINTER(c_int)]        
 #     lib.map_linearize_matrix.restype  = POINTER(POINTER(c_double))
 #     lib.map_free_linearize_matrix.argtypes = [POINTER(POINTER(c_double))]
@@ -245,6 +248,10 @@ class Map(object):
                              POINTER(c_int),
                              c_char_p]
 
+    lib.map_size_elements.argtypes = [ MapData_Type,
+                                       POINTER(c_int),
+                                       c_char_p]
+
 
     def __init__( self ) :
         self.f_type_d       = self.CreateDataState()
@@ -263,6 +270,13 @@ class Map(object):
         Map.lib.map_init( self.f_type_init, self.f_type_u, self.f_type_p, self.f_type_x, None, self.f_type_z, self.f_type_d, self.f_type_y, self.f_type_initout, pointer(self.ierr), self.status )
         if self.ierr.value != 0 :
             print self.status.value        
+
+
+    def size_elements(self):
+        size = Map.lib.map_size_elements(self.f_type_d, pointer(self.ierr), self.status )
+        if self.ierr.value != 0 :
+            print self.status.value        
+        return size
 
 
 #     def update_states(self, t, interval):
@@ -390,7 +404,7 @@ class Map(object):
         array = Map.lib.map_plot_x_array( self.f_type_d, elementNum, length, self.status, pointer(self.ierr) )        
         if self.ierr.value != 0 :
             print self.status.value        
-            self.MAP_End( )
+            self.end( )
             Map.lib.map_plot_array_free( array )        
             sys.exit('MAP terminated premature.')
         arr = [array[j] for j in range(length)]        
@@ -403,7 +417,7 @@ class Map(object):
         array = Map.lib.map_plot_y_array( self.f_type_d, elementNum, length, self.status, pointer(self.ierr) )        
         if self.ierr.value != 0 :
             print self.status.value        
-            self.MAP_End( )
+            self.end( )
             Map.lib.map_plot_array_free( array )        
             sys.exit('MAP terminated premature.')
         arr = [array[j] for j in range(length)]        
@@ -417,7 +431,7 @@ class Map(object):
         array = Map.lib.map_plot_z_array( self.f_type_d, elementNum, length, self.status, pointer(self.ierr) )        
         if self.ierr.value != 0 :
             print self.status.value        
-            self.MAP_End( )
+            self.end( )
             Map.lib.map_plot_array_free( array )        
             sys.exit('MAP terminated premature.')
         arr = [array[j] for j in range(length)]        
@@ -485,7 +499,7 @@ class Map(object):
 #         self.val = Map.lib.map_residual_function_length( self.f_type_d, i, self.status, pointer(self.ierr) )
 #         if self.ierr.value != 0 :
 #             print self.status.value        
-#             self.MAP_End( )
+#             self.end( )
 #             sys.exit('MAP terminated premature.')
 #         return self.val
 # 
@@ -493,7 +507,7 @@ class Map(object):
 #         self.val = Map.lib.map_residual_function_height( self.f_type_d, i, self.status, pointer(self.ierr) )
 #         if self.ierr.value != 0 :
 #             print self.status.value        
-#             self.MAP_End( )
+#             self.end( )
 #             sys.exit('MAP terminated premature.')
 #         return self.val
 # 
@@ -501,7 +515,7 @@ class Map(object):
 #         self.val = Map.lib.map_jacobian_dxdh( self.f_type_d, i, self.status, pointer(self.ierr) )
 #         if self.ierr.value != 0 :
 #             print self.status.value        
-#             self.MAP_End( )
+#             self.end( )
 #             sys.exit('MAP terminated premature.')
 #         return self.val
 # 
@@ -510,7 +524,7 @@ class Map(object):
 #         self.val = Map.lib.map_jacobian_dxdv( self.f_type_d, i, self.status, pointer(self.ierr) )
 #         if self.ierr.value != 0 :
 #             print self.status.value        
-#             self.MAP_End( )
+#             self.end( )
 #             sys.exit('MAP terminated premature.')
 #         return self.val
 # 
@@ -518,7 +532,7 @@ class Map(object):
 #         self.val = Map.lib.map_jacobian_dzdh( self.f_type_d, i, self.status, pointer(self.ierr) )
 #         if self.ierr.value != 0 :
 #             print self.status.value        
-#             self.MAP_End( )
+#             self.end( )
 #             sys.exit('MAP terminated premature.')
 #         return self.val
 # 
@@ -526,7 +540,7 @@ class Map(object):
 #         self.val = Map.lib.map_jacobian_dzdv( self.f_type_d, i, self.status, pointer(self.ierr) )
 #         if self.ierr.value != 0 :
 #             print self.status.value        
-#             self.MAP_End( )
+#             self.end( )
 #             sys.exit('MAP terminated premature.')
 #         return self.val
 # 
@@ -538,19 +552,19 @@ class Map(object):
 #         array = Map.lib.map_linearize_matrix( self.f_type_u, self.f_type_d, self.f_type_y, self.f_type_z, epsilon, self.status, pointer(self.ierr) )        
 #         if self.ierr.value != 0 :
 #            print self.status.value        
-#            self.MAP_End( )
+#            self.end( )
 #            sys.exit('MAP terminated premature.')
 #         arr = [[array[j][i] for i in range(6)] for j in range(6)]
 #         Map.lib.map_free_linearize_matrix(array)        
 #         return arr
-#     
-# 
-#     def displace_vessel(self,x,y,z,phi,the,psi) :
-#         Map.lib.map_offset_vessel(self.f_type_d, self.f_type_u, x,y,z,phi,the,psi, self.status, pointer(self.ierr) )
-#         if self.ierr.value != 0 :
-#             print self.status.value        
-#             self.MAP_End( )
-#             sys.exit('MAP terminated premature.')    
+    
+
+    def displace_vessel(self,x,y,z,phi,the,psi) :
+        Map.lib.map_offset_vessel(self.f_type_d, self.f_type_u, x,y,z,phi,the,psi, self.status, pointer(self.ierr) )
+        if self.ierr.value != 0 :
+            print self.status.value        
+            self.end( )
+            sys.exit('MAP terminated premature.')    
 
     def read_file( self, fileName ):
         f           = open(fileName, 'r')
