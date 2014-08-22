@@ -210,9 +210,9 @@ class Map(object):
  
     # modifyers
     lib.map_offset_vessel.argtypes = [MapData_Type, MapInput_Type, c_double, c_double, c_double, c_double, c_double, c_double, c_char_p, POINTER(c_int)]        
-#     lib.map_linearize_matrix.argtypes = [MapInput_Type, MapData_Type, MapOutput_Type, MapConstraint_Type, c_double, c_char_p, POINTER(c_int)]        
-#     lib.map_linearize_matrix.restype  = POINTER(POINTER(c_double))
-#     lib.map_free_linearize_matrix.argtypes = [POINTER(POINTER(c_double))]
+    lib.map_linearize_matrix.argtypes = [MapInput_Type, MapData_Type, MapOutput_Type, MapConstraint_Type, c_double, POINTER(c_int), c_char_p]        
+    lib.map_linearize_matrix.restype  = POINTER(POINTER(c_double))
+    lib.map_free_linearize_matrix.argtypes = [POINTER(POINTER(c_double))]
 
     lib.map_init.argtypes = [ MapInit_Type,
                               MapInput_Type,
@@ -279,10 +279,10 @@ class Map(object):
         return size
 
 
-#     def update_states(self, t, interval):
-#         Map.lib.map_update_states(t, interval, self.f_type_u, self.f_type_p, self.f_type_x, None, self.f_type_z, self.f_type_d, pointer(self.ierr), self.status )
-#         if self.ierr.value != 0 :
-#             print self.status.value        
+    def update_states(self, t, interval):
+        Map.lib.map_update_states(t, interval, self.f_type_u, self.f_type_p, self.f_type_x, None, self.f_type_z, self.f_type_d, pointer(self.ierr), self.status )
+        if self.ierr.value != 0 :
+            print self.status.value        
 
 
     """
@@ -546,17 +546,17 @@ class Map(object):
 # 
 # 
 
-# 
-#     def linear( self, epsilon ) :
-#         array = POINTER(POINTER(c_double))
-#         array = Map.lib.map_linearize_matrix( self.f_type_u, self.f_type_d, self.f_type_y, self.f_type_z, epsilon, self.status, pointer(self.ierr) )        
-#         if self.ierr.value != 0 :
-#            print self.status.value        
-#            self.end( )
-#            sys.exit('MAP terminated premature.')
-#         arr = [[array[j][i] for i in range(6)] for j in range(6)]
-#         Map.lib.map_free_linearize_matrix(array)        
-#         return arr
+
+    def linear( self, epsilon ) :
+        array = POINTER(POINTER(c_double))
+        array = Map.lib.map_linearize_matrix( self.f_type_u, self.f_type_d, self.f_type_y, self.f_type_z, epsilon, pointer(self.ierr), self.status)        
+        if self.ierr.value != 0 :
+           print self.status.value        
+           self.end( )
+           sys.exit('MAP terminated premature.')
+        arr = [[array[j][i] for i in range(6)] for j in range(6)]
+        Map.lib.map_free_linearize_matrix(array)        
+        return arr
     
 
     def displace_vessel(self,x,y,z,phi,the,psi) :

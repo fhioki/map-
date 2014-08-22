@@ -25,6 +25,7 @@
 #include "maperror.h"
 #include "MAP_Types.h"
 #include "mapapi.h"
+#include "lineroutines.h"
 
 
 extern const char MAP_ERROR_STRING[][1024];
@@ -79,116 +80,117 @@ MAP_EXTERNCALL void map_offset_vessel(MAP_OtherStateType_t* other_type, MAP_Inpu
 
 
 
-// MAP_EXTERNCALL double** py_linearize_matrix(MAP_InputType_t* uType, MAP_OtherStateType_t* otherType, MAP_OutputType_t* yType, MAP_ConstraintStateType_t* zType, double epsilon, char* map_msg, MAP_ERROR_CODE* ierr)
-// {
-//   MapReal* xOriginal = NULL;
-//   MapReal* yOriginal = NULL;
-//   MapReal* zOriginal = NULL;
-//   ModelData* data = otherType->object;
-//   MAP_ERROR_CODE success = MAP_SAFE;
-//   const int N = uType->x_Len;
-//   const int SIX = 6;
-//   int i = 0;
-//   int j = 0;
-//   int k = 0;
-//   Fd force;
-//   double** K;
-// 
-//   map_reset_universal_error(map_msg, ierr);
-//   K = (double**)malloc(SIX*sizeof(double*));
-//   for (i=0 ; i<SIX ; i++) {
-//     K[i] = (double*)malloc(SIX*sizeof(double));
-// 
-//     /* initialize K(6x6) allocated above to zero, row-by-row */
-//     K[i][0] = 0.0;
-//     K[i][1] = 0.0;
-//     K[i][2] = 0.0;
-//     K[i][3] = 0.0;
-//     K[i][4] = 0.0;
-//     K[i][5] = 0.0;
-//   };
-//   
-//   force.fx = (double*)malloc(N*sizeof(double));
-//   force.fy = (double*)malloc(N*sizeof(double));
-//   force.fz = (double*)malloc(N*sizeof(double));
-//   force.mx = (double*)malloc(N*sizeof(double));
-//   force.my = (double*)malloc(N*sizeof(double));
-//   force.mz = (double*)malloc(N*sizeof(double));  
-//   xOriginal = (double*)malloc(N*sizeof(double));
-//   yOriginal = (double*)malloc(N*sizeof(double));
-//   zOriginal = (double*)malloc(N*sizeof(double));
-//   
-//   /* initialize stuff allocated above to zero */
-//   for (i=0 ; i<N ; i++) {
-//     force.fx[i] = 0.0;
-//     force.fy[i] = 0.0;
-//     force.fz[i] = 0.0;
-//     force.mx[i] = 0.0;
-//     force.my[i] = 0.0;
-//     force.mz[i] = 0.0;
-//     xOriginal[i] = 0.0;
-//     yOriginal[i] = 0.0;
-//     zOriginal[i] = 0.0;
-//   };
-//    
-//   do {    
-//     /* first get the original values for the displacements */
-//     for (k=0 ; k<N ; k++) {
-//       xOriginal[k] = uType->x[k];
-//       yOriginal[k] = uType->y[k];
-//       zOriginal[k] = uType->z[k];      
-//     };
-//    
-//     for (i=0 ; i<SIX ; i++) { /* down, force direction changes */
-//       success = reset_force_to_zero(force.fx, force.fy, force.fz, force.mx, force.my, force.mz, N);
-//       if (i==0) {        
-//         success = fd_x_sequence(otherType, uType, yType, zType, &force, epsilon, N, xOriginal, map_msg, ierr); CHECKERRQ(MAP_FATAL_62);
-//         success = calculate_stiffness_2(K[0], &force, epsilon, N); CHECKERRQ(MAP_FATAL_62);
+MAP_EXTERNCALL double** map_linearize_matrix(MAP_InputType_t* u_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type, MAP_ConstraintStateType_t* z_type, double epsilon, MAP_ERROR_CODE* ierr, char* map_msg)
+{
+  checkpoint();
+  MapReal* x_original = NULL;
+  MapReal* y_original = NULL;
+  MapReal* z_original = NULL;
+  ModelData* data = other_type->object;
+  MAP_ERROR_CODE success = MAP_SAFE;
+  const int n = u_type->x_Len;
+  const int SIX = 6;
+  int i = 0;
+  int j = 0;
+  int k = 0;
+  Fd force;
+  double** K;
+ 
+  map_reset_universal_error(map_msg, ierr);
+  K = (double**)malloc(SIX*sizeof(double*));
+  for (i=0 ; i<SIX ; i++) {
+    K[i] = (double*)malloc(SIX*sizeof(double));
+    
+    /* initialize K(6x6) allocated above to zero, row-by-row */
+    K[i][0] = 0.0;
+    K[i][1] = 0.0;
+    K[i][2] = 0.0;
+    K[i][3] = 0.0;
+    K[i][4] = 0.0;
+    K[i][5] = 0.0;
+  };
+
+   force.fx = (double*)malloc(n*sizeof(double));
+   force.fy = (double*)malloc(n*sizeof(double));
+   force.fz = (double*)malloc(n*sizeof(double));
+   force.mx = (double*)malloc(n*sizeof(double));
+   force.my = (double*)malloc(n*sizeof(double));
+   force.mz = (double*)malloc(n*sizeof(double));  
+   x_original = (double*)malloc(n*sizeof(double));
+   y_original = (double*)malloc(n*sizeof(double));
+   z_original = (double*)malloc(n*sizeof(double));
+   
+   /* initialize stuff allocated above to zero */
+   for (i=0 ; i<n ; i++) {
+    force.fx[i] = 0.0;
+    force.fy[i] = 0.0;
+    force.fz[i] = 0.0;
+    force.mx[i] = 0.0;
+    force.my[i] = 0.0;
+    force.mz[i] = 0.0;
+    x_original[i] = 0.0;
+    y_original[i] = 0.0;
+    z_original[i] = 0.0;
+   };
+    
+   do {    
+     /* first get the original values for the displacements */
+     for (k=0 ; k<n ; k++) {
+       x_original[k] = u_type->x[k];
+       y_original[k] = u_type->y[k];
+       z_original[k] = u_type->z[k];      
+     };
+    
+     for (i=0 ; i<SIX ; i++) { /* down, force direction changes */
+       success = reset_force_to_zero(force.fx, force.fy, force.fz, force.mx, force.my, force.mz, n);
+       if (i==0) {        
+         success = fd_x_sequence(other_type, u_type, y_type, z_type, &force, epsilon, n, x_original, map_msg, ierr); CHECKERRQ(MAP_FATAL_62);
+         success = calculate_stiffness_2(K[0], &force, epsilon, n); CHECKERRQ(MAP_FATAL_62);
 //         // printf("This is the stiffness: %12.2f, %12.2f, %12.2f, %12.2f, %12.2f, %12.2f\n", K[0][0], K[0][1], K[0][2], K[0][3], K[0][4], K[0][5]);
-//       } else if (i==1) {
-//         success = fd_y_sequence(otherType, uType, yType, zType, &force, epsilon, N, yOriginal, map_msg, ierr); CHECKERRQ(MAP_FATAL_63);
-//         success = calculate_stiffness_2(K[1], &force, epsilon, N); CHECKERRQ(MAP_FATAL_63);
+       } else if (i==1) {
+         success = fd_y_sequence(other_type, u_type, y_type, z_type, &force, epsilon, n, y_original, map_msg, ierr); CHECKERRQ(MAP_FATAL_63);
+         success = calculate_stiffness_2(K[1], &force, epsilon, n); CHECKERRQ(MAP_FATAL_63);
 //         // printf("This is the stiffness: %12.2f, %12.2f, %12.2f, %12.2f, %12.2f, %12.2f\n", K[1][0], K[1][1], K[1][2], K[1][3], K[1][4], K[1][5]);
-//       } else if (i==2) {
-//         success = fd_z_sequence(otherType, uType, yType, zType, &force, epsilon, N, zOriginal, map_msg, ierr); CHECKERRQ(MAP_FATAL_64);
-//         success = calculate_stiffness_2(K[2], &force, epsilon, N); CHECKERRQ(MAP_FATAL_64);
+       } else if (i==2) {
+         success = fd_z_sequence(other_type, u_type, y_type, z_type, &force, epsilon, n, z_original, map_msg, ierr); CHECKERRQ(MAP_FATAL_64);
+         success = calculate_stiffness_2(K[2], &force, epsilon, n); CHECKERRQ(MAP_FATAL_64);
 //         // printf("This is the stiffness: %12.2f, %12.2f, %12.2f, %12.2f, %12.2f, %12.2f\n", K[2][0], K[2][1], K[2][2], K[2][3], K[2][4], K[2][5]);
-//       } else if (i==3) {
-//         success = fd_phi_sequence(otherType, uType, yType, zType, &force, epsilon, N, xOriginal, yOriginal, zOriginal, map_msg, ierr); //CHECKERRQ(MAP_FATAL_65);
-//         success = calculate_stiffness_2(K[3], &force, epsilon, N); CHECKERRQ(MAP_FATAL_65);
+       } else if (i==3) {
+         success = fd_phi_sequence(other_type, u_type, y_type, z_type, &force, epsilon, n, x_original, y_original, z_original, map_msg, ierr); //CHECKERRQ(MAP_FATAL_65);
+         success = calculate_stiffness_2(K[3], &force, epsilon, n); CHECKERRQ(MAP_FATAL_65);
 //         // printf("This is the stiffness: %12.2f, %12.2f, %12.2f, %12.2f, %12.2f, %12.2f\n", K[3][0], K[3][1], K[3][2], K[3][3], K[3][4], K[3][5]);
-//       } else if (i==4) {
-//         success = fd_the_sequence(otherType, uType, yType, zType, &force, epsilon, N, xOriginal, yOriginal, zOriginal, map_msg, ierr); //CHECKERRQ(MAP_FATAL_66);
-//         success = calculate_stiffness_2(K[4], &force, epsilon, N); CHECKERRQ(MAP_FATAL_66);
+       } else if (i==4) {
+         success = fd_the_sequence(other_type, u_type, y_type, z_type, &force, epsilon, n, x_original, y_original, z_original, map_msg, ierr); //CHECKERRQ(MAP_FATAL_66);
+         success = calculate_stiffness_2(K[4], &force, epsilon, n); CHECKERRQ(MAP_FATAL_66);
 //         // printf("This is the stiffness: %12.2f, %12.2f, %12.2f, %12.2f, %12.2f, %12.2f\n", K[4][0], K[4][1], K[4][2], K[4][3], K[4][4], K[4][5]);
-//       } else if (i==5) {
-//         success = fd_psi_sequence(otherType, uType, yType, zType, &force, epsilon, N, xOriginal, yOriginal, zOriginal, map_msg, ierr); //CHECKERRQ(MAP_FATAL_67);
-//         success = calculate_stiffness_2(K[5], &force, epsilon, N); CHECKERRQ(MAP_FATAL_67);
+       } else if (i==5) {
+         success = fd_psi_sequence(other_type, u_type, y_type, z_type, &force, epsilon, n, x_original, y_original, z_original, map_msg, ierr); //CHECKERRQ(MAP_FATAL_67);
+         success = calculate_stiffness_2(K[5], &force, epsilon, n); CHECKERRQ(MAP_FATAL_67);
 //         // printf("This is the stiffness: %12.2f, %12.2f, %12.2f, %12.2f, %12.2f, %12.2f\n", K[5][0], K[5][1], K[5][2], K[5][3], K[5][4], K[5][5]);
-//       };
-//     };
-//   } while (0);  
-// 
-//   success = reset_force_to_zero(force.fx, force.fy, force.fz, force.mx, force.my, force.mz, N);
-//   success = restore_original_displacement(uType->x, xOriginal, N);
-//   success = restore_original_displacement(uType->y, yOriginal, N);
-//   success = restore_original_displacement(uType->z, zOriginal, N);
-//   success = line_solve_sequence(data, 0.0, map_msg, ierr); 
-//   
-//   MAPFREE(force.fx);
-//   MAPFREE(force.fy);
-//   MAPFREE(force.fz);
-//   MAPFREE(force.mx);
-//   MAPFREE(force.my);
-//   MAPFREE(force.mz);
-//   MAPFREE(xOriginal);
-//   MAPFREE(yOriginal);
-//   MAPFREE(zOriginal);  
-//   return K;
-// };
+       };
+     };
+   } while (0);  
+ 
+   success = reset_force_to_zero(force.fx, force.fy, force.fz, force.mx, force.my, force.mz, n);
+   success = restore_original_displacement(u_type->x, x_original, n);
+   success = restore_original_displacement(u_type->y, y_original, n);
+   success = restore_original_displacement(u_type->z, z_original, n);
+   success = line_solve_sequence(data, 0.0, map_msg, ierr); 
+   
+  MAPFREE(force.fx);
+  MAPFREE(force.fy);
+  MAPFREE(force.fz);
+  MAPFREE(force.mx);
+  MAPFREE(force.my);
+  MAPFREE(force.mz);
+  MAPFREE(x_original);
+  MAPFREE(y_original);
+  MAPFREE(z_original);  
+  return K;
+};
 
 
-MAP_EXTERNCALL void py_free_linearize_matrix(double** array)
+MAP_EXTERNCALL void map_free_linearize_matrix(double** array)
 {
   int i = 0;
   for(i=0 ; i<6 ; i++) {

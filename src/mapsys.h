@@ -97,8 +97,8 @@
 
 #define PROGNAME "MAP++ (Mooring Analysis Program++)"
 #define PROGVERSION "1.00.01a"
-#define CHECKERRQ(code) if(success!=MAP_SAFE) {*ierr=map_set_universal_error(user_msg, map_msg, *ierr, code); break;} 
-#define CHECKERRK(code) if(success!=MAP_SAFE) {*ierr=map_set_universal_error(user_msg, map_msg, *ierr, code);} 
+#define CHECKERRQ(code) if(success!=MAP_SAFE) {*ierr = map_set_universal_error(NULL, map_msg, *ierr, code); break;} 
+#define CHECKERRK(code) if(success!=MAP_SAFE) {*ierr = map_set_universal_error(NULL, map_msg, *ierr, code);} 
 #define MAPFREE(obj) if(obj!=NULL) {free(obj); obj=NULL;} 
 #define MapReal double /* this can be set to double, long double, ect as necessary */
 #define DEG2RAD 0.01745329251 /*  pi/180  */

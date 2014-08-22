@@ -465,507 +465,508 @@ MAP_ERROR_CODE check_maximum_line_length(Element* element, const bool contact_fl
 };
 
 
-// MAP_ERROR_CODE increment_dof_by_delta(double* inputType, const MapReal delta, const int size)
-// {
-//   int i = 0;
-//   for (i=0 ; i<size ; i++) {
-//     inputType[i] += delta;
-//   };
-//   return MAP_SAFE;
-// };
+MAP_ERROR_CODE increment_dof_by_delta(double* u_type, const MapReal delta, const int size)
+{
+  int i = 0;
+  for (i=0 ; i<size ; i++) {
+    u_type[i] += delta;
+  };
+  return MAP_SAFE;
+};
 
 
-// MAP_ERROR_CODE restore_original_displacement(double* inputType, const double* initialValue, const int size)
-// {
-//   int i = 0;
-//   for (i=0 ; i<size ; i++) {
-//     inputType[i] = initialValue[i];
-//   };
-//   return MAP_SAFE;
-// };
+MAP_ERROR_CODE restore_original_displacement(double* u_ype, const double* initial_value, const int size)
+{
+  int i = 0;
+  for (i=0 ; i<size ; i++) {
+    u_ype[i] = initial_value[i];
+  };
+  return MAP_SAFE;
+};
 
 
-// MAP_ERROR_CODE reset_force_to_zero(double* fx, double* fy, double* fz, double* mx, double* my, double* mz, const int size)
-// {
-//   int i = 0;
-//   for (i=0 ; i<size ; i++) {
-//     fx[i] = 0.0;
-//     fy[i] = 0.0;
-//     fz[i] = 0.0;
-//     mx[i] = 0.0;
-//     my[i] = 0.0;
-//     mz[i] = 0.0;
-//   };
-//   return MAP_SAFE;
-// };
-
-
-
-// MAP_ERROR_CODE set_force_minus(const double* inputType, double* force, const int size)
-// {
-//   int i = 0;
-//   for (i=0 ; i<size ; i++) {
-//     force[i] -= -inputType[i];
-//   };
-//   return MAP_SAFE;
-// };
-
-
-// MAP_ERROR_CODE set_force_plus(const double* inputType, double* force, const int size)
-// {
-//   int i = 0;
-//   for (i=0 ; i<size ; i++) {
-//     force[i] += -inputType[i];
-//   };
-//   return MAP_SAFE;
-// };
+MAP_ERROR_CODE reset_force_to_zero(double* fx, double* fy, double* fz, double* mx, double* my, double* mz, const int size)
+{
+  int i = 0;
+  for (i=0 ; i<size ; i++) {
+    fx[i] = 0.0;
+    fy[i] = 0.0;
+    fz[i] = 0.0;
+    mx[i] = 0.0;
+    my[i] = 0.0;
+    mz[i] = 0.0;
+  };
+  return MAP_SAFE;
+};
 
 
 
-// MAP_ERROR_CODE set_moment_minus(const MAP_OutputType_t* outputType, const Vessel* vessel, double* mx, double* my, double* mz, const int size)
-// {
-//   int i = 0;
-//   double rx = 0.0;
-//   double ry = 0.0;
-//   double rz = 0.0;
-// 
-//   for (i=0 ; i<size ; i++) {    
-//     /* 
-//        @todo: this is not consistent with set_moment_minus_2... 
-//               ensure moments are in the global frame
-//     */
-//     rx = (vessel->xi[i] - vessel->refOrigin.x.value);
-//     ry = (vessel->yi[i] - vessel->refOrigin.y.value);
-//     rz = (vessel->zi[i] - vessel->refOrigin.z.value);    
-//     mx[i] -= ((-outputType->Fz[i]*ry) - (-outputType->Fy[i]*rz));
-//     my[i] -= ((-outputType->Fx[i]*rz) - (-outputType->Fz[i]*rx));
-//     mz[i] -= ((-outputType->Fy[i]*rx) - (-outputType->Fx[i]*ry));
-//   };
-//   return MAP_SAFE;
-// }
+MAP_ERROR_CODE set_force_minus(const double* u_type, double* force, const int size)
+{
+  int i = 0;
+  for (i=0 ; i<size ; i++) {
+    force[i] -= -u_type[i];
+  };
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE set_force_plus(const double* input_type, double* force, const int size)
+{
+  int i = 0;
+  for (i=0 ; i<size ; i++) {
+    force[i] += -input_type[i];
+  };
+  return MAP_SAFE;
+};
 
 
 
-// MAP_ERROR_CODE set_moment_plus(const MAP_OutputType_t* outputType, const Vessel* vessel, double* mx, double* my, double* mz, const int size)
-// {
-//   int i = 0;
-//   double rx = 0.0;
-//   double ry = 0.0;
-//   double rz = 0.0;
-// 
-//   for (i=0 ; i<size ; i++) {    
-//     rx = (vessel->xi[i] - vessel->refOrigin.x.value);
-//     ry = (vessel->yi[i] - vessel->refOrigin.y.value);
-//     rz = (vessel->zi[i] - vessel->refOrigin.z.value);    
-//     mx[i] += ((-outputType->Fz[i]*ry) - (-outputType->Fy[i]*rz));
-//     my[i] += ((-outputType->Fx[i]*rz) - (-outputType->Fz[i]*rx));
-//     mz[i] += ((-outputType->Fy[i]*rx) - (-outputType->Fx[i]*ry));
-//   };
-//   return MAP_SAFE;
-// };
+MAP_ERROR_CODE set_moment_minus(const MAP_OutputType_t* y_type, const Vessel* vessel, double* mx, double* my, double* mz, const int size)
+{
+  int i = 0;
+  double rx = 0.0;
+  double ry = 0.0;
+  double rz = 0.0;
+
+  for (i=0 ; i<size ; i++) {    
+    /* 
+       @todo: this is not consistent with set_moment_minus_2... 
+              ensure moments are in the global frame
+    */
+    rx = (vessel->xi[i] - vessel->refOrigin.x.value);
+    ry = (vessel->yi[i] - vessel->refOrigin.y.value);
+    rz = (vessel->zi[i] - vessel->refOrigin.z.value);    
+    mx[i] -= ((-y_type->Fz[i]*ry) - (-y_type->Fy[i]*rz));
+    my[i] -= ((-y_type->Fx[i]*rz) - (-y_type->Fz[i]*rx));
+    mz[i] -= ((-y_type->Fy[i]*rx) - (-y_type->Fx[i]*ry));
+  };
+  return MAP_SAFE;
+}
 
 
 
-// MAP_ERROR_CODE increment_phi_dof_by_delta(MAP_InputType_t* uType, const Vessel* vessel, const double delta, const int size)
-// {
-//   int i = 0;
-//   double R[3][3];
-//   double phi = vessel->orientation.phi.value;
-//   double rx = 0.0;
-//   double ry = 0.0;
-//   double rz = 0.0;
-//   R[0][0] = 1.0;   R[0][1] = 0.0;              R[0][2] = 0.0;
-//   R[1][0] = 0.0;   R[1][1] = cos(phi+delta);   R[1][2] = -sin(phi+delta);  
-//   R[2][0] = 0.0;   R[2][1] = sin(phi+delta);   R[2][2] = cos(phi+delta);
-// 
-//   for (i=0 ; i<size ; i++) {
-//     /* @todo: should also include the reference origin location? */
-//     rx = vessel->xi[i];
-//     ry = vessel->yi[i];
-//     rz = vessel->zi[i];
-//     // uType->y[i] = ry - rz*delta;
-//     // uType->z[i] = rz + ry*delta;
-//     // printf("%f  %f  %f\n",uType->x[i],uType->y[i],uType->z[i]);
-//     uType->x[i] = R[0][0]*rx;
-//     uType->y[i] = R[1][1]*ry + R[1][2]*rz;
-//     uType->z[i] = R[2][1]*ry + R[2][2]*rz;
-//   };
-//   return MAP_SAFE;
-// };
+MAP_ERROR_CODE set_moment_plus(const MAP_OutputType_t* output_type, const Vessel* vessel, double* mx, double* my, double* mz, const int size)
+{
+  int i = 0;
+  double rx = 0.0;
+  double ry = 0.0;
+  double rz = 0.0;
 
-
-// MAP_ERROR_CODE increment_the_dof_by_delta(MAP_InputType_t* uType, const Vessel* vessel, const double delta, const int size)
-// {
-//   int i = 0;
-//   double R[3][3];
-//   double the = vessel->orientation.the.value;
-//   double rx = 0.0;
-//   double ry = 0.0;
-//   double rz = 0.0;
-//   R[0][0] = cos(the+delta);   R[0][1] = 0.0;   R[0][2] = sin(the+delta);
-//   R[1][0] = 0.0;              R[1][1] = 1.0;   R[1][2] = 0.0;
-//   R[2][0] = -sin(the+delta);  R[2][1] = 0.0;   R[2][2] = cos(the+delta);
-//   
-//   for (i=0 ; i<size ; i++) {
-//     /* @todo: should also include the reference origin location? */
-//     rx = vessel->xi[i];
-//     ry = vessel->yi[i];
-//     rz = vessel->zi[i];
-//     // uType->x[i] = rx + rz*delta;
-//     // uType->z[i] = rz - rx*delta;    
-//     uType->x[i] = R[0][0]*rx + R[0][2]*rz;
-//     uType->y[i] = R[1][1]*ry;
-//     uType->z[i] = R[2][0]*rx + R[2][2]*rz;
-//   };
-//   return MAP_SAFE;
-// };
-
-
-// MAP_ERROR_CODE increment_psi_dof_by_delta(MAP_InputType_t* uType, const Vessel* vessel, const double delta, const int size)
-// {
-//   int i = 0;
-//   double R[3][3];
-//   double psi = vessel->orientation.psi.value;
-//   double rx = 0.0;
-//   double ry = 0.0;
-//   double rz = 0.0;
-//   R[0][0] = cos(psi+delta);   R[0][1] = -sin(psi+delta);   R[0][2] = 0.0;
-//   R[1][0] = sin(psi+delta);   R[1][1] = cos(psi+delta);    R[1][2] = 0.0;
-//   R[2][0] = 0.0;              R[2][1] = 0.0;               R[2][2] = 1.0;
-// 
-//   for (i=0 ; i<size ; i++) {
-//     /* @todo: should also include the reference origin location? */
-//     rx = vessel->xi[i];
-//     ry = vessel->yi[i];
-//     rz = vessel->zi[i];
-//     // uType->x[i] = rx - ry*delta;
-//     // uType->y[i] = ry + rx*delta;    
-//     uType->x[i] = R[0][0]*rx + R[0][1]*ry;
-//     uType->y[i] = R[1][0]*rx + R[1][1]*ry;
-//     uType->z[i] = R[2][2]*rz;
-//   };
-//   return MAP_SAFE;
-// };
-// 
-
-
-// MAP_ERROR_CODE fd_x_sequence(MAP_OtherStateType_t* otherType, MAP_InputType_t* uType, MAP_OutputType_t* yType, MAP_ConstraintStateType_t* zType, Fd* force, const double epsilon, const int size, const double* originalPos, char* map_msg, MAP_ERROR_CODE* ierr)
-// {
-//   MAP_ERROR_CODE success = MAP_SAFE;
-//   ModelData* data = otherType->object;
-//   Vessel* vessel = &data->vessel;
-// 
-//   do {
-//     /* minus epsilon sequence */
-//     success = increment_dof_by_delta(uType->x, -epsilon, size); CHECKERRQ(MAP_FATAL_61);
-//     if (data->MAP_SOLVE_TYPE==MONOLITHIC) {
-//       success = line_solve_sequence(data, 0.0, map_msg, ierr);
-//     } else {
-//       success = node_solve_sequence(data, uType, zType, otherType, map_msg, ierr); // @todo CHECKERRQ()
-//     };    
-//     success = set_force_plus(yType->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
-//     success = set_force_plus(yType->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
-//     success = set_force_plus(yType->Fz, force->fz, size); CHECKERRQ(MAP_FATAL_61);
-//     success = set_moment_plus(yType, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
-//     success = restore_original_displacement(uType->x, originalPos, size); CHECKERRQ(MAP_FATAL_61);
-//   
-//     /* plus epsilon sequence */
-//     success = increment_dof_by_delta(uType->x, epsilon, size); CHECKERRQ(MAP_FATAL_61);
-//     if (data->MAP_SOLVE_TYPE==MONOLITHIC) {
-//       success = line_solve_sequence(data, 0.0, map_msg, ierr);
-//     } else {
-//       success = node_solve_sequence(data, uType, zType, otherType, map_msg, ierr); // @todo CHECKERRQ()
-//     };    
-//     success = set_force_minus(yType->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
-//     success = set_force_minus(yType->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
-//     success = set_force_minus(yType->Fz, force->fz, size); CHECKERRQ(MAP_FATAL_61);
-//     success = set_moment_minus(yType, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
-//     success = restore_original_displacement(uType->x, originalPos, size); CHECKERRQ(MAP_FATAL_61);
-//   } while (0);
-//   MAP_RETURN;
-// };
-
-
-// MAP_ERROR_CODE fd_y_sequence(MAP_OtherStateType_t* otherType, MAP_InputType_t* uType, MAP_OutputType_t* yType, MAP_ConstraintStateType_t* zType, Fd* force, const double epsilon, const int size, const double* originalPos, char* map_msg, MAP_ERROR_CODE* ierr)
-// {
-//   MAP_ERROR_CODE success = MAP_SAFE;
-//   ModelData* data = otherType->object;
-//   Vessel* vessel = &data->vessel;
-// 
-//   do {
-//     /* minus epsilon sequence */
-//     success = increment_dof_by_delta(uType->y, -epsilon, size); CHECKERRQ(MAP_FATAL_61);
-//     if (data->MAP_SOLVE_TYPE==MONOLITHIC) {
-//       success = line_solve_sequence(data, 0.0, map_msg, ierr);
-//     } else {
-//       success = node_solve_sequence(data, uType, zType, otherType, map_msg, ierr); // @todo CHECKERRQ()
-//     };    
-//     success = set_force_plus(yType->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
-//     success = set_force_plus(yType->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
-//     success = set_force_plus(yType->Fz, force->fz, size); CHECKERRQ(MAP_FATAL_61);
-//     success = set_moment_plus(yType, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
-//     success = restore_original_displacement(uType->y, originalPos, size); CHECKERRQ(MAP_FATAL_61);
-//         
-//     /* plus epsilon sequence */
-//     success = increment_dof_by_delta(uType->y, epsilon, size); CHECKERRQ(MAP_FATAL_61);
-//     if (data->MAP_SOLVE_TYPE==MONOLITHIC) {
-//       success = line_solve_sequence(data, 0.0, map_msg, ierr);
-//     } else {
-//       success = node_solve_sequence(data, uType, zType, otherType, map_msg, ierr); // @todo CHECKERRQ()
-//     };    
-//     success = set_force_minus(yType->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
-//     success = set_force_minus(yType->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
-//     success = set_force_minus(yType->Fz, force->fz, size); CHECKERRQ(MAP_FATAL_61);
-//     success = set_moment_minus(yType, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
-//     success = restore_original_displacement(uType->y, originalPos, size); CHECKERRQ(MAP_FATAL_61);
-//   } while (0);
-//   
-//   MAP_RETURN;
-// };
-
-
-// MAP_ERROR_CODE fd_z_sequence(MAP_OtherStateType_t* otherType, MAP_InputType_t* uType, MAP_OutputType_t* yType, MAP_ConstraintStateType_t* zType, Fd* force, const double epsilon, const int size, const double* originalPos, char* map_msg, MAP_ERROR_CODE* ierr)
-// {
-//   MAP_ERROR_CODE success = MAP_SAFE;
-//   ModelData* data = otherType->object;
-//   Vessel* vessel = &data->vessel;
-// 
-//   do {
-//     /* minus epsilon sequence */
-//     success = increment_dof_by_delta(uType->z, -epsilon, size); CHECKERRQ(MAP_FATAL_61);
-//     if (data->MAP_SOLVE_TYPE==MONOLITHIC) {
-//       success = line_solve_sequence(data, 0.0, map_msg, ierr);
-//     } else {
-//       success = node_solve_sequence(data, uType, zType, otherType, map_msg, ierr); // @todo CHECKERRQ()
-//     };    
-//     success = set_force_plus(yType->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
-//     success = set_force_plus(yType->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
-//     success = set_force_plus(yType->Fz, force->fz, size); CHECKERRQ(MAP_FATAL_61);
-//     success = set_moment_plus(yType, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
-//     success = restore_original_displacement(uType->z, originalPos, size); CHECKERRQ(MAP_FATAL_61);
-//         
-//     /* plus epsilon sequence */
-//     success = increment_dof_by_delta(uType->z, epsilon, size); CHECKERRQ(MAP_FATAL_61);
-//     if (data->MAP_SOLVE_TYPE==MONOLITHIC) {
-//       success = line_solve_sequence(data, 0.0, map_msg, ierr);
-//     } else {
-//       success = node_solve_sequence(data, uType, zType, otherType, map_msg, ierr); // @todo CHECKERRQ()
-//     };    
-//     success = set_force_minus(yType->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
-//     success = set_force_minus(yType->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
-//     success = set_force_minus(yType->Fz, force->fz, size); CHECKERRQ(MAP_FATAL_61);
-//     success = set_moment_minus(yType, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
-//     success = restore_original_displacement(uType->z, originalPos, size); CHECKERRQ(MAP_FATAL_61);
-//   } while (0);
-// 
-//   MAP_RETURN;
-// };
-
-
-// MAP_ERROR_CODE fd_phi_sequence(MAP_OtherStateType_t* otherType, MAP_InputType_t* uType, MAP_OutputType_t* yType, MAP_ConstraintStateType_t* zType, Fd* force, const double epsilon, const int size, const double* originalX, const double* originalY, const double* originalZ, char* map_msg, MAP_ERROR_CODE* ierr)
-// {
-//   MAP_ERROR_CODE success = MAP_SAFE;
-//   ModelData* data = otherType->object;
-//   Vessel* vessel = &data->vessel;
-// 
-//   do {
-//     /* minus epsilon sequence */
-//     success = increment_phi_dof_by_delta(uType, vessel, -epsilon, size); CHECKERRQ(MAP_FATAL_61);        
-//     if (data->MAP_SOLVE_TYPE==MONOLITHIC) {
-//        success = line_solve_sequence(data, 0.0, map_msg, ierr);
-//     } else {
-//       success = node_solve_sequence(data, uType, zType, otherType, map_msg, ierr); // @todo CHECKERRQ()
-//     };    
-//     success = set_force_plus(yType->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
-//     success = set_force_plus(yType->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
-//     success = set_force_plus(yType->Fz, force->fz, size); CHECKERRQ(MAP_FATAL_61);
-//     success = set_moment_plus_2(uType, yType, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
-//     success = restore_original_displacement(uType->x, originalX, size); CHECKERRQ(MAP_FATAL_61);        
-//     success = restore_original_displacement(uType->y, originalY, size); CHECKERRQ(MAP_FATAL_61);        
-//     success = restore_original_displacement(uType->z, originalZ, size); CHECKERRQ(MAP_FATAL_61);        
-//     
-//     /* plus epsilon sequence */
-//     success = increment_phi_dof_by_delta(uType, vessel, epsilon, size); CHECKERRQ(MAP_FATAL_61);        
-//     if (data->MAP_SOLVE_TYPE==MONOLITHIC) {
-//       success = line_solve_sequence(data, 0.0, map_msg, ierr);
-//     } else {
-//       success = node_solve_sequence(data, uType, zType, otherType, map_msg, ierr); // @todo CHECKERRQ()
-//     };    
-//     success = set_force_minus(yType->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
-//     success = set_force_minus(yType->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
-//     success = set_force_minus(yType->Fz, force->fz, size); CHECKERRQ(MAP_FATAL_61);
-//     success = set_moment_minus_2(uType, yType, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
-//     success = restore_original_displacement(uType->x, originalX, size); CHECKERRQ(MAP_FATAL_61);        
-//     success = restore_original_displacement(uType->y, originalY, size); CHECKERRQ(MAP_FATAL_61);        
-//     success = restore_original_displacement(uType->z, originalZ, size); CHECKERRQ(MAP_FATAL_61);                
-//   } while (0);
-//   
-//   MAP_RETURN;
-// };
-
-
-// MAP_ERROR_CODE fd_the_sequence(MAP_OtherStateType_t* otherType, MAP_InputType_t* uType, MAP_OutputType_t* yType, MAP_ConstraintStateType_t* zType, Fd* force, const double epsilon, const int size, const double* originalX, const double* originalY, const double* originalZ, char* map_msg, MAP_ERROR_CODE* ierr)
-// {
-//   MAP_ERROR_CODE success = MAP_SAFE;
-//   ModelData* data = otherType->object;
-//   Vessel* vessel = &data->vessel;
-// 
-//   do {
-//     /* minus epsilon sequence */
-//     success = increment_the_dof_by_delta(uType, vessel, -epsilon, size); CHECKERRQ(MAP_FATAL_61);
-//     if (data->MAP_SOLVE_TYPE==MONOLITHIC) {
-//       success = line_solve_sequence(data, 0.0, map_msg, ierr);
-//     } else {
-//       success = node_solve_sequence(data, uType, zType, otherType, map_msg, ierr); // @todo CHECKERRQ()
-//     };    
-//     success = set_force_plus(yType->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
-//     success = set_force_plus(yType->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
-//     success = set_force_plus(yType->Fz, force->fz, size); CHECKERRQ(MAP_FATAL_61);
-//     success = set_moment_plus_2(uType, yType, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
-//     success = restore_original_displacement(uType->x, originalX, size); CHECKERRQ(MAP_FATAL_61);        
-//     success = restore_original_displacement(uType->y, originalY, size); CHECKERRQ(MAP_FATAL_61);        
-//     success = restore_original_displacement(uType->z, originalZ, size); CHECKERRQ(MAP_FATAL_61);        
-//     
-//     /* plut epsilon sequence */
-//     success = increment_the_dof_by_delta(uType, vessel, epsilon, size); CHECKERRQ(MAP_FATAL_61);        
-//     if (data->MAP_SOLVE_TYPE==MONOLITHIC) {
-//       success = line_solve_sequence(data, 0.0, map_msg, ierr);
-//     } else {
-//       success = node_solve_sequence(data, uType, zType, otherType, map_msg, ierr); // @todo CHECKERRQ()
-//     };    
-//     success = set_force_minus(yType->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
-//     success = set_force_minus(yType->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
-//     success = set_force_minus(yType->Fz, force->fz, size); CHECKERRQ(MAP_FATAL_61);
-//     success = set_moment_minus_2(uType, yType, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
-//     success = restore_original_displacement(uType->x, originalX, size); CHECKERRQ(MAP_FATAL_61);        
-//     success = restore_original_displacement(uType->y, originalY, size); CHECKERRQ(MAP_FATAL_61);        
-//     success = restore_original_displacement(uType->z, originalZ, size); CHECKERRQ(MAP_FATAL_61);        
-//   } while (0);
-// 
-//   MAP_RETURN;
-// };
-
-
-// MAP_ERROR_CODE fd_psi_sequence(MAP_OtherStateType_t* otherType, MAP_InputType_t* uType, MAP_OutputType_t* yType, MAP_ConstraintStateType_t* zType, Fd* force, const double epsilon, const int size, const double* originalX, const double* originalY, const double* originalZ, char* map_msg, MAP_ERROR_CODE* ierr)
-// {
-//   MAP_ERROR_CODE success = MAP_SAFE;
-//   ModelData* data = otherType->object;
-//   Vessel* vessel = &data->vessel;
-//   do {
-//     /* minus epsilon sequence */
-//     success = increment_psi_dof_by_delta(uType, vessel, -epsilon, size); CHECKERRQ(MAP_FATAL_61);
-//     if (data->MAP_SOLVE_TYPE==MONOLITHIC) {
-//       success = line_solve_sequence(data, 0.0, map_msg, ierr);
-//     } else {
-//       success = node_solve_sequence(data, uType, zType, otherType, map_msg, ierr); // @todo CHECKERRQ()
-//     };    
-//     success = set_force_plus(yType->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
-//     success = set_force_plus(yType->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
-//     success = set_force_plus(yType->Fz, force->fz, size); CHECKERRQ(MAP_FATAL_61);
-//     success = set_moment_plus_2(uType, yType, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
-//     success = restore_original_displacement(uType->x, originalX, size); CHECKERRQ(MAP_FATAL_61);
-//     success = restore_original_displacement(uType->y, originalY, size); CHECKERRQ(MAP_FATAL_61);
-//     success = restore_original_displacement(uType->z, originalZ, size); CHECKERRQ(MAP_FATAL_61);
-//         
-//     /* plut epsilon sequence */
-//     success = increment_psi_dof_by_delta(uType, vessel, epsilon, size); CHECKERRQ(MAP_FATAL_61);
-//     if (data->MAP_SOLVE_TYPE==MONOLITHIC) {
-//       success = line_solve_sequence(data, 0.0, map_msg, ierr);
-//     } else {
-//       success = node_solve_sequence(data, uType, zType, otherType, map_msg, ierr); // @todo CHECKERRQ()
-//     };    
-//     success = set_force_minus(yType->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
-//     success = set_force_minus(yType->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
-//     success = set_force_minus(yType->Fz, force->fz, size); CHECKERRQ(MAP_FATAL_61);
-//     success = set_moment_minus_2(uType, yType, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
-//     success = restore_original_displacement(uType->x, originalX, size); CHECKERRQ(MAP_FATAL_61);
-//     success = restore_original_displacement(uType->y, originalY, size); CHECKERRQ(MAP_FATAL_61);
-//     success = restore_original_displacement(uType->z, originalZ, size); CHECKERRQ(MAP_FATAL_61);
-//   } while (0);
-// 
-//   MAP_RETURN;
-// };
+  for (i=0 ; i<size ; i++) {    
+    rx = (vessel->xi[i] - vessel->refOrigin.x.value);
+    ry = (vessel->yi[i] - vessel->refOrigin.y.value);
+    rz = (vessel->zi[i] - vessel->refOrigin.z.value);    
+    mx[i] += ((-output_type->Fz[i]*ry) - (-output_type->Fy[i]*rz));
+    my[i] += ((-output_type->Fx[i]*rz) - (-output_type->Fz[i]*rx));
+    mz[i] += ((-output_type->Fy[i]*rx) - (-output_type->Fx[i]*ry));
+  };
+  return MAP_SAFE;
+};
 
 
 
-// MAP_ERROR_CODE calculate_stiffness_2(double* K, Fd* force, const double delta, const int size)
-// {  
-//   int i = 0;
-//   for (i=0 ; i<size ; i++) {
-//     K[0] += (force->fx[i]/(2*delta));
-//     K[1] += (force->fy[i]/(2*delta));
-//     K[2] += (force->fz[i]/(2*delta));
-//     K[3] += (force->mx[i]/(2*delta));
-//     K[4] += (force->my[i]/(2*delta));
-//     K[5] += (force->mz[i]/(2*delta));
-//   };
-//   return MAP_SAFE;
-// };
+MAP_ERROR_CODE increment_phi_dof_by_delta(MAP_InputType_t* u_type, const Vessel* vessel, const double delta, const int size)
+{
+  int i = 0;
+  double R[3][3];
+  double phi = vessel->orientation.phi.value;
+  double rx = 0.0;
+  double ry = 0.0;
+  double rz = 0.0;
+  R[0][0] = 1.0;   R[0][1] = 0.0;              R[0][2] = 0.0;
+  R[1][0] = 0.0;   R[1][1] = cos(phi+delta);   R[1][2] = -sin(phi+delta);  
+  R[2][0] = 0.0;   R[2][1] = sin(phi+delta);   R[2][2] = cos(phi+delta);
+
+  for (i=0 ; i<size ; i++) {
+    /* @todo: should also include the reference origin location? */
+    rx = vessel->xi[i];
+    ry = vessel->yi[i];
+    rz = vessel->zi[i];
+    // uType->y[i] = ry - rz*delta;
+    // uType->z[i] = rz + ry*delta;
+    // printf("%f  %f  %f\n",uType->x[i],uType->y[i],uType->z[i]);
+    u_type->x[i] = R[0][0]*rx;
+    u_type->y[i] = R[1][1]*ry + R[1][2]*rz;
+    u_type->z[i] = R[2][1]*ry + R[2][2]*rz;
+  };
+  return MAP_SAFE;
+};
 
 
-// MAP_ERROR_CODE set_moment_plus_2(const MAP_InputType_t* uType, const MAP_OutputType_t* outputType, const Vessel* vessel, double* mx, double* my, double* mz, const int size)
-// {
-//   int i = 0;
-//   double rx = 0.0;
-//   double ry = 0.0;
-//   double rz = 0.0;
-//   double m1 = 0.0;
-//   double m2 = 0.0;
-//   double m3 = 0.0;
-//   double phi = vessel->orientation.phi.value;
-// 
-//   double delta = 1e-4;
-//   for (i=0 ; i<size ; i++) {    
-//     /* 
-//        @todo forces are in global frame. Make sure everything is consistent. Should also add
-//        reference origin. This need s to be converted to the global frame to be consistent with
-//        uType. 
-//     */
-//     rx = uType->x[i];// (vessel->xi[i] - vessel->refOrigin.x.value);
-//     ry = uType->y[i];// (vessel->yi[i] - vessel->refOrigin.y.value);
-//     rz = uType->z[i];// (vessel->zi[i] - vessel->refOrigin.z.value);    
-//     m1 = ((-outputType->Fz[i]*ry) - (-outputType->Fy[i]*rz));
-//     m2 = ((-outputType->Fx[i]*rz) - (-outputType->Fz[i]*rx));
-//     m3 = ((-outputType->Fy[i]*rx) - (-outputType->Fx[i]*ry));
-//     mx[i] += m1;
-//     my[i] += m2*cos(phi+delta) - m3*sin(phi+delta);
-//     mz[i] += m2*sin(phi+delta) + m3*cos(phi+delta);    
-//     // mx[i] += ((-outputType->Fz[i]*ry) - (-outputType->Fy[i]*rz));
-//     // my[i] += ((-outputType->Fx[i]*rz) - (-outputType->Fz[i]*rx));
-//     // mz[i] += ((-outputType->Fy[i]*rx) - (-outputType->Fx[i]*ry));
-//   };
-//   return MAP_SAFE;
-// };
+MAP_ERROR_CODE increment_the_dof_by_delta(MAP_InputType_t* u_type, const Vessel* vessel, const double delta, const int size)
+{
+  int i = 0;
+  double R[3][3];
+  double the = vessel->orientation.the.value;
+  double rx = 0.0;
+  double ry = 0.0;
+  double rz = 0.0;
+
+  R[0][0] = cos(the+delta);   R[0][1] = 0.0;   R[0][2] = sin(the+delta);
+  R[1][0] = 0.0;              R[1][1] = 1.0;   R[1][2] = 0.0;
+  R[2][0] = -sin(the+delta);  R[2][1] = 0.0;   R[2][2] = cos(the+delta);
+  
+  for (i=0 ; i<size ; i++) {
+    /* @todo: should also include the reference origin location? */
+    rx = vessel->xi[i];
+    ry = vessel->yi[i];
+    rz = vessel->zi[i];
+    // u_type->x[i] = rx + rz*delta;
+    // u_type->z[i] = rz - rx*delta;    
+    u_type->x[i] = R[0][0]*rx + R[0][2]*rz;
+    u_type->y[i] = R[1][1]*ry;
+    u_type->z[i] = R[2][0]*rx + R[2][2]*rz;
+  };
+  return MAP_SAFE;
+};
 
 
-// MAP_ERROR_CODE set_moment_minus_2(const MAP_InputType_t* uType, const MAP_OutputType_t* outputType, const Vessel* vessel, double* mx, double* my, double* mz, const int size)
-// {
-//   int i = 0;
-//   double rx = 0.0;
-//   double ry = 0.0;
-//   double rz = 0.0;
-//   double m1 = 0.0;
-//   double m2 = 0.0;
-//   double m3 = 0.0;
-//   double phi = vessel->orientation.phi.value;
-// 
-//   double delta = 1e-4;
-//   for (i=0 ; i<size ; i++) {    
-//     rx = uType->x[i];// (vessel->xi[i] - vessel->refOrigin.x.value);
-//     ry = uType->y[i];// (vessel->yi[i] - vessel->refOrigin.y.value);
-//     rz = uType->z[i];// (vessel->zi[i] - vessel->refOrigin.z.value);    
-//     m1 = ((-outputType->Fz[i]*ry) - (-outputType->Fy[i]*rz));
-//     m2 = ((-outputType->Fx[i]*rz) - (-outputType->Fz[i]*rx));
-//     m3 = ((-outputType->Fy[i]*rx) - (-outputType->Fx[i]*ry));
-//     mx[i] -= m1;
-//     my[i] -= m2*cos(phi+delta) - m3*sin(phi+delta);
-//     mz[i] -= m2*sin(phi+delta) + m3*cos(phi+delta);    
-//     // mx[i] -= ((-outputType->Fz[i]*ry) - (-outputType->Fy[i]*rz));
-//     // my[i] -= ((-outputType->Fx[i]*rz) - (-outputType->Fz[i]*rx));
-//     // mz[i] -= ((-outputType->Fy[i]*rx) - (-outputType->Fx[i]*ry));
-//   };
-//   return MAP_SAFE;
-// };
+MAP_ERROR_CODE increment_psi_dof_by_delta(MAP_InputType_t* u_type, const Vessel* vessel, const double delta, const int size)
+{
+  int i = 0;
+  double R[3][3];
+  double psi = vessel->orientation.psi.value;
+  double rx = 0.0;
+  double ry = 0.0;
+  double rz = 0.0;
+  R[0][0] = cos(psi+delta);   R[0][1] = -sin(psi+delta);   R[0][2] = 0.0;
+  R[1][0] = sin(psi+delta);   R[1][1] = cos(psi+delta);    R[1][2] = 0.0;
+  R[2][0] = 0.0;              R[2][1] = 0.0;               R[2][2] = 1.0;
+
+  for (i=0 ; i<size ; i++) {
+    /* @todo: should also include the reference origin location? */
+    rx = vessel->xi[i];
+    ry = vessel->yi[i];
+    rz = vessel->zi[i];
+    // u_type->x[i] = rx - ry*delta;
+    // u_type->y[i] = ry + rx*delta;    
+    u_type->x[i] = R[0][0]*rx + R[0][1]*ry;
+    u_type->y[i] = R[1][0]*rx + R[1][1]*ry;
+    u_type->z[i] = R[2][2]*rz;
+  };
+  return MAP_SAFE;
+};
+
+
+
+MAP_ERROR_CODE fd_x_sequence(MAP_OtherStateType_t* other_type, MAP_InputType_t* u_type, MAP_OutputType_t* y_type, MAP_ConstraintStateType_t* z_type, Fd* force, const double epsilon, const int size, const double* original_pos, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  MAP_ERROR_CODE success = MAP_SAFE;
+  ModelData* model_data = other_type->object;
+  Vessel* vessel = &model_data->vessel;
+
+  do {
+    /* minus epsilon sequence */
+    success = increment_dof_by_delta(u_type->x, -epsilon, size); CHECKERRQ(MAP_FATAL_61);
+    if (model_data->MAP_SOLVE_TYPE==MONOLITHIC) {
+      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+    } else {
+      success = node_solve_sequence(model_data, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+    };    
+    success = set_force_plus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
+    success = set_force_plus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
+    success = set_force_plus(y_type->Fz, force->fz, size); CHECKERRQ(MAP_FATAL_61);
+    success = set_moment_plus(y_type, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
+    success = restore_original_displacement(u_type->x, original_pos, size); CHECKERRQ(MAP_FATAL_61);
+  
+    /* plus epsilon sequence */
+    success = increment_dof_by_delta(u_type->x, epsilon, size); CHECKERRQ(MAP_FATAL_61);
+    if (model_data->MAP_SOLVE_TYPE==MONOLITHIC) {
+      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+    } else {
+      success = node_solve_sequence(model_data, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+    };    
+    success = set_force_minus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
+    success = set_force_minus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
+    success = set_force_minus(y_type->Fz, force->fz, size); CHECKERRQ(MAP_FATAL_61);
+    success = set_moment_minus(y_type, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
+    success = restore_original_displacement(u_type->x, original_pos, size); CHECKERRQ(MAP_FATAL_61);
+  } while (0);
+  MAP_RETURN;
+};
+
+
+MAP_ERROR_CODE fd_y_sequence(MAP_OtherStateType_t* other_type, MAP_InputType_t* u_type, MAP_OutputType_t* y_type, MAP_ConstraintStateType_t* z_type, Fd* force, const double epsilon, const int size, const double* original_pos, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  MAP_ERROR_CODE success = MAP_SAFE;
+  ModelData* model_data = other_type->object;
+  Vessel* vessel = &model_data->vessel;
+
+  do {
+    /* minus epsilon sequence */
+    success = increment_dof_by_delta(u_type->y, -epsilon, size); CHECKERRQ(MAP_FATAL_61);
+    if (model_data->MAP_SOLVE_TYPE==MONOLITHIC) {
+      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+    } else {
+      success = node_solve_sequence(model_data, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+    };    
+    success = set_force_plus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
+    success = set_force_plus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
+    success = set_force_plus(y_type->Fz, force->fz, size); CHECKERRQ(MAP_FATAL_61);
+    success = set_moment_plus(y_type, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
+    success = restore_original_displacement(u_type->y, original_pos, size); CHECKERRQ(MAP_FATAL_61);
+        
+    /* plus epsilon sequence */
+    success = increment_dof_by_delta(u_type->y, epsilon, size); CHECKERRQ(MAP_FATAL_61);
+    if (model_data->MAP_SOLVE_TYPE==MONOLITHIC) {
+      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+    } else {
+      success = node_solve_sequence(model_data, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+    };    
+    success = set_force_minus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
+    success = set_force_minus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
+    success = set_force_minus(y_type->Fz, force->fz, size); CHECKERRQ(MAP_FATAL_61);
+    success = set_moment_minus(y_type, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
+    success = restore_original_displacement(u_type->y, original_pos, size); CHECKERRQ(MAP_FATAL_61);
+  } while (0);
+  
+  MAP_RETURN;
+};
+
+
+MAP_ERROR_CODE fd_z_sequence(MAP_OtherStateType_t* other_type, MAP_InputType_t* u_type, MAP_OutputType_t* y_type, MAP_ConstraintStateType_t* z_type, Fd* force, const double epsilon, const int size, const double* original_pos, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  MAP_ERROR_CODE success = MAP_SAFE;
+  ModelData* model_data = other_type->object;
+  Vessel* vessel = &model_data->vessel;
+
+  do {
+    /* minus epsilon sequence */
+    success = increment_dof_by_delta(u_type->z, -epsilon, size); CHECKERRQ(MAP_FATAL_61);
+    if (model_data->MAP_SOLVE_TYPE==MONOLITHIC) {
+      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+    } else {
+      success = node_solve_sequence(model_data, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+    };    
+    success = set_force_plus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
+    success = set_force_plus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
+    success = set_force_plus(y_type->Fz, force->fz, size); CHECKERRQ(MAP_FATAL_61);
+    success = set_moment_plus(y_type, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
+    success = restore_original_displacement(u_type->z, original_pos, size); CHECKERRQ(MAP_FATAL_61);
+        
+    /* plus epsilon sequence */
+    success = increment_dof_by_delta(u_type->z, epsilon, size); CHECKERRQ(MAP_FATAL_61);
+    if (model_data->MAP_SOLVE_TYPE==MONOLITHIC) {
+      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+    } else {
+      success = node_solve_sequence(model_data, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+    };    
+    success = set_force_minus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
+    success = set_force_minus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
+    success = set_force_minus(y_type->Fz, force->fz, size); CHECKERRQ(MAP_FATAL_61);
+    success = set_moment_minus(y_type, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
+    success = restore_original_displacement(u_type->z, original_pos, size); CHECKERRQ(MAP_FATAL_61);
+  } while (0);
+
+  MAP_RETURN;
+};
+
+
+MAP_ERROR_CODE fd_phi_sequence(MAP_OtherStateType_t* other_type, MAP_InputType_t* u_type, MAP_OutputType_t* y_type, MAP_ConstraintStateType_t* z_type, Fd* force, const double epsilon, const int size, const double* original_x, const double* original_y, const double* original_z, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  MAP_ERROR_CODE success = MAP_SAFE;
+  ModelData* model_data = other_type->object;
+  Vessel* vessel = &model_data->vessel;
+
+  do {
+    /* minus epsilon sequence */
+    success = increment_phi_dof_by_delta(u_type, vessel, -epsilon, size); CHECKERRQ(MAP_FATAL_61);        
+    if (model_data->MAP_SOLVE_TYPE==MONOLITHIC) {
+       success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+    } else {
+      success = node_solve_sequence(model_data, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+    };    
+    success = set_force_plus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
+    success = set_force_plus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
+    success = set_force_plus(y_type->Fz, force->fz, size); CHECKERRQ(MAP_FATAL_61);
+    success = set_moment_plus_2(u_type, y_type, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
+    success = restore_original_displacement(u_type->x, original_x, size); CHECKERRQ(MAP_FATAL_61);        
+    success = restore_original_displacement(u_type->y, original_y, size); CHECKERRQ(MAP_FATAL_61);        
+    success = restore_original_displacement(u_type->z, original_z, size); CHECKERRQ(MAP_FATAL_61);        
+    
+    /* plus epsilon sequence */
+    success = increment_phi_dof_by_delta(u_type, vessel, epsilon, size); CHECKERRQ(MAP_FATAL_61);        
+    if (model_data->MAP_SOLVE_TYPE==MONOLITHIC) {
+      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+    } else {
+      success = node_solve_sequence(model_data, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+    };    
+    success = set_force_minus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
+    success = set_force_minus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
+    success = set_force_minus(y_type->Fz, force->fz, size); CHECKERRQ(MAP_FATAL_61);
+    success = set_moment_minus_2(u_type, y_type, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
+    success = restore_original_displacement(u_type->x, original_x, size); CHECKERRQ(MAP_FATAL_61);        
+    success = restore_original_displacement(u_type->y, original_y, size); CHECKERRQ(MAP_FATAL_61);        
+    success = restore_original_displacement(u_type->z, original_y, size); CHECKERRQ(MAP_FATAL_61);                
+  } while (0);
+  
+  MAP_RETURN;
+};
+
+
+MAP_ERROR_CODE fd_the_sequence(MAP_OtherStateType_t* other_type, MAP_InputType_t* u_type, MAP_OutputType_t* y_type, MAP_ConstraintStateType_t* z_type, Fd* force, const double epsilon, const int size, const double* original_x, const double* original_y, const double* original_z, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  MAP_ERROR_CODE success = MAP_SAFE;
+  ModelData* model_data = other_type->object;
+  Vessel* vessel = &model_data->vessel;
+
+  do {
+    /* minus epsilon sequence */
+    success = increment_the_dof_by_delta(u_type, vessel, -epsilon, size); CHECKERRQ(MAP_FATAL_61);
+    if (model_data->MAP_SOLVE_TYPE==MONOLITHIC) {
+      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+    } else {
+      success = node_solve_sequence(model_data, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+    };    
+    success = set_force_plus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
+    success = set_force_plus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
+    success = set_force_plus(y_type->Fz, force->fz, size); CHECKERRQ(MAP_FATAL_61);
+    success = set_moment_plus_2(u_type, y_type, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
+    success = restore_original_displacement(u_type->x, original_x, size); CHECKERRQ(MAP_FATAL_61);        
+    success = restore_original_displacement(u_type->y, original_y, size); CHECKERRQ(MAP_FATAL_61);        
+    success = restore_original_displacement(u_type->z, original_z, size); CHECKERRQ(MAP_FATAL_61);        
+    
+    /* plut epsilon sequence */
+    success = increment_the_dof_by_delta(u_type, vessel, epsilon, size); CHECKERRQ(MAP_FATAL_61);        
+    if (model_data->MAP_SOLVE_TYPE==MONOLITHIC) {
+      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+    } else {
+      success = node_solve_sequence(model_data, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+    };    
+    success = set_force_minus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
+    success = set_force_minus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
+    success = set_force_minus(y_type->Fz, force->fz, size); CHECKERRQ(MAP_FATAL_61);
+    success = set_moment_minus_2(u_type, y_type, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
+    success = restore_original_displacement(u_type->x, original_x, size); CHECKERRQ(MAP_FATAL_61);        
+    success = restore_original_displacement(u_type->y, original_y, size); CHECKERRQ(MAP_FATAL_61);        
+    success = restore_original_displacement(u_type->z, original_z, size); CHECKERRQ(MAP_FATAL_61);        
+  } while (0);
+
+  MAP_RETURN;
+};
+
+
+MAP_ERROR_CODE fd_psi_sequence(MAP_OtherStateType_t* other_type, MAP_InputType_t* u_type, MAP_OutputType_t* y_type, MAP_ConstraintStateType_t* z_type, Fd* force, const double epsilon, const int size, const double* original_x, const double* original_y, const double* original_z, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  MAP_ERROR_CODE success = MAP_SAFE;
+  ModelData* model_data = other_type->object;
+  Vessel* vessel = &model_data->vessel;
+  do {
+    /* minus epsilon sequence */
+    success = increment_psi_dof_by_delta(u_type, vessel, -epsilon, size); CHECKERRQ(MAP_FATAL_61);
+    if (model_data->MAP_SOLVE_TYPE==MONOLITHIC) {
+      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+    } else {
+      success = node_solve_sequence(model_data, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+    };    
+    success = set_force_plus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
+    success = set_force_plus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
+    success = set_force_plus(y_type->Fz, force->fz, size); CHECKERRQ(MAP_FATAL_61);
+    success = set_moment_plus_2(u_type, y_type, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
+    success = restore_original_displacement(u_type->x, original_x, size); CHECKERRQ(MAP_FATAL_61);
+    success = restore_original_displacement(u_type->y, original_y, size); CHECKERRQ(MAP_FATAL_61);
+    success = restore_original_displacement(u_type->z, original_z, size); CHECKERRQ(MAP_FATAL_61);
+        
+    /* plut epsilon sequence */
+    success = increment_psi_dof_by_delta(u_type, vessel, epsilon, size); CHECKERRQ(MAP_FATAL_61);
+    if (model_data->MAP_SOLVE_TYPE==MONOLITHIC) {
+      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+    } else {
+      success = node_solve_sequence(model_data, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+    };    
+    success = set_force_minus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
+    success = set_force_minus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
+    success = set_force_minus(y_type->Fz, force->fz, size); CHECKERRQ(MAP_FATAL_61);
+    success = set_moment_minus_2(u_type, y_type, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
+    success = restore_original_displacement(u_type->x, original_x, size); CHECKERRQ(MAP_FATAL_61);
+    success = restore_original_displacement(u_type->y, original_y, size); CHECKERRQ(MAP_FATAL_61);
+    success = restore_original_displacement(u_type->z, original_z, size); CHECKERRQ(MAP_FATAL_61);
+  } while (0);
+
+  MAP_RETURN;
+};
+
+
+
+MAP_ERROR_CODE calculate_stiffness_2(double* K, Fd* force, const double delta, const int size)
+{  
+  int i = 0;
+  for (i=0 ; i<size ; i++) {
+    K[0] += (force->fx[i]/(2*delta));
+    K[1] += (force->fy[i]/(2*delta));
+    K[2] += (force->fz[i]/(2*delta));
+    K[3] += (force->mx[i]/(2*delta));
+    K[4] += (force->my[i]/(2*delta));
+    K[5] += (force->mz[i]/(2*delta));
+  };
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE set_moment_plus_2(const MAP_InputType_t* u_type, const MAP_OutputType_t* y_type, const Vessel* vessel, double* mx, double* my, double* mz, const int size)
+{
+  int i = 0;
+  double rx = 0.0;
+  double ry = 0.0;
+  double rz = 0.0;
+  double m1 = 0.0;
+  double m2 = 0.0;
+  double m3 = 0.0;
+  double phi = vessel->orientation.phi.value;
+
+  double delta = 1e-4;
+  for (i=0 ; i<size ; i++) {    
+    /* 
+       @todo forces are in global frame. Make sure everything is consistent. Should also add
+       reference origin. This need s to be converted to the global frame to be consistent with
+       uType. 
+    */
+    rx = u_type->x[i];// (vessel->xi[i] - vessel->refOrigin.x.value);
+    ry = u_type->y[i];// (vessel->yi[i] - vessel->refOrigin.y.value);
+    rz = u_type->z[i];// (vessel->zi[i] - vessel->refOrigin.z.value);    
+    m1 = ((-y_type->Fz[i]*ry) - (-y_type->Fy[i]*rz));
+    m2 = ((-y_type->Fx[i]*rz) - (-y_type->Fz[i]*rx));
+    m3 = ((-y_type->Fy[i]*rx) - (-y_type->Fx[i]*ry));
+    mx[i] += m1;
+    my[i] += m2*cos(phi+delta) - m3*sin(phi+delta);
+    mz[i] += m2*sin(phi+delta) + m3*cos(phi+delta);    
+    // mx[i] += ((-output_type->Fz[i]*ry) - (-output_type->Fy[i]*rz));
+    // my[i] += ((-output_type->Fx[i]*rz) - (-output_type->Fz[i]*rx));
+    // mz[i] += ((-output_type->Fy[i]*rx) - (-output_type->Fx[i]*ry));
+  };
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE set_moment_minus_2(const MAP_InputType_t* u_type, const MAP_OutputType_t* y_type, const Vessel* vessel, double* mx, double* my, double* mz, const int size)
+{
+  int i = 0;
+  double rx = 0.0;
+  double ry = 0.0;
+  double rz = 0.0;
+  double m1 = 0.0;
+  double m2 = 0.0;
+  double m3 = 0.0;
+  double phi = vessel->orientation.phi.value;
+
+  double delta = 1e-4;
+  for (i=0 ; i<size ; i++) {    
+    rx = u_type->x[i];// (vessel->xi[i] - vessel->refOrigin.x.value);
+    ry = u_type->y[i];// (vessel->yi[i] - vessel->refOrigin.y.value);
+    rz = u_type->z[i];// (vessel->zi[i] - vessel->refOrigin.z.value);    
+    m1 = ((-y_type->Fz[i]*ry) - (-y_type->Fy[i]*rz));
+    m2 = ((-y_type->Fx[i]*rz) - (-y_type->Fz[i]*rx));
+    m3 = ((-y_type->Fy[i]*rx) - (-y_type->Fx[i]*ry));
+    mx[i] -= m1;
+    my[i] -= m2*cos(phi+delta) - m3*sin(phi+delta);
+    mz[i] -= m2*sin(phi+delta) + m3*cos(phi+delta);    
+    // mx[i] -= ((-y_type->Fz[i]*ry) - (-y_type->Fy[i]*rz));
+    // my[i] -= ((-y_type->Fx[i]*rz) - (-y_type->Fz[i]*rx));
+    // mz[i] -= ((-y_type->Fy[i]*rx) - (-y_type->Fx[i]*ry));
+  };
+  return MAP_SAFE;
+};
 
 
 // /**
