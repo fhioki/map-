@@ -44,6 +44,16 @@ MAP_EXTERNCALL int map_size_elements(MAP_OtherStateType_t* other_type, MAP_ERROR
 
 
 /**
+ * @brief     Deallocates the memory space for the init structure. Should be called immediately after map_init()
+ * @param     init MAP-native initialization data structure. This is distinct from the FAST-framework data structure 
+ * @param     map_msg error string
+ * @param     ierr error code
+ * @return    MAP_SAFE if it completes successfully
+ * @see       {@link map_init()}
+ */
+MAP_EXTERNCALL int free_init_data (InitializationData* init, char* map_msg, MAP_ERROR_CODE* ierr);
+
+/**
  * @brief Set the water depth. Should be called before {@link map_init()}
  * @param p_type paramter type, native C struct {@link MAP_ParameterType_t}
  * @param depth water depth [m]

@@ -1190,3 +1190,26 @@ MAP_EXTERNCALL MAP_ContinuousStateType_t* map_create_continuous_type(char* map_m
   };
   return new_data;    
 };
+
+
+MAP_EXTERNCALL void MAP_InitInput_Delete(InitializationData* init_data)
+{
+  MAPFREE(init_data); 
+};
+
+
+MAP_EXTERNCALL int free_init_data(InitializationData* init_data, char* map_msg, MAP_ERROR_CODE* ierr) 
+{
+  int ret = 0;
+
+  ret = bdestroy(init_data->summaryFileName);
+  ret = bstrListDestroy(init_data->expandedNodeInputString);
+  ret = bstrListDestroy(init_data->expandedElementInputString);
+  ret = bstrListDestroy(init_data->libraryInputString);  
+  ret = bstrListDestroy(init_data->nodeInputString);
+  ret = bstrListDestroy(init_data->elementInputString);
+  ret = bstrListDestroy(init_data->solverOptionsString);
+
+
+  return MAP_SAFE;
+};

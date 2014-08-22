@@ -29,36 +29,11 @@
 #include "freedata.h"
 
 
-MAP_EXTERNCALL void MAP_InitInput_Delete(InitializationData* init_data)
-{
-  MAPFREE(init_data); 
-};
-
 
 void MAP_OtherState_Delete(ModelData* model_data)
 {
   MAPFREE(model_data);
 };
-
-
-/** @addtogroup FortranCall */
-/*@{*/
-MAP_EXTERNCALL int free_init_data(InitializationData* init_data, char* map_msg, MAP_ERROR_CODE* ierr) 
-{
-  int ret = 0;
-
-  ret = bdestroy(init_data->summaryFileName);
-  ret = bstrListDestroy(init_data->expandedNodeInputString);
-  ret = bstrListDestroy(init_data->expandedElementInputString);
-  ret = bstrListDestroy(init_data->libraryInputString);  
-  ret = bstrListDestroy(init_data->nodeInputString);
-  ret = bstrListDestroy(init_data->elementInputString);
-  ret = bstrListDestroy(init_data->solverOptionsString);
-
-
-  return MAP_SAFE;
-};
-/*@}*/
 
 
 MAP_ERROR_CODE free_outlist(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr)
