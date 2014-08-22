@@ -26,13 +26,8 @@
 #include "MAP_Types.h"
 #include "mapapi.h"
 #include "lineroutines.h"
-
-
-#include "initialization.h"
 #include "freedata.h"
 #include "mapinit.h"
-// #include "nwtcfunctions.h"
-// #include "lineroutines.h"
 #include "outputstream.h"
 #include "numeric.h"
 

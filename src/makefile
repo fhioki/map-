@@ -56,7 +56,6 @@ OBJ       = lmder.o \
 	bstrlib.o \
 	bstraux.o \
 	freedata.o \
-	initialization.o \
 	mapinit.o \
 	maperror.o \
 	MAP_Types.o \
