@@ -25,17 +25,98 @@
 #define _MAPAPI_H
 
 
+MAP_EXTERNCALL void set_init_to_null(MAP_InitInputType_t* init_type, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_EXTERNCALL void map_add_cable_library_input_text(MAP_InitInputType_t* init_type);
+MAP_EXTERNCALL void map_add_node_input_text(MAP_InitInputType_t* init_type);
+MAP_EXTERNCALL void map_add_element_input_text(MAP_InitInputType_t* init_type);
+MAP_EXTERNCALL void map_add_options_input_text(MAP_InitInputType_t* init_type);
 MAP_EXTERNCALL double* map_plot_x_array(MAP_OtherStateType_t* otherFortType, int i, int numPlotPoints, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_EXTERNCALL double* map_plot_y_array(MAP_OtherStateType_t* otherFortType, int i, int numPlotPoints, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_EXTERNCALL double* map_plot_z_array(MAP_OtherStateType_t* otherFortType, int i, int numPlotPoints, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_EXTERNCALL void map_plot_array_free(MapReal * array) ;
-MAP_EXTERNCALL MapReal map_residual_function_length(MAP_OtherStateType_t* otherFortType, int i, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_EXTERNCALL MapReal map_residual_function_height(MAP_OtherStateType_t* otherFortType, int i, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_EXTERNCALL MapReal map_jacobian_dxdh(MAP_OtherStateType_t* otherFortType, int i, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_EXTERNCALL MapReal map_jacobian_dxdv(MAP_OtherStateType_t* otherFortType, int i, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_EXTERNCALL MapReal map_jacobian_dzdh(MAP_OtherStateType_t* otherFortType, int i, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_EXTERNCALL MapReal map_jacobian_dzdv(MAP_OtherStateType_t* otherFortType, int i, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_EXTERNCALL MapReal map_residual_function_length(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_EXTERNCALL MapReal map_residual_function_height(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_EXTERNCALL MapReal map_jacobian_dxdh(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_EXTERNCALL MapReal map_jacobian_dxdv(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_EXTERNCALL MapReal map_jacobian_dzdh(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_EXTERNCALL MapReal map_jacobian_dzdv(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_EXTERNCALL int map_size_elements(MAP_OtherStateType_t* other_type, MAP_ERROR_CODE* ierr, char* map_msg);
+
+
+/**
+ * @brief Set the water depth. Should be called before {@link map_init()}
+ * @param p_type paramter type, native C struct {@link MAP_ParameterType_t}
+ * @param depth water depth [m]
+ *
+ * Example Fortran usage:
+ * @code
+ * INTERFACE                                                                
+ *    SUBROUTINE mapextern_set_depth(interf, fc_val) BIND(C,name='map_set_sea_depth')  
+ *      IMPORT                            
+ *      IMPLICIT NONE                     
+ *      TYPE(MAP_ParameterType_C) interf
+ *      REAL(C_DOUBLE), VALUE :: fc_val  
+ *    END SUBROUTINE mapextern_set_depth    
+ * END INTERFACE                      
+ *
+ *   ...
+ *
+ * ! access the function using this subroutine call: 
+ * CALL mapextern_set_depth(p%C_obj, depth)
+ * @endcode
+ */
+MAP_EXTERNCALL void map_set_sea_depth(MAP_ParameterType_t* p_type, const MapReal depth);
+
+
+/**
+ * @brief Set the water density. Should be called before {@link map_init()}
+ * @param p_type paramter type, native C struct {@link MAP_ParameterType_t}
+ * @param rho water density [kg/m^3]
+ *
+ * Example Fortran usage:
+ * @code
+ * INTERFACE                                                                         
+ *    SUBROUTINE mapextern_set_density(interf, fc_val) BIND(C,name='map_set_sea_density') 
+ *      IMPORT                                            
+ *      IMPLICIT NONE                                     
+ *      TYPE(MAP_ParameterType_C) interf                
+ *      REAL(C_DOUBLE), VALUE :: fc_val                      
+ *    END SUBROUTINE mapextern_set_density                      
+ * END INTERFACE                                          
+ *
+ *   ...
+ *
+ * ! access the function using this subroutine call: 
+ * CALL mapextern_set_density(p%C_obj, rho)
+ * @endcode
+ */
+MAP_EXTERNCALL void map_set_sea_density(MAP_ParameterType_t* p_type, const MapReal rho);
+
+
+/**
+ * @brief Set the gravitational constant. Should be called before {@link map_init()}
+ * @param p_type paramter type, native C struct {@link MAP_ParameterType_t}
+ * @param grtavity gravitational acceleration [m/s^2]
+ *
+ * Example Fortran usage:
+ * @code
+ * INTERFACE                                                               
+ *    SUBROUTINE MAP_map_set_gravity(interf, fc_val) BIND(C,name='map_set_gravity')
+ *      IMPORT                                                         
+ *      IMPLICIT NONE                                                  
+ *      TYPE(MAP_ParameterType_C) interf                               
+ *      REAL(C_DOUBLE), VALUE :: fc_val                                
+ *    END SUBROUTINE MAP_map_set_gravity                                   
+ * END INTERFACE                                                       
+ *
+ *   ...
+ *
+ * ! access the function using this subroutine call: 
+ * CALL mapextern_map_set_gravity(p%C_obj, g)
+ * @endcode
+ */
+MAP_EXTERNCALL void map_set_gravity(MAP_ParameterType_t* p_type, const MapReal gravity);
+
 
 /**
  * @brief   Returns vertical and horizontal fairlead force along element plane
@@ -208,5 +289,207 @@ MAP_EXTERNCALL void map_end(MAP_InputType_t* u_type,
                             MAP_OutputType_t* y_type,                                                                           
                             MAP_ERROR_CODE* ierr,
                             char* map_msg);
+
+/**
+ * @brief Set the name out the MAP summary output file. Does not need to be called; the default
+ *        summary file name is 'outlist.map.sum'.
+ * @param init_type initalization type, native C struct {@link InitializationData_t}
+ * @param map_msg MAP error message
+ * @param ierr MAP error code
+ *
+ * Example Fortran usage:
+ * @code
+ * ! Interface block declaration:
+ * INTERFACE 
+ *    SUBROUTINE mapextern_map_set_summary_file_name(fc_init, fc_char, fc_int) BIND(C,name='map_set_summary_file_name')
+ *      IMPORT                                    
+ *      IMPLICIT NONE                             
+ *      TYPE(MAP_InitInputType_C) fc_init        
+ *      CHARACTER(KIND=C_CHAR), DIMENSION(*) :: fc_char
+ *      INTEGER(KIND=C_INT) :: fc_int            
+ *    END SUBROUTINE mapextern_map_set_summary_file_name
+ * END INTERFACE
+ *
+ *   ...
+ *
+ * ! access the function using this subroutine call: 
+ * CALL mapextern_map_set_summary_file_name(InitInp%C_obj, ErrMsg, ErrStat)
+ * @endcode
+ * @todo: need to free summaryFileName. This is done in delete_all_init_data(...), should be called in Fortran routines
+ */
+MAP_EXTERNCALL void map_set_summary_file_name(MAP_InitInputType_t* init_type, char* map_msg, MAP_ERROR_CODE* ierr); 
+
+
+/**
+ * @brief Obtains the variable name array corresponding to the outputs selected in the MAP input file. For example,
+ *        str_array can be:
+ *        <pre>
+ *        X[2]     H[1]     X[6]     H[3]     X[10]    H[5]     X[14]    H[7]
+ *        </pre>
+ * @param n number of header blocks. Should be proportional to the number of itms being output to the FAST output file
+ * @param str_array the string being output.         
+ * @param other_type Fortran other state derived type
+ *
+ * Example Fortran usage:
+ * @code
+ * ! Interface block declaration:
+ * INTERFACE      
+ *    SUBROUTINE mapextern_map_get_header_string(fc_int, fc_string, fc_other) BIND(C,name='map_get_header_string')   
+ *      IMPORT                                 
+ *      IMPLICIT NONE                          
+ *      INTEGER(KIND=C_INT) :: fc_int          
+ *      TYPE( MAP_OtherStateType_C ) fc_other                                                 
+ *      TYPE(C_PTR), DIMENSION(FC_int) :: fc_string
+ *    END SUBROUTINE mapextern_map_get_header_string
+ * END INTERFACE                                                 
+ *
+ *   ...
+ *
+ * ! access the function using this subroutine call: 
+ * CALL mapextern_map_get_header_string(num_header_str, hdr_str_ptrs, other%C_obj)
+ * @endcode
+ * @todo this should raise and error when count!=n
+ */
+MAP_EXTERNCALL void map_get_header_string(int* n, char** str_array, MAP_OtherStateType_t* other_type);
+
+
+/**
+ * @brief Obtains the units of the outputs passed back to the calling program. str_array can be:
+ *        <pre>
+ *        [m]     [N]     [m]     [N]     [m]     [N]     [m]     [N]   
+ *        </pre>
+ * @param n number of header blocks. Should be proportional to the number of itms being output to the FAST output file
+ * @param str_array the string being output.         
+ * @param other_type Fortran other state derived type
+ *
+ * Example Fortran usage:
+ * @code
+ * ! Interface block declaration:
+ * INTERFACE
+ *    SUBROUTINE mapextern_map_get_unit_string(fc_int, fc_string, fc_other) BIND(C,name='map_get_unit_string')          
+ *      IMPORT                                     
+ *      IMPLICIT NONE                              
+ *      INTEGER(KIND=C_INT) :: fc_int              
+ *      TYPE(MAP_OtherStateType_C) fc_other                                                 
+ *      TYPE(C_PTR), DIMENSION(FC_int) :: fc_string
+ *    END SUBROUTINE mapextern_map_get_unit_string        
+ * END INTERFACE                                                 
+ *
+ *   ...
+ * ! access the function using this subroutine call: 
+ * CALL mapextern_map_get_header_string(num_header_str, unit_str_ptrs, other%C_obj)
+ * @endcode
+ * @todo this should raise and error when count!=n
+ */
+MAP_EXTERNCALL void map_get_unit_string(int* n, char** str_array ,MAP_OtherStateType_t* other_type);
+
+
+/**
+ * @brief   Allocate MAP_InitInputType_t and InitializationData
+ * @details Called to allocate memory for the initialzation data for both the Fortran
+ *          derived data and internal state data. Following sucessful allocation, 
+ *          {@link initialize_init_type_to_null} and {@link initialize_init_data_to_null}
+ *          are both called to nullify data. If not called, memory errors results. This should 
+ *          the first function called when interacting with MAP. This is a necessary function for
+ *          interaction with python and C based programs
+ * @param   map_msg, error message
+ * @param   ierr, error code
+ * @return  initialization input type (equivalent C binding struct)  
+ */
+MAP_EXTERNCALL MAP_InitInputType_t* map_create_init_type(char* map_msg, MAP_ERROR_CODE* ierr);
+
+
+/**
+ * @brief   Allocate MAP_OtherStateType_t and ModelData
+ * @details Called to allocate memory for the other states for both the Fortran
+ *          derived data and internal state data. This is a necessary function for
+ *          interaction with python and C based programs. The 
+ * @param   map_msg, error message
+ * @param   ierr, error code
+ * @return  other state type (equivalent C binding struct)  
+ */
+MAP_EXTERNCALL MAP_OtherStateType_t* map_create_other_type(char* map_msg, MAP_ERROR_CODE* ierr);
+
+
+/**
+ * @brief   Allocate MAP_InitOutputType_t 
+ * @details Called to allocate memory for the initialization output type. The only obligation of
+ *          this struct is to store the program version, necessary for FAST. This function is a
+ *          necessary call for C and python, but can be ignored for Fortran if the MAP template 
+ *          is followed (that is, ISO C Binding is followed in the mapping of Fortran type and C 
+ *          structures). 
+ * @param   map_msg, error message
+ * @param   ierr, error code
+ * @return  initialization output type (equivalent C binding struct)  
+ */
+MAP_EXTERNCALL MAP_InitOutputType_t* map_create_initout_type(char* map_msg, MAP_ERROR_CODE* ierr);
+
+
+/**
+ * @brief   Allocate MAP_InputType_t
+ * @details Called to allocate memory for the input type. The program inputs are the fairlead 
+ *          displacement due to the motion of the vessel the cable are attached to. This function 
+ *          is a necessary call for C and python, but can be ignored for Fortran if the MAP 
+ *          template is followed (that is, ISO C Binding is followed in the mapping of Fortran 
+ *          type and C structures). 
+ * @param   map_msg, error message
+ * @param   ierr, error code
+ * @return  input type (equivalent C binding struct)  
+ */
+MAP_EXTERNCALL MAP_InputType_t* map_create_input_type(char* map_msg, MAP_ERROR_CODE* ierr);
+
+
+/**
+ * @brief   Allocate MAP_ParameterType_t
+ * @details Called to allocate memory for the parameter type. Parameters are time-invariant 
+ *          constants, such as gravitational constant.  This function 
+ *          is a necessary call for C and python, but can be ignored for Fortran if the MAP 
+ *          template is followed (that is, ISO C Binding is followed in the mapping of Fortran 
+ *          type and C structures). 
+ * @param   map_msg, error message
+ * @param   ierr, error code
+ * @return  parameter type (equivalent C binding struct)  
+ */
+MAP_EXTERNCALL MAP_ParameterType_t* map_create_parameter_type(char* map_msg, MAP_ERROR_CODE* ierr);
+
+
+/**
+ * @brief   Allocate MAP_ConstraintType_t
+ * @details Called to allocate memory for the constraint type. Constraints are variables solved
+ *          through an algebraic equation. This is fairlead end forces (H and V) and node positions.  
+ *          This function is a necessary call for C and python, but can be ignored for Fortran if
+ *          the MAP template is followed (that is, ISO C Binding is followed in the mapping of Fortran 
+ *          type and C structures). 
+ * @param   map_msg, error message
+ * @param   ierr, error code
+ * @return  constraint type (equivalent C binding struct)  
+ */
+MAP_EXTERNCALL MAP_ConstraintStateType_t* map_create_constraint_type(char* map_msg, MAP_ERROR_CODE* ierr);
+
+
+/**
+ * @brief   Allocate MAP_OutputType_t
+ * @details Called to allocate memory for the output type. IMPORTANT: this is different from the {@link OutList}.
+ *          Output types are forces at the line fairlead only for lines connecting to the vessel. 
+ *          This function is a necessary call for C and python, but can be ignored for Fortran if
+ *          the MAP template is followed (that is, ISO C Binding is followed in the mapping of Fortran 
+ *          type and C structures). 
+ * @param   map_msg, error message
+ * @param   ierr, error code
+ * @return  output type (equivalent C binding struct)  
+ */
+MAP_EXTERNCALL MAP_OutputType_t* map_create_output_type(char* map_msg, MAP_ERROR_CODE* ierr);
+
+
+/**
+ * @brief   Allocate MAP_ContinuousStateType_t
+ * @details Called to allocate memory for the coninuous type. Not currently used, but it still is
+ *          required to be allocated for FAST consistentcy. 
+ * @param   map_msg, error message
+ * @param   ierr, error code
+ * @return  continuous type (equivalent C binding struct)  
+ */
+MAP_EXTERNCALL MAP_ContinuousStateType_t* map_create_continuous_type(char* map_msg, MAP_ERROR_CODE* ierr);
+
 
 #endif /* _MAPAPI_H */

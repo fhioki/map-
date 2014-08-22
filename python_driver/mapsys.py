@@ -146,11 +146,11 @@ class Map(object):
 
     # read file stuff
     lib.set_init_to_null.argtype=[MapInit_Type, c_char_p, POINTER(c_int) ]
-#    lib.map_set_summary_file_name.argtype=[MapInit_Type, c_char_p, POINTER(c_int) ]
-#     lib.map_add_cable_library_input_text.argtype=[MapInit_Type]
-#     lib.map_add_node_input_text.argtype=[MapInit_Type]
-#     lib.map_add_element_input_text.argtype=[MapInit_Type]
-#     lib.map_add_options_input_text.argtype=[MapInit_Type]
+    lib.map_set_summary_file_name.argtype=[MapInit_Type, c_char_p, POINTER(c_int) ]
+    lib.map_add_cable_library_input_text.argtype=[MapInit_Type]
+    lib.map_add_node_input_text.argtype=[MapInit_Type]
+    lib.map_add_element_input_text.argtype=[MapInit_Type]
+    lib.map_add_options_input_text.argtype=[MapInit_Type]
 
     lib.map_create_init_type.argtype       = [ c_char_p, POINTER(c_int) ]
     lib.map_create_initout_type.argtype    = [ c_char_p, POINTER(c_int) ]
@@ -178,25 +178,25 @@ class Map(object):
     
     lib.map_size_elements.restype = c_int
 
-#     # numeric routines
-#     lib.map_residual_function_length.restype = c_double
-#     lib.map_residual_function_height.restype = c_double
-#     lib.map_jacobian_dxdh.restype            = c_double
-#     lib.map_jacobian_dxdv.restype            = c_double
-#     lib.map_jacobian_dzdh.restype            = c_double
-#     lib.map_jacobian_dzdv.restype            = c_double
-# 
-#     lib.map_residual_function_length.argtypes = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
-#     lib.map_residual_function_height.argtypes = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
-#     lib.map_jacobian_dxdh.argtypes            = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
-#     lib.map_jacobian_dxdv.argtypes            = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
-#     lib.map_jacobian_dzdh.argtypes            = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
-#     lib.map_jacobian_dzdv.argtypes            = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
-# 
-#     
-#     lib.map_get_fairlead_force_2d.argtypes = [POINTER(c_double), POINTER(c_double), MapData_Type, c_int, c_char_p, POINTER(c_int)]
-# 
-#     
+    # numeric routines
+    lib.map_residual_function_length.restype = c_double
+    lib.map_residual_function_height.restype = c_double
+    lib.map_jacobian_dxdh.restype            = c_double
+    lib.map_jacobian_dxdv.restype            = c_double
+    lib.map_jacobian_dzdh.restype            = c_double
+    lib.map_jacobian_dzdv.restype            = c_double
+ 
+    lib.map_residual_function_length.argtypes = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
+    lib.map_residual_function_height.argtypes = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
+    lib.map_jacobian_dxdh.argtypes            = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
+    lib.map_jacobian_dxdv.argtypes            = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
+    lib.map_jacobian_dzdh.argtypes            = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
+    lib.map_jacobian_dzdv.argtypes            = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
+ 
+     
+    # lib.map_get_fairlead_force_2d.argtypes = [POINTER(c_double), POINTER(c_double), MapData_Type, c_int, c_char_p, POINTER(c_int)]
+ 
+     
     # plot routines
     lib.map_plot_x_array.argtypes = [ MapData_Type, c_int, c_int, c_char_p, POINTER(c_int) ]
     lib.map_plot_x_array.restype  = POINTER(c_double)
@@ -300,6 +300,7 @@ class Map(object):
     def end(self):
         Map.lib.map_end(self.f_type_u, self.f_type_p, self.f_type_x, None, self.f_type_z, self.f_type_d, self.f_type_y, pointer(self.ierr), self.status)
 
+
     """
     Set a name for the MAP summary file. Does not need to be called. If not called, the default name is 'outlist.sum.map'
     """
@@ -368,6 +369,7 @@ class Map(object):
             print self.status.value        
         return obj
 
+
     """
     Calls function in fortdatamanager.c to create instance of c structs
     MAP_EXTERNCALL ConstraintData* MAP_ConstrState_Create( char* map_msg, MAP_ERROR_CODE *ierr )
@@ -377,6 +379,7 @@ class Map(object):
         if self.ierr.value != 0 :
             print self.status.value        
         return obj
+
 
     """
     Calls function in fortdatamanager.c to create instance of c structs
@@ -446,105 +449,107 @@ class Map(object):
 
 
 
-#     def get_fairlead_force_2d(self, index):
-#         """Gets the horizontal and vertical fairlead force in a 2D plane along the 
-#         straight-line element. Must ensure update_states() is called before accessing 
-#         this function. The function will not solve the forces for a new vessel position
-#         if it updated. , otherwise the fairlead forces are not updated with the new 
-#         vessel position. Called C function:
-#         
-#         MAP_EXTERNCALL void map_get_fairlead_force_2d(double* H, double* V, MAP_OtherStateType_t* other_type, int index, char* map_msg, MAP_ERROR_CODE* ierr);
-# 
-#         :param index: The element number the fairlead forces are being requested for. Zero indexed
-#         :returns: horizontal and vertical fairlead force [N]
-# 
-#         >>> H,V = print get_fairlead_force_2d(1)        
-#         """
-#         H_ref = c_double(-999.9)
-#         V_ref = c_double(-999.9)
-#         Map.lib.map_get_fairlead_force_2d( pointer(H_ref), pointer(V_ref),self.f_type_d, index, self.status, pointer(self.ierr))
-#         return H_ref.value, V_ref.value
-# 
-# 
-#     def get_fairlead_force_3d(self, index):
-#         """Gets the horizontal and vertical fairlead force in a 3D frame along relative 
-#         referene global axis. Must ensure update_states() is called before accessing 
-#         this function. The function will not solve the forces for a new vessel position
-#         if it updated. , otherwise the fairlead forces are not updated with the new 
-#         vessel position. Called C function:
-#         
-#         MAP_EXTERNCALL void map_get_fairlead_force_3d(double* fx, double* fy, double* fz, MAP_OtherStateType_t* other_type, int index, char* map_msg, MAP_ERROR_CODE* ierr);
-# 
-#         :param index: The element number the fairlead forces are being requested for. Zero indexed
-#         :returns: horizontal and vertical fairlead force [N]
-# 
-#         >>> fx,fy,fz = get_fairlead_force_3d(1)        
-#         """
-#         fx = c_double(-999.9)
-#         fy = c_double(-999.9)
-#         fz = c_double(-999.9)
-#         Map.lib.map_get_fairlead_force_3d( pointer(fx), pointer(fy), pointer(fz), self.f_type_d, index, self.status, pointer(self.ierr))
-#         return fx.value, fy.value, fz.value
-#         
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-#     def funcl( self, i ) :
-#         self.val = Map.lib.map_residual_function_length( self.f_type_d, i, self.status, pointer(self.ierr) )
-#         if self.ierr.value != 0 :
-#             print self.status.value        
-#             self.end( )
-#             sys.exit('MAP terminated premature.')
-#         return self.val
-# 
-#     def funch( self, i ) :
-#         self.val = Map.lib.map_residual_function_height( self.f_type_d, i, self.status, pointer(self.ierr) )
-#         if self.ierr.value != 0 :
-#             print self.status.value        
-#             self.end( )
-#             sys.exit('MAP terminated premature.')
-#         return self.val
-# 
-#     def dxdh( self, i ) :
-#         self.val = Map.lib.map_jacobian_dxdh( self.f_type_d, i, self.status, pointer(self.ierr) )
-#         if self.ierr.value != 0 :
-#             print self.status.value        
-#             self.end( )
-#             sys.exit('MAP terminated premature.')
-#         return self.val
-# 
-# 
-#     def dxdv( self, i ) :
-#         self.val = Map.lib.map_jacobian_dxdv( self.f_type_d, i, self.status, pointer(self.ierr) )
-#         if self.ierr.value != 0 :
-#             print self.status.value        
-#             self.end( )
-#             sys.exit('MAP terminated premature.')
-#         return self.val
-# 
-#     def dzdh( self, i ) :
-#         self.val = Map.lib.map_jacobian_dzdh( self.f_type_d, i, self.status, pointer(self.ierr) )
-#         if self.ierr.value != 0 :
-#             print self.status.value        
-#             self.end( )
-#             sys.exit('MAP terminated premature.')
-#         return self.val
-# 
-#     def dzdv( self, i ) :
-#         self.val = Map.lib.map_jacobian_dzdv( self.f_type_d, i, self.status, pointer(self.ierr) )
-#         if self.ierr.value != 0 :
-#             print self.status.value        
-#             self.end( )
-#             sys.exit('MAP terminated premature.')
-#         return self.val
-# 
-# 
+    #def get_fairlead_force_2d(self, index):
+    #    """Gets the horizontal and vertical fairlead force in a 2D plane along the 
+    #    straight-line element. Must ensure update_states() is called before accessing 
+    #    this function. The function will not solve the forces for a new vessel position
+    #    if it updated. , otherwise the fairlead forces are not updated with the new 
+    #    vessel position. Called C function:
+    #    
+    #    MAP_EXTERNCALL void map_get_fairlead_force_2d(double* H, double* V, MAP_OtherStateType_t* other_type, int index, char* map_msg, MAP_ERROR_CODE* ierr);
+    #
+    #    :param index: The element number the fairlead forces are being requested for. Zero indexed
+    #    :returns: horizontal and vertical fairlead force [N]
+    #
+    #    >>> H,V = print get_fairlead_force_2d(1)        
+    #    """
+    #    H_ref = c_double(-999.9)
+    #    V_ref = c_double(-999.9)
+    #    Map.lib.map_get_fairlead_force_2d( pointer(H_ref), pointer(V_ref),self.f_type_d, index, self.status, pointer(self.ierr))
+    #    return H_ref.value, V_ref.value
+    #
+    #
+    #def get_fairlead_force_3d(self, index):
+    #    """Gets the horizontal and vertical fairlead force in a 3D frame along relative 
+    #    referene global axis. Must ensure update_states() is called before accessing 
+    #    this function. The function will not solve the forces for a new vessel position
+    #    if it updated. , otherwise the fairlead forces are not updated with the new 
+    #    vessel position. Called C function:
+    #    
+    #    MAP_EXTERNCALL void map_get_fairlead_force_3d(double* fx, double* fy, double* fz, MAP_OtherStateType_t* other_type, int index, char* map_msg, MAP_ERROR_CODE* ierr);
+    #
+    #    :param index: The element number the fairlead forces are being requested for. Zero indexed
+    #    :returns: horizontal and vertical fairlead force [N]
+    #
+    #    >>> fx,fy,fz = get_fairlead_force_3d(1)        
+    #    """
+    #    fx = c_double(-999.9)
+    #    fy = c_double(-999.9)
+    #    fz = c_double(-999.9)
+    #    Map.lib.map_get_fairlead_force_3d( pointer(fx), pointer(fy), pointer(fz), self.f_type_d, index, self.status, pointer(self.ierr))
+    #    return fx.value, fy.value, fz.value
+        
+
+
+
+
+
+
+
+
+
+    def funcl( self, i ) :
+        self.val = Map.lib.map_residual_function_length(self.f_type_d, i, self.status, pointer(self.ierr))
+        if self.ierr.value != 0 :
+            print self.status.value        
+            self.end( )
+            sys.exit('MAP terminated premature.')
+        return self.val
+
+
+    def funch( self, i ) :
+        self.val = Map.lib.map_residual_function_height(self.f_type_d, i, self.status, pointer(self.ierr))
+        if self.ierr.value != 0 :
+            print self.status.value        
+            self.end( )
+            sys.exit('MAP terminated premature.')
+        return self.val
+
+
+    def dxdh( self, i ) :
+        self.val = Map.lib.map_jacobian_dxdh( self.f_type_d, i, self.status, pointer(self.ierr) )
+        if self.ierr.value != 0 :
+            print self.status.value        
+            self.end( )
+            sys.exit('MAP terminated premature.')
+        return self.val
+
+
+    def dxdv( self, i ) :
+        self.val = Map.lib.map_jacobian_dxdv( self.f_type_d, i, self.status, pointer(self.ierr) )
+        if self.ierr.value != 0 :
+            print self.status.value        
+            self.end( )
+            sys.exit('MAP terminated premature.')
+        return self.val
+
+
+    def dzdh( self, i ) :
+        self.val = Map.lib.map_jacobian_dzdh( self.f_type_d, i, self.status, pointer(self.ierr) )
+        if self.ierr.value != 0 :
+            print self.status.value        
+            self.end( )
+            sys.exit('MAP terminated premature.')
+        return self.val
+
+
+    def dzdv( self, i ) :
+        self.val = Map.lib.map_jacobian_dzdv( self.f_type_d, i, self.status, pointer(self.ierr) )
+        if self.ierr.value != 0 :
+            print self.status.value        
+            self.end( )
+            sys.exit('MAP terminated premature.')
+        return self.val
 
 
     def linear( self, epsilon ) :

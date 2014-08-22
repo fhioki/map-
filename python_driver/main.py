@@ -39,7 +39,8 @@ if __name__ == '__main__':
     # mooring_1.read_file("../test/baseline_2.map") # 100 m depth
     # mooring_1.read_file("../test/baseline_4.map") # 100 m depth
     mooring_1.read_file("../test/NRELOffshrBsline5MW_Platform_OC3Hywind_segmented.map") # 320 m depth
-    
+
+    mooring_1.summary_file('name_me.txt')
     mooring_1.init( )
     
     #mooring_1.displace_vessel(5.0, 0.0, 0.0, 0.0, 0.0, 0.0)
@@ -60,23 +61,22 @@ if __name__ == '__main__':
     # ''' 
     # function residual at (hopefully) the solution
     # '''
-    # # print mooring_1.funch(0) 
-    # # print mooring_1.funcl(0)
-    # # print mooring_1.funch(1)
-    # # print mooring_1.funcl(1)
-    # 
-    # '''
-    # derivatives at solution
-    # '''
-    # # print mooring_1.dxdh(0)
-    # # print mooring_1.dxdv(0)    
-    # # print mooring_1.dzdh(0)
-    # # print mooring_1.dzdv(0)
-    # # 
-    # # print mooring_1.dxdh(1)
-    # # print mooring_1.dxdv(1)    
-    # # print mooring_1.dzdh(1)
-    # # print mooring_1.dzdv(1)
+    
+    print mooring_1.funch(0) 
+    print mooring_1.funcl(0)
+    
+    '''
+    derivatives at solution
+    '''
+    print mooring_1.dxdh(0)
+    print mooring_1.dxdv(0)    
+    print mooring_1.dzdh(0)
+    print mooring_1.dzdv(0)
+    
+    print mooring_1.dxdh(1)
+    print mooring_1.dxdv(1)    
+    print mooring_1.dzdh(1)
+    print mooring_1.dzdv(1)
 
     fig = plt.figure()
     ax = Axes3D(fig)

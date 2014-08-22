@@ -34,6 +34,7 @@
 // #include "nwtcfunctions.h"
 // #include "lineroutines.h"
 #include "outputstream.h"
+#include "numeric.h"
 
 
 extern const char MAP_ERROR_STRING[][1024];
@@ -624,248 +625,242 @@ MAP_EXTERNCALL void map_plot_array_free(MapReal* array)
 }
 
 
-// MAP_EXTERNCALL MapReal map_residual_function_length(MAP_OtherStateType_t* otherType, int i, char* map_msg, MAP_ERROR_CODE* ierr)
-// { 
-//   ModelData* data = otherType->object;
-//   Element* element = NULL;
-//   MapReal Fh = 0.0;
-//   MapReal Fv = 0.0;
-//   MapReal EA = 0.0;
-//   MapReal Lu = 0.0;
-//   MapReal length = 0.0;
-//   MapReal omega = 0.0;
-//   MapReal cb = 0.0;
-//   bool contactFlag = false;
-//   char buffer[64] = "";
-//   int cx = 0;
-//   
-//   *ierr = MAP_SAFE;
-//   map_msg[0] = 0;
-//   element = (Element*)list_get_at(&data->element, i);
-// 
-//   if (element==NULL) {
-//     cx = map_snprintf(buffer, 64, "Element out of range: %d.", i); assert(cx>=0);
-//     *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_42);
-//     return -999.9;
-//   };
-// 
-//   Fh = *(element->H.value);
-//   Fv = *(element->V.value);  
-//   EA = element->lineProperty->ea;
-//   Lu = element->Lu.value;
-//   length = element->l.value;
-//   omega = element->lineProperty->omega;
-//   contactFlag = element->options.omitContact;
-//   cb = element->lineProperty->cb;
-// 
-//   if (contactFlag==true || omega<0.0 || (Fv-omega*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
-//     return residual_function_length_no_contact(Fv, Fh, omega, Lu, EA, length);
-//   } else { /* true when a portion of the line rests on the seabed and the anchor tension is nonzero */
-//     return residual_function_length_contact(Fv, Fh, omega, Lu, EA, length, cb);
-//   };
-// };
+MAP_EXTERNCALL MapReal map_residual_function_length(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr)
+{ 
+  ModelData* model_data = other_type->object;
+  Element* element = NULL;
+  MapReal Fh = 0.0;
+  MapReal Fv = 0.0;
+  MapReal EA = 0.0;
+  MapReal Lu = 0.0;
+  MapReal length = 0.0;
+  MapReal omega = 0.0;
+  MapReal cb = 0.0;
+  bool contact_flag = false;
+  bstring user_msg = NULL;
+
+  map_reset_universal_error(map_msg, ierr);  
+  element = (Element*)list_get_at(&model_data->element, i);
+
+  if (element==NULL) {
+    user_msg = bformat("Element out of range: %d.", i);
+    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_42);
+    bdestroy(user_msg);
+    return -999.9;
+  };
+
+  Fh = *(element->H.value);
+  Fv = *(element->V.value);  
+  EA = element->lineProperty->ea;
+  Lu = element->Lu.value;
+  length = element->l.value;
+  omega = element->lineProperty->omega;
+  contact_flag = element->options.omitContact;
+  cb = element->lineProperty->cb;
+
+  if (contact_flag==true || omega<0.0 || (Fv-omega*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
+    return residual_function_length_no_contact(Fv, Fh, omega, Lu, EA, length);
+  } else { /* true when a portion of the line rests on the seabed and the anchor tension is nonzero */
+    return residual_function_length_contact(Fv, Fh, omega, Lu, EA, length, cb);
+  };
+};
 
 
-// MAP_EXTERNCALL MapReal map_residual_function_height(MAP_OtherStateType_t* otherType, int i, char* map_msg, MAP_ERROR_CODE* ierr)
-// {
-//   ModelData* data = otherType->object;
-//   Element* element = NULL;
-//   MapReal Fh = 0.0;
-//   MapReal Fv = 0.0;
-//   MapReal EA = 0.0;
-//   MapReal Lu = 0.0;
-//   MapReal height = 0.0;
-//   MapReal omega = 0.0;
-//   MapReal cb = 0.0;
-//   bool contactFlag = false;
-//   char buffer[64] = "";
-//   int cx = 0;
-// 
-//   *ierr = MAP_SAFE;
-//   map_msg[0] = 0;
-//   element = (Element*)list_get_at( &data->element, i );
-// 
-//   if (element==NULL) {    
-//     cx = map_snprintf(buffer, 64, "Element out of range: %d.", i); assert(cx>=0);
-//     *ierr = map_set_universal_error( buffer, map_msg, ierr, MAP_FATAL_42);
-//     return -999.9;
-//   };
-// 
-//   Fh = *(element->H.value);
-//   Fv = *(element->V.value);  
-//   EA = element->lineProperty->ea;
-//   Lu = element->Lu.value;
-//   height = element->h.value;
-//   omega = element->lineProperty->omega;
-//   contactFlag = element->options.omitContact;
-//   cb = element->lineProperty->cb;
-// 
-//   if (contactFlag==true || omega<0.0 || (Fv-omega*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
-//     return residual_function_height_no_contact(Fv, Fh, omega, Lu, EA, height);
-//   } else { /* true when a portion of the line rests on the seabed and the anchor tension is nonzero */
-//     return residual_function_height_contact(Fv, Fh, omega, Lu, EA, height, cb);
-//   };
-// };
+MAP_EXTERNCALL MapReal map_residual_function_height(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  ModelData* model_data = other_type->object;
+  Element* element = NULL;
+  MapReal Fh = 0.0;
+  MapReal Fv = 0.0;
+  MapReal EA = 0.0;
+  MapReal Lu = 0.0;
+  MapReal height = 0.0;
+  MapReal omega = 0.0;
+  MapReal cb = 0.0;
+  bool contact_flag = false;
+  bstring user_msg = NULL;
+
+  map_reset_universal_error(map_msg, ierr);  
+  element = (Element*)list_get_at(&model_data->element, i);
+
+  if (element==NULL) {    
+    user_msg = bformat("Element out of range: %d.", i);
+    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_42);
+    bdestroy(user_msg);
+    return -999.9;
+  };
+
+  Fh = *(element->H.value);
+  Fv = *(element->V.value);  
+  EA = element->lineProperty->ea;
+  Lu = element->Lu.value;
+  height = element->h.value;
+  omega = element->lineProperty->omega;
+  contact_flag = element->options.omitContact;
+  cb = element->lineProperty->cb;
+
+  if (contact_flag==true || omega<0.0 || (Fv-omega*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
+    return residual_function_height_no_contact(Fv, Fh, omega, Lu, EA, height);
+  } else { /* true when a portion of the line rests on the seabed and the anchor tension is nonzero */
+    return residual_function_height_contact(Fv, Fh, omega, Lu, EA, height, cb);
+  };
+};
 
 
-// MAP_EXTERNCALL MapReal map_jacobian_dxdh(MAP_OtherStateType_t* otherType, int i, char* map_msg, MAP_ERROR_CODE* ierr)
-// {
-//   ModelData* data = otherType->object;
-//   Element* element = NULL;
-//   MapReal Fh = 0.0;
-//   MapReal Fv = 0.0;
-//   MapReal EA = 0.0;
-//   MapReal Lu = 0.0;
-//   MapReal omega = 0.0;
-//   MapReal cb = 0.0;
-//   bool contactFlag = false;
-//   char buffer[64] = "";
-//   int cx = 0;
-// 
-//   *ierr = MAP_SAFE;
-//   map_msg[0] = 0;
-//   element = (Element*)list_get_at(&data->element, i);
-// 
-//   if (element==NULL) {    
-//     cx = map_snprintf(buffer, 64, "Element out of range: %d.", i); assert(cx>=0);
-//     *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_42);
-//     return -999.9;
-//   };
-// 
-//   Fh = *(element->H.value);
-//   Fv = *(element->V.value);  
-//   EA = element->lineProperty->ea;
-//   Lu = element->Lu.value;
-//   omega = element->lineProperty->omega;
-//   contactFlag = element->options.omitContact;
-//   cb = element->lineProperty->cb;
-// 
-//   if (contactFlag==true || omega<0.0 || (Fv-omega*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
-//     return jacobian_dxdh_no_contact(Fv, Fh, omega, Lu, EA);
-//   } else { /* true when a portion of the line rests on the seabed and the anchor tension is nonzero */
-//     return jacobian_dxdh_contact(Fv, Fh, omega, Lu, EA, cb);
-//   };
-// };
+MAP_EXTERNCALL MapReal map_jacobian_dxdh(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  ModelData* model_data = other_type->object;
+  Element* element = NULL;
+  MapReal Fh = 0.0;
+  MapReal Fv = 0.0;
+  MapReal EA = 0.0;
+  MapReal Lu = 0.0;
+  MapReal omega = 0.0;
+  MapReal cb = 0.0;
+  bool contact_flag = false;
+  bstring user_msg = NULL;
+
+  map_reset_universal_error(map_msg, ierr);  
+  element = (Element*)list_get_at(&model_data->element, i);
+
+  if (element==NULL) {    
+    user_msg = bformat("Element out of range: %d.", i);
+    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_42);
+    bdestroy(user_msg);
+    return -999.9;
+  };
+
+  Fh = *(element->H.value);
+  Fv = *(element->V.value);  
+  EA = element->lineProperty->ea;
+  Lu = element->Lu.value;
+  omega = element->lineProperty->omega;
+  contact_flag = element->options.omitContact;
+  cb = element->lineProperty->cb;
+
+  if (contact_flag==true || omega<0.0 || (Fv-omega*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
+    return jacobian_dxdh_no_contact(Fv, Fh, omega, Lu, EA);
+  } else { /* true when a portion of the line rests on the seabed and the anchor tension is nonzero */
+    return jacobian_dxdh_contact(Fv, Fh, omega, Lu, EA, cb);
+  };
+};
 
 
-// MAP_EXTERNCALL MapReal map_jacobian_dxdv(MAP_OtherStateType_t* otherType, int i, char* map_msg, MAP_ERROR_CODE* ierr)
-// {
-//   ModelData* data = otherType->object;
-//   Element* element = NULL;
-//   MapReal Fh = 0.0;
-//   MapReal Fv = 0.0;
-//   MapReal EA = 0.0;
-//   MapReal Lu = 0.0;
-//   MapReal omega = 0.0;
-//   MapReal cb = 0.0;
-//   bool contactFlag = false;
-//   char buffer[64] = "";
-//   int cx = 0;
-// 
-//   *ierr = MAP_SAFE;
-//   map_msg[0] = 0;
-//   element = (Element*)list_get_at(&data->element, i);
-// 
-//   if (element==NULL) {    
-//     cx = map_snprintf(buffer, 64, "Element out of range: %d.", i); assert(cx>=0);
-//     *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_42);
-//     return -999.9;
-//   };
-// 
-//   Fh = *(element->H.value);
-//   Fv = *(element->V.value);  
-//   EA = element->lineProperty->ea;
-//   Lu = element->Lu.value;
-//   omega = element->lineProperty->omega;
-//   contactFlag = element->options.omitContact;
-//   cb = element->lineProperty->cb;
-// 
-//   if (contactFlag==true || omega<0.0 || (Fv-omega*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
-//     return jacobian_dxdv_no_contact(Fv, Fh, omega, Lu, EA);
-//   } else { /* true when a portion of the line rests on the seabed and the anchor tension is nonzero */
-//     return jacobian_dxdv_contact(Fv, Fh, omega, Lu, EA, cb);
-//   };
-// };
+MAP_EXTERNCALL MapReal map_jacobian_dxdv(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  ModelData* model_data = other_type->object;
+  Element* element = NULL;
+  MapReal Fh = 0.0;
+  MapReal Fv = 0.0;
+  MapReal EA = 0.0;
+  MapReal Lu = 0.0;
+  MapReal omega = 0.0;
+  MapReal cb = 0.0;
+  bool contact_flag = false;
+  bstring user_msg = NULL;
+
+  map_reset_universal_error(map_msg, ierr);  
+  element = (Element*)list_get_at(&model_data->element, i);
+  
+  if (element==NULL) {    
+    user_msg = bformat("Element out of range: %d.", i);
+    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_42);
+    bdestroy(user_msg);
+    return -999.9;
+  };
+
+  Fh = *(element->H.value);
+  Fv = *(element->V.value);  
+  EA = element->lineProperty->ea;
+  Lu = element->Lu.value;
+  omega = element->lineProperty->omega;
+  contact_flag = element->options.omitContact;
+  cb = element->lineProperty->cb;
+  
+  if (contact_flag==true || omega<0.0 || (Fv-omega*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
+    return jacobian_dxdv_no_contact(Fv, Fh, omega, Lu, EA);
+  } else { /* true when a portion of the line rests on the seabed and the anchor tension is nonzero */
+    return jacobian_dxdv_contact(Fv, Fh, omega, Lu, EA, cb);
+  };
+};
 
 
-// MAP_EXTERNCALL MapReal map_jacobian_dzdh(MAP_OtherStateType_t* otherFortType, int i, char* map_msg, MAP_ERROR_CODE* ierr)
-// {
-//   ModelData* data = otherFortType->object;
-//   Element* element = NULL;
-//   MapReal Fh = 0.0;
-//   MapReal Fv = 0.0;
-//   MapReal EA = 0.0;
-//   MapReal Lu = 0.0;
-//   MapReal omega = 0.0;
-//   MapReal cb = 0.0;
-//   bool contactFlag = false;
-//   char buffer[64] = "";
-//   int cx = 0;
-// 
-//   *ierr = MAP_SAFE;
-//   map_msg[0] = 0;
-//   element = (Element*)list_get_at(&data->element, i);
-// 
-//   if (element==NULL) {    
-//     cx = map_snprintf(buffer, 64, "Element out of range: %d.", i ); assert(cx>=0);
-//     *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_42);
-//     return -999.9;
-//   };
-// 
-//   Fh = *(element->H.value);
-//   Fv = *(element->V.value);  
-//   EA = element->lineProperty->ea;
-//   Lu = element->Lu.value;
-//   omega = element->lineProperty->omega;
-//   contactFlag = element->options.omitContact;
-//   cb = element->lineProperty->cb;
-//   
-//   if (contactFlag==true || omega<0.0 || (Fv-omega*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
-//     return jacobian_dzdh_no_contact(Fv, Fh, omega, Lu, EA);
-//   } else { /* true when a portion of the line rests on the seabed and the anchor tension is nonzero */
-//     return jacobian_dzdh_contact(Fv, Fh, omega, Lu, EA, cb);
-//   };
-// };
+MAP_EXTERNCALL MapReal map_jacobian_dzdh(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  ModelData* model_data = other_type->object;
+  Element* element = NULL;
+  MapReal Fh = 0.0;
+  MapReal Fv = 0.0;
+  MapReal EA = 0.0;
+  MapReal Lu = 0.0;
+  MapReal omega = 0.0;
+  MapReal cb = 0.0;
+  bool contact_flag = false;
+  bstring user_msg = NULL;
+
+  map_reset_universal_error(map_msg, ierr);  
+  element = (Element*)list_get_at(&model_data->element, i);
+
+  if (element==NULL) {    
+    user_msg = bformat("Element out of range: %d.", i);
+    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_42);
+    bdestroy(user_msg);
+    return -999.9;
+  };
+
+  Fh = *(element->H.value);
+  Fv = *(element->V.value);  
+  EA = element->lineProperty->ea;
+  Lu = element->Lu.value;
+  omega = element->lineProperty->omega;
+  contact_flag = element->options.omitContact;
+  cb = element->lineProperty->cb;
+  
+  if (contact_flag==true || omega<0.0 || (Fv-omega*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
+    return jacobian_dzdh_no_contact(Fv, Fh, omega, Lu, EA);
+  } else { /* true when a portion of the line rests on the seabed and the anchor tension is nonzero */
+    return jacobian_dzdh_contact(Fv, Fh, omega, Lu, EA, cb);
+  };
+};
 
 
-// MAP_EXTERNCALL MapReal map_jacobian_dzdv(MAP_OtherStateType_t* otherFortType, int i, char* map_msg, MAP_ERROR_CODE* ierr)
-// {
-//   ModelData* data = otherFortType->object;
-//   Element* element = NULL;
-//   MapReal Fh = 0.0;
-//   MapReal Fv = 0.0;
-//   MapReal EA = 0.0;
-//   MapReal Lu = 0.0;
-//   MapReal omega  = 0.0;
-//   MapReal cb = 0.0;
-//   char buffer[64] = "";
-//   bool contactFlag = false;
-//   int cx = 0;
-//  
-//   *ierr = MAP_SAFE;
-//   map_msg[0] = 0;
-//   element = (Element*)list_get_at(&data->element, i);
-// 
-//   if (element==NULL) {    
-//     cx = map_snprintf(buffer, 64, "Element out of range: %d.", i); assert(cx>=0);
-//     *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_42);
-//     return -999.9;
-//   };
-// 
-//   Fh = *(element->H.value);
-//   Fv = *(element->V.value);  
-//   EA = element->lineProperty->ea;
-//   Lu = element->Lu.value;
-//   omega  = element->lineProperty->omega;
-//   contactFlag = element->options.omitContact;
-//   cb = element->lineProperty->cb;
-// 
-//   if (contactFlag==true || omega<0.0 || (Fv-omega*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
-//     return jacobian_dzdv_no_contact(Fv, Fh, omega, Lu, EA);
-//   } else { /* true when a portion of the line rests on the seabed and the anchor tension is nonzero */
-//     return jacobian_dzdv_contact(Fv, Fh, omega, Lu, EA, cb);
-//   };
-// };
+MAP_EXTERNCALL MapReal map_jacobian_dzdv(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  ModelData* model_data = other_type->object;
+  Element* element = NULL;
+  MapReal Fh = 0.0;
+  MapReal Fv = 0.0;
+  MapReal EA = 0.0;
+  MapReal Lu = 0.0;
+  MapReal omega  = 0.0;
+  MapReal cb = 0.0;
+  bool contact_flag = false;
+  bstring user_msg = NULL;
+
+  map_reset_universal_error(map_msg, ierr);  
+  element = (Element*)list_get_at(&model_data->element, i);
+
+  if (element==NULL) {    
+    user_msg = bformat("Element out of range: %d.", i);
+    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_42);
+    bdestroy(user_msg);
+    return -999.9;
+  };
+
+  Fh = *(element->H.value);
+  Fv = *(element->V.value);  
+  EA = element->lineProperty->ea;
+  Lu = element->Lu.value;
+  omega  = element->lineProperty->omega;
+  contact_flag = element->options.omitContact;
+  cb = element->lineProperty->cb;
+
+  if (contact_flag==true || omega<0.0 || (Fv-omega*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
+    return jacobian_dzdv_no_contact(Fv, Fh, omega, Lu, EA);
+  } else { /* true when a portion of the line rests on the seabed and the anchor tension is nonzero */
+    return jacobian_dzdv_contact(Fv, Fh, omega, Lu, EA, cb);
+  };
+};
 
 
 // MAP_EXTERNCALL void map_get_fairlead_force_2d(double* H, double* V, MAP_OtherStateType_t* other_type, int index, char* map_msg, MAP_ERROR_CODE* ierr)
@@ -904,3 +899,299 @@ MAP_EXTERNCALL int map_size_elements(MAP_OtherStateType_t* other_type, MAP_ERROR
   ModelData* model_data = other_type->object;
   return list_size(&model_data->element);
 }
+
+
+MAP_EXTERNCALL void map_set_summary_file_name(MAP_InitInputType_t* init_type, char *map_msg, MAP_ERROR_CODE *ierr) 
+{  
+  InitializationData* init_data = init_type->object;   
+  init_data->summaryFileName = bformat("%s", init_type->summaryFileName);
+};
+
+
+// MAP_EXTERNCALL void map_get_header_string(int* n, char** str_array, MAP_OtherStateType_t* other_type)
+// { 
+//   int count = 0;    
+//   ModelData* model_data = other_type->object;
+//   VarTypePtr* vartype_ptr = NULL;
+//   VarType* vartype = NULL;
+// 
+//   list_iterator_start(&model_data->yList->out_list_ptr);
+//   while (list_iterator_hasnext(&model_data->yList->out_list_ptr)) { 
+//     vartype_ptr = (VarTypePtr*)list_iterator_next(&model_data->yList->out_list_ptr);
+//     strcpy(str_array[count],vartype_ptr->name);
+//     count++;
+//   };
+//   list_iterator_stop(&model_data->yList->out_list_ptr);     
+// 
+//   list_iterator_start(&model_data->yList->out_list);
+//   while (list_iterator_hasnext(&model_data->yList->out_list)) { 
+//     vartype = (VarType*)list_iterator_next(&model_data->yList->out_list);
+//     strcpy(str_array[count],vartype->name);
+//     count++;
+//   };
+//   list_iterator_stop(&model_data->yList->out_list);     
+//   /* @todo this should raise and error when count != n */
+// };
+
+
+// MAP_EXTERNCALL void map_get_unit_string(int* n, char** str_array, MAP_OtherStateType_t* other_type)
+// { 
+//   int count = 0;    
+//   ModelData* model_data = other_type->object;
+//   VarTypePtr* vartype_ptr = NULL;
+//   VarType* vartype = NULL;
+// 
+//   list_iterator_start(&model_data->yList->out_list_ptr);
+//   while (list_iterator_hasnext(&model_data->yList->out_list_ptr)) { 
+//     vartype_ptr = (VarTypePtr*)list_iterator_next(&model_data->yList->out_list_ptr );
+//     strcpy(str_array[count],vartype_ptr->units);
+//     count++;
+//   };
+//   list_iterator_stop(&model_data->yList->out_list_ptr);     
+// 
+//   list_iterator_start(&model_data->yList->out_list);
+//   while (list_iterator_hasnext(&model_data->yList->out_list)) { 
+//     vartype = (VarType*)list_iterator_next(&model_data->yList->out_list );
+//     strcpy(str_array[count],vartype->units);
+//     count++;
+//   };
+//   list_iterator_stop(&model_data->yList->out_list);     
+// };
+
+
+
+/**
+ * Fortran binding routine
+ * SUBROUTINE MAP_set_initinput_to_null(interf,msg,err) bind(C,name='set_init_to_null') 
+ */
+MAP_EXTERNCALL void set_init_to_null(MAP_InitInputType_t* init_type, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  InitializationData* init = init_type->object; 
+
+  init->summaryFileName = NULL;  
+};
+
+
+/** @addtogroup FortranCall */
+/* @{ */
+MAP_EXTERNCALL void map_set_sea_depth(MAP_ParameterType_t* p_type, const MapReal depth)
+{
+  p_type->depth = depth;
+};
+
+
+MAP_EXTERNCALL void map_set_sea_density(MAP_ParameterType_t* p_type, const MapReal rho)
+{
+  p_type->rhoSea = rho;
+};
+
+
+MAP_EXTERNCALL void map_set_gravity(MAP_ParameterType_t* p_type, double gravity)
+{
+  p_type->g = gravity;
+};
+/* @} */
+
+
+MAP_EXTERNCALL void map_add_cable_library_input_text(MAP_InitInputType_t* init_type)
+{
+  InitializationData* init_data = init_type->object; 
+  const int n = init_data->libraryInputString->qty;
+  int ret = 0;
+  
+  ret = bstrListAlloc(init_data->libraryInputString, n+1);
+  init_data->libraryInputString->entry[n] = bfromcstr(init_type->libraryInputLine);
+  init_data->libraryInputString->qty++;
+};
+
+
+MAP_EXTERNCALL void map_add_node_input_text(MAP_InitInputType_t* init_type)
+{
+  InitializationData* init_data = init_type->object; 
+  const int n = init_data->nodeInputString->qty;
+  int ret = 0;
+  
+  ret = bstrListAlloc(init_data->nodeInputString, n+1);
+  init_data->nodeInputString->entry[n] = bfromcstr(init_type->nodeInputLine);
+  init_data->nodeInputString->qty++;
+};
+
+
+MAP_EXTERNCALL void map_add_element_input_text(MAP_InitInputType_t* init_type)
+{
+  InitializationData* init_data = init_type->object; 
+  const int n = init_data->elementInputString->qty;
+  int ret = 0;
+  
+  ret = bstrListAlloc(init_data->elementInputString, n+1);
+  init_data->elementInputString->entry[n] = bfromcstr(init_type->elementInputLine);
+  init_data->elementInputString->qty++;
+};
+
+
+MAP_EXTERNCALL void map_add_options_input_text(MAP_InitInputType_t* init_type)
+{
+  InitializationData* init_data = init_type->object; 
+  const int n = init_data->solverOptionsString->qty;
+  int ret = 0;
+  
+  ret = bstrListAlloc(init_data->solverOptionsString, n+1);
+  init_data->solverOptionsString->entry[n] = bfromcstr(init_type->optionInputLine);
+  init_data->solverOptionsString->qty++;
+};
+
+
+MAP_EXTERNCALL InitializationData* MAP_InitInput_Create(char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  InitializationData* new_data = NULL;
+
+  map_reset_universal_error(map_msg, ierr);
+  new_data = malloc(sizeof(InitializationData));
+  if (new_data == NULL) {
+    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_4);    
+    return new_data;
+  } else {
+    initialize_init_data_to_null(new_data);
+    *ierr = MAP_SAFE;
+    return new_data;
+  };
+};
+
+
+MAP_EXTERNCALL MAP_InitInputType_t* map_create_init_type(char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  MAP_InitInputType_t* new_data = NULL;  
+
+  *ierr = MAP_SAFE;
+  new_data = malloc(sizeof(MAP_InitInputType_t));
+  if (new_data==NULL) {
+    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_4);    
+  } else {    
+    initialize_init_type_to_null(new_data); /* set F2C types to null */
+    new_data->object = NULL;
+    new_data->object = (InitializationData*)(uintptr_t)MAP_InitInput_Create(map_msg, ierr);
+  };
+  return new_data;
+};
+
+
+MAP_EXTERNCALL ModelData* MAP_OtherState_Create(char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  ModelData* new_data = NULL;
+
+  map_reset_universal_error(map_msg, ierr);
+  new_data = malloc(sizeof(ModelData));
+  if (new_data==NULL) {
+    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_43);    
+    return new_data;
+  } else {
+    initialize_model_data_to_null(new_data);
+    *ierr = MAP_SAFE;
+    return new_data;
+  };
+};
+
+MAP_EXTERNCALL MAP_OtherStateType_t* map_create_other_type(char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  MAP_OtherStateType_t* new_data = NULL;  
+
+  *ierr = MAP_SAFE;
+  new_data = malloc(sizeof(MAP_OtherStateType_t)); 
+  if (new_data==NULL) {
+    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_43);    
+  } else {
+    new_data->object = NULL;
+    new_data->object = (ModelData*)(uintptr_t)MAP_OtherState_Create(map_msg, ierr);
+  };
+  return new_data;    
+};
+
+
+MAP_EXTERNCALL MAP_InitOutputType_t* map_create_initout_type(char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  MAP_InitOutputType_t* new_type = NULL;  
+
+  *ierr = MAP_SAFE;
+  new_type = malloc(sizeof(MAP_InitOutputType_t));
+  if (new_type==NULL) {
+    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_11);    
+  } else {
+    new_type->object = NULL;
+  };
+  return new_type;    
+};
+
+
+MAP_EXTERNCALL MAP_InputType_t* map_create_input_type(char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  MAP_InputType_t* new_type = NULL;  
+
+  *ierr = MAP_SAFE;
+  new_type = malloc(sizeof(MAP_InputType_t)); 
+  if (new_type == NULL) {
+    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_5);        
+  } else { 
+    new_type->object = NULL;
+  };
+  return new_type;    
+};
+
+
+MAP_EXTERNCALL MAP_ParameterType_t* map_create_parameter_type(char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  MAP_ParameterType_t* new_type = NULL;  
+
+  *ierr = MAP_SAFE;
+  new_type = malloc(sizeof(MAP_ParameterType_t));
+  if (new_type==NULL) {
+    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_6);    
+  } else {
+    new_type->object = NULL;
+  };
+  return new_type;
+};
+
+
+MAP_EXTERNCALL MAP_ConstraintStateType_t* map_create_constraint_type(char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  MAP_ConstraintStateType_t* new_type = NULL;  
+
+  *ierr = MAP_SAFE;
+  new_type = malloc(sizeof(MAP_ConstraintStateType_t)); 
+  if (new_type==NULL) {
+    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_8);    
+  } else {
+    new_type->object = NULL;
+  };
+  return new_type;      
+};
+
+
+MAP_EXTERNCALL MAP_OutputType_t* map_create_output_type(char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  MAP_OutputType_t* new_type = NULL;  
+
+  *ierr = MAP_SAFE;
+  new_type = malloc(sizeof(MAP_OutputType_t));
+  if (new_type==NULL) {
+    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_10);    
+  } else {
+    new_type->object = NULL;
+  };
+  return new_type;    
+};
+
+
+MAP_EXTERNCALL MAP_ContinuousStateType_t* map_create_continuous_type(char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  MAP_ContinuousStateType_t* new_data = NULL;  
+
+  *ierr = MAP_SAFE;
+  new_data = malloc(sizeof(MAP_ContinuousStateType_t)); 
+  if (new_data==NULL) {
+    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_7);    
+  } else {
+    new_data->object = NULL;    
+  };
+  return new_data;    
+};

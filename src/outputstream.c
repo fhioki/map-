@@ -29,68 +29,6 @@
 #include "outputstream.h"
 
 
-/** @addtogroup FortranCall */
-/* @{ */
-MAP_EXTERNCALL void map_set_summary_file_name(MAP_InitInputType_t* init_type, char *map_msg, MAP_ERROR_CODE *ierr) 
-{  
-  InitializationData* init_data = init_type->object; 
-  
-  init_data->summaryFileName = bformat("%s", init_type->summaryFileName);
-};
-
-
-// MAP_EXTERNCALL void map_get_header_string(int* n, char** str_array, MAP_OtherStateType_t* other_type)
-// { 
-//   int count = 0;    
-//   ModelData* model_data = other_type->object;
-//   VarTypePtr* vartype_ptr = NULL;
-//   VarType* vartype = NULL;
-// 
-//   list_iterator_start(&model_data->yList->out_list_ptr);
-//   while (list_iterator_hasnext(&model_data->yList->out_list_ptr)) { 
-//     vartype_ptr = (VarTypePtr*)list_iterator_next(&model_data->yList->out_list_ptr);
-//     strcpy(str_array[count],vartype_ptr->name);
-//     count++;
-//   };
-//   list_iterator_stop(&model_data->yList->out_list_ptr);     
-// 
-//   list_iterator_start(&model_data->yList->out_list);
-//   while (list_iterator_hasnext(&model_data->yList->out_list)) { 
-//     vartype = (VarType*)list_iterator_next(&model_data->yList->out_list);
-//     strcpy(str_array[count],vartype->name);
-//     count++;
-//   };
-//   list_iterator_stop(&model_data->yList->out_list);     
-//   /* @todo this should raise and error when count != n */
-// };
-
-
-// MAP_EXTERNCALL void map_get_unit_string(int* n, char** str_array, MAP_OtherStateType_t* other_type)
-// { 
-//   int count = 0;    
-//   ModelData* model_data = other_type->object;
-//   VarTypePtr* vartype_ptr = NULL;
-//   VarType* vartype = NULL;
-// 
-//   list_iterator_start(&model_data->yList->out_list_ptr);
-//   while (list_iterator_hasnext(&model_data->yList->out_list_ptr)) { 
-//     vartype_ptr = (VarTypePtr*)list_iterator_next(&model_data->yList->out_list_ptr );
-//     strcpy(str_array[count],vartype_ptr->units);
-//     count++;
-//   };
-//   list_iterator_stop(&model_data->yList->out_list_ptr);     
-// 
-//   list_iterator_start(&model_data->yList->out_list);
-//   while (list_iterator_hasnext(&model_data->yList->out_list)) { 
-//     vartype = (VarType*)list_iterator_next(&model_data->yList->out_list );
-//     strcpy(str_array[count],vartype->units);
-//     count++;
-//   };
-//   list_iterator_stop(&model_data->yList->out_list);     
-// };
-/* @} */
-
-
 MAP_ERROR_CODE get_iteration_output_stream(MAP_OutputType_t *y_type, MAP_OtherStateType_t* other_type, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   int count = 0;
