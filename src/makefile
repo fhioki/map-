@@ -58,7 +58,6 @@ OBJ       = lmder.o \
 	freedata.o \
 	initialization.o \
 	mapinit.o \
-	nwtcfunctions.o \
 	maperror.o \
 	MAP_Types.o \
 	lineroutines.o \
