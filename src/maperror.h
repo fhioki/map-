@@ -1,24 +1,31 @@
-/**
- * Copyright (c) 2014 mdm <marco.masciola@gmail.com>
- *
- * This file is part of MAP++.
- *
- * MAP++ is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * MAP++ is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with MAP++. If not, see <http://www.gnu.org/licenses/>.
- */
+/****************************************************************
+ *   Copyright (C) 2014 mdm                                     *
+ *   marco[dot]masciola[at]gmail                                *
+ *                                                              *
+ * Licensed to the Apache Software Foundation (ASF) under one   *
+ * or more contributor license agreements.  See the NOTICE file *
+ * distributed with this work for additional information        *
+ * regarding copyright ownership.  The ASF licenses this file   *
+ * to you under the Apache License, Version 2.0 (the            *
+ * "License"); you may not use this file except in compliance   *
+ * with the License.  You may obtain a copy of the License at   *
+ *                                                              *
+ *   http://www.apache.org/licenses/LICENSE-2.0                 *
+ *                                                              *
+ * Unless required by applicable law or agreed to in writing,   *
+ * software distributed under the License is distributed on an  *
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY       *
+ * KIND, either express or implied.  See the License for the    *
+ * specific language governing permissions and limitations      *      
+ * under the License.                                           *  
+ ****************************************************************/
+
 
 #ifndef _MAPERROR_H
 #define _MAPERROR_H
+
+
+#include "map.h"
 
 
 typedef enum MAP_ERROR_CODE {
@@ -110,6 +117,8 @@ typedef enum MAP_ERROR_CODE {
   MAP_FATAL_82  , // Failed to convert Ca added mass in the cable library to a MapReal. Check the MAP input file
   MAP_FATAL_83  , // Failed to convert Cdn cross-flow drag coefficient parameter in the cable library to a MapReal. Check the MAP input file
   MAP_FATAL_84  , // Failed to convert Cdt tangent-flow drag coefficient parameter in the cable library to a MapReal. Check the MAP input file
+  MAP_FATAL_85  , // Error processing 'HELP' flag in the MAP input file
+  MAP_FATAL_86  , // Element out of range. This error was triggered in the initialization. This is likely due to incorrect settings in the MAP input file 
   MAP_ERROR_1   , // Element option 'DAMAGE_TIME' does not trail with a valid value. Ignoring this run-time flag. Chek the MAP input file
   MAP_ERROR_2   , // Value for 'INNER_FTOL' is not a valid numeric value. Using the default value <1e-6>
   MAP_ERROR_3   , // Value for 'OUTER_TOL' is not a valid numeric value. Using the default value <1e-6>
@@ -124,7 +133,7 @@ typedef enum MAP_ERROR_CODE {
   MAP_ERROR_12  , // INNER_GTOL is too small. No further reduction in the sum of squares is possible
   MAP_ERROR_13  , // INNER_XTOL is too small. No further reduction in the sum of squares is possible
   MAP_ERROR_14  , // Element option 'DIAGNOSTIC' does not trail with a valid value. Defaulting is to run diagnostic for the first iteration only
-  MAP_ERROR_15  , // Value for 'INTEGRATION_DT' is not a valid numeric value. Using the default value <0.01 sec>
+  MAP_ERROR_15  , // Value for 'INTEGRATION_DT' is not a valid input. No support for the LM/FEA model at this time.
   MAP_ERROR_16  , // Value for 'KB_DEFAULT' is not a valid numeric value. Using the default value <3.0E6 N/m>
   MAP_ERROR_17  , // Value for 'CB_DEFAULT' is not a valid numeric value. Using the default value <3.0E5 Ns/m>
   MAP_ERROR_18  , // Value for 'SEG_SIZE' is not a valid numeric value. Using the default value <10>
@@ -140,5 +149,26 @@ typedef enum MAP_ERROR_CODE {
   MAP_WARNING_10, // Ignoring wave kinematic hydrodynamics. This feature is not available
   MAP_WARNING_11 ,
 } MAP_ERROR_CODE ;
+
+
+void map_reset_universal_error(char* map_msg, MAP_ERROR_CODE* ierr);
+
+
+/**
+ * @brief   Set error code with customized message
+ * @details Can be called in any routine to set the contents of map_message. The routine
+ *          checks to ensure map_msg is not longer than MAX_ERROR_STRING_LENGTH. If it is,
+ *          then the message is truncated. The error code returned depends on the max 
+ *          level reached previously durring program execusion. A MAP_WARNING will not 
+ *          override a MAP_FATAL or MAP_ERROR level. 
+ * @param   user_string, custom message appending the error message
+ * @param   map_msg, error message of length no greater than MAP_ERROR_STRING_LENGTH
+ * @param   ierr, ierr status before function is invoked, should be MAP_SAFE, MAP_WARNING, MAP_ERROR, MAP_FATAL
+ * @param   new_error, new MAP warning code; any entry in enum MAP_ERROR_CODE
+ * @return  MAP error code
+ */
+MAP_ERROR_CODE map_set_universal_error(bstring user_msg, char* map_msg, const MAP_ERROR_CODE ierr, const MAP_ERROR_CODE new_error);
+
+
 
 #endif // _MAPERROR_H

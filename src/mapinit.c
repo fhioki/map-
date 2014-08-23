@@ -1,124 +1,300 @@
-/*
- * Copyright (c) 2014 mdm <marco.masciola@gmail.com>
- *
- * This file is part of MAP++.
- *
- * MAP++ is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * MAP++ is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with MAP++. If not, see <http://www.gnu.org/licenses/>.
- */
+/****************************************************************
+ *   Copyright (C) 2014 mdm                                     *
+ *   marco[dot]masciola[at]gmail                                *
+ *                                                              *
+ * Licensed to the Apache Software Foundation (ASF) under one   *
+ * or more contributor license agreements.  See the NOTICE file *
+ * distributed with this work for additional information        *
+ * regarding copyright ownership.  The ASF licenses this file   *
+ * to you under the Apache License, Version 2.0 (the            *
+ * "License"); you may not use this file except in compliance   *
+ * with the License.  You may obtain a copy of the License at   *
+ *                                                              *
+ *   http://www.apache.org/licenses/LICENSE-2.0                 *
+ *                                                              *
+ * Unless required by applicable law or agreed to in writing,   *
+ * software distributed under the License is distributed on an  *
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY       *
+ * KIND, either express or implied.  See the License for the    *
+ * specific language governing permissions and limitations      *      
+ * under the License.                                           *  
+ ****************************************************************/
 
 
-#include "map.h"
-#include "maperror.h"
-#include "protos.h"
-#include "cminpack/minpack.h"
-#include "pyprotos.h"
+#include "mapinit.h"
+#include "lineroutines.h"
+
+
+extern const char MAP_ERROR_STRING[][1024];
+
+
+MAP_ERROR_CODE initialize_fortran_types(MAP_InputType_t* u_type, 
+                                        MAP_ParameterType_t* p_type, 
+                                        MAP_ContinuousStateType_t* x_type, 
+                                        MAP_ConstraintStateType_t* z_type, 
+                                        MAP_OtherStateType_t* other_type, 
+                                        MAP_OutputType_t* y_type, 
+                                        MAP_InitOutputType_t* initout_type)
+{
+  /* parameters are skipped for now; they are set in fortran since depth, 
+   * gravity and sea density are set by glue code 
+   */
+
+  /* inputs */
+  u_type->x = NULL;     u_type->x_Len = 0;
+  u_type->y = NULL;     u_type->y_Len = 0;
+  u_type->z = NULL;     u_type->z_Len = 0;
+
+  /* continuous state */
+  x_type->dummy=-999.9;
+
+  /* constraint state */  
+  z_type->H = NULL;     z_type->H_Len = 0;
+  z_type->V = NULL;     z_type->V_Len = 0;
+  z_type->x = NULL;     z_type->x_Len = 0;
+  z_type->y = NULL;     z_type->y_Len = 0;
+  z_type->z = NULL;     z_type->z_Len = 0;
+
+  /* other state */
+  other_type->H = NULL;     other_type->H_Len = 0;
+  other_type->V = NULL;     other_type->V_Len = 0;
+  other_type->Ha = NULL;    other_type->Ha_Len = 0;
+  other_type->Va = NULL;    other_type->Va_Len = 0;
+  other_type->x = NULL;     other_type->x_Len = 0;
+  other_type->y = NULL;     other_type->y_Len = 0;
+  other_type->z = NULL;     other_type->z_Len = 0;
+  other_type->xa = NULL;    other_type->xa_Len = 0;
+  other_type->ya = NULL;    other_type->ya_Len = 0;
+  other_type->za = NULL;    other_type->za_Len = 0;
+  other_type->Fx_connect = NULL;    other_type->Fx_connect_Len = 0;
+  other_type->Fy_connect = NULL;    other_type->Fy_connect_Len = 0;
+  other_type->Fz_connect = NULL;    other_type->Fz_connect_Len = 0;
+  other_type->Fx_anchor = NULL;    other_type->Fx_anchor_Len = 0;
+  other_type->Fy_anchor = NULL;    other_type->Fy_anchor_Len = 0;
+  other_type->Fz_anchor = NULL;    other_type->Fz_anchor_Len = 0;
+
+  /* outputs */
+  y_type->Fx = NULL;              y_type->Fx_Len = 0;
+  y_type->Fy = NULL;              y_type->Fy_Len = 0;
+  y_type->Fz = NULL;              y_type->Fz_Len = 0;
+  y_type->wrtOutput = NULL;       y_type->wrtOutput_Len = 0;
+  
+  /* init outputs */
+  initout_type->progName[0] = '\0' ;
+  initout_type->version[0] = '\0';
+  initout_type->compilingData[0] = '\0';
+  initout_type->writeOutputHdr = NULL;     initout_type->writeOutputHdr_Len = 0;
+  initout_type->writeOutputUnt = NULL;     initout_type->writeOutputUnt_Len = 0;
+
+  return MAP_SAFE;
+};
+
+
+void initialize_init_type_to_null(MAP_InitInputType_t* init_type)
+{
+  /* initialize the native Fortran/C types */
+  init_type->gravity = -999.9;
+  init_type->seaDensity = -999.9;
+  init_type->depth = -999.9;
+  init_type->fileName[0] = '\0';
+  init_type->summaryFileName[0] = '\0';
+  init_type->libraryInputLine[0] = '\0';
+  init_type->nodeInputLine[0] = '\0';
+  init_type->elementInputLine[0] = '\0';
+  init_type->optionInputLine[0] = '\0';
+};
 
 
 
-/**
- * This sets the pointers to NULL for the vessel object and gives it default properties. Only 
- * to be used in the python glue code. 
- *
- * @todo: need to associate the node with inputs
- * @acceses: set_vartype_float( )
- * @calledby: mapcall_msqs_init( )
- */
-MAP_ERROR_CODE set_vessel(Vessel* floater, const MAP_InputType_t* uType, char* map_msg, MAP_ERROR_CODE* ierr)
+void initialize_init_data_to_null(InitializationData* init_data)
+{
+  /* initialize the MAP initialization internal data strcture */
+  init_data->libraryInputString = bstrListCreate();
+  init_data->nodeInputString = bstrListCreate();
+  init_data->elementInputString = bstrListCreate();
+  init_data->solverOptionsString = bstrListCreate();
+  init_data->expandedNodeInputString = bstrListCreate();
+  init_data->expandedElementInputString = bstrListCreate();
+};
+
+
+void initialize_model_data_to_null(ModelData* model_data)
+{
+  model_data->MAP_SOLVE_TYPE = -999;
+  model_data->yList = NULL; 
+  model_data->sizeOfCableLibrary = 0;
+  model_data->sizeOfElements = 0;
+  model_data->sizeOfNodes = 0;    
+  initialize_inner_solve_data_defaults(&model_data->inner_loop);    
+  initialize_outer_solve_data_defaults(&model_data->outer_loop);    
+  initialize_vessel_to_null(&model_data->vessel);    
+  initialize_model_option_defaults(&model_data->modelOptions);
+};
+
+
+size_t cable_element_meter(const void *el) 
+{
+  return sizeof(Element);
+};
+
+
+size_t cable_library_meter(const void *el) 
+{
+  return sizeof(CableLibrary);
+};
+
+
+size_t node_meter(const void *el) 
+{
+  return sizeof(Node);
+};
+
+
+MAP_ERROR_CODE allocate_outlist(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr)
+{ 
+  data->yList = malloc(sizeof(OutputList)); 
+  if (data->yList==NULL) {
+    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_46);    
+    return MAP_FATAL;
+  };
+  return MAP_SAFE;
+};
+
+
+void initialize_inner_solve_data_defaults(InnerSolveAttributes* inner)
+{
+  inner->f_tol = 1e-6;
+  inner->g_tol = 1e-6;
+  inner->x_tol = 1e-6;
+  inner->max_its = 500;
+  inner->m = 2;
+  inner->n = 2;
+  inner->factor = 1.0E2;             
+  inner->factor = 1.0E2;             
+  inner->ldfjac = 2; 
+  inner->mode = 1;             
+  inner->nprint = 2;           
+  inner->info = 0;             
+};
+
+
+void initialize_model_option_defaults(ModelOptions* options) 
+{
+  options->repeat_angle_size = 0;
+  options->repeat_angle = NULL;
+  options->integrationDt = 0.01;
+  options->kbLm = 3.0E6;
+  options->cbLm = 3.0E5;
+  options->waveKinematics = false;
+}; 
+
+
+/* deallocated in free_outer_solve_data() */
+void initialize_outer_solve_data_defaults(OuterSolveAttributes* outer) 
+{
+  outer->fd = BACKWARD_DIFFERENCE;
+  outer->pg = false;
+  outer->tol = 1e-6;
+  outer->epsilon = 1e-3;
+  outer->maxIts = 500;
+  outer->jac = NULL;
+  outer->x = NULL;
+  outer->b = NULL;
+  outer->l = NULL;
+  outer->u = NULL;
+  outer->y = NULL;
+};
+
+
+void initialize_vessel_to_null(Vessel* floater)
+{
+  floater->xi = NULL;
+  floater->yi = NULL;
+  floater->zi = NULL;
+    
+  floater->displacement.x.name = NULL;
+  floater->displacement.y.name = NULL;
+  floater->displacement.z.name = NULL;
+  floater->refOrigin.x.name = NULL;
+  floater->refOrigin.y.name = NULL;
+  floater->refOrigin.z.name = NULL;
+  floater->lineSumForce.fx.name = NULL;
+  floater->lineSumForce.fy.name = NULL;
+  floater->lineSumForce.fz.name = NULL;
+  floater->orientation.phi.name = NULL;
+  floater->orientation.the.name = NULL;
+  floater->orientation.psi.name = NULL;
+    
+  floater->displacement.x.units = NULL;
+  floater->displacement.y.units = NULL;
+  floater->displacement.z.units = NULL;
+  floater->refOrigin.x.units = NULL;
+  floater->refOrigin.y.units = NULL;
+  floater->refOrigin.z.units = NULL;
+  floater->lineSumForce.fx.units = NULL;
+  floater->lineSumForce.fy.units = NULL;
+  floater->lineSumForce.fz.units = NULL;
+  floater->orientation.phi.units = NULL;
+  floater->orientation.the.units = NULL;
+  floater->orientation.psi.units = NULL;
+};
+
+
+MAP_ERROR_CODE set_vessel(Vessel* floater, const MAP_InputType_t* u_type, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_ERROR_CODE success = MAP_SAFE;
   int i = 0;
-  int N = uType->x_Len;
+  int n = u_type->x_Len;
+  bstring user_msg = NULL;
 
   do {
     /* vessel displacement */
-    success = set_vartype_float("[m]", "Vessel_X", -999.9, &floater->displacement.x, 0.0); CHECKERRQ(MAP_FATAL_68);
-    success = set_vartype_float("[m]", "Vessel_Y", -999.9, &floater->displacement.y, 0.0); CHECKERRQ(MAP_FATAL_68);
-    success = set_vartype_float("[m]", "Vessel_Z", -999.9, &floater->displacement.z, 0.0); CHECKERRQ(MAP_FATAL_68);
-  
+    success = set_vartype_float("[m]", "Vessel_X", -999, &floater->displacement.x, 0.0); CHECKERRQ(MAP_FATAL_68);
+    success = set_vartype_float("[m]", "Vessel_Y", -999, &floater->displacement.y, 0.0); CHECKERRQ(MAP_FATAL_68);
+    success = set_vartype_float("[m]", "Vessel_Z", -999, &floater->displacement.z, 0.0); CHECKERRQ(MAP_FATAL_68);
+     
     /* vessel reference origin. When ==[0.0, 0.0, 0.0], then the reference origin is aligned with the SWL */
-    success = set_vartype_float("[m]", "Vessel_Xref", -999.9, &floater->refOrigin.x, 0.0); CHECKERRQ(MAP_FATAL_68);
-    success = set_vartype_float("[m]", "Vessel_Yref", -999.9, &floater->refOrigin.y, 0.0); CHECKERRQ(MAP_FATAL_68);
-    success = set_vartype_float("[m]", "Vessel_Zref", -999.9, &floater->refOrigin.z, 0.0); CHECKERRQ(MAP_FATAL_68);
-  
+    success = set_vartype_float("[m]", "Vessel_Xref", -999, &floater->refOrigin.x, 0.0); CHECKERRQ(MAP_FATAL_68);
+    success = set_vartype_float("[m]", "Vessel_Yref", -999, &floater->refOrigin.y, 0.0); CHECKERRQ(MAP_FATAL_68);
+    success = set_vartype_float("[m]", "Vessel_Zref", -999, &floater->refOrigin.z, 0.0); CHECKERRQ(MAP_FATAL_68);
+    
     /* sum force of all fairleads connecte to the vessel */
-    success = set_vartype_float("[N]", "Vessel_fx", -999.9, &floater->lineSumForce.fx, 0.0); CHECKERRQ(MAP_FATAL_68);
-    success = set_vartype_float("[N]", "Vessel_fy", -999.9, &floater->lineSumForce.fy, 0.0); CHECKERRQ(MAP_FATAL_68);
-    success = set_vartype_float("[N]", "Vessel_fz", -999.9, &floater->lineSumForce.fz, 0.0); CHECKERRQ(MAP_FATAL_68);
-  
+    success = set_vartype_float("[N]", "Vessel_fx", -999, &floater->lineSumForce.fx, 0.0); CHECKERRQ(MAP_FATAL_68);
+    success = set_vartype_float("[N]", "Vessel_fy", -999, &floater->lineSumForce.fy, 0.0); CHECKERRQ(MAP_FATAL_68);
+    success = set_vartype_float("[N]", "Vessel_fz", -999, &floater->lineSumForce.fz, 0.0); CHECKERRQ(MAP_FATAL_68);
+    
     /* orientation of the vessel. This is used as input from the user */
-    success = set_vartype_float("[deg]", "Vessel_phi", -999.9, &floater->orientation.phi, 0.0); CHECKERRQ(MAP_FATAL_68);
-    success = set_vartype_float("[deg]", "Vessel_the", -999.9, &floater->orientation.the, 0.0); CHECKERRQ(MAP_FATAL_68);
-    success = set_vartype_float("[deg]", "Vessel_psi", -999.9, &floater->orientation.psi, 0.0); CHECKERRQ(MAP_FATAL_68);
+    success = set_vartype_float("[deg]", "Vessel_phi", -999, &floater->orientation.phi, 0.0); CHECKERRQ(MAP_FATAL_68);
+    success = set_vartype_float("[deg]", "Vessel_the", -999, &floater->orientation.the, 0.0); CHECKERRQ(MAP_FATAL_68);
+    success = set_vartype_float("[deg]", "Vessel_psi", -999, &floater->orientation.psi, 0.0); CHECKERRQ(MAP_FATAL_68);
   } while(0);
 
-  floater->xi = (double*)malloc(N*sizeof(double));  
-  floater->yi = (double*)malloc(N*sizeof(double));  
-  floater->zi = (double*)malloc(N*sizeof(double));  
+  floater->xi = (double*)malloc(n*sizeof(double));  
+  floater->yi = (double*)malloc(n*sizeof(double));  
+  floater->zi = (double*)malloc(n*sizeof(double));  
 
   if (floater->xi==NULL || floater->yi==NULL || floater->zi==NULL) {
     return MAP_FATAL;
   };
   
-  for (i=0 ; i<N ; i++) {
-    floater->xi[i] = uType->x[i];
-    floater->yi[i] = uType->y[i];
-    floater->zi[i] = uType->z[i];
+  for (i=0 ; i<n ; i++) {
+    floater->xi[i] = u_type->x[i];
+    floater->yi[i] = u_type->y[i];
+    floater->zi[i] = u_type->z[i];
   };
     
   return MAP_SAFE;
 };
 
 
-/**
- *  OBTAINED FROM THE CMINPACK SOURCE. The following defintions of the inputs for lmder(...) are provided in the cminpack docmentation.  
- *  
- *  info = __cminpack_func__(lmder)( inner_function_evals, elementIter, m, n, x, fvec, fjac, ldfjac, ftol, xtol, gtol, 
- *                                   maxfev, diag, mode, factor, nprint, &nfev, &njev, ipvt, qtf, wa1, wa2, wa3, wa4);
- *     
- *      - ftol          : a nonnegative input variable. Termination occurs when both the actual and predicted relative reductions in the sum of squares are at most ftol. Therefore, ftol measures the relative error desired in the sum of squares.
- *      - xtol          : a nonnegative input variable. Termination occurs when the relative error between two consecutive iterates is at most xtol. Therefore, xtol measures the relative error desired in the approximate solution.
- *      - gtol          : a nonnegative input variable. Termination occurs when the cosine of the angle between fvec and any column of the Jacobian is at most gtol in absolute value. Therefore, gtol measures the orthogonality desired between the function vector and the columns of the Jacobian.
- *      - maxfev        : a positive integer input variable. Termination occurs when the number of calls to fcn is at least maxfev by the end of an iteration.
- *      - diag          : an array of length n. If mode = 1 (see below), diag is internally set. If mode = 2, diag must contain positive entries that serve as multiplicative scale factors for the variables.
- *      - mode          : an integer input variable. If mode = 1, the variables will be scaled internally. If mode = 2, the scaling is specified by the input diag. Other values of mode are equivalent to mode = 1.
- *      - factor        : a positive input variable used in determining the initial step bound. This bound is set to the product of factor and the euclidean norm of diag*x if the latter is nonzero, or else to factor itself. In most cases factor should lie in the interval (.1,100.). 100. is a generally recommended value.
- *      - nprint        : an integer input variable that enables controlled printing of iterates if it is positive. In this case, fcn is called with iflag = 0 at the beginning of the first iteration and every nprint iterations thereafter and immediately prior to return, with x and fvec available for printing. If nprint is not positive, no special calls of fcn with iflag = 0 are made.
- *      - info          : an integer output variable. If the user has terminated execution, info is set to the (negative) value of iflag. See description of fcn. Otherwise, info is set as follows.
- *      - info=0        : improper input parameters.
- *      - info=1        : both actual and predicted relative reductions in the sum of squares are at most ftol.
- *      - info=2        : relative error between two consecutive iterates is at most xtol.
- *      - info=3        : conditions for info = 1 and info = 2 both hold.
- *      - info=4        : the cosine of the angle between fvec and any column of the Jacobian is at most gtol in absolute value.
- *      - info=5        : number of calls to fcn has reached or exceeded maxfev.
- *      - info=6        : ftol is too small. No further reduction in the sum of squares is possible.
- *      - info=7        : xtol is too small. No further improvement in the approximate solution x is possible.
- *      - info=8        : gtol is too small. fvec is orthogonal to the columns of the Jacobian to machine precision.
- *      - nfev          : an integer output variable set to the number of calls to fcn with iflag = 1.
- *      - njev          : an integer output variable set to the number of calls to fcn with iflag = 2.
- *      - ipvt          : an integer output array of length n. ipvt defines a permutation matrix p such that jac*p = q*r, where jac is the final calculated Jacobian, q is orthogonal (not stored), and r is upper triangular with diagonal elements of nonincreasing magnitude. Column j of p is column ipvt(j) of the identity matrix.
- *      - qtf           : an output array of length n which contains the first n elements of the vector (q transpose)*fvec.
- *      - wa1, wa2, wa3 : are work arrays of length n.
- *      - wa4           : a work array of length m.  
- */
-MAP_ERROR_CODE first_solve(ModelData* data, MAP_InputType_t* uType, MAP_ConstraintStateType_t* zType,  MAP_OtherStateType_t* otherType, MAP_OutputType_t* yType, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE first_solve(ModelData* model_data, MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_ERROR_CODE success = MAP_SAFE;
-
-  if (data->MAP_SOLVE_TYPE==MONOLITHIC) {
-    success = line_solve_sequence(data, 0.0, map_msg, ierr);
+  
+  if (model_data->MAP_SOLVE_TYPE==MONOLITHIC) {
+    success = line_solve_sequence(model_data, 0.0, map_msg, ierr); /* @todo CHECKERRQ() */
   } else {
-    success = node_solve_sequence(data, uType, zType, otherType, map_msg, ierr); // @todo CHECKERRQ()
+    success = node_solve_sequence(model_data, u_type, z_type, other_type, map_msg, ierr); /* @todo CHECKERRQ() */
   };
 
   /* @todo replace with MAP_RETURN? */
@@ -132,15 +308,13 @@ MAP_ERROR_CODE first_solve(ModelData* data, MAP_InputType_t* uType, MAP_Constrai
 };
 
 
-/**
- * @see mapcall_msqs_init( )
- * @see mapcall_msqs_end( )
- * @see free_outer_solve_data( ) for where this data is deallocated
- */
 MAP_ERROR_CODE allocate_outer_solve_data(OuterSolveAttributes* ns, const int size, char* map_msg, MAP_ERROR_CODE* ierr)
 {
+  int ret = 0;
+  // bstring user_msg = NULL;
+  const int THREE = 3;  
+  const int SIZE = THREE*size;
   int i = 0;
-  const int SIZE = 3*size;
 
   ns->jac = (double**)malloc(SIZE*sizeof(double*));
   ns->l = (double**)malloc(SIZE*sizeof(double*));  
@@ -150,32 +324,32 @@ MAP_ERROR_CODE allocate_outer_solve_data(OuterSolveAttributes* ns, const int siz
   ns->y = (double*)malloc(SIZE*sizeof(double*));  
   
   if (ns->jac==NULL) {
-    *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_8);    
+    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_8);        
     return MAP_FATAL;
   };
 
   if (ns->x==NULL) {
-    *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_8);    
+    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_8);        
     return MAP_FATAL;
   };
 
   if (ns->b==NULL) {
-    *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_8);    
+    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_8);        
     return MAP_FATAL;
   };
 
   if (ns->l==NULL) {
-    *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_8);    
+    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_8);        
     return MAP_FATAL;
   };
 
   if (ns->u==NULL) {
-    *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_8);    
+    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_8);        
     return MAP_FATAL;
   };
 
   if (ns->y==NULL) {
-    *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_8);    
+    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_8);        
     return MAP_FATAL;
   };
 
@@ -189,488 +363,958 @@ MAP_ERROR_CODE allocate_outer_solve_data(OuterSolveAttributes* ns, const int siz
 };
 
 
-/**
- *
- */
-MAP_ERROR_CODE free_outer_solve_data(OuterSolveAttributes* ns, const int size, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE check_help_flag(bstring list)
 {
-  const int SIZE = 3*size;
-  int i = 0;
+  MAP_ERROR_CODE success = 0;
 
-  if (ns->jac) { /* is it allocated? */
-    for(i=0 ; i<SIZE ; i++) {
-      MAPFREE(ns->jac[i]);
-    };
-  };
- 
-  if (ns->l) { /* is it allocated? */
-    for(i=0 ; i<SIZE ; i++) {
-     MAPFREE(ns->l[i]);
-    };
-  };
-
-  if (ns->u) { /* is it allocated? */
-    for(i=0 ; i<SIZE ; i++) {
-      MAPFREE(ns->u[i]);
-   };  
-  };
-
-  MAPFREE(ns->jac);
-  MAPFREE(ns->l);
-  MAPFREE(ns->u);
-  MAPFREE(ns->b);
-  MAPFREE(ns->x);  
-  MAPFREE(ns->y);
+  success = biseqcstrcaseless(list,"HELP"); /* string compare */
+  if (success) { 
+    print_help_to_screen();
+  }; 
   return MAP_SAFE;
 };
 
 
-/**
- * MAP_InputType_t* uType,
- * MAP_ConstraintStateType_t* zType,
- * MAP_OtherStateType_t* otherType,
- * MAP_OutputType_t* yType,
- */
-MAP_ERROR_CODE node_solve_sequence(ModelData* data, MAP_InputType_t* uType, MAP_ConstraintStateType_t* zType, MAP_OtherStateType_t* otherType, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE check_inner_f_tol_flag(struct bstrList* list, double* ftol)
 {
-
-  OuterSolveAttributes* ns = &data->outer_loop;
-  MAP_ERROR_CODE success = MAP_SAFE;
-  Element* elementIter = NULL;
-  const int THREE = 3;
-  const int N = zType->z_Len;
-  const int m = THREE*(otherType->Fz_connect_Len); // rows
-  const int n = THREE*(zType->z_Len);              // columns
-  double error = 0.0;
-  int SIZE = THREE*N;
-  int col = 0;
-  int row = 0;
-  int i = 0;
-  int j = 0;
-  int lineCounter = 0;
-
-  ns->iterationCount = 1;
-  do {
-    error = 0.0;
-    success = line_solve_sequence(data, 0.0, map_msg, ierr); CHECKERRQ(MAP_FATAL_79);
-    switch (ns->fd) {
-    case BACKWARD_DIFFERENCE :
-      success = backward_difference_jacobian(otherType, zType, data, map_msg, ierr); CHECKERRQ(MAP_FATAL_75);
-      break;
-    case CENTRAL_DIFFERENCE :
-      success = central_difference_jacobian(otherType, zType, data, map_msg, ierr); CHECKERRQ(MAP_FATAL_76);
-      break;
-    case FORWARD_DIFFERENCE :
-      success = forward_difference_jacobian(otherType, zType, data, map_msg, ierr); CHECKERRQ(MAP_FATAL_77);
-      break;
-    }
-
-    success = line_solve_sequence(data, 0.0, map_msg, ierr);
-    success = lu(ns, SIZE, map_msg, ierr); CHECKERRQ(MAP_FATAL_74);
-    success = lu_back_substitution(ns, SIZE, map_msg, ierr); CHECKERRQ(MAP_FATAL_74);
-  
-    /* 
-       Note that: ns->x = J^(-1) * F
-       [x,y,z]_i+1 =  [x,y,z]_i - J^(-1) * F        
-    */   
-    for (i=0 ; i<N ; i++) { 
-      zType->x[i] -= ns->x[THREE*i];
-      zType->y[i] -= ns->x[THREE*i+1];
-      zType->z[i] -= ns->x[THREE*i+2];
-      error += (pow(otherType->Fx_connect[i],2)+ pow(otherType->Fy_connect[i],2) + pow(otherType->Fz_connect[i],2));
-    };
-    ns->iterationCount++;
-    if (ns->iterationCount>ns->maxIts) {
-      *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_80);      
-      break;
-    };
-    // printf("Error: %f, tol=%f\n",sqrt(error),ns->tol);
-    /* 
-       @todo: end when iterations is exceeded. need some way to indicate that simulation did not suuficiently 
-       meet termination criteria
-    */
-  } while (sqrt(error)>ns->tol);
-
-  if (success==MAP_SAFE) {
-    return MAP_SAFE;
-  } else if (success==MAP_ERROR) {
-    return MAP_ERROR;
-  } else {
-    return MAP_FATAL;
-  };
-};
-
-
-/**
- *
- */
-MAP_ERROR_CODE solve_line(ModelData* data, double time, char* map_msg, MAP_ERROR_CODE* ierr)
-{
-  MAP_ERROR_CODE success = MAP_SAFE;
-  Element* elementIter = NULL;
-  int lineCounter = 1;
-  int cx = 0;
-  char buffer[64] = "";
-      
-  list_iterator_start(&data->element);            /* starting an iteration "session" */
-  while (list_iterator_hasnext(&data->element)) { /* tell whether more values available */ 
-    elementIter = (Element*)list_iterator_next(&data->element);
- 
-    /* 
-       check for fatal errors 
-       @todo: this should handle the exception of a perfectly vertical cable. Added to the priority list
-    */    
-    if (elementIter->l.value<=0.0) {
-      cx = map_snprintf(buffer, 64, "Line segment %d, l = %f [m].", lineCounter, elementIter->l.value); assert(cx>=0);
-      *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_54);      
-      list_iterator_stop(&data->element); /* ending the iteration session */   
-      break; 
-    } else if (elementIter->h.value<=-MACHINE_EPSILON) {
-      cx = map_snprintf(buffer, 64, "Line segment %d, h = %f [m].", lineCounter, elementIter->h.value); assert(cx>=0);
-      *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_55);      
-      list_iterator_stop(&data->element); /* ending the iteration session */   
-      break; 
-    } else if (elementIter->lineProperty->omega>0.0) {
-      success = check_maximum_line_length(elementIter, elementIter->options.omitContact, map_msg, ierr);
-      if (success) {        
-        cx = map_snprintf(buffer, 64, "Line segment %d.", lineCounter); assert(cx>=0);
-        *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_59);
-        break;
-      };
-    };    
-    success = call_minpack_lmder(elementIter, &data->inner_loop, &data->modelOptions, lineCounter, time, map_msg, ierr); CHECKERRQ(MAP_FATAL_79);
-    lineCounter++;
-  };
-  list_iterator_stop(&data->element); /* ending the iteration "session" */    
-
-  if (*ierr==MAP_SAFE) {
-    return MAP_SAFE;
-  } else if (*ierr==MAP_ERROR) {
-    return MAP_ERROR;
-  } else {
-    return MAP_FATAL;
-  };
-};
-
-
-/**
- *
- */
-MAP_ERROR_CODE set_model_options_list(ModelData* data, InitializationData* initObj, char* map_msg, MAP_ERROR_CODE* ierr)
-{
-  int i = 0;
-  int index = 0;
-  int cx = 0;
   int success = 0;
-  int sizeOfString = 0;
-  char* word = NULL;
-  char* line = NULL;
-  MapReal* moreAngles = NULL;
-  char buffer[64] = "";  
+  int n = 0;
+  const char* word = NULL;
 
-  // initialize_options(data);
-  for (i=0 ; i<=initObj->solverOptionsSize-1 ; i++) { 
-    sizeOfString = strlen(initObj->solverOptionsString[i]);
-    line = (char*)realloc(line, (sizeOfString+1)*sizeof(char));    
-    strcpy(line, initObj->solverOptionsString[i]);    
-    word = strtok( line, " ,\n\t\r\0");
-    while (word!=NULL) {      
-      if (!strcicmp("HELP",word)) {
-        success = print_help_to_screen(map_msg,ierr);
-      } else if (!strcicmp("INNER_FTOL",word)) {
-        word = strtok(NULL, " ,\n\t\r\0");
-        success = is_numeric(word); CHECKERRK(MAP_ERROR_2);
-        if (!success) {
-          data->inner_loop.f_tol = (MapReal)atof(word);        
+  success = biseqcstrcaseless(list->entry[0],"INNER_FTOL"); /* string compare */
+  if (success==BSTR_ERR) {
+    return MAP_FATAL;
+  } else if (success) { 
+    while (n<list->qty-1) { /* iterating through all strings */      
+      if (list->entry[n+1]->slen) { /* if the string length is not 0 */
+        word = list->entry[n+1]->data;
+        if (is_numeric(word)) { 
+          *ftol = (double)atof(word);
+          return MAP_SAFE;
+        } else {
+          return MAP_FATAL;
         };
-      } else if (!strcicmp("INNER_GTOL",word)) {
-        word = strtok(NULL, " ,\n\t\r\0");
-        success = is_numeric(word); CHECKERRK(MAP_ERROR_9);
-        if (!success) {
-          data->inner_loop.g_tol = (MapReal)atof(word);        
-        };
-      } else if (!strcicmp("INNER_XTOL",word)) {
-        word = strtok( NULL, " ,\n\t\r\0" );
-        success = is_numeric(word); CHECKERRK(MAP_ERROR_10);
-        if (!success) {
-          data->inner_loop.x_tol = (MapReal)atof(word);        
-        };
-      } else if (!strcicmp("OUTER_TOL",word)) {
-        word = strtok(NULL, " ,\n\t\r\0");
-        success = is_numeric(word); CHECKERRK(MAP_ERROR_3);
-        if (!success) {
-          data->outer_loop.tol = (MapReal)atof(word);        
-        };
-      } else if (!strcicmp("OUTER_MAX_ITS",word)) {
-        word = strtok( NULL, " ,\n\t\r\0" );
-        success = is_numeric(word); CHECKERRK(MAP_ERROR_3);
-        if (!success) {
-          data->outer_loop.maxIts = (MapReal)atof(word);        
-        };
-      } else if (!strcicmp("OUTER_EPSILON",word)) {
-        word = strtok( NULL, " ,\n\t\r\0" );
-        success = is_numeric(word); CHECKERRK(MAP_ERROR_3);
-        if (!success) {
-          data->outer_loop.epsilon = (MapReal)atof(word);        
-        };
-      } else if (!strcicmp("INNER_MAX_ITS",word)) {
-        word = strtok(NULL, " ,\n\t\r\0");
-        success = is_numeric(word); CHECKERRK(MAP_ERROR_4);
-        if (!success) {
-          data->inner_loop.max_its = (MapReal)atof(word);        
-        };
-      } else if (!strcicmp("INTEGRATION_DT",word)) {
-        word = strtok(NULL, " ,\n\t\r\0");
-        success = is_numeric(word); CHECKERRK(MAP_ERROR_15); 
-        if (!success) {
-          data->modelOptions.integrationDt = (MapReal)atof(word);        
-        };
-      } else if (!strcicmp("KB_DEFAULT",word)) {
-        word = strtok(NULL, " ,\n\t\r\0");
-        success = is_numeric(word); CHECKERRK(MAP_ERROR_16); 
-        if (!success) {
-          data->modelOptions.integrationDt = (MapReal)atof(word);        
-        };
-      } else if (!strcicmp("CB_DEFAULT",word)) {
-        word = strtok(NULL, " ,\n\t\r\0");
-        success = is_numeric(word); CHECKERRK(MAP_ERROR_17); 
-        if (!success) {
-          data->modelOptions.integrationDt = (MapReal)atof(word);        
-        };
-      } else if (!strcicmp("WAVE_KINEMATICS",word)) {
-        *ierr = map_set_universal_error("", map_msg, ierr, MAP_WARNING_10);
-        data->modelOptions.waveKinematics = false;
-      } else if (!strcicmp("PG_COOKED",word)) {
-        word = strtok(NULL, " ,\t\0");        
-        if (word!=NULL) {          
-          success = is_numeric(word); CHECKERRK(MAP_WARNING_8);
-          if (!success) {
-            data->outer_loop.ds = (MapReal)atof(word);        
-          } else {
-            data->outer_loop.ds = 1.0;
-          };
-        };
-        word = strtok(NULL, " ,\n\t\r\0");        
-        if (word!=NULL) {          
-          success = is_numeric(word); CHECKERRK(MAP_WARNING_8);
-          if (!success) {
-            data->outer_loop.d = (MapReal)atof(word);        
-          } else {
-            data->outer_loop.d = 0.0;
-          };
-        };
-        data->outer_loop.pg = true;
-      } else if (!strcicmp("OUTER_BD",word)) {
-        data->outer_loop.fd = BACKWARD_DIFFERENCE;
-      } else if (!strcicmp("OUTER_CD",word)) {
-        data->outer_loop.fd = CENTRAL_DIFFERENCE;
-      } else if (!strcicmp("OUTER_FD",word)) {
-        data->outer_loop.fd = FORWARD_DIFFERENCE;
-      } else if (!strcicmp("REF_POSITION",word)) {
-        word = strtok( NULL, " ,\n\t\r\0" );
-        success = is_numeric(word); CHECKERRQ(MAP_FATAL_36);
-        data->vessel.refOrigin.x.value = (MapReal)atof(word);        
-        word = strtok( NULL, " ,\n\t\r\0" );
-        success = is_numeric(word); CHECKERRQ(MAP_FATAL_36);
-        data->vessel.refOrigin.y.value = (MapReal)atof(word);        
-        word = strtok( NULL, " ,\n\t\r\0" );
-        success = is_numeric(word); CHECKERRQ(MAP_FATAL_36);
-        data->vessel.refOrigin.z.value = (MapReal)atof(word);
-      } else if (!strcicmp("REPEAT",word)) {
-        word = strtok(NULL, " ,\t\n");
-        while (word!=NULL) {      
-          index = data->modelOptions.sizeOfRepeatAngles;
-          moreAngles = (MapReal*)realloc(data->modelOptions.repeatAngles, (index+1)*sizeof(MapReal));
-          if (moreAngles!=NULL) {
-            data->modelOptions.repeatAngles = moreAngles;
-            success = is_numeric(word); CHECKERRQ(MAP_FATAL_34);
-            data->modelOptions.repeatAngles[index] = (MapReal)atof(word);
-            data->modelOptions.sizeOfRepeatAngles++;
-          } else {
-            MAPFREE(moreAngles);
-            success = 1; CHECKERRQ(MAP_FATAL_35);
-          };
-          word = strtok(NULL, " ,\t\n");
-        };
-      } else {
-        cx = map_snprintf(buffer, 64, "Ignoring value '%s'.", word); assert(cx>=0);
-        *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_WARNING_4);
       };
-      word = strtok(NULL, " ,\n\t\r\0");
+      n++;
     };
-  };
-  MAPFREE(line);
+  }; 
+  word = NULL;
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE check_inner_g_tol_flag(struct bstrList* list, double* gtol)
+{
+  int success = 0;
+  int n = 0;
+  const char* word = NULL;
+
+  success = biseqcstrcaseless(list->entry[0],"INNER_GTOL"); /* string compare */
+  if (success==BSTR_ERR) {
+    return MAP_FATAL;
+  } else if (success) { 
+    while (n<list->qty-1) { /* iterating through all strings */      
+      if (list->entry[n+1]->slen) { /* if the string length is not 0 */
+        word = list->entry[n+1]->data;
+        if (is_numeric(word)) { 
+          *gtol = (double)atof(word);
+          return MAP_SAFE;
+        } else {
+          return MAP_FATAL;
+        };
+      };
+      n++;
+    };
+  }; 
+  word = NULL;
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE check_inner_x_tol_flag(struct bstrList* list, double* xtol)
+{
+  int success = 0;
+  int n = 0;
+  const char* word = NULL;
+
+  success = biseqcstrcaseless(list->entry[0],"INNER_XTOL"); /* string compare */
+  if (success==BSTR_ERR) {
+    return MAP_FATAL;
+  } else if (success) { 
+    while (n<list->qty-1) { /* iterating through all strings */      
+      if (list->entry[n+1]->slen) { /* if the string length is not 0 */
+        word = list->entry[n+1]->data;
+        if (is_numeric(word)) { 
+          *xtol = (double)atof(word);
+          return MAP_SAFE;
+        } else {
+          return MAP_FATAL;
+        };
+      };
+      n++;
+    };
+  }; 
+  word = NULL;
   return MAP_SAFE;
 };
 
 
 
-/**
- *
- */
-int set_cable_library_list(ModelData* data, InitializationData* init, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE check_inner_max_its_flag(struct bstrList* list, int* max_its)
 {
-  int i = 0;
-  int cx = 0;
-  int cnt = 0;
   int success = 0;
-  int len = 0;
-  int sizeOfString = 0;
-  char* line = NULL;
-  char* word = NULL;
-  char buffer[64] = "";  
-  CableLibrary in_cableLibrary;
+  int n = 0;
+  const char* word = NULL;
 
-  for(i=0 ; i<=init->librarySize-1 ; i++) { 
-    sizeOfString = strlen(init->libraryInputString[i]);
-    line = (char*)realloc(line, (sizeOfString+1)*sizeof(char));    
-    strcpy(line, init->libraryInputString[i]);        
-    word=strtok(line, " ,\n\t\r\0");        
-    while (word!=NULL) {            
-      if (cnt==0) {
-        len = strlen(word);
-        in_cableLibrary.label = malloc(sizeof(char*)*(len+1));
-        strcpy(in_cableLibrary.label, word);
-      } else if (cnt==1) {
-        success=is_numeric(word);CHECKERRQ(MAP_FATAL_12);
-        in_cableLibrary.diam=(MapReal)atof(word);
-      } else if (cnt==2) {
-        success=is_numeric(word);CHECKERRQ(MAP_FATAL_13);
-        in_cableLibrary.massDensityInAir=(MapReal)atof(word);
-      } else if (cnt==3) {
-        success=is_numeric(word);CHECKERRQ(MAP_FATAL_14);
-        in_cableLibrary.ea=(MapReal)atof(word);
-      } else if (cnt==4) {
-        success=is_numeric(word); CHECKERRQ(MAP_FATAL_15);
-        in_cableLibrary.cb=(MapReal)atof(word);
-      } else if (cnt==5) {
-        success=is_numeric(word); CHECKERRQ(MAP_FATAL_81);
-        in_cableLibrary.cIntDamp=(MapReal)atof(word);
-      } else if (cnt==6) {
-        success=is_numeric(word); CHECKERRQ(MAP_FATAL_82);
-        in_cableLibrary.cAdded=(MapReal)atof(word);
-      } else if (cnt==7) {
-        success=is_numeric(word); CHECKERRQ(MAP_FATAL_83);
-        in_cableLibrary.cDragNormal=(MapReal)atof(word);
-      } else if (cnt==8) {
-        success=is_numeric(word); CHECKERRQ(MAP_FATAL_84);
-        in_cableLibrary.cDragTangent=(MapReal)atof(word);
-      } else { /* too many options are listed in the MAP input file. Let's warn users of uncommented information */
-        if (strcmp (" ",word)) {
-          cx = map_snprintf(buffer, 64, "Value '%s'.", word);assert(cx>=0);
-          *ierr=map_set_universal_error(buffer, map_msg, ierr, MAP_WARNING_1);
+  success = biseqcstrcaseless(list->entry[0],"INNER_MAX_ITS"); /* string compare */
+  if (success==BSTR_ERR) {
+    return MAP_FATAL;
+  } else if (success) { 
+    while (n<list->qty-1) { /* iterating through all strings */      
+      if (list->entry[n+1]->slen) { /* if the string length is not 0 */
+        word = list->entry[n+1]->data;
+        if (is_numeric(word)) { 
+          *max_its = (int)atof(word);
+          return MAP_SAFE;
+        } else {
+          return MAP_FATAL;
         };
       };
-      cnt++;
-      word = strtok(NULL, " ,\n\t\r\0");
-    };  
-    list_append(&data->cableLibrary, &in_cableLibrary);
-    cnt=0;
-  };
-  
-  MAPFREE(line);
-
-  if (*ierr==MAP_FATAL) {
-    return MAP_FATAL;
-  };
-  return MAP_SAFE;  
+      n++;
+    };
+  }; 
+  word = NULL;
+  return MAP_SAFE;
 };
 
 
-/**
- * Initialized omega (weight per unit length) and cross-section area of a cable. The formula is 
- *
- *   A=\pi*\frac{radius^{2}}{4}
- *   \omega=g*(\mu-A*\rho_{seawater})
- *
- * @acceses: none
- * @calledby: mapcall_msqs_init( )
- */
-MAP_ERROR_CODE initialize_cable_library_variables(ModelData* data, MAP_ParameterType_t* paramFortType, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE check_outer_max_its_flag(struct bstrList* list, int* max_its)
 {
-  MapReal radius = 0.0;
-  MapReal area = 0.0;
-  MapReal muCable = 0.0;
-  MapReal rhoFluid = 0.0; 
-  const MapReal g = paramFortType->g;
-  const MapReal PI = 3.14159264;
-  CableLibrary* iterCableLibrary=NULL;
+  int success = 0;
+  int n = 0;
+  const char* word = NULL;
 
-  list_iterator_start(&data->cableLibrary); /* starting an iteration "session" */
-  while ( list_iterator_hasnext(&data->cableLibrary)) { /* tell whether more values available */ 
-    iterCableLibrary = (CableLibrary*)list_iterator_next(&data->cableLibrary);
-    radius = iterCableLibrary->diam/2;
+  success = biseqcstrcaseless(list->entry[0],"OUTER_MAX_ITS"); /* string compare */
+  if (success==BSTR_ERR) {
+    return MAP_FATAL;
+  } else if (success) { 
+    while (n<list->qty-1) { /* iterating through all strings */      
+      if (list->entry[n+1]->slen) { /* if the string length is not 0 */
+        word = list->entry[n+1]->data;
+        if (is_numeric(word)) { 
+          *max_its = (int)atof(word);
+          return MAP_SAFE;
+        } else {
+          return MAP_FATAL;
+        };
+      };
+      n++;
+    };
+  }; 
+  word = NULL;
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE check_outer_tol_flag(struct bstrList* list, double* outer_tol)
+{
+  int success = 0;
+  int n = 0;
+  const char* word = NULL;
+
+  success = biseqcstrcaseless(list->entry[0],"OUTER_TOL"); /* string compare */
+  if (success==BSTR_ERR) {
+    return MAP_FATAL;
+  } else if (success) { 
+    while (n<list->qty-1) { /* iterating through all strings */      
+      if (list->entry[n+1]->slen) { /* if the string length is not 0 */
+        word = list->entry[n+1]->data;
+        if (is_numeric(word)) { 
+          *outer_tol = (double)atof(word);
+          return MAP_SAFE;
+        } else {
+          return MAP_FATAL;
+        };
+      };
+      n++;
+    };
+  }; 
+  word = NULL;
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE check_outer_epsilon_flag(struct bstrList* list, double* epsilon)
+{
+  int success = 0;
+  int n = 0;
+  const char* word = NULL;
+
+  success = biseqcstrcaseless(list->entry[0],"OUTER_EPSILON"); /* string compare */
+  if (success==BSTR_ERR) {
+    return MAP_FATAL;
+  } else if (success) { 
+    while (n<list->qty-1) { /* iterating through all strings */      
+      if (list->entry[n+1]->slen) { /* if the string length is not 0 */
+        word = list->entry[n+1]->data;
+        if (is_numeric(word)) { 
+          *epsilon = (double)atof(word);
+          return MAP_SAFE;
+        } else {
+          return MAP_FATAL;
+        };
+      };
+      n++;
+    };
+  }; 
+  word = NULL;
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE check_integration_dt_flag(struct bstrList* list, double* dt)
+{
+  int success = 0;
+  int n = 0;
+  const char* word = NULL;
+  success = biseqcstrcaseless(list->entry[0],"INTEGRATION_DT"); /* string compare */
+  if (success==BSTR_ERR) {
+    return MAP_FATAL;
+  } else if (success) { 
+    while (n<list->qty-1) { /* iterating through all strings */      
+      if (list->entry[n+1]->slen) { /* if the string length is not 0 */
+        word = list->entry[n+1]->data;
+        if (is_numeric(word)) { 
+          *dt = (double)atof(word);
+          return MAP_WARNING;
+        } else {
+          return MAP_FATAL;
+        };
+      };
+      n++;
+    };
+  }; 
+  word = NULL;
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE check_kb_default_flag(struct bstrList* list, double* kb)
+{
+  int success = 0;
+  int n = 0;
+  const char* word = NULL;
+
+  success = biseqcstrcaseless(list->entry[0],"KB_DEFAULT"); /* string compare */
+  if (success==BSTR_ERR) {
+    return MAP_FATAL;
+  } else if (success) { 
+    while (n<list->qty-1) { /* iterating through all strings */      
+      if (list->entry[n+1]->slen) { /* if the string length is not 0 */
+        word = list->entry[n+1]->data;
+        if (is_numeric(word)) { 
+          *kb = (double)atof(word);
+          return MAP_WARNING;
+        } else {
+          return MAP_FATAL;
+        };
+      };
+      n++;
+    };
+  }; 
+  word = NULL;
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE check_cb_default_flag(struct bstrList* list, double* cb)
+{
+  int success = 0;
+  int n = 0;
+  const char* word = NULL;
+
+  success = biseqcstrcaseless(list->entry[0],"CB_DEFAULT"); /* string compare */
+  if (success==BSTR_ERR) {
+    return MAP_FATAL;
+  } else if (success) { 
+    while (n<list->qty-1) { /* iterating through all strings */      
+      if (list->entry[n+1]->slen) { /* if the string length is not 0 */
+        word = list->entry[n+1]->data;
+        if (is_numeric(word)) { 
+          *cb = (double)atof(word);
+          return MAP_WARNING;
+        } else {
+          return MAP_FATAL;
+        };
+      };
+      n++;
+    };
+  }; 
+  word = NULL;
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE check_outer_bd_flag(struct bstrList* list, FdType* bd)
+{
+  int success = 0;
+
+  success = biseqcstrcaseless(list->entry[0],"OUTER_BD"); /* string compare */
+  if (success) {
+    *bd = BACKWARD_DIFFERENCE;
+  };
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE check_outer_cd_flag(struct bstrList* list, FdType* cd)
+{
+  int success = 0;
+
+  success = biseqcstrcaseless(list->entry[0],"OUTER_CD"); /* string compare */
+  if (success) {
+    *cd = CENTRAL_DIFFERENCE;
+  };
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE check_outer_fd_flag(struct bstrList* list, FdType* fd)
+{
+  int success = 0;
+
+  success = biseqcstrcaseless(list->entry[0],"OUTER_FD"); /* string compare */
+  if (success) {
+    *fd = FORWARD_DIFFERENCE;
+  };
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE check_wave_kinematics_flag(struct bstrList* list, bool* wave)
+{
+  int success = 0;
+
+  success = biseqcstrcaseless(list->entry[0],"WAVE_KINEMATICS"); /* string compare */
+  if (success) {
+    *wave = false;
+    return MAP_FATAL;
+  };
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE check_pg_cooked_flag(struct bstrList* list, OuterSolveAttributes* solver)
+{
+  int n = 0;
+  int success = 0;
+  int next = 0; 
+  const char* word = NULL;
+
+  success = biseqcstrcaseless(list->entry[0],"PG_COOKED"); /* string compare */
+  if (success==BSTR_ERR) {
+    return MAP_FATAL;
+  } else if (success) {
+    while (n<list->qty-1) { /* iterating through all strings */      
+      if (list->entry[n+1]->slen) { /* if the string length is not 0 */
+        word = list->entry[n+1]->data;
+        if (is_numeric(word)) {         
+          if (!next) {
+            solver->d = (double)atof(word);
+            next++;
+          } else {
+            solver->ds = (double)atof(word);
+            solver->pg = true;
+            return MAP_SAFE;
+          };
+        } else {
+          return MAP_FATAL;
+        };
+      };
+      n++;
+    };
+  }; 
+  word = NULL;
+  if (!next) {
+    return MAP_SAFE;
+  } else {
+    return MAP_WARNING;
+  };
+};
+
+
+MAP_ERROR_CODE check_repeat_flag(struct bstrList* list, ModelOptions* options)
+{
+  double* more_angles = NULL;
+  char* current = NULL;
+  int success = 0;
+  int n = 0; /* word interator in the list */
+  int i = 0; /* synonym for repeat_angle_size */
+
+  success = biseqcstrcaseless(list->entry[0],"REPEAT"); /* string compare */
+  if (success==BSTR_ERR) {
+    return MAP_FATAL;
+  } else if (success) {
+    while (n<list->qty-1) { /* iterating through all strings */      
+      if (list->entry[n+1]->slen) { /* if the string length is not 0 */
+        current = list->entry[n+1]->data;
+        i = options->repeat_angle_size;
+        more_angles = realloc(options->repeat_angle, (i+1)*sizeof(double));
+        if (more_angles) {
+          options->repeat_angle = more_angles;
+          if (is_numeric(current)) { /* add repeat angle if word is numeric */
+            options->repeat_angle[i] = atof(current);
+            options->repeat_angle_size++;
+          } else { 
+            MAPFREE(more_angles);
+            return MAP_FATAL;
+          };
+        } else {
+          MAPFREE(more_angles);
+          return MAP_FATAL;
+        };        
+      };
+      n++;
+    };
+  };
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE check_ref_position_flag(struct bstrList* list, Point* ref_position)
+{
+  int n = 0;
+  int success = 0;
+  int next = 0; 
+  const char* word = NULL;
+
+  success = biseqcstrcaseless(list->entry[0],"REF_POSITION"); /* string compare */
+  if (success==BSTR_ERR) {
+    return MAP_FATAL;
+  } else if (success) {
+    while (n<list->qty-1) { /* iterating through all strings */      
+      if (list->entry[n+1]->slen) { /* if the string length is not 0 */
+        word = list->entry[n+1]->data;
+        if (is_numeric(word)) {         
+          if (!next) {
+            ref_position->x.value = (double)atof(word);
+            next++;
+          } else if (next==1) {
+            ref_position->y.value = (double)atof(word);
+            next++;
+          } else {
+            ref_position->z.value = (double)atof(word);
+            return MAP_SAFE;
+          };
+        };
+      };
+      n++;
+    };
+    return MAP_WARNING;
+  };
+  word = NULL;
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE check_uncaught_flag(struct bstrList* list)
+{
+  int success = 0;  
+
+  if (biseqcstrcaseless(list->entry[0],"")) {
+    return MAP_SAFE;
+  } else if (biseqcstrcaseless(list->entry[0],"HELP")) {
+    return MAP_SAFE;
+  } else if (biseqcstrcaseless(list->entry[0],"INNER_FTOL")) { 
+    return MAP_SAFE;
+  } else if (biseqcstrcaseless(list->entry[0],"INNER_GTOL")) {
+    return MAP_SAFE;
+  } else if (biseqcstrcaseless(list->entry[0],"INNER_XTOL")) {
+    return MAP_SAFE;
+  } else if (biseqcstrcaseless(list->entry[0],"INNER_MAX_ITS")) { 
+    return MAP_SAFE;
+  } else if (biseqcstrcaseless(list->entry[0],"OUTER_MAX_ITS")) {
+    return MAP_SAFE;
+  } else if (biseqcstrcaseless(list->entry[0],"OUTER_TOL")) {
+    return MAP_SAFE;
+  } else if (biseqcstrcaseless(list->entry[0],"OUTER_EPSILON")) {
+    return MAP_SAFE;
+  } else if (biseqcstrcaseless(list->entry[0],"INTEGRATION_DT")) {
+    return MAP_SAFE;
+  } else if (biseqcstrcaseless(list->entry[0],"KB_DEFAULT")) {
+    return MAP_SAFE;
+  } else if (biseqcstrcaseless(list->entry[0],"CB_DEFAULT")) {
+    return MAP_SAFE;
+  } else if (biseqcstrcaseless(list->entry[0],"OUTER_CD")) {
+    return MAP_SAFE;
+  } else if (biseqcstrcaseless(list->entry[0],"OUTER_BD")) {
+    return MAP_SAFE;
+  } else if (biseqcstrcaseless(list->entry[0],"OUTER_FD")) {
+    return MAP_SAFE;
+  } else if (biseqcstrcaseless(list->entry[0],"WAVE_KINEMATICS")) {
+    return MAP_SAFE;
+  } else if (biseqcstrcaseless(list->entry[0],"PG_COOKED")) {
+    return MAP_SAFE;
+  } else if (biseqcstrcaseless(list->entry[0],"REPEAT")) {
+    return MAP_SAFE;
+  } else if (biseqcstrcaseless(list->entry[0],"REF_POSITION")) {
+    return MAP_SAFE;
+  }; 
+  return MAP_WARNING;
+};
+
+
+MAP_ERROR_CODE set_library_diameter(bstring word, CableLibrary* library_ptr)
+{
+  if (is_numeric(word->data)) { 
+    library_ptr->diam = (double)atof(word->data);
+  } else { 
+    return MAP_FATAL;
+  };  
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE set_library_mass_density(bstring word, CableLibrary* library_ptr)
+{  
+  if (is_numeric(word->data)) { 
+    library_ptr->massDensityInAir = (double)atof(word->data);
+  } else { 
+    return MAP_FATAL;
+  };  
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE set_library_ea(bstring word, CableLibrary* library_ptr)
+{
+  if (is_numeric(word->data)) { 
+    library_ptr->ea = (double)atof(word->data);
+  } else { 
+    return MAP_FATAL;
+  };  
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE set_library_cb(bstring word, CableLibrary* library_ptr)
+{
+  if (is_numeric(word->data)) { 
+    library_ptr->cb = (double)atof(word->data);
+  } else { 
+    return MAP_FATAL;
+  };  
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE set_library_internal_damping(bstring word, CableLibrary* library_ptr)
+{
+  if (is_numeric(word->data)) { 
+    library_ptr->cIntDamp = (double)atof(word->data);
+  } else { 
+    return MAP_FATAL;
+  };  
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE set_library_added_mass_coefficient(bstring word, CableLibrary* library_ptr)
+{
+  if (is_numeric(word->data)) { 
+    library_ptr->cAdded = (double)atof(word->data);
+  } else { 
+    return MAP_FATAL;
+  };  
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE set_library_cross_flow_drag_coefficient(bstring word, CableLibrary* library_ptr)
+{
+  if (is_numeric(word->data)) { 
+    library_ptr->cDragNormal = (double)atof(word->data);
+  } else { 
+    return MAP_FATAL;
+  };  
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE set_library_tangent_drag_coefficient(bstring word, CableLibrary* library_ptr)
+{
+  if (is_numeric(word->data)) { 
+    library_ptr->cDragTangent = (double)atof(word->data);
+  } else { 
+    return MAP_FATAL;
+  };  
+  return MAP_SAFE;
+};
+
+
+
+MAP_ERROR_CODE set_model_options_list(ModelData* model_data, InitializationData* init_data, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  MAP_ERROR_CODE success = MAP_SAFE;
+  bstring user_msg = NULL;
+  int i = 0;
+  const int n_lines = (init_data->solverOptionsString->qty)-1;
+  struct bstrList* parsed = NULL;
+  struct tagbstring tokens; 
+
+  cstr2tbstr(tokens," \t\n\r"); /* token for splitting line into indivdual words is a tab and space */   
+  for (i=0 ; i<=n_lines ; i++) { 
+    parsed = bsplits(init_data->solverOptionsString->entry[i], &tokens);
+    do {
+      success = check_help_flag(parsed->entry[0]); CHECKERRQ(MAP_FATAL_85);
+      success = check_inner_f_tol_flag(parsed, &model_data->inner_loop.f_tol); CHECKERRK(MAP_ERROR_2);
+      success = check_outer_max_its_flag(parsed, &model_data->outer_loop.maxIts); CHECKERRK(MAP_ERROR_3);
+      success = check_inner_max_its_flag(parsed, &model_data->inner_loop.max_its); CHECKERRK(MAP_ERROR_4);
+      success = check_inner_g_tol_flag(parsed, &model_data->inner_loop.g_tol); CHECKERRK(MAP_ERROR_9);
+      success = check_inner_x_tol_flag(parsed, &model_data->inner_loop.x_tol); CHECKERRK(MAP_ERROR_10);
+      success = check_outer_tol_flag(parsed, &model_data->outer_loop.tol); CHECKERRK(MAP_ERROR_3);
+      success = check_outer_epsilon_flag(parsed, &model_data->outer_loop.epsilon); CHECKERRK(MAP_ERROR_3);
+      success = check_integration_dt_flag(parsed, &model_data->modelOptions.integrationDt); CHECKERRK(MAP_ERROR_15); 
+      success = check_kb_default_flag(parsed, &model_data->modelOptions.kbLm); CHECKERRK(MAP_ERROR_16); 
+      success = check_cb_default_flag(parsed, &model_data->modelOptions.cbLm); CHECKERRK(MAP_ERROR_17); 
+      success = check_outer_bd_flag(parsed, &model_data->outer_loop.fd);
+      success = check_outer_cd_flag(parsed, &model_data->outer_loop.fd);
+      success = check_outer_fd_flag(parsed, &model_data->outer_loop.fd);      
+      success = check_wave_kinematics_flag(parsed, &model_data->modelOptions.waveKinematics); CHECKERRK(MAP_WARNING_10);
+      success = check_pg_cooked_flag(parsed, &model_data->outer_loop); CHECKERRK(MAP_WARNING_8);
+      success = check_repeat_flag(parsed, &model_data->modelOptions); CHECKERRQ(MAP_FATAL_34);
+      success = check_ref_position_flag(parsed, &model_data->vessel.refOrigin); CHECKERRQ(MAP_FATAL_36);
+      success = check_uncaught_flag(parsed);       
+      if (success) {
+        user_msg = bformat("word: <%s>", parsed->entry[0]->data);
+        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_WARNING_1);        
+        success = bdestroy(user_msg); /* clear user_msg to not inavertendly picked up elsewhere */
+        user_msg = NULL;
+      };
+    } while (0);   
+    success = bstrListDestroy(parsed);
+  };
+  MAP_RETURN;
+};
+
+
+MAP_ERROR_CODE reset_cable_library(CableLibrary* library_ptr)
+{
+  MAP_ERROR_CODE success = MAP_SAFE;
+
+  library_ptr->diam = 0.0;
+  library_ptr->massDensityInAir = 0.0;
+  library_ptr->ea = 0.0;          
+  library_ptr->omega = 0.0;       
+  library_ptr->a = 0.0;           
+  library_ptr->cb = 0.0;          
+  library_ptr->cIntDamp = 0.0;    
+  library_ptr->cAdded = 0.0;      
+  library_ptr->cDragNormal = 0.0; 
+  library_ptr->cDragTangent = 0.0; 
+  // if (library_ptr->label) {
+  //   success = bdestroy(library_ptr->label);
+  // };
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE set_cable_library_list(ModelData* model_data, InitializationData* init_data, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  MAP_ERROR_CODE success = MAP_SAFE;
+  bstring user_msg = NULL;
+  int i = 0;
+  int n = 0;
+  int next = 0; 
+  int ret = 0;
+  const int n_lines = (init_data->libraryInputString->qty)-1;
+  struct bstrList* parsed = NULL;
+  struct tagbstring tokens; 
+  CableLibrary new_cable_library;
+  CableLibrary* library_iter = NULL;
+  
+  cstr2tbstr(tokens," \t\n\r"); /* token for splitting line into indivdual words is a tab and space */   
+  success = reset_cable_library(&new_cable_library);
+
+  for (i=0 ; i<=n_lines ; i++) { 
+    list_append(&model_data->cableLibrary, &new_cable_library);
+    library_iter = (CableLibrary*)list_get_at(&model_data->cableLibrary, i);
+
+    parsed = bsplits(init_data->libraryInputString->entry[i], &tokens);
+    n = 0;
+    next = 0;
+    do {  
+      while (n<parsed->qty-1) { /* iterating through all strings */              
+        if (parsed->entry[n]->slen) { /* if the string length is not 0 */
+          if (next==0) {
+            library_iter->label = bstrcpy(parsed->entry[n]);                         
+            next++;
+          } else if (next==1) {
+             success = set_library_diameter(parsed->entry[n], library_iter); CHECKERRQ(MAP_FATAL_12);
+             next++;            
+          } else if (next==2) {
+             success = set_library_mass_density(parsed->entry[n], library_iter); CHECKERRQ(MAP_FATAL_13);
+             next++;
+          } else if (next==3) {
+            success = set_library_ea(parsed->entry[n], library_iter); CHECKERRQ(MAP_FATAL_14);
+            next++;
+          } else if (next==4) {
+            success = set_library_cb(parsed->entry[n], library_iter); CHECKERRQ(MAP_FATAL_15);
+            next++;
+          } else if (next==5) {
+            success = set_library_internal_damping(parsed->entry[n], library_iter); CHECKERRQ(MAP_FATAL_81);
+            next++;
+          } else if (next==6) {
+            success = set_library_added_mass_coefficient(parsed->entry[n], library_iter); CHECKERRQ(MAP_FATAL_82);
+            next++;
+          } else if (next==7) {
+            success = set_library_cross_flow_drag_coefficient(parsed->entry[n], library_iter); CHECKERRQ(MAP_FATAL_83);
+            next++;
+          } else if (next==8) {
+            success = set_library_tangent_drag_coefficient(parsed->entry[n], library_iter); CHECKERRQ(MAP_FATAL_84);
+            next++;
+          };
+        };
+        n++;
+      };
+    } while (0);   
+    // list_append(&model_data->cableLibrary, &new_cable_library);
+    // success = reset_cable_library(&new_cable_library);
+    success = bstrListDestroy(parsed);
+  };
+  model_data->sizeOfCableLibrary = list_size(&model_data->cableLibrary); /* SimCList routine */
+  MAP_RETURN;
+};
+
+
+MAP_ERROR_CODE initialize_cable_library_variables(ModelData* model_data, MAP_ParameterType_t* p_type, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  MAP_ERROR_CODE success = MAP_SAFE;
+  double radius = 0.0;
+  double area = 0.0;
+  double muCable = 0.0;
+  double rhoFluid = 0.0; 
+  const double g = p_type->g;
+  const double PI = 3.14159264;
+  CableLibrary* library_iter = NULL;
+  bstring user_msg = NULL;
+
+  list_iterator_start(&model_data->cableLibrary); /* starting an iteration "session" */
+  while ( list_iterator_hasnext(&model_data->cableLibrary)) { /* tell whether more values available */ 
+    library_iter = (CableLibrary*)list_iterator_next(&model_data->cableLibrary);
+    radius = library_iter->diam/2;
     area = PI*pow(radius,2);
-    muCable = iterCableLibrary->massDensityInAir;
-    rhoFluid = paramFortType->rhoSea;
-    iterCableLibrary->omega = g*(muCable-area*rhoFluid);
+    muCable = library_iter->massDensityInAir;
+    rhoFluid = p_type->rhoSea;
+    library_iter->omega = g*(muCable-area*rhoFluid);
 
-    iterCableLibrary->a = area;
-    if (fabs(iterCableLibrary->omega)<=1) {
-      *ierr = map_set_universal_error("", map_msg, ierr, MAP_WARNING_5);
+    library_iter->a = area;
+    if (fabs(library_iter->omega)<=1) {
+      user_msg = bformat("omega = %f <= 1.0", library_iter->omega);
+      *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_WARNING_5);
+      success = bdestroy(user_msg); /* clear user_msg to not inavertendly picked up elsewhere */
+      user_msg = NULL;
     };
   };
-  list_iterator_stop(&data->cableLibrary); /* ending the iteration "session" */    
+  list_iterator_stop(&model_data->cableLibrary); /* ending the iteration "session" */    
   
-  if (fabs(iterCableLibrary->omega)<=1e-3) {
+  if (fabs(library_iter->omega)<=1e-3) {
     return MAP_FATAL;
   }
   return MAP_SAFE;
 };
 
 
-/**
- *  char** list; 
- *  
- *  list = malloc(sizeof(char*)*number_of_row);
- *  for(i=0;i<number_of_row; i++) list[i] = malloc(sizeof(char)*number_of_col);  
- * 
- *  ....
- *  
- *  for(i=0;i<number_of_row; i++) MAPFREE(list[i] );
- *  MAPFREE(list);  
- * 
- *
- * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- *
- *
- *  char **array = malloc(sizeof(*array) * array_size)
- *  ...
- *  while (storing strings in array)
- *  {
- *      if (amount of strings is going to exceed array_size)
- *      {
- *          new_array_size = array_size * growth_factor
- *          char **temp_array = realloc(array, sizeof(*array) * new_array_size)
- *          if (temp_array)
- *          {
- *              array = temp_array
- *              array_size = new_array_size
- *          }
- *          else
- *              error handling
- *      // rest of processing
- *  }
- */
-MAP_ERROR_CODE repeat_nodes(ModelData* dataObj, InitializationData* init, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE expand_node_number(const int n_line, bstring line)
 {
+  bstring current_entry = NULL;
+  int ret = 0;
+
+  current_entry = bformat("%d   ", n_line);              
+  ret = bconcat(line, current_entry);
+  ret = bdestroy(current_entry);               
+  return MAP_SAFE;
+};
+
+MAP_ERROR_CODE expand_node_type(const char* word, bstring line)
+{
+  bstring current_entry = NULL;
+  int ret = 0;
+
+  current_entry = bformat("%s   ", word);              
+  ret = bconcat(line, current_entry);
+  ret = bdestroy(current_entry);
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE expand_node_position_x(double* x, const char* word)
+{
+  if (is_numeric(word)) { /* if number is numeric */
+    *x = (double)atof(word);                
+  } else if (word[0]=='#') {    
+    *x = (double)atof(remove_first_character(word));
+  } else {
+    return MAP_FATAL;
+  };
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE expand_node_position_y(double* y, const char* word)
+{
+  if (is_numeric(word)) { /* if number is numeric */
+    *y = (double)atof(word);                
+  } else if (word[0]=='#') {    
+    *y = (double)atof(remove_first_character(word));    
+  } else {
+    return MAP_FATAL;
+  };
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE expand_node_position_z(Vector* position, const double angle, const double x, const double y, const char* word, bstring line)
+{
+  bstring current_entry = NULL;
+  bstring compared_word = NULL;
+  int ret = 0;
+
+  position->x =  x*cos(angle) + y*sin(angle);
+  position->y = -x*sin(angle) + y*cos(angle);                    
+  compared_word = bformat("%s", word);
+  if (is_numeric(word)) { /* if number is numeric */
+    position->z = (double)atof(word);                
+    current_entry = bformat("%1.4f   %1.4f   %1.4f   ",position->x, position->y, position->z);
+  } else if (word[0]=='#') {    
+    position->z = (double)atof(remove_first_character(word));    
+    current_entry = bformat("#%1.4f   #%1.4f   #%1.4f   ",position->x, position->y, position->z);
+  } else if (biseqcstrcaseless(compared_word,"DEPTH")) {
+    current_entry = bformat("%1.4f   %1.4f   depth   ",position->x, position->y, position->z);
+  } else {
+    bdestroy(compared_word);
+    return MAP_FATAL;
+  };
+
+  bdestroy(compared_word);  
+  ret = bconcat(line, current_entry);
+  ret = bdestroy(current_entry);
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE expand_node_mass(const char* word, bstring line)
+{
+  bstring current_entry = NULL;
+  int ret = 0;
+
+  current_entry = bformat("%s   ", word);              
+  ret = bconcat(line, current_entry);
+  ret = bdestroy(current_entry);
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE expand_node_buoyancy(const char* word, bstring line)
+{
+  bstring current_entry = NULL;
+  int ret = 0;
+
+  current_entry = bformat("%s   ", word);              
+  ret = bconcat(line, current_entry);
+  ret = bdestroy(current_entry);
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE expand_node_force_x(double* fx, const char* word)
+{
+  if (is_numeric(word)) { /* if number is numeric */
+    *fx = (double)atof(word);                
+  } else if (word[0]=='#') { /* if the nuymber is iterated */
+    if (is_numeric(remove_first_character(word))) { 
+      *fx = (double)atof(remove_first_character(word));
+    } else { /* in this case, it is presumed the force is just '#' */
+      *fx = 0.0;                  
+    };
+  } else {
+    return MAP_FATAL;
+  };
+};
+
+
+MAP_ERROR_CODE expand_node_force_y(double* fy, const char* word)
+{
+  if (is_numeric(word)) { /* if number is numeric */
+    *fy = (double)atof(word);                
+  } else if (word[0]=='#') { /* if the nuymber is iterated */
+    if (is_numeric(remove_first_character(word))) { 
+      *fy = (double)atof(remove_first_character(word));
+    } else { /* in this case, it is presumed the force is just '#' */
+      *fy = 0.0;                  
+    };
+  } else {
+    return MAP_FATAL;
+  };
+};
+
+
+MAP_ERROR_CODE expand_node_force_z(Vector* force, const double angle, const double fx, const double fy, const char* word, bstring line)
+{
+  bstring current_entry = NULL;
+  int ret = 0;
+
+  force->x =  fx*cos(angle) + fy*sin(angle);
+  force->y = -fx*sin(angle) + fy*cos(angle);                    
+  if (is_numeric(word)) { /* if number is numeric */
+    force->z = (double)atof(word);                
+  } else if (word[0]=='#') { /* if the nuymber is iterated */
+    if (is_numeric(remove_first_character(word))) { 
+      force->z = (double)atof(remove_first_character(word));
+    } else { /* in this case, it is presumed the force is just '#' */
+      force->z = 0.0;                  
+    };
+  } else {
+    return MAP_FATAL;
+  };
+  if (word[0]=='#') { 
+    force->z = (MapReal)atof(remove_first_character(word));
+    current_entry = bformat("#%1.4f   #%1.4f   #%1.4f\n",force->x, force->y, force->z);              
+  } else {
+    force->z = (MapReal)atof(word);
+    current_entry = bformat("%1.4f   %1.4f   %1.4f\n",force->x, force->y, force->z);              
+  };
+  ret = bconcat(line, current_entry);
+  ret = bdestroy(current_entry);               
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE repeat_nodes(ModelData* model_data, InitializationData* init_data, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  MAP_ERROR_CODE success = MAP_SAFE;
   int i = 0;
   int j = 0;
-  int cnt = 0;
-  int sizeOfNodeBase = 0;
-  int sizeOfString = 0;
-  int numRepeat = 0;
-  char buffer[256] = "";
-  char* word = NULL;
-  char lines[256] = "";
-  char** tempArray = NULL;
-  char tempString[64] = "";
-  MapReal angle = -999.9;
+  int next = 0; 
+  int i_parsed = 0;
+  int n_line = 0;
+  const int num_repeat = model_data->modelOptions.repeat_angle_size; 
+  const int num_node = init_data->nodeInputString->qty;
+  const int n = (num_node)*(num_repeat+1);
+  const char* word = NULL;  
+  double x_position = 0.0;
+  double y_position = 0.0;
+  double x_force = 0.0;
+  double y_force = 0.0;
+  double current_angle = 0.0;
+  bstring line = bformat("");            
+  struct bstrList* parsed = NULL;
+  struct tagbstring tokens; 
   Vector force;     
-  Vector forceOriginal;
   Vector position;
-  Vector positionOriginal;
-  Node newNode;
+  Node new_node; 
+
+  cstr2tbstr(tokens," \t\n\r"); /* token for splitting line into indivdual words is a tab and space */   
 
   force.x = 0.0;
   force.y = 0.0;
@@ -678,342 +1322,342 @@ MAP_ERROR_CODE repeat_nodes(ModelData* dataObj, InitializationData* init, char* 
   position.x = 0.0;
   position.y = 0.0;
   position.z = 0.0;
-  forceOriginal.x = 0.0;
-  forceOriginal.y = 0.0;
-  forceOriginal.z = 0.0;
-  positionOriginal.x = 0.0;
-  positionOriginal.y = 0.0;
-  positionOriginal.z = 0.0;
-
-  sizeOfNodeBase = dataObj->sizeOfNodes;
+   
+  /* allocate space needed to expand the number of node lines */
+  success = bstrListAlloc(init_data->expandedNodeInputString, n+1); 
+  init_data->expandedNodeInputString->qty = 0;
   
-  numRepeat = dataObj->modelOptions.sizeOfRepeatAngles;
-  init->sizeOfFullNodeString = (sizeOfNodeBase)*(numRepeat+1); 
-  tempArray = malloc(sizeof(char*)*(init->sizeOfFullNodeString));
-
-  for(j=0 ; j<sizeOfNodeBase ; j++) { 
-    sizeOfString = strlen(init->nodeInputString[j]);
-    tempArray[j] = malloc(sizeof(char)*(sizeOfString+1));
-    strcpy(tempArray[j], init->nodeInputString[j]);
+  for(i=0 ; i<num_node ; i++) {     
+    init_data->expandedNodeInputString->entry[i] = bfromcstr(init_data->nodeInputString->entry[i]->data);// bstrcpy(init_data->nodeInputString->entry[i]);
+    init_data->expandedNodeInputString->qty++;
   };
-  
-  for(i=0 ; i<numRepeat ; i++) { 
-    for(j=0 ; j<sizeOfNodeBase ; j++) { 
-      set_node_null(&newNode);  
-      sizeOfString = strlen(init->nodeInputString[j]);
-      
-      strcpy(lines, init->nodeInputString[j]);
-      word = strtok(lines, " ,\n\t\r\0");    
-      
-      cnt = 0;
-      strcpy(buffer, "");
-      angle = dataObj->modelOptions.repeatAngles[i]*(DEG2RAD);  // @todo : this needs to change index[0] for angles
-      while (word!=NULL) {      
-        if (cnt==0) {
-          map_snprintf(tempString, 64, "%d  ", ((i+1)*sizeOfNodeBase+j+1));
-          map_strcat(buffer, 256, tempString);
-        } else if (cnt==1) { /* compare strings to determine what type of node it is connected to */
-          if (!strcicmp("FIX",word)) { 
-            map_strcat( buffer, 256, "fix  " );
-          } else if (!strcicmp("CONNECT",word)) {
-            map_strcat(buffer, 256, "connect  ");
-          } else {
-            map_strcat(buffer, 256, "vessel  ");
-          };
-        } else if (cnt==2) {           
-          if (word[0]=='#') { 
-            positionOriginal.x = (MapReal)atof(remove_first_character(word));
-          } else {
-            positionOriginal.x = (MapReal)atof(word);
-          };
-        } else if (cnt==3) { 
-          if (word[0]=='#') { 
-            positionOriginal.y = (MapReal)atof(remove_first_character(word));
-          } else {
-            positionOriginal.y = (MapReal)atof(word);
-          };
-        } else if (cnt==4) { 
-          position.x =  positionOriginal.x*cos(angle) + positionOriginal.y*sin(angle);
-          position.y = -positionOriginal.x*sin(angle) + positionOriginal.y*cos(angle);                    
-          if (word[0]=='#') { 
-            position.z = (MapReal)atof(remove_first_character(word));
-            map_snprintf(tempString, 64, "#%1.4f  #%1.4f  #%1.4f  ", position.x, position.y, position.z);
-          } else {
-            if (!is_numeric(word)) {
-              position.z = (MapReal)atof(word);
-              map_snprintf(tempString, 64, "%1.4f  %1.4f  %1.4f  ", position.x, position.y, position.z);
-            } else {
-              map_snprintf(tempString, 64, "%1.4f  %1.4f  %s  ", position.x, position.y, word);
+
+  for(i=0 ; i<num_repeat ; i++) { /* this is skipped if not repeat angles are declared */
+    for(j=0 ; j<num_node ; j++) { 
+      success = reset_node(&new_node);  
+      n_line = (i+1)*num_node + j;
+      current_angle = model_data->modelOptions.repeat_angle[i]*(DEG2RAD);
+      parsed = bsplits(init_data->nodeInputString->entry[j], &tokens);
+      next = 0;
+      i_parsed = 0;
+      do {  
+        while (i_parsed<parsed->qty-1) { /* iterating through all strings */              
+          if (parsed->entry[i_parsed]->slen) { /* if the string length is not 0 */
+            word = parsed->entry[i_parsed]->data;      
+            if (next==0) {
+              success = expand_node_number(n_line+1, line);/* @todo: checkerrq */
+              next++;
+            } else if (next==1) {
+              success = expand_node_type(word, line);/* @todo: checkerrq */
+              next++;
+            } else if (next==2) {
+              success = expand_node_position_x(&x_position, word);/* @todo: checkerrq */
+              next++;
+            } else if (next==3) {
+              success = expand_node_position_y(&y_position, word);/* @todo: checkerrq */
+              next++;
+            } else if (next==4) {
+              success = expand_node_position_z(&position, current_angle, x_position, y_position, word, line);/* @todo: checkerrq */
+              next++;
+            } else if (next==5) { /* node mass */
+              success = expand_node_mass(word, line);/* @todo: checkerrq */
+              next++;
+            } else if (next==6) { /* node buoyancy */
+              success = expand_node_buoyancy(word, line);/* @todo: checkerrq */
+              next++;
+            } else if (next==7) {
+              success = expand_node_force_x(&x_force, word);/* @todo: checkerrq */
+              next++;
+            } else if (next==8) {
+              success = expand_node_force_y(&y_force, word);/* @todo: checkerrq */
+              next++;
+            } else if (next==9) {
+              success = expand_node_force_z(&force, current_angle, x_force, y_force, word, line);/* @todo: checkerrq */
+              next++;
             };
           };
-          map_strcat(buffer, 256, tempString);        
-        } else if (cnt==5) { 
-          map_snprintf(tempString, 64, "%s  ", word);
-          map_strcat(buffer, 256, tempString);
-        } else if (cnt==6 ) { 
-          map_snprintf(tempString, 64, "%s  ", word);
-          map_strcat(buffer, 256, tempString);
-        } else if (cnt==7) { 
-          if (word[0]=='#') { 
-            forceOriginal.x = (MapReal)atof(remove_first_character(word));
-          } else {
-            forceOriginal.x = (MapReal)atof(word);
-          };
-        } else if (cnt==8) { 
-          if (word[0]=='#') { 
-            forceOriginal.y = (MapReal)atof(remove_first_character(word));
-          } else {
-            forceOriginal.y = (MapReal)atof(word);
-          };
-        } else if (cnt==9) { 
-          force.x =  forceOriginal.x*cos(angle) + forceOriginal.y*sin(angle);
-          force.y = -forceOriginal.x*sin(angle) + forceOriginal.y*cos(angle);
-          if (word[0]=='#') { 
-            force.z = (MapReal)atof(remove_first_character(word));
-            map_snprintf(tempString, 64, "#%1.4f  #%1.4f  #%1.4f\n", force.x, force.y, force.z);
-          } else {
-            force.z = (MapReal)atof(word);
-            map_snprintf(tempString, 64, "%1.4f  %1.4f  %1.4f\n", force.x, force.y, force.z);
-          };
-          map_strcat(buffer, 256, tempString);        
+          i_parsed++;
         };
-        cnt++;
-        word = strtok(NULL, " ,\n\t\r\0");
-      };  
-      sizeOfString = strlen(buffer);
-      tempArray[(i+1)*sizeOfNodeBase+j] = malloc(sizeof(char)*(sizeOfString+1));
-      strcpy(tempArray[(i+1)*sizeOfNodeBase+j], buffer);
+        init_data->expandedNodeInputString->qty++;
+        init_data->expandedNodeInputString->entry[n_line] = bstrcpy(line);
+        success = bassigncstr(line, "");
+      } while (0);   
+      success = bstrListDestroy(parsed);
     };  
   };
+  success = bdestroy(line);               
 
-  dataObj->sizeOfNodes = init->sizeOfFullNodeString;
-  init->expandedNodeInputString = malloc(sizeof(char*)*(init->sizeOfFullNodeString));
-  for( i=0 ; i<init->sizeOfFullNodeString ; i++ ) {    
-    init->expandedNodeInputString[i] = malloc(sizeof(char)*(strlen(tempArray[i])+1));  
-    strcpy(init->expandedNodeInputString[i], tempArray[i]);
-    MAPFREE(tempArray[i]);
-  };
-  MAPFREE(tempArray);
+  MAP_RETURN;
+};
 
+
+MAP_ERROR_CODE expand_element_number(const int n_line, bstring line)
+{
+  bstring current_entry = NULL;
+  int ret = 0;
+              
+  current_entry = bformat("%d   ", n_line);              
+  ret = bconcat(line, current_entry);
+  ret = bdestroy(current_entry);               
   return MAP_SAFE;
 };
 
 
-/**
- *
- */
-MAP_ERROR_CODE repeat_elements(ModelData* dataObj, InitializationData* init, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE expand_element_property_name(const char* word, bstring line)
 {
+  int ret = 0;
+  bstring current_entry = NULL;
+
+  current_entry = bformat("%s   ", word);              
+  ret = bconcat(line, current_entry);
+  ret = bdestroy(current_entry);
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE expand_element_length(const char* word, bstring line)
+{
+  int ret = 0;
+  bstring current_entry = NULL;
+  
+  current_entry = bformat("%s   ", word);              
+  ret = bconcat(line, current_entry);
+  ret = bdestroy(current_entry);
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE expand_element_anchor_number(const char* word, const int index, const int n, bstring line)
+{
+  int ret = 0;
+  bstring current_entry = NULL;
+  int anchor_num = 0;
+
+  if (is_numeric(word)) {
+    anchor_num = (int)atoi(word);
+  } else {
+    return MAP_SAFE;
+  };  
+  current_entry = bformat("%d   ", (index+1)*n+anchor_num);
+  ret = bconcat(line, current_entry);
+  ret = bdestroy(current_entry);
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE expand_element_fairlead_number(const char* word, const int index, const int n, bstring line)
+{
+  int ret = 0;
+  bstring current_entry = NULL;
+  int fairlead_num = 0;
+
+  if (is_numeric(word)) {
+    fairlead_num = (int)atoi(word);
+  } else {
+    return MAP_SAFE;
+  };  
+  current_entry = bformat("%d   ", (index+1)*n+fairlead_num);
+  ret = bconcat(line, current_entry);
+  ret = bdestroy(current_entry);
+  return MAP_SAFE;
+};
+
+MAP_ERROR_CODE expand_element_flag(const char* word, bstring line)
+{
+  int ret = 0;
+  bstring current_entry = NULL;
+  
+  current_entry = bformat("%s   ", word);              
+  ret = bconcat(line, current_entry);
+  ret = bdestroy(current_entry);
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE repeat_elements(ModelData* model_data, InitializationData* init_data, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  MAP_ERROR_CODE success = MAP_SAFE;
   int i = 0;
   int j = 0;
-  int cnt = 0;
-  int success = 0;
-  int sizeOfElementBase = 0;
-  int sizeOfNodeBase = 0;
-  int sizeOfString = 0;
-  int numRepeat = 0;
-  int anchNode = 0.0;
-  int fairNode = 0.0;
-  char buffer[256] = "";
-  char* word = NULL;
-  char lines[256] = "";
-  char** temp_array  = NULL;
-  char temp_string[64] = "";
-  Element newElement;
+  int next = 0; 
+  int i_parsed = 0;
+  int n_line = 0;
+  const int num_repeat = model_data->modelOptions.repeat_angle_size; 
+  const int num_element = init_data->elementInputString->qty;
+  const int num_node = init_data->nodeInputString->qty;
+  const int n = (num_element)*(num_repeat+1);
+  const char* word = NULL;  
+  double current_angle = 0.0;
+  bstring line = bformat("");            
+  struct bstrList* parsed = NULL;
+  struct tagbstring tokens; 
+  Element new_element;
 
-  sizeOfElementBase = dataObj->sizeOfElements;
-  sizeOfNodeBase = init->nodeSize;
+  cstr2tbstr(tokens," \t\n\r"); /* token for splitting line into indivdual words is a tab and space */   
+
+  /* allocate space needed to expand the number of node lines */
+  success = bstrListAlloc(init_data->expandedElementInputString, n+1); 
+  init_data->expandedElementInputString->qty = 0;
   
-  numRepeat = dataObj->modelOptions.sizeOfRepeatAngles;
-  init->sizeOfFullElementString = (sizeOfElementBase)*(numRepeat+1); 
-  temp_array = malloc( (init->sizeOfFullElementString)*sizeof(char*));
-
-  for(j=0 ; j<sizeOfElementBase ; j++) { 
-    sizeOfString = strlen(init->elementInputString[j]);
-    temp_array[j] = malloc(sizeof(char)*(sizeOfString+1));
-    strcpy(temp_array[j], init->elementInputString[j]);
+  for(i=0 ; i<num_element ; i++) {     
+    init_data->expandedElementInputString->entry[i] = bfromcstr(init_data->elementInputString->entry[i]->data);
+    init_data->expandedElementInputString->qty++;
   };
+  
 
-  for(i=0 ; i<numRepeat ; i++) { 
-    for(j=0 ; j<sizeOfElementBase ; j++) { 
-      set_element_null(&newElement);  
-      sizeOfString = strlen(init->elementInputString[j]);      
-      strcpy(lines, init->elementInputString[j]);
-      word = strtok(lines, " ,\n\t\r\0" );    
-      cnt = 0;
-      buffer[0] = 0;
-      temp_string[0] = 0;
-      while (word!=NULL) {      
-        if (cnt==0) {
-          map_snprintf(temp_string, 64, "%d  ", ((i+1)*sizeOfElementBase+j+1));
-          map_strcat(buffer, 256, temp_string);
-        } else if (cnt==1 ) { 
-          map_snprintf(temp_string, 64, "%s  ", word);
-          map_strcat(buffer, 256, temp_string);
-        } else if (cnt==2) { 
-          map_snprintf(temp_string, 64, "%s  ", word);
-          map_strcat(buffer, 256, temp_string);
-        } else if (cnt==3) { 
-          success = is_numeric(word); CHECKERRQ(MAP_FATAL_28);
-          if ( !success ) {
-            anchNode = (MapReal)atof(word);        
+  for(i=0 ; i<num_repeat ; i++) { /* this is skipped if not repeat angles are declared */
+    for(j=0 ; j<num_element ; j++) { 
+      success = reset_element(&new_element);  
+      n_line = (i+1)*num_element + j;
+      current_angle = model_data->modelOptions.repeat_angle[i]*(DEG2RAD);
+      parsed = bsplits(init_data->elementInputString->entry[j], &tokens);
+      next = 0;
+      i_parsed = 0;
+      do {  
+        while (i_parsed<parsed->qty-1) { /* iterating through all strings */              
+          if (parsed->entry[i_parsed]->slen) { /* if the string length is not 0 */
+            word = parsed->entry[i_parsed]->data;
+            if (next==0) {
+              success = expand_element_number(n_line+1, line);
+              next++;
+            } else if (next==1) {
+              success = expand_element_property_name(word, line);
+              next++;
+            } else if (next==2) {
+              success = expand_element_length(word, line);
+              next++;
+            } else if (next==3) {
+              success = expand_element_anchor_number(word, i, num_node, line);
+              next++;
+            } else if (next==4) {
+              success = expand_element_fairlead_number(word, i, num_node, line);
+              next++;
+            } else {
+              success = expand_element_flag(word, line);
+              next++;
+            };
           };
-          map_snprintf(temp_string, 64, "%d  ", (i+1)*sizeOfNodeBase+anchNode);
-          map_strcat(buffer, 256, temp_string);
-        } else if (cnt==4) { 
-          success = is_numeric(word); CHECKERRQ(MAP_FATAL_29);
-          if ( !success ) {
-            fairNode = (MapReal)atof(word);  
-          };
-          map_snprintf(temp_string, 64, "%d  ", (i+1)*sizeOfNodeBase+fairNode);
-          map_strcat(buffer, 256, temp_string);
-        } else {
-          map_snprintf(temp_string, 64, "%s  ", word);
-          map_strcat(buffer, 256, temp_string);
+          i_parsed++;
         };
-        cnt++;
-        word = strtok( NULL, " ,\n\t\r\0" );
-      };  
-      map_strcat( buffer, 256, "\n" );
-      sizeOfString = strlen( buffer );
-      temp_array[(i+1)*sizeOfElementBase+j] = malloc(sizeof(char)*(sizeOfString+1));
-      strcpy(temp_array[(i+1)*sizeOfElementBase+j], buffer);
-    };  
+        init_data->expandedElementInputString->qty++;
+        init_data->expandedElementInputString->entry[n_line] = bstrcpy(line);
+        success = bassigncstr(line, "");
+      } while (0);      
+      success = bstrListDestroy(parsed);
+    };
   };
+  success = bdestroy(line);               
+  
+  // for(i=0 ; i<init_data->expandedElementInputString->qty ; i++) {
+  //   printf("%s\n",init_data->expandedElementInputString->entry[i]->data);
+  // };
 
-  dataObj->sizeOfElements = init->sizeOfFullElementString;
-  init->expandedElementInputString = malloc(sizeof(char*)*(init->sizeOfFullElementString));
-  for(i=0 ; i<init->sizeOfFullElementString ; i++) {    
-    init->expandedElementInputString[i] = malloc(sizeof(char)*(strlen(temp_array[i])+1));  
-    strcpy(init->expandedElementInputString[i], temp_array[i]);
-    MAPFREE(temp_array[i]);
-  };
-  MAPFREE(temp_array);
-
-  return MAP_SAFE;
-
+  MAP_RETURN;
 };
 
 
-/**
- * Sets init data to NULL or -9999
- *
- * @acceses: none
- * @calledby: mapcall_msqs_init( )
- */
-MAP_ERROR_CODE initialize_init_input(InitializationData* init)
-{
-  if (init==NULL) {
-    return MAP_FATAL;
-  };    
-  init->expandedNodeInputString = NULL;
-  init->expandedElementInputString = NULL;
-  init->sizeOfFullNodeString = -9999;
-  init->sizeOfFullElementString = -9999;  
-  return MAP_SAFE;
-};
 
-
-/**
- *
- */
-MAP_ERROR_CODE allocate_types_for_nodes(MAP_InputType_t* uType, MAP_ConstraintStateType_t* zType, MAP_OtherStateType_t* otherType, MAP_OutputType_t* yType, ModelData *data, char** const nodeInputString, char *map_msg, MAP_ERROR_CODE *ierr )
+MAP_ERROR_CODE allocate_types_for_nodes(MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type, ModelData* model_data, struct bstrList* node_input_string, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   int i = 0;
-  int cx = 0;
-  int cnt = 0;
-  int fixNum = 0;
-  int vesselNum = 0;
-  int connectNum = 0;
-  int sizeOfString = 0;
-  char* word = NULL;
-  char* line = NULL;
-  char buffer[64] = "";
+  int i_parsed = 0;
+  int next = 0;
+  int fix_num = 0;
+  int vessel_num = 0;
+  int connect_num = 0;
+  MAP_ERROR_CODE success = MAP_SAFE;
+  bstring user_msg = NULL;
+  const int num_nodes = node_input_string->qty;
+  struct bstrList* parsed = NULL;
+  struct tagbstring tokens; 
+  
+  cstr2tbstr(tokens," \t\n\r"); /* token for splitting line into indivdual words is a tab and space */   
 
-  /* 
-     First need to run loop to find the number of inputs, outputs, constraints.
-     Basically we are just counting the number of VESSEL, FIX, and CONNECT nodes     
-  */
-  for(i=0 ; i<=data->sizeOfNodes-1 ; i++) {         
-    sizeOfString = strlen(nodeInputString[i]);
-    line = (char*)realloc(line, (sizeOfString+1)*sizeof(char));    
-    strcpy(line, nodeInputString[i]);
-    word = strtok(line, " ,\n\t\r\0");
-    while(word!=NULL) {            
-      if (cnt==0) {
-        /* this is ignored because it's not needed for the model assembly */
-      } else if (cnt==1) { /* compare strings to determine what type of node it is connected to */        
-        if (!strcicmp("FIX",word)) { 
-          fixNum++;
-        } else if (!strcicmp("CONNECT",word)) {
-          connectNum++;
-        } else if (!strcicmp("VESSEL",word)) {
-          vesselNum++;
-        } else {
-          /* the node is given an invalid name */
-          cx = map_snprintf(buffer, 64, "Value '%s'.", word); assert(cx>=0);
-          *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_25);          
+   /* First need to run loop to find the number of inputs, outputs, constraints.
+    * Basically we are just counting the number of VESSEL, FIX, and CONNECT nodes     
+    */
+  for(i=0 ; i<num_nodes ; i++) {             
+    i_parsed = 0;
+    next = 0;
+    parsed = bsplits(node_input_string->entry[i], &tokens);
+    do {  
+      while (i_parsed<parsed->qty-1) { /* iterating through all strings */              
+        if (parsed->entry[i_parsed]->slen) { /* if the string length is not 0 */
+          if (next==1) {
+            if (biseqcstrcaseless(parsed->entry[i_parsed],"FIX")) {
+              fix_num++;
+              break; /* break the while-loop because the agenda is reached */
+            } else if (biseqcstrcaseless(parsed->entry[i_parsed],"CONNECT")) {
+              connect_num++;
+              break; /* break the while-loop because the agenda is reached */
+            } else if (biseqcstrcaseless(parsed->entry[i_parsed],"VESSEL")) {
+              vessel_num++;
+              break; /* break the while-loop because the agenda is reached */
+            } else {
+              user_msg = bformat("Value: <%s>", parsed->entry[i_parsed]->data);
+              *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_25);        
+              success = bdestroy(user_msg); /* clear user_msg to not inavertendly picked up elsewhere */
+              user_msg = NULL;
+            };
+          };          
+          next++;
         };
+        i_parsed++;
       };
-      cnt++;
-      word = strtok(NULL, " ,\n\t\r\0");
-    };
-    cnt=0;
-  };
-  MAPFREE(line);
+    } while (0);
+    success = bstrListDestroy(parsed);
+  }; 
 
-  otherType->x_Len = fixNum;
-  otherType->y_Len = fixNum;
-  otherType->z_Len = fixNum;
-  otherType->x = (double*)malloc(otherType->x_Len*sizeof(double));
-  otherType->y = (double*)malloc(otherType->y_Len*sizeof(double));
-  otherType->z = (double*)malloc(otherType->z_Len*sizeof(double));
+  other_type->x_Len = fix_num;
+  other_type->y_Len = fix_num;
+  other_type->z_Len = fix_num;
+  other_type->x = (double*)malloc(other_type->x_Len*sizeof(double));
+  other_type->y = (double*)malloc(other_type->y_Len*sizeof(double));
+  other_type->z = (double*)malloc(other_type->z_Len*sizeof(double));
 
-  /* 
-     if the node is VESSEL, then the applied force is an output state. Otherwise, it 
-     has to be an other state because it can't be associated with any other type. 
-     This is what is done below.
-  */
-  otherType->Fx_connect_Len = connectNum;
-  otherType->Fy_connect_Len = connectNum;
-  otherType->Fz_connect_Len = connectNum;
-  otherType->Fx_connect = (double*)malloc(otherType->Fx_connect_Len*sizeof(double));
-  otherType->Fy_connect = (double*)malloc(otherType->Fy_connect_Len*sizeof(double));
-  otherType->Fz_connect = (double*)malloc(otherType->Fz_connect_Len*sizeof(double));
+  /* If the node is VESSEL, then the applied force is an output state. Otherwise, 
+   * it has to be an other state because it can't be associated with any other type. 
+   * This is what is done below.
+   */
+  other_type->Fx_connect_Len = connect_num;
+  other_type->Fy_connect_Len = connect_num;
+  other_type->Fz_connect_Len = connect_num;
+  other_type->Fx_connect = (double*)malloc(other_type->Fx_connect_Len*sizeof(double));
+  other_type->Fy_connect = (double*)malloc(other_type->Fy_connect_Len*sizeof(double));
+  other_type->Fz_connect = (double*)malloc(other_type->Fz_connect_Len*sizeof(double));
 
-  otherType->Fx_anchor_Len = fixNum;
-  otherType->Fy_anchor_Len = fixNum;
-  otherType->Fz_anchor_Len = fixNum;
-  otherType->Fx_anchor = (double*)malloc(otherType->Fx_anchor_Len*sizeof(double));
-  otherType->Fy_anchor = (double*)malloc(otherType->Fy_anchor_Len*sizeof(double));
-  otherType->Fz_anchor = (double*)malloc(otherType->Fz_anchor_Len*sizeof(double));
+  other_type->Fx_anchor_Len = fix_num;
+  other_type->Fy_anchor_Len = fix_num;
+  other_type->Fz_anchor_Len = fix_num;
+  other_type->Fx_anchor = (double*)malloc(other_type->Fx_anchor_Len*sizeof(double));
+  other_type->Fy_anchor = (double*)malloc(other_type->Fy_anchor_Len*sizeof(double));
+  other_type->Fz_anchor = (double*)malloc(other_type->Fz_anchor_Len*sizeof(double));
   
-  zType->x_Len = connectNum;          
-  zType->y_Len = connectNum;          
-  zType->z_Len = connectNum;          
-  zType->x = (double*)malloc(zType->x_Len*sizeof(double));
-  zType->y = (double*)malloc(zType->y_Len*sizeof(double));
-  zType->z = (double*)malloc(zType->z_Len*sizeof(double));
+  z_type->x_Len = connect_num;          
+  z_type->y_Len = connect_num;          
+  z_type->z_Len = connect_num;          
+  z_type->x = (double*)malloc(z_type->x_Len*sizeof(double));
+  z_type->y = (double*)malloc(z_type->y_Len*sizeof(double));
+  z_type->z = (double*)malloc(z_type->z_Len*sizeof(double));
   
-  uType->x_Len = vesselNum;
-  uType->y_Len = vesselNum;
-  uType->z_Len = vesselNum;
-  yType->Fx_Len = vesselNum;
-  yType->Fy_Len = vesselNum;
-  yType->Fz_Len = vesselNum;
-  uType->x = (double*)malloc(uType->x_Len*sizeof(double));
-  uType->y = (double*)malloc(uType->y_Len*sizeof(double));
-  uType->z = (double*)malloc(uType->z_Len*sizeof(double));
-  yType->Fx = (double*)malloc(yType->Fx_Len*sizeof(double));
-  yType->Fy = (double*)malloc(yType->Fy_Len*sizeof(double));
-  yType->Fz = (double*)malloc(yType->Fz_Len*sizeof(double));
+  u_type->x_Len = vessel_num;
+  u_type->y_Len = vessel_num;
+  u_type->z_Len = vessel_num;
+  u_type->x = (double*)malloc(u_type->x_Len*sizeof(double));
+  u_type->y = (double*)malloc(u_type->y_Len*sizeof(double));
+  u_type->z = (double*)malloc(u_type->z_Len*sizeof(double));
+
+  y_type->Fx_Len = vessel_num;
+  y_type->Fy_Len = vessel_num;
+  y_type->Fz_Len = vessel_num;
+  y_type->Fx = (double*)malloc(y_type->Fx_Len*sizeof(double));
+  y_type->Fy = (double*)malloc(y_type->Fy_Len*sizeof(double));
+  y_type->Fz = (double*)malloc(y_type->Fz_Len*sizeof(double));
+
   return MAP_SAFE;
 };
 
 
-/**
- *
- */
 MAP_ERROR_CODE compare_length(int a, int b)
 {
   if (a!=b) {
@@ -1023,393 +1667,619 @@ MAP_ERROR_CODE compare_length(int a, int b)
 };
 
 
-/**
- * @see: map_free_types to view where fortran types are free'd
- */
-int set_node_list(const MAP_ParameterType_t* pType,  MAP_InputType_t* uType, MAP_ConstraintStateType_t* zType, MAP_OtherStateType_t* otherType, MAP_OutputType_t* yType, ModelData* data, char** const nodeInputString, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE set_node_list(const MAP_ParameterType_t* p_type,  MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type, ModelData* model_data, struct bstrList* node_input_string, char* map_msg, MAP_ERROR_CODE* ierr)
 {
+  MAP_ERROR_CODE success = MAP_SAFE;
   int i = 0;
-  int cx = 0;
-  int cnt = 0;
-  int success = 0;
-  int sizeOfString = 0;
-  int fixNum = 0;
-  int vesselNum = 0;
-  int connectNum = 0;
-  Node newNode;
-  char buffer[64] = "";
-  char* word = NULL;
-  char* line = NULL;
-  const MapReal depth = pType->depth;
+  int i_parsed = 0;
+  int next = 0;
+  const int num_nodes = node_input_string->qty;
+  int fix_num = 0;
+  int vessel_num = 0;
+  int connect_num = 0;
+  Node new_node;
+  Node* node_iter = NULL;
+  struct bstrList* parsed = NULL;
+  struct tagbstring tokens; 
+  bstring user_msg = NULL;
+  bstring alias = NULL;
+  bstring value_string = NULL;
+  const double depth = p_type->depth;
 
-  success = allocate_types_for_nodes(uType, zType, otherType, yType, data, nodeInputString, map_msg, ierr);
-  
-  for(i=0 ; i<=data->sizeOfNodes-1 ; i++) {         
-    set_node_null(&newNode);
-    sizeOfString = strlen(nodeInputString[i]);
-    line = (char*)realloc(line, (sizeOfString+1)*sizeof(char));    
-    strcpy(line, nodeInputString[i]);
-    word = strtok(line, " ,\n\t\r\0");    
-    while (word!=NULL) {      
-      if (cnt==0) {  
-        /* this is ignored because it's not needed for the model assembly */
-      } else if (cnt==1) { /* compare strings to determine what type of node it is connected to */
-        if (!strcicmp("FIX",word)) { 
-          newNode.type = FIX;
-          fixNum++;
-                                         /* VarTypePtr            FAST derived  array index */
-          success = associate_vartype_ptr(&newNode.positionPtr.x, otherType->x, fixNum);
-          success = associate_vartype_ptr(&newNode.positionPtr.y, otherType->y, fixNum);
-          success = associate_vartype_ptr(&newNode.positionPtr.z, otherType->z, fixNum);
-          success = associate_vartype_ptr(&newNode.sumForcePtr.fx, otherType->Fx_anchor, fixNum);
-          success = associate_vartype_ptr(&newNode.sumForcePtr.fy, otherType->Fy_anchor, fixNum);
-          success = associate_vartype_ptr(&newNode.sumForcePtr.fz, otherType->Fz_anchor, fixNum);
-        } else if (!strcicmp("CONNECT",word)) {
-          newNode.type = CONNECT;
-          connectNum++;
-          success = associate_vartype_ptr(&newNode.positionPtr.x, zType->x, connectNum);
-          success = associate_vartype_ptr(&newNode.positionPtr.y, zType->y, connectNum);
-          success = associate_vartype_ptr(&newNode.positionPtr.z, zType->z, connectNum);
-          success = associate_vartype_ptr(&newNode.sumForcePtr.fx, otherType->Fx_connect, connectNum);
-          success = associate_vartype_ptr(&newNode.sumForcePtr.fy, otherType->Fy_connect, connectNum);
-          success = associate_vartype_ptr(&newNode.sumForcePtr.fz, otherType->Fz_connect, connectNum);
-        } else if (!strcicmp("VESSEL",word)) {
-          newNode.type = VESSEL;
-          vesselNum++;
-          success = associate_vartype_ptr(&newNode.positionPtr.x, uType->x, vesselNum);
-          success = associate_vartype_ptr(&newNode.positionPtr.y, uType->y, vesselNum);
-          success = associate_vartype_ptr(&newNode.positionPtr.z, uType->z, vesselNum);
-          success = associate_vartype_ptr(&newNode.sumForcePtr.fx, yType->Fx, vesselNum);
-          success = associate_vartype_ptr(&newNode.sumForcePtr.fy, yType->Fy, vesselNum);
-          success = associate_vartype_ptr(&newNode.sumForcePtr.fz, yType->Fz, vesselNum);
-        } else {
-          /* the node is given an invalid name */
-          cx = map_snprintf(buffer, 64, "Value '%s'.", word); assert(cx>=0);
-          *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_25);          
-        };
-        cx = map_snprintf(buffer, 64, "s(fx)[%d]", i+1); assert(cx>=0);        
-        success = initialize_node_sum_force_ptr("[N]", buffer, i, &newNode.sumForcePtr.fx); CHECKERRQ(MAP_FATAL_22); 
-        cx = map_snprintf(buffer, 64, "s(fy)[%d]", i+1); assert(cx>=0);        
-        success = initialize_node_sum_force_ptr("[N]", buffer, i, &newNode.sumForcePtr.fy); CHECKERRQ(MAP_FATAL_23); 
-        cx = map_snprintf(buffer, 64, "s(fz)[%d]", i+1); assert(cx>=0);        
-        success = initialize_node_sum_force_ptr("[N]", buffer, i, &newNode.sumForcePtr.fz); CHECKERRQ(MAP_FATAL_24); 
-      } else if (cnt==2) { 
-        /* set initial X node position values */
-        cx = map_snprintf(buffer, 64, "X[%d]", i+1); assert(cx>=0);        
-        success = set_vartype_ptr("[m]", buffer, i, &newNode.positionPtr.x, word); CHECKERRQ(MAP_FATAL_17);
-      } else if (cnt==3) { 
-        /* set initial Y node position values */
-        cx = map_snprintf(buffer, 64, "Y[%d]", i+1); assert(cx>=0);        
-        success = set_vartype_ptr("[m]", buffer, i, &newNode.positionPtr.y, word); CHECKERRQ(MAP_FATAL_18);
-      } else if (cnt==4) { 
-        /* set initial Z node position values */
-        cx = map_snprintf(buffer, 64, "Z[%d]", i+1); assert(cx>=0);        
-        if (!strcicmp("DEPTH", word)) {          
-          if (newNode.type!=FIX) { /* can only use 'DEPTH' flag in input file for FIX (anchor) nodes */
-            *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_71);            
-          } else {
-            success = set_vartype_ptr_float("[m]", buffer, i, &newNode.positionPtr.z, depth); CHECKERRQ(MAP_FATAL_19);
+  cstr2tbstr(tokens," \t\n\r"); /* token for splitting line into indivdual words is a tab and space */   
+
+  success = allocate_types_for_nodes(u_type, z_type, other_type, y_type, model_data, node_input_string, map_msg, ierr);
+  success = reset_node(&new_node); /* create an empty node */
+   
+  for(i=0 ; i<num_nodes ; i++) {         
+    list_append(&model_data->node, &new_node); /* append node to list */
+    node_iter = (Node*)list_get_at(&model_data->node, i);
+
+    i_parsed = 0;
+    next = 0;
+    parsed = bsplits(node_input_string->entry[i], &tokens);
+    do {  
+      while (i_parsed<parsed->qty-1) { /* iterating through all strings */              
+        if (parsed->entry[i_parsed]->slen) { /* if the string length is not 0 */
+          if (next==0) {            
+            next++;
+          } else if (next==1) {
+            if (biseqcstrcaseless(parsed->entry[i_parsed],"FIX")) {
+              node_iter->type = FIX;
+              fix_num++;                   /* VarTypePtr              FAST derived  array index */
+              success = associate_vartype_ptr(&node_iter->positionPtr.x, other_type->x, fix_num);
+              success = associate_vartype_ptr(&node_iter->positionPtr.y, other_type->y, fix_num);
+              success = associate_vartype_ptr(&node_iter->positionPtr.z, other_type->z, fix_num);
+              success = associate_vartype_ptr(&node_iter->sumForcePtr.fx, other_type->Fx_anchor, fix_num);
+              success = associate_vartype_ptr(&node_iter->sumForcePtr.fy, other_type->Fy_anchor, fix_num);
+              success = associate_vartype_ptr(&node_iter->sumForcePtr.fz, other_type->Fz_anchor, fix_num);
+            } else if (biseqcstrcaseless(parsed->entry[i_parsed],"CONNECT")) {
+              node_iter->type = CONNECT;
+              connect_num++;
+              success = associate_vartype_ptr(&node_iter->positionPtr.x, z_type->x, connect_num);
+              success = associate_vartype_ptr(&node_iter->positionPtr.y, z_type->y, connect_num);
+              success = associate_vartype_ptr(&node_iter->positionPtr.z, z_type->z, connect_num);
+              success = associate_vartype_ptr(&node_iter->sumForcePtr.fx, other_type->Fx_connect, connect_num);
+              success = associate_vartype_ptr(&node_iter->sumForcePtr.fy, other_type->Fy_connect, connect_num);
+              success = associate_vartype_ptr(&node_iter->sumForcePtr.fz, other_type->Fz_connect, connect_num);
+            } else if (biseqcstrcaseless(parsed->entry[i_parsed],"VESSEL")) {
+              node_iter->type = VESSEL;
+              vessel_num++;
+              success = associate_vartype_ptr(&node_iter->positionPtr.x, u_type->x, vessel_num);
+              success = associate_vartype_ptr(&node_iter->positionPtr.y, u_type->y, vessel_num);
+              success = associate_vartype_ptr(&node_iter->positionPtr.z, u_type->z, vessel_num);
+              success = associate_vartype_ptr(&node_iter->sumForcePtr.fx, y_type->Fx, vessel_num);
+              success = associate_vartype_ptr(&node_iter->sumForcePtr.fy, y_type->Fy, vessel_num);
+              success = associate_vartype_ptr(&node_iter->sumForcePtr.fz, y_type->Fz, vessel_num);
+            } else {
+              user_msg = bformat("Value: <%s>", parsed->entry[i_parsed]->data);
+              *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_25);        
+              success = bdestroy(user_msg); /* clear user_msg to not inavertendly picked up elsewhere */
+              user_msg = NULL;
+            };
+            next++;
+          } else if (next==2) { /* set initial X node position values */
+            alias = bformat("X[%d]", i+1);                          
+            success = set_vartype_ptr("[m]", alias, i, &node_iter->positionPtr.x, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_17);
+            bdestroy(alias);
+            next++;
+          } else if (next==3) { /* set initial Y node position values */
+            alias = bformat("Y[%d]", i+1);                          
+            success = set_vartype_ptr("[m]", alias, i, &node_iter->positionPtr.y, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_18);
+            bdestroy(alias);
+            next++;
+          } else if (next==4) { /* set initial Z node position values */
+            alias = bformat("Z[%d]", i+1);                          
+            if (biseqcstrcaseless(parsed->entry[i_parsed],"DEPTH")) {         
+              if (node_iter->type!=FIX) { /* can only use 'DEPTH' flag in input file for FIX (anchor) nodes */
+                user_msg = bformat("Value: <%s>", parsed->entry[i_parsed]->data);
+                *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_71); 
+                success = bdestroy(user_msg); /* clear user_msg to not inavertendly picked up elsewhere */
+                user_msg = NULL;
+              } else {
+                value_string = bformat("%f", -depth);                          
+                success = set_vartype_ptr("[m]", alias, i, &node_iter->positionPtr.z, value_string); CHECKERRQ(MAP_FATAL_19);
+                success = bdestroy(value_string);
+              };
+            } else { /* all other nodes not using the 'DEPTH' flag */
+              success = set_vartype_ptr("[m]", alias, i, &node_iter->positionPtr.z, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_19);
+            };        
+            bdestroy(alias);
+            next++;
+          } else if (next==5) { /* set the node mass */            
+            alias = bformat("M[%d]", i+1);                          
+            success = set_vartype("[kg]", alias, i, &node_iter->MApplied, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_20);
+            bdestroy(alias);
+            next++;  
+          } else if (next==6) { /* set the node buoyancy */
+            alias = bformat("B[%d]", i+1);                          
+            success = set_vartype("[m^3]", alias, i, &node_iter->BApplied, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_21);
+            bdestroy(alias);
+            next++; 
+          } else if (next==7) { /* set applied X external force (or user guess) of the node */                    
+            alias = bformat("FX[%d]", i+1);                          
+            success = set_vartype("[N]", alias, i, &node_iter->externalForce.fx, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_22);
+            bdestroy(alias);
+            next++;
+          } else if (next==8) { /* set applied Y external force (or user guess) of the node */            
+            alias = bformat("FY[%d]", i+1);                          
+            success = set_vartype("[N]", alias, i, &node_iter->externalForce.fy, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_23);
+            bdestroy(alias);
+            next++;
+          } else if (next==9) { /* set applied Z external force (or user guess) of the node */
+            alias = bformat("FZ[%d]", i+1);                          
+            success = set_vartype("[N]", alias, i, &node_iter->externalForce.fz, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_24);
+            bdestroy(alias);
+            next++;
+          } else {            
+            next++;
           };
-        } else { /* all other nodes not using the 'DEPTH' flag */
-          success = set_vartype_ptr("[m]", buffer, i, &newNode.positionPtr.z, word); CHECKERRQ(MAP_FATAL_19);
-        };        
-      } else if (cnt==5) { 
-        /* set the node mass */
-        cx = map_snprintf(buffer, 64, "M[%d]", i+1); assert(cx>=0);        
-        success = set_vartype("[kg]", buffer, i, &newNode.MApplied, word); CHECKERRQ(MAP_FATAL_20);
-      } else if (cnt==6) { 
-        /* set the node buoyancy */
-        cx = map_snprintf(buffer, 64, "B[%d]", i+1); assert(cx>=0);        
-        success = set_vartype("[m^3]", buffer, i, &newNode.BApplied, word); CHECKERRQ(MAP_FATAL_21);
-      } else if (cnt==7) { 
-        /* set applied X external force (or user guess) of the node */        
-        cx = map_snprintf(buffer, 64, "FX[%d]", i+1); assert(cx>=0);                
-        success = initialize_external_applied_force("[N]", buffer, i, &newNode.externalForce.fx, word); CHECKERRQ(MAP_FATAL_22);
-      } else if (cnt==8) { 
-        /* set applied Y external force (or user guess) of the node */
-        cx = map_snprintf(buffer, 64, "FY[%d]", i+1); assert(cx>=0);        
-        success = initialize_external_applied_force("[N]", buffer, i, &newNode.externalForce.fy, word); CHECKERRQ(MAP_FATAL_23);
-      } else if (cnt==9) { 
-        /* set applied Z external force (or user guess) of the node */
-        cx = map_snprintf(buffer, 64, "FZ[%d]", i+1); assert(cx>=0);        
-        success = initialize_external_applied_force("[N]", buffer, i, &newNode.externalForce.fz, word); CHECKERRQ(MAP_FATAL_24);
-      } else { /* too many user inputs are givenin the input file. Let users know in case was not intended */
-        if (strcmp(" ",word)) {
-          cx = map_snprintf(buffer, 64, "Value '%s'.", word); assert(cx>=0);
-          *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_WARNING_2);
         };
+        i_parsed++;
       };
-      cnt++;
-      word = strtok(NULL, " ,\n\t\r\0");
-    };  
-    list_append(&data->node, &newNode);
-    cnt = 0;
-  };
-  
-  /* 
-     check to make sure the number of allocated array spaces for fortran derived types matches 
-     what was actually set in the node initialization front end.
-  */     
+      // printf("Node is fixed: %d\n", new_node.type);
+      // printf("Name: %s\n", new_node.positionPtr.z.name->data);
+      // printf("Name: %f\n", *new_node.positionPtr.z.value);
+      // printf("units: %f\n\n", new_node.externalForce.fz.value);
+        
+      // init_data->expandedNodeInputString->qty++;
+      // init_data->expandedNodeInputString->entry[n_line] = bstrcpy(line);
+      //success = bassigncstr(line, "");
+    } while (0);   
+    success = bstrListDestroy(parsed);
+    /* @todo: need to make sure next==9; otherwise not enough inputs and an error should
+     *        be thrown
+     */
+    // list_append(&model_data->node, &new_node);    
+  };  
+
+  model_data->sizeOfNodes = list_size(&model_data->node);
+
+  /* check to make sure the number of allocated array spaces for fortran derived types matches 
+   * what was actually set in the node initialization front end.
+   */     
   do {
-    success = compare_length(otherType->Fx_connect_Len, connectNum); CHECKERRQ(MAP_FATAL_49);
-    success = compare_length(otherType->Fy_connect_Len, connectNum); CHECKERRQ(MAP_FATAL_49);
-    success = compare_length(otherType->Fz_connect_Len, connectNum); CHECKERRQ(MAP_FATAL_49);
+    success = compare_length(other_type->Fx_connect_Len, connect_num); CHECKERRQ(MAP_FATAL_49);
+    success = compare_length(other_type->Fy_connect_Len, connect_num); CHECKERRQ(MAP_FATAL_49);
+    success = compare_length(other_type->Fz_connect_Len, connect_num); CHECKERRQ(MAP_FATAL_49);
 
-    success = compare_length(otherType->Fx_anchor_Len, fixNum); CHECKERRQ(MAP_FATAL_49); // @todo: change error code
-    success = compare_length(otherType->Fy_anchor_Len, fixNum); CHECKERRQ(MAP_FATAL_49); // @todo: change error code
-    success = compare_length(otherType->Fz_anchor_Len, fixNum); CHECKERRQ(MAP_FATAL_49); // @todo: change error code
+    success = compare_length(other_type->Fx_anchor_Len, fix_num); CHECKERRQ(MAP_FATAL_49); // @todo: change error code
+    success = compare_length(other_type->Fy_anchor_Len, fix_num); CHECKERRQ(MAP_FATAL_49); // @todo: change error code
+    success = compare_length(other_type->Fz_anchor_Len, fix_num); CHECKERRQ(MAP_FATAL_49); // @todo: change error code
 
-    success = compare_length(otherType->x_Len, fixNum); CHECKERRQ(MAP_FATAL_49);
-    success = compare_length(otherType->y_Len, fixNum); CHECKERRQ(MAP_FATAL_49);
-    success = compare_length(otherType->z_Len, fixNum); CHECKERRQ(MAP_FATAL_49);
+    success = compare_length(other_type->x_Len, fix_num); CHECKERRQ(MAP_FATAL_49);
+    success = compare_length(other_type->y_Len, fix_num); CHECKERRQ(MAP_FATAL_49);
+    success = compare_length(other_type->z_Len, fix_num); CHECKERRQ(MAP_FATAL_49);
               
-    success = compare_length(uType->x_Len, vesselNum); CHECKERRQ(MAP_FATAL_50);
-    success = compare_length(uType->y_Len, vesselNum); CHECKERRQ(MAP_FATAL_50);
-    success = compare_length(uType->z_Len, vesselNum); CHECKERRQ(MAP_FATAL_50);    
+    success = compare_length(u_type->x_Len, vessel_num); CHECKERRQ(MAP_FATAL_50);
+    success = compare_length(u_type->y_Len, vessel_num); CHECKERRQ(MAP_FATAL_50);
+    success = compare_length(u_type->z_Len, vessel_num); CHECKERRQ(MAP_FATAL_50);    
               
-    success = compare_length(yType->Fx_Len, vesselNum); CHECKERRQ(MAP_FATAL_51);
-    success = compare_length(yType->Fy_Len, vesselNum); CHECKERRQ(MAP_FATAL_51);
-    success = compare_length(yType->Fz_Len, vesselNum); CHECKERRQ(MAP_FATAL_51);    
+    success = compare_length(y_type->Fx_Len, vessel_num); CHECKERRQ(MAP_FATAL_51);
+    success = compare_length(y_type->Fy_Len, vessel_num); CHECKERRQ(MAP_FATAL_51);
+    success = compare_length(y_type->Fz_Len, vessel_num); CHECKERRQ(MAP_FATAL_51);    
               
-    success = compare_length(zType->x_Len, connectNum); CHECKERRQ(MAP_FATAL_52);
-    success = compare_length(zType->y_Len, connectNum); CHECKERRQ(MAP_FATAL_52);
-    success = compare_length(zType->z_Len, connectNum); CHECKERRQ(MAP_FATAL_52);    
+    success = compare_length(z_type->x_Len, connect_num); CHECKERRQ(MAP_FATAL_52);
+    success = compare_length(z_type->y_Len, connect_num); CHECKERRQ(MAP_FATAL_52);
+    success = compare_length(z_type->z_Len, connect_num); CHECKERRQ(MAP_FATAL_52);    
   } while (0);  
-  
-  MAPFREE(line);
 
-  if (*ierr==MAP_FATAL) {
-    return 1;
-  };
-  return 0;  
+  MAP_RETURN;
 };
 
 
-/**
- *
- */
-MAP_ERROR_CODE map_set_option_flags( char *parsed_word, Element *elem, char *map_msg, MAP_ERROR_CODE *ierr )
+MAP_ERROR_CODE set_vartype_float(const char* unit, const char* alias, const int num, VarType* type, const double value)
 {
-  int cx = 0 ;
-  int success = 0;
-  char buffer[64] = "";
+  type->name = bfromcstr(alias);
+  type->units = bfromcstr(unit); 
+  type->referenceCounter = 0;
+  type->id = num;
+  type->value = value;
+
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE set_vartype(const char* unit, bstring alias, const int num, VarType* type, bstring property)
+{
+  type->name = bstrcpy(alias);
+  type->units = bfromcstr(unit); 
+  type->referenceCounter = 0;
+  type->id = num;
   
-  if (!strcicmp("PLOT", parsed_word) ) elem->options.plotFlag = true;
-  else if (!strcicmp("GX_POS", parsed_word)) {
-    elem->options.gxPosFlag = true;
-  } else if (!strcicmp("GY_POS", parsed_word)) {
-    elem->options.gyPosFlag = true;
-  } else if (!strcicmp("GZ_POS", parsed_word)) {
-    elem->options.gzPosFlag = true;
-  } else if (!strcicmp("GX_A_POS", parsed_word)) {
-    elem->options.gxAnchorPosFlag = true;
-  } else if (!strcicmp("GY_A_POS", parsed_word)) {
-    elem->options.gyAnchorPosFlag = true;
-  } else if (!strcicmp("GZ_A_POS", parsed_word)) {
-    elem->options.gzAnchorPosFlag = true;
-  } else if (!strcicmp("GX_FORCE", parsed_word)) {
-    elem->options.gxForceFlag= true;
-  } else if (!strcicmp("GY_FORCE", parsed_word)) {
-    elem->options.gyForceFlag = true;
-  } else if (!strcicmp("GZ_FORCE", parsed_word)) {
-    elem->options.gzForceFlag = true;
-  } else if (!strcicmp("H_FAIR", parsed_word)) {
-    elem->options.HFlag = true;
-  } else if (!strcicmp("H_ANCH", parsed_word)) {
-    elem->options.HAnchorFlag = true;
-  } else if (!strcicmp("V_FAIR", parsed_word)) {
-    elem->options.VFlag = true;
-  } else if (!strcicmp("V_ANCH", parsed_word)) {
-    elem->options.VAnchorFlag = true;
-  } else if (!strcicmp("TENSION_FAIR", parsed_word)) {
-    elem->options.fairleadTensionFlag = true;
-  } else if (!strcicmp("TENSION_ANCH", parsed_word)) {
-    elem->options.anchorTensionFlag = true;
-  } else if (!strcicmp("X_EXCURSION", parsed_word)) {
-    elem->options.horizontalExcursionFlag = true;
-  } else if (!strcicmp("Z_EXCURSION", parsed_word)) {
-    elem->options.verticalExcursionFlag = true;
-  } else if (!strcicmp("AZIMUTH", parsed_word)) {
-    elem->options.azimuthFlag = true;
-  } else if (!strcicmp("ALTITUDE", parsed_word)) {
-    elem->options.altitudeFlag = true;
-  } else if (!strcicmp("ALTITUDE_A", parsed_word)) {
-    elem->options.altitudeAnchorFlag = true;
-  } else if (!strcicmp("LINE_TENSION", parsed_word)) {
-    elem->options.lineTensionFlag = true;
-  } else if (!strcicmp("OMIT_CONTACT", parsed_word)) {
-    elem->options.omitContact = true;
-  } else if (!strcicmp("SEG_SIZE", parsed_word)) {
-    parsed_word = strtok(NULL, " ,\n\t\r\0");
-    success = is_numeric(parsed_word);
-    if (success==MAP_SAFE) {
-      elem->segmentSize = (MapReal)atof(parsed_word);
-    } else { /* should not cancel the simulation; simply ignore it */      
-      *ierr=map_set_universal_error(buffer, map_msg, ierr, MAP_ERROR_18); 
-    };          
-  } else if (!strcicmp("LAY_LENGTH", parsed_word)) {
-    elem->options.layLengthFlag = true;
-  } else if (!strcicmp("DAMAGE_TIME", parsed_word)) {
-    parsed_word = strtok(NULL, " ,\n\t\r\0");
-    success = is_numeric(parsed_word);
-    if (success==MAP_SAFE) {
-      elem->options.damageTimeFlag = true;
-      elem->damageTime = (MapReal)atof(parsed_word);
-    } else { /* should not cancel the simulation; simply ignore it */     
-  *ierr=map_set_universal_error(buffer, map_msg, ierr, MAP_ERROR_1);
-    };          
-  } else if (!strcicmp("DIAGNOSTIC", parsed_word)) {
-    parsed_word = strtok(NULL, " ,\n\t\r\0");
-    success = is_numeric(parsed_word);
-    if (success==MAP_SAFE) {
-      elem->options.diagnosticsFlag = true;
-      elem->diagnosticType = (int)atoi(parsed_word);
+  if (!property) { /* this option should only be called for setting element vartypes */
+    type->value = -999.9;
+  } else {
+    if (property->data[0]=='#') { /* this variable is an iterated parameter */      
+      type->isFixed = false;
+      if (property->slen==1) { /* implies that property->data = "#" */
+        type->value = -999.9;
+      } else if (is_numeric(remove_first_character(property->data))) { 
+        type->value = (double)atof(remove_first_character(property->data));
+      } else {
+        return MAP_FATAL;
+      };
+    } else { /* this variable is constant */    
+      type->isFixed = true;
+      if (is_numeric(property->data)) { 
+        type->value = (double)atof(property->data);
+      } else {
+        return MAP_FATAL;
+      };
+    };
+  };
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE set_vartype_ptr(const char* unit, bstring alias, const int num, VarTypePtr* type, bstring property)
+{
+  type->name = bstrcpy(alias);
+  type->units = bfromcstr(unit); 
+  type->referenceCounter = 0;
+  type->id = num;  
+
+  if (property->data[0]=='#') { /* this variable is an iterated parameter */      
+    type->isFixed = false;
+    if (property->slen==1) { /* implies that property->data = "#" */
+      *type->value = -999.9;
+    } else if (is_numeric(remove_first_character(property->data))) { 
+      *type->value = (double)atof(remove_first_character(property->data));
     } else {
-      /* should not cancel the simulation; simply ignore it */
-      *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_ERROR_14);
-      elem->options.diagnosticsFlag = true;
-      elem->diagnosticType = 0;
+      return MAP_FATAL;
+    };
+  } else { /* this variable is constant */    
+    type->isFixed = true;
+    if (is_numeric(property->data)) { 
+      *type->value = (double)atof(property->data);
+    } else {
+      return MAP_FATAL;
+    };
+  };
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE set_element_option_flags(struct bstrList* words, int* i_parsed, Element* element_ptr, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  MAP_ERROR_CODE success = MAP_SAFE;
+  int index = *i_parsed;
+  bstring user_msg = NULL;
+  
+  if (biseqcstrcaseless(words->entry[index],"PLOT")) {    
+    element_ptr->options.plotFlag = true;
+  } else if (biseqcstrcaseless(words->entry[index], "GX_POS")) {
+    element_ptr->options.gxPosFlag = true;
+  } else if (biseqcstrcaseless(words->entry[index], "GY_POS")) {
+    element_ptr->options.gyPosFlag = true;
+  } else if (biseqcstrcaseless(words->entry[index], "GZ_POS")) {
+    element_ptr->options.gzPosFlag = true;
+  } else if (biseqcstrcaseless(words->entry[index], "GX_A_POS")) {
+    element_ptr->options.gxAnchorPosFlag = true;
+  } else if (biseqcstrcaseless(words->entry[index], "GY_A_POS")) {
+    element_ptr->options.gyAnchorPosFlag = true;
+  } else if (biseqcstrcaseless(words->entry[index], "GZ_A_POS")) {
+    element_ptr->options.gzAnchorPosFlag = true;
+  } else if (biseqcstrcaseless(words->entry[index], "GX_FORCE")) {
+    element_ptr->options.gxForceFlag= true;
+  } else if (biseqcstrcaseless(words->entry[index], "GY_FORCE")) {
+    element_ptr->options.gyForceFlag = true;
+  } else if (biseqcstrcaseless(words->entry[index], "GZ_FORCE")) {
+    element_ptr->options.gzForceFlag = true;
+  } else if (biseqcstrcaseless(words->entry[index], "H_FAIR")) {
+    element_ptr->options.HFlag = true;
+  } else if (biseqcstrcaseless(words->entry[index], "H_ANCH")) {
+    element_ptr->options.HAnchorFlag = true;
+  } else if (biseqcstrcaseless(words->entry[index], "V_FAIR")) {
+    element_ptr->options.VFlag = true;
+  } else if (biseqcstrcaseless(words->entry[index], "V_ANCH")) {
+    element_ptr->options.VAnchorFlag = true;
+  } else if (biseqcstrcaseless(words->entry[index], "TENSION_FAIR")) {
+    element_ptr->options.fairleadTensionFlag = true;
+  } else if (biseqcstrcaseless(words->entry[index], "TENSION_ANCH")) {
+    element_ptr->options.anchorTensionFlag = true;
+  } else if (biseqcstrcaseless(words->entry[index], "X_EXCURSION")) {
+    element_ptr->options.horizontalExcursionFlag = true;
+  } else if (biseqcstrcaseless(words->entry[index], "Z_EXCURSION")) {
+    element_ptr->options.verticalExcursionFlag = true;
+  } else if (biseqcstrcaseless(words->entry[index], "AZIMUTH")) {
+    element_ptr->options.azimuthFlag = true;
+  } else if (biseqcstrcaseless(words->entry[index], "ALTITUDE")) {
+    element_ptr->options.altitudeFlag = true;
+  } else if (biseqcstrcaseless(words->entry[index], "ALTITUDE_A")) {
+    element_ptr->options.altitudeAnchorFlag = true;
+  } else if (biseqcstrcaseless(words->entry[index], "LINE_TENSION")) {
+    element_ptr->options.lineTensionFlag = true;
+  } else if (biseqcstrcaseless(words->entry[index], "OMIT_CONTACT")) {
+    element_ptr->options.omitContact = true;
+  } else if (biseqcstrcaseless(words->entry[index], "SEG_SIZE")) {
+    do {
+      index++;
+      if (words->qty-1<=index) {
+        break;
+      };
+    } while (words->entry[index]->slen<1);
+    if (is_numeric(words->entry[index]->data)) {
+      element_ptr->segmentSize = (MapReal)atof(words->entry[index]->data);
+      *i_parsed = index;
+    } else { /* should not cancel the simulation; simply ignore it */      
+      user_msg = bformat("Option <%s>", words->entry[index]->data);
+      *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_ERROR_18);
+      success = bdestroy(user_msg); 
+      user_msg = NULL;    
+    };          
+  } else if (biseqcstrcaseless(words->entry[index], "LAY_LENGTH")) {
+    element_ptr->options.layLengthFlag = true;
+  } else if (biseqcstrcaseless(words->entry[index], "DAMAGE_TIME")) {
+    do {
+      index++;
+      if (words->qty-1<=index) {
+        break;
+      };
+    } while (words->entry[index]->slen<1);
+    if (is_numeric(words->entry[index]->data)) {
+      element_ptr->options.damageTimeFlag = true;
+      element_ptr->damageTime = (MapReal)atof(words->entry[index]->data);
+      *i_parsed = index;
+    } else { /* should not cancel the simulation; simply ignore it */      
+      user_msg = bformat("Option <%s>", words->entry[index]->data);
+      *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_ERROR_1);
+      success = bdestroy(user_msg); 
+      user_msg = NULL;    
+    };          
+  } else if (biseqcstrcaseless(words->entry[index], "DIAGNOSTIC")) {
+    do {
+      index++;
+      if (words->qty-1<=index) {
+        break;
+      };
+    } while (words->entry[index]->slen<1);
+    if (is_numeric(words->entry[index]->data)) {
+      element_ptr->options.diagnosticsFlag = true;
+      element_ptr->diagnosticType = (int)atoi(words->entry[index]->data);
+      *i_parsed = index;
+    } else { /* should not cancel the simulation; simply ignore it */      
+      user_msg = bformat("Option <%s>", words->entry[index]->data);
+      *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_ERROR_14);
+      success = bdestroy(user_msg); 
+      user_msg = NULL;    
     };          
   } else {
     /* should not cancel the simulation; simply ignore it */
-    cx = map_snprintf(buffer, 64, "Option '%s'.", parsed_word); assert(cx>=0);
-    *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_WARNING_3);
+    user_msg = bformat("Option <%s>", words->entry[index]->data);
+    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_WARNING_3);
+    success = bdestroy(user_msg); /* clear user_msg to not inavertendly picked up elsewhere */
+    user_msg = NULL;
   };
   return MAP_SAFE;
 };
 
 
-
-/**
- *
- */
-int set_element_list(MAP_ConstraintStateType_t* zType, ModelData* data, char** const elementInputString, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE set_element_list(MAP_ConstraintStateType_t* z_type, ModelData* model_data, struct bstrList* element_input_string, char* map_msg, MAP_ERROR_CODE* ierr)
 {
+  MAP_ERROR_CODE success = MAP_SAFE;
   int i = 0;
-  int cx = 0;
-  int cnt = 0;
-  int success = 0;
-  int sizeOfString = 0;
-  char buffer[64] = "";
-  char* line = NULL;
-  char* word = NULL;
-  Element newElement;
-  Element* elementIter = NULL;
-  int lineCounter = 0;
+  int i_parsed = 0;
+  int next = 0;
+  const int num_elements = element_input_string->qty;
+  Element new_element;
+  Element* element_iter = NULL;
+  struct bstrList* parsed = NULL;
+  struct tagbstring tokens; 
+  bstring user_msg = NULL;
+  bstring alias = NULL;
 
-  zType->H_Len = data->sizeOfElements;          
-  zType->V_Len = data->sizeOfElements;          
-  zType->H = (double*)malloc(zType->H_Len*sizeof(double));
-  zType->V = (double*)malloc(zType->V_Len*sizeof(double));
+  cstr2tbstr(tokens," \t\n\r"); /* token for splitting line into indivdual words is a tab and space */   
+  success = reset_element(&new_element);
 
-  if (zType->H==NULL) {
-    *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_53);
+  model_data->sizeOfElements = num_elements;
+
+  z_type->H_Len = model_data->sizeOfElements;          
+  z_type->V_Len = model_data->sizeOfElements;          
+  z_type->H = (double*)malloc(z_type->H_Len*sizeof(double));
+  z_type->V = (double*)malloc(z_type->V_Len*sizeof(double));
+
+  if (z_type->H==NULL || z_type->V==NULL) {
+    user_msg = bformat("Failed allocation of a z_type");
+    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_53);
+    success = bdestroy(user_msg); /* clear user_msg to not inavertendly picked up elsewhere */
+    user_msg = NULL;
     return MAP_FATAL;
   };
+  
+  for(i=0 ; i<num_elements ; i++) {         
+    list_append(&model_data->element, &new_element);
+    element_iter = (Element*)list_get_at(&model_data->element, i);
+    success = set_element_vartype(element_iter); /* @todo: check error */
 
-  if (zType->V==NULL) {
-    *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_53);
-    return MAP_FATAL;
-  };
+    i_parsed = 0;
+    next = 0;
+    parsed = bsplits(element_input_string->entry[i], &tokens);
+    do {  
+      while (i_parsed<parsed->qty-1) { /* iterating through all strings */              
+        if (parsed->entry[i_parsed]->slen) { /* if the string length is not 0 */
+          if (next==0) { /* use this first option as an opportunity to set the run-time flags to false */             
+            success = associate_vartype_ptr(&element_iter->H, z_type->H, i+1);
+            success = associate_vartype_ptr(&element_iter->V, z_type->V, i+1);
 
-  for(i=0 ; i<=data->sizeOfElements-1 ; i++) {
-    sizeOfString = strlen(elementInputString[i]);
-    line = (char*)realloc(line, (sizeOfString+1)*sizeof(char));    
-    strcpy(line, elementInputString[i]);    
-    word = strtok(line, " ,\n\t\r\0");
-    while (word!=NULL) {
-      do {
-        if (cnt==0) {
-          /* use this first option as an opportunity to set the run-time flags to false */
-          initialize_element(&newElement, i+1);
-          success = associate_vartype_ptr(&newElement.H, zType->H, i+1);
-          success = associate_vartype_ptr(&newElement.V, zType->V, i+1);          
-          cx = map_snprintf(buffer, 64, "V[%d]", i+1);assert(cx>=0);                  
-          success = set_vartype_ptr("[N]", buffer, i, &newElement.V, word); CHECKERRQ(MAP_FATAL_32);
-          cx = map_snprintf(buffer, 64, "H[%d]", i+1); assert(cx>=0);                            
-          success = set_vartype_ptr("[N]", buffer, i, &newElement.H, word); CHECKERRQ(MAP_FATAL_32);
-        } else if (cnt==1) {
-          success = associate_element_with_cable_property(&newElement, data, word, map_msg, ierr); CHECKERRQ(MAP_FATAL_32);
-        } else if (cnt==2) { 
-          cx = map_snprintf(buffer, 64, "Lu[%d]", i+1); assert(cx>=0);                
-          success = set_vartype("[m]", buffer, i, &newElement.Lu, word); CHECKERRQ(MAP_FATAL_26);
-        } else if (cnt==3) {
-          success = associate_element_with_anchor_node(data, &newElement, i+1, word, map_msg, ierr); CHECKERRQ(MAP_FATAL_32);        
-        } else if (cnt==4) {
-          success = associate_element_with_fairlead_node(data, &newElement, i+1, word, map_msg, ierr); CHECKERRQ(MAP_FATAL_32); 
-        } else { 
-          success = map_set_option_flags (word, &newElement, map_msg, ierr);
+            element_iter->H.isFixed = false;
+            alias = bformat("H[%d]", i+1);
+            success = set_vartype_ptr("[N]", alias, i, &element_iter->H, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_32);            
+            success = bdestroy(alias);
+
+            element_iter->V.isFixed = false;
+            alias = bformat("V[%d]", i+1);
+            success = set_vartype_ptr("[N]", alias, i, &element_iter->V, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_32);                        
+            success = bdestroy(alias);
+             
+            next++;
+          } else if (next==1) {
+            success = associate_element_with_cable_property(element_iter, model_data, parsed->entry[i_parsed]->data, map_msg, ierr); CHECKERRQ(MAP_FATAL_32);           
+            next++;
+          } else if (next==2) { 
+            alias = bformat("Lu[%d]", i+1);
+            success = set_vartype("[m]", alias, i, &element_iter->Lu, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_26);
+            success = bdestroy(alias);
+            next++;
+          } else if (next==3) { 
+            success = associate_element_with_anchor_node(element_iter, model_data, i+1, parsed->entry[i_parsed]->data,  map_msg, ierr); CHECKERRQ(MAP_FATAL_32);        
+            next++;
+          } else if (next==4) { 
+            success = associate_element_with_fairlead_node(element_iter, model_data, i+1, parsed->entry[i_parsed]->data,  map_msg, ierr); CHECKERRQ(MAP_FATAL_32);        
+            next++;
+          } else { /* set the node mass */            
+            success = set_element_option_flags(parsed, &i_parsed, element_iter, map_msg, ierr);
+          };
         };
-      } while (0);
-      cnt++;
-      word = strtok(NULL, " ,\n\t\r\0");
-    };  
-    list_append(&data->element, &newElement);
-    cnt=0;
-  };
-
-  /* check EA, Lu errors. These values cannot be negative. */
-  list_iterator_start(&data->element);            /* starting an iteration "session" */
-  while (list_iterator_hasnext(&data->element)) { /* tell whether more values available */ 
-    elementIter = (Element*)list_iterator_next(&data->element);
-    if(elementIter->Lu.value<=0.0) {
-      success = MAP_FATAL;
-      cx = map_snprintf(buffer, 64, "Line segment %d, Lu = %f [m].", lineCounter, elementIter->Lu.value); assert(cx>=0);
-      *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_56);      
-    } else if(elementIter->lineProperty->ea<=0.0) {
-      success = MAP_FATAL;
-      cx = map_snprintf(buffer, 64, "Line segment %d, EA = %f [N].", lineCounter, elementIter->lineProperty->ea); assert(cx>=0);
-      *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_57);      
-    };
-    lineCounter++;
-  };
-  list_iterator_stop(&data->element); /* ending the iteration "session" */    
-
-  MAPFREE(line);
-
-  if (*ierr==MAP_FATAL) {
-    return MAP_FATAL;
-  };
+        i_parsed++;
+      };
+      // printf("Node is fixed: %d\n", new_node.type);
+      // printf("Name: %s\n", new_node.positionPtr.z.name->data);
+      // printf("Name: %f\n", *new_node.positionPtr.z.value);
+      // printf("units: %f\n\n", new_node.externalForce.fz.value);
+        
+      // init_data->expandedNodeInputString->qty++;
+      // init_data->expandedNodeInputString->entry[n_line] = bstrcpy(line);
+      //success = bassigncstr(line, "");
+    } while (0);   
+    success = bstrListDestroy(parsed);
+  };  
   return MAP_SAFE;
 };
 
 
 
-
-/**
- * this function returns the size of elements 
- */
-size_t cable_element_meter(const void *el) 
+MAP_ERROR_CODE set_output_list(ModelData* model_data, MAP_InitOutputType_t* io_type, char* map_msg, MAP_ERROR_CODE* ierr)
 {
-  /* every element has the constant size of a rectangle structure */
-  return sizeof(Element);
+  Element* element_iter = NULL;
+  OutputList* yList = model_data->yList;
+  
+  list_iterator_start(&model_data->element); /* starting an iteration "session" */
+  while (list_iterator_hasnext(&model_data->element)) { /* tell whether more values available */ 
+    element_iter = (Element*)list_iterator_next(&model_data->element);    
+    
+    if (element_iter->options.gxAnchorPosFlag) {
+      list_append(&yList->out_list_ptr, &element_iter->anchor->positionPtr.x);      
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.gyAnchorPosFlag) {
+      list_append(&yList->out_list_ptr, &element_iter->anchor->positionPtr.y);
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.gzAnchorPosFlag) {
+      list_append(&yList->out_list_ptr, &element_iter->anchor->positionPtr.z);
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.gxPosFlag) {
+      list_append(&yList->out_list_ptr, &element_iter->fairlead->positionPtr.x);
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.gyPosFlag) {
+      list_append(&yList->out_list_ptr, &element_iter->fairlead->positionPtr.y);
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.gzPosFlag) {
+      list_append(&yList->out_list_ptr, &element_iter->fairlead->positionPtr.z);
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.HFlag) {
+      list_append(&yList->out_list_ptr, &element_iter->H);
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.VFlag) {
+      list_append(&yList->out_list_ptr, &element_iter->V);
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+    
+    if (element_iter->options.HAnchorFlag) {
+      list_append(&yList->out_list, &element_iter->HAtAnchor);
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.VAnchorFlag) {
+      list_append(&yList->out_list, &element_iter->VAtAnchor);
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.anchorTensionFlag) {
+      list_append(&yList->out_list, &element_iter->TAtAnchor);
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.altitudeAnchorFlag) {
+      list_append(&yList->out_list, &element_iter->alphaAtAnchor);
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.gxForceFlag) {
+      list_append(&yList->out_list, &element_iter->forceAtFairlead.fx); /* @todo: this is not correct. Should point to fairlead->sumForce.fx */
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.gyForceFlag) {
+      list_append(&yList->out_list, &element_iter->forceAtFairlead.fy); /* @todo: this is not correct. Should point to fairlead->sumForce.fy */
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.gzForceFlag) {
+      list_append(&yList->out_list, &element_iter->forceAtFairlead.fz); /* @todo: this is not correct. Should point to fairlead->sumForce.fz */
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.VFlag) {
+      list_append(&yList->out_list, &element_iter->forceAtFairlead.fz); /* @todo: this is not correct. Doubled up with above */
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.fairleadTensionFlag) {
+      list_append(&yList->out_list, &element_iter->T);
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.horizontalExcursionFlag) {
+      list_append(&yList->out_list, &element_iter->l);
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.verticalExcursionFlag) {
+      list_append(&yList->out_list, &element_iter->h);
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.layLengthFlag) {
+      list_append(&yList->out_list, &element_iter->lb);
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.azimuthFlag) {
+      list_append(&yList->out_list, &element_iter->psi);
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (element_iter->options.altitudeFlag) {
+      list_append(&yList->out_list, &element_iter->alpha);
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+  };
+  list_iterator_stop(&model_data->element); /* ending the iteration session */  
+
+  return MAP_SAFE;
 };
 
 
 /**
  * this function returns the size of elements 
  */
-size_t cable_library_meter(const void *el) 
-{
-  /* every element has the constant size of a rectangle structure */
-  return sizeof(CableLibrary);
-};
-
-
-/**
- * this function returns the size of elements 
- */
-size_t node_meter(const void *el) 
-{
-  /* every element has the constant size of a rectangle structure */
-  return sizeof(Node);
-};
-
-
-/**
- * this function returns the size of elements 
- */
-size_t vartype_meter(const void *el) 
+size_t vartype_meter(const void* el) 
 {
   /* every element has the constant size of a rectangle structure */
   return sizeof(VarType);
@@ -1419,335 +2289,576 @@ size_t vartype_meter(const void *el)
 /**
  * this function returns the size of elements 
  */
-size_t vartype_ptr_meter(const void *el) 
+size_t vartype_ptr_meter(const void* el) 
 {
   /* every element has the constant size of a rectangle structure */
   return sizeof(VarTypePtr);
 };
 
 
-void set_element_null(Element* ptr)
+MAP_ERROR_CODE reset_element(Element* element_ptr)
 {
-  ptr->lineProperty = NULL;      
-  ptr->label = NULL;
-  ptr->lineTension  = NULL;
-  ptr->anchor = NULL;             /* Anchor node */
-  ptr->fairlead = NULL;           /* Fairlead node */
+  element_ptr->event.LuRestore = 0.0;
+  element_ptr->event.dLu = 0.0;
+  element_ptr->event.LuMax = 0.0;
+  element_ptr->event.payinFlag = false;
 
-  ptr->psi.name = NULL;
-  ptr->psi.units = NULL;
-  ptr->alpha.name = NULL;
-  ptr->alpha.units = NULL;
-  ptr->alphaAtAnchor.name = NULL;
-  ptr->alphaAtAnchor.units = NULL;
-  ptr->l.name = NULL;
-  ptr->l.units = NULL;
-  ptr->lb.name = NULL;
-  ptr->lb.units = NULL;
-  ptr->h.name = NULL;
-  ptr->h.units = NULL;
-  ptr->H.name = NULL;
-  ptr->H.units = NULL;
-  ptr->V.name = NULL;
-  ptr->V.units = NULL;
-  ptr->HAtAnchor.name = NULL;
-  ptr->HAtAnchor.units = NULL;
-  ptr->VAtAnchor.name = NULL;
-  ptr->VAtAnchor.units = NULL;
-  ptr->forceAtFairlead.fx.name = NULL;
-  ptr->forceAtFairlead.fx.units = NULL;
-  ptr->forceAtFairlead.fy.name = NULL;
-  ptr->forceAtFairlead.fy.units = NULL;
-  ptr->forceAtFairlead.fz.name = NULL;
-  ptr->forceAtFairlead.fz.units = NULL;
-  ptr->forceAtAnchor.fx.name = NULL;
-  ptr->forceAtAnchor.fx.units = NULL;
-  ptr->forceAtAnchor.fy.name = NULL;
-  ptr->forceAtAnchor.fy.units = NULL;
-  ptr->forceAtAnchor.fz.name = NULL;
-  ptr->forceAtAnchor.fz.units = NULL;
-  ptr->T.name = NULL;
-  ptr->T.units = NULL;
-  ptr->TAtAnchor.name = NULL;
-  ptr->TAtAnchor.units = NULL;
+  /* run-time flags */
+  element_ptr->options.plotFlag = false;
+  element_ptr->options.gxPosFlag = false;
+  element_ptr->options.gyPosFlag = false;
+  element_ptr->options.gzPosFlag = false;
+  element_ptr->options.gxAnchorPosFlag = false;
+  element_ptr->options.gyAnchorPosFlag = false;
+  element_ptr->options.gzAnchorPosFlag = false;
+  element_ptr->options.gxForceFlag = false;
+  element_ptr->options.gyForceFlag = false;
+  element_ptr->options.gzForceFlag = false;
+  element_ptr->options.HFlag = false;
+  element_ptr->options.HAnchorFlag = false;
+  element_ptr->options.VFlag = false;
+  element_ptr->options.VAnchorFlag = false;
+  element_ptr->options.fairleadTensionFlag = false;
+  element_ptr->options.anchorTensionFlag = false;
+  element_ptr->options.horizontalExcursionFlag = false;
+  element_ptr->options.verticalExcursionFlag = false;
+  element_ptr->options.azimuthFlag = false;
+  element_ptr->options.altitudeFlag = false;
+  element_ptr->options.altitudeAnchorFlag = false;
+  element_ptr->options.lineTensionFlag = false;
+  element_ptr->options.omitContact = false;
+  element_ptr->options.layLengthFlag = false;
+  element_ptr->options.damageTimeFlag = false;
+  element_ptr->options.diagnosticsFlag = false;
+  
+  element_ptr->lineProperty = NULL;      
+  element_ptr->label = NULL;
+  element_ptr->lineTension  = NULL;
+  element_ptr->anchor = NULL;             /* Anchor node */
+  element_ptr->fairlead = NULL;           /* Fairlead node */
+  
+  element_ptr->psi.name = NULL;
+  element_ptr->psi.units = NULL;
+  element_ptr->alpha.name = NULL;
+  element_ptr->alpha.units = NULL;
+  element_ptr->alphaAtAnchor.name = NULL;
+  element_ptr->alphaAtAnchor.units = NULL;
+  element_ptr->l.name = NULL;
+  element_ptr->l.units = NULL;
+  element_ptr->lb.name = NULL;
+  element_ptr->lb.units = NULL;
+  element_ptr->h.name = NULL;
+  element_ptr->h.units = NULL;
+  element_ptr->H.name = NULL;
+  element_ptr->H.units = NULL;
+  element_ptr->V.name = NULL;
+  element_ptr->V.units = NULL;
+  element_ptr->HAtAnchor.name = NULL;
+  element_ptr->HAtAnchor.units = NULL;
+  element_ptr->VAtAnchor.name = NULL;
+  element_ptr->VAtAnchor.units = NULL;
+  element_ptr->forceAtFairlead.fx.name = NULL;
+  element_ptr->forceAtFairlead.fx.units = NULL;
+  element_ptr->forceAtFairlead.fy.name = NULL;
+  element_ptr->forceAtFairlead.fy.units = NULL;
+  element_ptr->forceAtFairlead.fz.name = NULL;
+  element_ptr->forceAtFairlead.fz.units = NULL;
+  element_ptr->forceAtAnchor.fx.name = NULL;
+  element_ptr->forceAtAnchor.fx.units = NULL;
+  element_ptr->forceAtAnchor.fy.name = NULL;
+  element_ptr->forceAtAnchor.fy.units = NULL;
+  element_ptr->forceAtAnchor.fz.name = NULL;
+  element_ptr->forceAtAnchor.fz.units = NULL;
+  element_ptr->T.name = NULL;
+  element_ptr->T.units = NULL;
+  element_ptr->TAtAnchor.name = NULL;
+  element_ptr->TAtAnchor.units = NULL;
+
+
+
+
+  element_ptr->psi.value = -999.9;
+  element_ptr->alpha.value = -999.9;
+  element_ptr->alphaAtAnchor.value = -999.9;
+  element_ptr->l.value = -999.9;
+  element_ptr->lb.value = -999.9;
+  element_ptr->h.value = -999.9;
+  element_ptr->H.value = NULL;
+  element_ptr->V.value = NULL;
+  element_ptr->HAtAnchor.value = -999.9;
+  element_ptr->VAtAnchor.value = -999.9;
+  element_ptr->forceAtFairlead.fx.value = -999.9;
+  element_ptr->forceAtFairlead.fy.value = -999.9;
+  element_ptr->forceAtFairlead.fz.value = -999.9;
+  element_ptr->forceAtAnchor.fx.value = -999.9;
+  element_ptr->forceAtAnchor.fy.value = -999.9;
+  element_ptr->forceAtAnchor.fz.value = -999.9;
+  element_ptr->T.value = -999.9;
+
+  element_ptr->residualNorm = 999.9;
+  element_ptr->damageTime = -999.9;
+  element_ptr->diagnosticType = -9999;
+  element_ptr->segmentSize = 10;
+
 };
 
 
-/**
- *
- */
-void initialize_element(Element* ptr, const int elementNum)
+MAP_ERROR_CODE set_element_vartype(Element* element_ptr)
 {
-  ptr->event.LuRestore = 0.0;
-  ptr->event.dLu = 0.0;
-  ptr->event.LuMax = 0.0;
-  ptr->event.payinFlag = false;
-  
-  ptr->options.plotFlag = false;
-  ptr->options.gxPosFlag = false;
-  ptr->options.gyPosFlag = false;
-  ptr->options.gzPosFlag = false;
-  ptr->options.gxAnchorPosFlag = false;
-  ptr->options.gyAnchorPosFlag = false;
-  ptr->options.gzAnchorPosFlag = false;
-  ptr->options.gxForceFlag = false;
-  ptr->options.gyForceFlag = false;
-  ptr->options.gzForceFlag = false;
-  ptr->options.HFlag = false;
-  ptr->options.HAnchorFlag = false;
-  ptr->options.VFlag = false;
-  ptr->options.VAnchorFlag = false;
-  ptr->options.fairleadTensionFlag = false;
-  ptr->options.anchorTensionFlag = false;
-  ptr->options.horizontalExcursionFlag = false;
-  ptr->options.verticalExcursionFlag = false;
-  ptr->options.azimuthFlag = false;
-  ptr->options.altitudeFlag = false;
-  ptr->options.altitudeAnchorFlag = false;
-  ptr->options.lineTensionFlag = false;
-  ptr->options.omitContact = false;
-  ptr->options.layLengthFlag = false;
-  ptr->options.damageTimeFlag = false;
-  ptr->options.diagnosticsFlag = false;
+  MAP_ERROR_CODE success = MAP_SAFE;
+  bstring alias = NULL;
 
-  initialize_vartype("[deg]", "psi", &ptr->psi, elementNum); 
-  initialize_vartype("[deg]", "alpha", &ptr->alpha, elementNum); 
-  initialize_vartype("[deg]", "alpha_a", &ptr->alphaAtAnchor, elementNum); 
-  initialize_vartype("[m]", "l", &ptr->l, elementNum); 
-  initialize_vartype("[m]", "lb", &ptr->lb, elementNum);
-  initialize_vartype("[m]", "h", &ptr->h, elementNum);  
-  initialize_vartype("[N]", "H_a", &ptr->HAtAnchor, elementNum); 
-  initialize_vartype("[N]", "fx", &ptr->forceAtFairlead.fx, elementNum); 
-  initialize_vartype("[N]", "fy", &ptr->forceAtFairlead.fy, elementNum);
-  initialize_vartype("[N]", "fz", &ptr->forceAtFairlead.fz, elementNum);  
-  initialize_vartype("[N]", "fx_a", &ptr->forceAtAnchor.fx, elementNum); 
-  initialize_vartype("[N]", "fy_a", &ptr->forceAtAnchor.fy, elementNum); 
-  initialize_vartype("[N]", "fz_a", &ptr->forceAtAnchor.fz, elementNum); 
-  initialize_vartype("[N]", "V_a" , &ptr->VAtAnchor, elementNum); 
-  initialize_vartype("[m]", "T", &ptr->T, elementNum); 
-  initialize_vartype("[m]", "T_a", &ptr->TAtAnchor, elementNum); 
+  alias = bformat("psi");                          
+  success = set_vartype("[deg]", alias, 0, &element_ptr->psi, NULL); /* @todo: check error */
+  bdestroy(alias);
 
-  ptr->H.name = NULL;
-  ptr->V.name = NULL;
-  ptr->H.units = NULL;
-  ptr->V.units = NULL;
-  
-  /* */
-  ptr->damageTime = -999.9;
-  ptr->diagnosticType = -9999;
-  ptr->segmentSize = 10;
-};
+  alias = bformat("alpha");                          
+  success = set_vartype("[deg]", alias, 0, &element_ptr->alpha, NULL); /* @todo: check error */
+  bdestroy(alias);
 
+  alias = bformat("alpha_a");                          
+  success = set_vartype("[deg]", alias, 0, &element_ptr->alphaAtAnchor, NULL); /* @todo: check error */
+  bdestroy(alias);
 
-/**
- *
- */
-MAP_ERROR_CODE initialize_external_applied_force(char* unit, char* alias, const int num, VarType* type, char const* property)
-{
-  type->name = malloc(sizeof(char)*strlen(alias)+1);
-  type->units = malloc(sizeof(char)*strlen(unit)+1);
-  
-  strcpy(type->name, alias);
-  strcpy(type->units, unit);
+  alias = bformat("l");                          
+  success = set_vartype("[m]", alias, 0, &element_ptr->l, NULL); /* @todo: check error */
+  bdestroy(alias);
 
-  type->referenceCounter = 0;
-  type->id = num;  
-  type->value = 0;
-  type->isFixed = true;
+  alias = bformat("lb");                          
+  success = set_vartype("[m]", alias, 0, &element_ptr->lb, NULL); /* @todo: check error */
+  bdestroy(alias);
 
-  if (property[0]=='#') { 
-    type->value = 0.0;
-  } else { 
-    /* this variable is constant */    
-    if (is_numeric(property)) { 
-      /* cannot convert to numeric value */
-      return MAP_FATAL;
-    } else { 
-      /* converted to numeric value */
-      type->value = (MapReal)atof(property);      
-    };
-  };
+  alias = bformat("h");                          
+  success = set_vartype("[m]", alias, 0, &element_ptr->h, NULL); /* @todo: check error */
+  bdestroy(alias);
+
+  alias = bformat("H_a");                          
+  success = set_vartype("[N]", alias, 0, &element_ptr->HAtAnchor, NULL); /* @todo: check error */
+  bdestroy(alias);
+
+  alias = bformat("fx");                          
+  success = set_vartype("[N]", alias, 0, &element_ptr->forceAtFairlead.fx, NULL); /* @todo: check error */
+  bdestroy(alias);
+
+  alias = bformat("fy");                          
+  success = set_vartype("[N]", alias, 0, &element_ptr->forceAtFairlead.fy, NULL); /* @todo: check error */
+  bdestroy(alias);
+
+  alias = bformat("fz");                          
+  success = set_vartype("[N]", alias, 0, &element_ptr->forceAtFairlead.fz, NULL); /* @todo: check error */
+  bdestroy(alias);
+
+  alias = bformat("fx_a");                          
+  success = set_vartype("[N]", alias, 0, &element_ptr->forceAtAnchor.fx, NULL); /* @todo: check error */
+  bdestroy(alias);
+
+  alias = bformat("fy_a");                          
+  success = set_vartype("[N]", alias, 0, &element_ptr->forceAtAnchor.fy, NULL); /* @todo: check error */
+  bdestroy(alias);
+
+  alias = bformat("fz_a");                          
+  success = set_vartype("[N]", alias, 0, &element_ptr->forceAtAnchor.fz, NULL); /* @todo: check error */
+  bdestroy(alias);
+
+  alias = bformat("V_a");                          
+  success = set_vartype("[N]", alias, 0, &element_ptr->VAtAnchor, NULL); /* @todo: check error */
+  bdestroy(alias);
+
+  alias = bformat("T");                          
+  success = set_vartype("[N]", alias, 0, &element_ptr->T, NULL); /* @todo: check error */
+  bdestroy(alias);
+
+  alias = bformat("T_a");                          
+  success = set_vartype("[N]", alias, 0, &element_ptr->TAtAnchor, NULL); /* @todo: check error */
+  bdestroy(alias);
+
   return MAP_SAFE;
 };
 
 
-/**
- *
- */
-MAP_ERROR_CODE initialize_node_sum_force_ptr(char* unit, char* alias, const int num, VarTypePtr* type)
-{
-  type->name = malloc(sizeof(char)*strlen(alias)+1);
-  type->units = malloc(sizeof(char)*strlen(unit)+1);  
-  strcpy(type->name, alias);
-  strcpy(type->units, unit);
+// MAP_ERROR_CODE initialize_external_applied_force(char* unit, char* alias, const int num, VarType* type, char const* property)
+// {
+//   type->name = malloc(sizeof(char)*strlen(alias)+1);
+//   type->units = malloc(sizeof(char)*strlen(unit)+1);
+//   
+//   strcpy(type->name, alias);
+//   strcpy(type->units, unit);
+// 
+//   type->referenceCounter = 0;
+//   type->id = num;  
+//   type->value = 0;
+//   type->isFixed = true;
+// 
+//   if (property[0]=='#') { 
+//     type->value = 0.0;
+//   } else { 
+//     /* this variable is constant */    
+//     if (is_numeric(property)) { 
+//       /* cannot convert to numeric value */
+//       return MAP_FATAL;
+//     } else { 
+//       /* converted to numeric value */
+//       type->value = (MapReal)atof(property);      
+//     };
+//   };
+//   return MAP_SAFE;
+// };
 
-  type->referenceCounter = 0;
-  type->id = num;  
-  type->isFixed = true;
-  *(type->value) = 0.0;
-  return MAP_SAFE;
+
+// MAP_ERROR_CODE initialize_node_sum_force_ptr(char* unit, char* alias, const int num, VarTypePtr* type)
+// {
+//   type->name = malloc(sizeof(char)*strlen(alias)+1);
+//   type->units = malloc(sizeof(char)*strlen(unit)+1);  
+//   strcpy(type->name, alias);
+//   strcpy(type->units, unit);
+// 
+//   type->referenceCounter = 0;
+//   type->id = num;  
+//   type->isFixed = true;
+//   *(type->value) = 0.0;
+//   return MAP_SAFE;
+// };
+
+
+MAP_ERROR_CODE reset_node(Node* node_ptr)
+{
+  node_ptr->positionPtr.x.name = NULL;
+  node_ptr->positionPtr.x.units = NULL;
+  node_ptr->positionPtr.x.value = NULL;
+  node_ptr->positionPtr.y.name = NULL;
+  node_ptr->positionPtr.y.units = NULL;
+  node_ptr->positionPtr.y.value = NULL;
+  node_ptr->positionPtr.z.name = NULL;
+  node_ptr->positionPtr.z.units = NULL;
+  node_ptr->positionPtr.z.value = NULL;
+  node_ptr->MApplied.name = NULL;
+  node_ptr->MApplied.units = NULL;
+  node_ptr->BApplied.name = NULL;
+  node_ptr->BApplied.units = NULL;
+  node_ptr->sumForcePtr.fx.name = NULL;
+  node_ptr->sumForcePtr.fx.units = NULL;
+  node_ptr->sumForcePtr.fx.value = NULL;
+  node_ptr->sumForcePtr.fy.name = NULL;
+  node_ptr->sumForcePtr.fy.units = NULL;
+  node_ptr->sumForcePtr.fy.value = NULL;
+  node_ptr->sumForcePtr.fz.name = NULL;
+  node_ptr->sumForcePtr.fz.units = NULL;
+  node_ptr->sumForcePtr.fz.value = NULL;
+ 
+  node_ptr->externalForce.fx.name = NULL;
+  node_ptr->externalForce.fx.units = NULL;
+  node_ptr->externalForce.fy.name = NULL;
+  node_ptr->externalForce.fy.units = NULL;
+  node_ptr->externalForce.fz.name = NULL;
+  node_ptr->externalForce.fz.units = NULL;
+
+  node_ptr->MApplied.value = -999.9;
+  node_ptr->BApplied.value = -999.9; 
+  node_ptr->externalForce.fx.value = -999.9;
+  node_ptr->externalForce.fy.value = -999.9;
+  node_ptr->externalForce.fz.value = -999.9;
+
+  node_ptr->sumForcePtr.fx.isFixed = false;
+  node_ptr->sumForcePtr.fy.isFixed = false;
+  node_ptr->sumForcePtr.fz.isFixed = false;
 };
 
 
-/**
- *
- */
-void set_node_null(Node* ptr)
+MAP_ERROR_CODE associate_element_with_cable_property(Element* element_ptr, ModelData* model_data, const char* word, char* map_msg, MAP_ERROR_CODE* ierr)
 {
-  ptr->positionPtr.x.name = NULL;
-  ptr->positionPtr.x.units = NULL;
-  ptr->positionPtr.x.value = NULL;
-  ptr->positionPtr.y.name = NULL;
-  ptr->positionPtr.y.units = NULL;
-  ptr->positionPtr.y.value = NULL;
-  ptr->positionPtr.z.name = NULL;
-  ptr->positionPtr.z.units = NULL;
-  ptr->positionPtr.z.value = NULL;
-  ptr->MApplied.name = NULL;
-  ptr->MApplied.units = NULL;
-  ptr->BApplied.name = NULL;
-  ptr->BApplied.units = NULL;
-  ptr->sumForcePtr.fx.name = NULL;
-  ptr->sumForcePtr.fx.units = NULL;
-  ptr->sumForcePtr.fx.value = NULL;
-  ptr->sumForcePtr.fy.name = NULL;
-  ptr->sumForcePtr.fy.units = NULL;
-  ptr->sumForcePtr.fy.value = NULL;
-  ptr->sumForcePtr.fz.name = NULL;
-  ptr->sumForcePtr.fz.units = NULL;
-  ptr->sumForcePtr.fz.value = NULL;
+  MAP_ERROR_CODE success = MAP_SAFE;
+  CableLibrary* library_iterator = NULL;
+  bstring user_msg = NULL;
 
-  ptr->externalForce.fx.name = NULL;
-  ptr->externalForce.fx.units = NULL;
-  ptr->externalForce.fy.name = NULL;
-  ptr->externalForce.fy.units = NULL;
-  ptr->externalForce.fz.name = NULL;
-  ptr->externalForce.fz.units = NULL;
-};
+  library_iterator = NULL;
+  element_ptr->lineProperty = NULL;
 
-
-/**
- *
- */
-MAP_ERROR_CODE associate_element_with_cable_property(Element* newElement, ModelData* data, char* word, char* map_msg, MAP_ERROR_CODE* ierr)
-{
-  CableLibrary* iterCableLibrary = NULL;
-  iterCableLibrary = NULL;
-  newElement->lineProperty = NULL;
-
-  list_iterator_start(&data->cableLibrary); /* starting an iteration session */
-  while (list_iterator_hasnext(&data->cableLibrary)) { /* tell whether more values available */
-    iterCableLibrary = (CableLibrary*)list_iterator_next(&data->cableLibrary);
-    if (!strcicmp(iterCableLibrary->label, word)) {
-      newElement->lineProperty = iterCableLibrary;
-      list_iterator_stop(&data->cableLibrary); /* ending the iteration session */  
+  list_iterator_start(&model_data->cableLibrary); /* starting an iteration session */
+  while (list_iterator_hasnext(&model_data->cableLibrary)) { /* tell whether more values available */
+    library_iterator = (CableLibrary*)list_iterator_next(&model_data->cableLibrary);
+    if (biseqcstrcaseless(library_iterator->label, word)) {      
+      element_ptr->lineProperty = library_iterator;
+      list_iterator_stop(&model_data->cableLibrary); /* ending the iteration session */  
       break;
     }; 
   };
-  list_iterator_stop(&data->cableLibrary); /* ending the iteration session */  
-  if (newElement->lineProperty==NULL) {        
-    *ierr = map_set_universal_error(word, map_msg, ierr, MAP_FATAL_27);
+  list_iterator_stop(&model_data->cableLibrary); /* ending the iteration session */  
+  if (element_ptr->lineProperty==NULL) {        
+    user_msg = bformat("No libraries match <%s>.", word);
+    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_27);
+    success = bdestroy(user_msg); 
+    user_msg = NULL;
     return MAP_FATAL;
   };
   return MAP_SAFE;
 };
 
 
-/**
- *
- */
-MAP_ERROR_CODE associate_element_with_anchor_node(ModelData* data, Element* new_element, const int element_num, char* word, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE associate_element_with_anchor_node(Element* element_ptr, ModelData* model_data, const int element_num, const char* word, char* map_msg, MAP_ERROR_CODE* ierr)
 {
-  Node* iter_node = NULL;
+  MAP_ERROR_CODE success = MAP_SAFE;
+  Node* node_iter = NULL;
   int node_num = 0;
-  char buffer[64] = "";
-  int cx = 0;
-  int success = 0;
+  bstring user_msg = NULL;
 
-  new_element->anchor = NULL;
+  element_ptr->anchor = NULL;
   
-  success = is_numeric(word); 
-  if (success) {
-    cx = map_snprintf(buffer, 64, "Element '%d'.", element_num+1);assert(cx>=0);
-    *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_28);
+  if (is_numeric(word)) {
+    node_num = (int)atoi(word); 
+    node_iter = (Node*)list_get_at(&model_data->node, node_num-1);
+    element_ptr->anchor = node_iter; /* create the associate with anchor here */
+    if (!node_iter) {
+      user_msg = bformat("Element %d.", element_num);
+      *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_30);        
+      success = bdestroy(user_msg); /* clear user_msg to not inavertendly picked up elsewhere */
+      user_msg = NULL;
+      return MAP_FATAL;
+    };
+  } else {
+    user_msg = bformat("Element %d.", element_num);
+    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_28);        
+    success = bdestroy(user_msg); 
+    user_msg = NULL;
     return MAP_FATAL;
   };
-  
-  node_num = (int)atoi(word); 
-  iter_node = (Node*)list_get_at(&data->node, node_num-1);
-  if (!iter_node) {
-    cx = map_snprintf( buffer, 64, "Element '%d'.", element_num+1); assert(cx>=0);
-    *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_30);
-    return MAP_FATAL;
-  };
-
-  new_element->anchor = iter_node;
   return MAP_SAFE;
 };
 
 
-/**
- *
- */
-MAP_ERROR_CODE associate_element_with_fairlead_node(ModelData* data, Element* new_element, const int element_num, char* word, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE associate_element_with_fairlead_node(Element* element_ptr, ModelData* model_data, const int element_num, const char* word, char* map_msg, MAP_ERROR_CODE* ierr)
 {
-  Node *iter_node = NULL;
+  Node* node_iter = NULL;
   int node_num = 0;
-  char buffer[64] = "";
-  int cx = 0;
-  int success = 0;
+  MAP_ERROR_CODE success = MAP_SAFE;
+  bstring user_msg = NULL;
 
-  new_element->fairlead = NULL;
-  
-  success = is_numeric(word); 
-  if (success) {
-    cx = map_snprintf(buffer, 64, "Element '%d'.", element_num+1); assert(cx>=0);
-    *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_29);
+  element_ptr->fairlead = NULL;
+
+  if (is_numeric(word)) {
+    node_num = (int)atoi(word); 
+    node_iter = (Node*)list_get_at(&model_data->node, node_num-1);
+    element_ptr->fairlead = node_iter; /* create the associate with anchor here */
+    if (!node_iter) {
+      user_msg = bformat("Element %d.", element_num);
+      *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_31);        
+      success = bdestroy(user_msg); /* clear user_msg to not inavertendly picked up elsewhere */
+      user_msg = NULL;
+      return MAP_FATAL;
+    };
+  } else {
+    user_msg = bformat("Element %d.", element_num);
+    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_29);        
+    success = bdestroy(user_msg); 
+    user_msg = NULL;
     return MAP_FATAL;
   };
-  
-  node_num = (int)atoi(word); 
-  iter_node = (Node*)list_get_at(&data->node, node_num-1);
-  if (!iter_node) {
-    cx = map_snprintf(buffer, 64, "Element '%d'.", element_num );assert(cx>=0);
-    *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_31);
-    return MAP_FATAL;
-  };
-  
-  new_element->fairlead = iter_node;
-
   return MAP_SAFE;
+
 };
 
 
-/**
- * Create internal state data structures
- *
- * @todo: delete data->z, data->u, data->yList
- * @acceses: none
- * @calledby: mapcall_msqs_init( )
- */
-MAP_ERROR_CODE allocate_outlist(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE is_numeric(const char* string)
 {
-  data->yList = (OutputList*)malloc(sizeof(OutputList)); 
-  if (data->yList==NULL) {
-    *ierr = map_set_universal_error("", map_msg, ierr, MAP_FATAL_46);    
-    return MAP_FATAL;
+  char* p = NULL;
+  if (string==NULL || *string=='\0' || isspace(*string)) {
+    return MAP_SAFE;
   };
-  return MAP_SAFE;
+  strtod (string, &p);
+  if (*p=='\0') {
+    return MAP_FATAL;
+  } else {
+    return MAP_SAFE;
+  };
 };
 
 
-/**
- * Frees internal state data allcoated in the mapcall_msqs_init( ) function
- *
- * @todo: delete additional dependancies in data->z, data->yList, data->u
- * @acceses: none
- * @calledby: mapcall_msqs_end( )
- * @see: allocate_outlist( )
- */
-MAP_ERROR_CODE free_outlist(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE associate_vartype_ptr(VarTypePtr* type, double* arr, int index)
 {
-  MAPFREE(data->yList);
+  type->value = &arr[index-1];
   return MAP_SAFE;
 };
+
+
+void copy_target_string(char* target, unsigned char* source)
+{
+  while (*source) {
+    *target = *source;
+    source++;
+    target++;
+  };
+  *target = '\0';
+};
+
+
+MAP_ERROR_CODE map_get_version(MAP_InitOutputType_t* io_type)
+{
+  bstring out_string = NULL;
+  int ret = 0;
+
+  /* first set the program version defined in the mapsys.h header file 
+   * @todo: program version should be tied to the gi revision numner
+   */
+  out_string = bformat("<%s>",PROGVERSION);
+  if (out_string->slen>MAX_INIT_VERSION_STRING_LENGTH) { /* overflow */
+    return MAP_FATAL; /* @todo: give proper error code */
+  };
+  copy_target_string(io_type->version, out_string->data);
+  ret = bdestroy(out_string);
+
+  /* the set the compiling date. This is #defined in the mapsys.h header */
+  out_string = bformat("<%c%c%c-%c%c-%c%c%c%c>",BUILD_MONTH_CH0,BUILD_MONTH_CH1,BUILD_MONTH_CH2,BUILD_DAY_CH0,BUILD_DAY_CH1,BUILD_YEAR_CH0,BUILD_YEAR_CH1,BUILD_YEAR_CH2,BUILD_YEAR_CH3);
+  if (out_string->slen>MAX_INIT_COMPILING_DATA_STRING_LENGTH) { /* overflow */
+    return MAP_FATAL; /* @todo: give proper error code */
+  };
+  copy_target_string(io_type->compilingData, out_string->data);
+  ret = bdestroy(out_string);
+  return MAP_SAFE;
+};
+
+
+void print_machine_name_to_screen( ) {
+  // __get_machine_name(name);
+  printf( "%s Ver. %s ", PROGNAME, PROGVERSION); 
+  printf( "%c",BUILD_MONTH_CH0 );// build month
+  printf( "%c",BUILD_MONTH_CH1 );
+  printf( "%c",BUILD_MONTH_CH2 );
+  printf( "-" );
+  printf( "%c",BUILD_DAY_CH0 );// build day
+  printf( "%c",BUILD_DAY_CH1 );
+  printf( "-" );
+  printf( "%c",BUILD_YEAR_CH0 ); // build year 
+  printf( "%c",BUILD_YEAR_CH1 );
+  printf( "%c",BUILD_YEAR_CH2 );
+  printf( "%c\n",BUILD_YEAR_CH3 );
+}
+
+
+const char* remove_first_character(const char* string)
+{
+  return string+1;
+};
+
+
+// /**
+//  * @see: http://stackoverflow.com/questions/504810/how-do-i-find-the-current-machines-full-hostname-in-c-hostname-and-domain-info
+//  */
+// void __get_machine_name(char* machineName)
+// {
+//   char name[150];  
+//   
+// #if defined(_WIN32) || defined(_WIN64)
+//   int i = 0;
+//   TCHAR infoBuf[150];
+//   DWORD bufCharCount = 150;
+//   memset(name, 0, 150);
+//   if (GetComputerName(infoBuf, &bufCharCount)) {
+//     for (i=0 ; i<150 ; i++) {
+//       name[i] = infoBuf[i];
+//     };
+//   } else {
+//     strcpy(name, "Unknown_Host_Name");
+//   };
+// #else
+//   memset(name, 0, 150);
+//   gethostname(name, 150);
+// #endif
+//   strncpy(machineName ,name, 150);
+// };
+
+
+MAP_ERROR_CODE print_help_to_screen()
+{
+  print_machine_name_to_screen( );
+
+  printf("MAP Input file section defitions:\n");
+  printf("  Line dictionary definitions:\n");   
+  printf("    -LineType, --User-defined name of line [-]  \n");   
+  printf("    -Diam,     --Line diamater, used to calulate area and line displacement per unit length [m]  \n");   
+  printf("    -MassDen,  --Mass (in air) per unit length [kg/m]  \n");   
+  printf("    -EA,       --Axial stiffness [N] \n");   
+  printf("    -CB,       --Cable/seabed Coulumb friction coefficient [-]  \n");   
+  printf("    -CIntDamp, --Internal structural damping coefficient [Pa-s]  \n");   
+  printf("    -Ca,       --Cross-flow added-mass coeficient [-]\n");   
+  printf("    -Cdn,      --Cross-flow drag coefficient [-]\n");   
+  printf("    -Cdt,      --Tangent (skin) drag coefficient[-]\n");   
+  printf("  Node property definitions:\n");
+  printf("    -Node,     --Node number; first starts at 1 [-]\n");
+  printf("    -Type,     --Type of node. Must be one of: VESSEL, FIX, CONNECT [-]\n");
+  printf("    -X,        --Node X position. '#' must prefix CONNECT nodes; constitutes user initial guess [m]\n");
+  printf("    -Y,        --Node Y position. '#' must prefix CONNECT nodes; constitutes user initial guess [m]\n");
+  printf("    -Z,        --Node Z position. '#' must prefix CONNECT nodes; constitutes user initial guess [m]\n");
+  printf("    -M,        --Applied point mass at node [kg]\n");
+  printf("    -B,        --Applied point buoyancy module at node [m^3]\n");  
+  printf("    -FX,       --Applied X external force at node. '#' must prefix VESSEL and FIX nodes [N]\n");
+  printf("    -FY,       --Applied Y external force at node. '#' must prefix VESSEL and FIX nodes [N]\n");
+  printf("    -FZ,       --Applied Z external force at node. '#' must prefix VESSEL and FIX nodes [N]\n");
+  printf("  Element property definitions:\n");
+  printf("    -Element,  --Element number; first starts at 1 [-]\n");
+  printf("    -LineType, --Must match property defined in 'Line Dictions'[-]\n");
+  printf("    -UnstrLen, --Unstretched line length [m]\n");
+  printf("    -NodeAnch, --Anchor node number corresponding to 'Node Property Definitions' section [-]\n");
+  printf("    -NodeFair, --Fairlead node number corresponding to 'Node Property Definitions' section [-]\n");
+  printf("    -Flags,    --User run-time flag; see below [-]\n");
+
+  printf("    \n");
+  printf("  Element run-time options definitions\n");
+  printf("    Outputs:\n");
+  printf("      -gx_pos,       --Fairlead posiion in global X [m]\n");
+  printf("      -gy_pos,       --Fairlead posiion in global Y [m]\n");
+  printf("      -gx_pos,       --Fairlead posiion in global Z [m]\n");
+  printf("      -gx_a_pos,     --Anchor posiion in global X [m]\n");
+  printf("      -gy_a_pos,     --Anchor posiion in global Y [m]\n");
+  printf("      -gz_a_pos,     --Anchor posiion in global Z [m]\n");
+  printf("      -gx_force,     --Fairlead force in global X (include applied forces) [N]\n");
+  printf("      -gy_force,     --Fairlead force in global Y (include applied forces) [N]\n");
+  printf("      -gz_force,     --Fairlead force in global Z (include applied forces) [N]\n");
+  printf("      -h_fair,       --Horizontal force at fairlead (does NOT include applied forces) [N]\n");
+  printf("      -v_fair,       --Vertical force at fairlead (does NOT include applied forces) [N]\n");
+  printf("      -h_anch,       --Horizontal force at anchor (does NOT include applied forces) [N]\n");
+  printf("      -v_anch,       --Vertical force at anchor (does NOT include applied forces) [N]\n");
+  printf("      -tension_fair, --Line force-magnitude at fairlead (include applied loads) [N]\n");
+  printf("      -tension_anch, --Line force-magnitude at anchor (include applied loads) [N]\n");
+  printf("      -azimuth,      --Line lateral offset angle global X axis [deg]\n");
+  printf("      -altitude,     --Line inclination angle relative to global XY plane at fiarlead [deg]\n");
+  printf("      -lay_length,   --Length of line on seabed [m]\n");
+  printf("      -line_tension, -- \n");
+  printf("    Model features:\n");
+  printf("      -omit_contact,       --Ignore cable/seabed contact\n");
+  printf("      -seg_size <10>,      --Number of discrete elements in line\n");
+  printf("      -damage_time <NULL>, --Line breakage occurs at specified time [s]\n");
+  printf("      -diagnostic,         --Run line solver diagnostics until specified time [s]\n");
+  printf("\n");
+  printf("  Model option definitions\n");
+  printf("    General model features:\n");
+  printf("      -ref_position <0.0> <0.0> <0.0>\n");
+  printf("      -repeat <NULL> ... <NULL>\n");
+  printf("    MSQS solver options:\n");
+  printf("      -inner_ftol <float>,\n");
+  printf("      -inner_gtol <float>,\n");
+  printf("      -inner_xtol <float>,\n");
+  printf("      -inner_max_its <int>,\n");
+  printf("      -outer_tol <float>,\n");
+  printf("      -outer_max_its <int>,\n");
+  printf("      -outer_epsilon <float>,\n");
+  printf("      -outer_bd,\n");
+  printf("      -outer_cd,\n");
+  printf("      -outer_fd,\n");
+  printf("      -pg_cooked <1000.0> <1.0>,\n");
+  printf("      -integration_dt <0.01>,\n");
+  printf("    LM model feature (not suported yet):\n");
+  printf("      -kb_default      --Seabed stiffness parameter\n");
+  printf("      -cb_default      --Seabed damping parameter\n");
+  printf("      -wave_kinematics --Enables wave kinematics to drag interaction from surface waves\n");
+  printf( "\nMAP++ Copyright (C) 2014 and GNU GPL by Marco Masciola and others\n" );
+  printf( "SimCList Copyright (C) 2010 by Mij <http://mij.oltrelinux.com/devel/simclist/>\n" );
+  printf( "MinPack Copyright (C) 1999 by the University of Chicago\n" );
+  printf( "Modifications to MinPack by Frederic Devernay <http://devernay.free.fr/hacks/cminpack/>\n" );
+  printf( "\nMAP++ is free software; see the source for copying conditions.\n" );
+  printf( "This software is distributed on an \"AS IS\" BASIS, WITHOUT WARRANTIES\n" );
+  printf( "OR CONDITIONS OF ANY KIND, either express or implied. See\n" );
+  printf( "<https://gnu.org/licenses/gpl.html> for more details.\n" );
+  printf("    \n");
+  return MAP_SAFE;
+};
+
+

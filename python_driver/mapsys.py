@@ -1,3 +1,26 @@
+'''
+  Copyright (C) 2014 mdm                                      
+  marco[dot]masciola[at]gmail                                 
+                                                              
+Licensed to the Apache Software Foundation (ASF) under one    
+or more contributor license agreements.  See the NOTICE file  
+distributed with this work for additional information         
+regarding copyright ownership.  The ASF licenses this file    
+to you under the Apache License, Version 2.0 (the             
+"License"); you may not use this file except in compliance    
+with the License.  You may obtain a copy of the License at    
+                                                              
+  http://www.apache.org/licenses/LICENSE-2.0                  
+                                                              
+Unless required by applicable law or agreed to in writing,    
+software distributed under the License is distributed on an   
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY        
+KIND, either express or implied.  See the License for the     
+specific language governing permissions and limitations             
+under the License.                                              
+'''
+
+
 import sys
 from ctypes import *
 import os
@@ -53,9 +76,23 @@ class Map(object):
                    ("optionInputLine",c_char*255)]
 
         
+    '''
+    void * object ;
+    char progName[99] ;
+    char version[99] ;
+    char compilingData[24] ;
+    char * writeOutputHdr ;     int writeOutputHdr_Len ;
+    char * writeOutputUnt ;     int writeOutputUnt_Len ;
+    '''
     class InitializationOutputData_Type(Structure):
-        _fields_ = []
-
+        _fields_ = [("object",c_void_p),
+                    ("progName",c_char*99),
+                    ("version",c_char*99),
+                    ("CompilingData",c_char*99),
+                    ("writeOutputHdr",c_char_p),
+                    ("writeOutputHdr_Len",c_int),
+                    ("writeOutputUnt",c_char_p),
+                    ("writeOutputUnt_Len",c_int)]
 
     class InputData_Type(Structure):
         _fields_ = []
@@ -108,7 +145,7 @@ class Map(object):
     MapContinuous_Type = POINTER(ContinuousData_Type)
 
     # read file stuff
-    # lib.set_init_to_null.argtype=[MapInit_Type, c_char_p, POINTER(c_int) ]
+    lib.set_init_to_null.argtype=[MapInit_Type, c_char_p, POINTER(c_int) ]
     lib.map_set_summary_file_name.argtype=[MapInit_Type, c_char_p, POINTER(c_int) ]
     lib.map_add_cable_library_input_text.argtype=[MapInit_Type]
     lib.map_add_node_input_text.argtype=[MapInit_Type]
@@ -134,45 +171,48 @@ class Map(object):
     lib.map_create_output_type.restype     = MapOutput_Type
     lib.map_create_continuous_type.restype = MapContinuous_Type
 
+
     lib.map_set_sea_depth.argtypes   = [ MapParameter_Type, c_double ]
     lib.map_set_gravity.argtypes     = [ MapParameter_Type, c_double ]
     lib.map_set_sea_density.argtypes = [ MapParameter_Type, c_double ]
     
+    lib.map_size_elements.restype = c_int
+
     # numeric routines
-    lib.pyget_residual_function_length.restype = c_double
-    lib.pyget_residual_function_height.restype = c_double
-    lib.pyget_jacobian_dxdh.restype            = c_double
-    lib.pyget_jacobian_dxdv.restype            = c_double
-    lib.pyget_jacobian_dzdh.restype            = c_double
-    lib.pyget_jacobian_dzdv.restype            = c_double
-
-    lib.pyget_residual_function_length.argtypes = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
-    lib.pyget_residual_function_height.argtypes = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
-    lib.pyget_jacobian_dxdh.argtypes            = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
-    lib.pyget_jacobian_dxdv.argtypes            = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
-    lib.pyget_jacobian_dzdh.argtypes            = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
-    lib.pyget_jacobian_dzdv.argtypes            = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
-
-    
+    lib.map_residual_function_length.restype = c_double
+    lib.map_residual_function_height.restype = c_double
+    lib.map_jacobian_dxdh.restype            = c_double
+    lib.map_jacobian_dxdv.restype            = c_double
+    lib.map_jacobian_dzdh.restype            = c_double
+    lib.map_jacobian_dzdv.restype            = c_double
+ 
+    lib.map_residual_function_length.argtypes = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
+    lib.map_residual_function_height.argtypes = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
+    lib.map_jacobian_dxdh.argtypes            = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
+    lib.map_jacobian_dxdv.argtypes            = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
+    lib.map_jacobian_dzdh.argtypes            = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
+    lib.map_jacobian_dzdv.argtypes            = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
+ 
+     
     lib.map_get_fairlead_force_2d.argtypes = [POINTER(c_double), POINTER(c_double), MapData_Type, c_int, c_char_p, POINTER(c_int)]
-
-    
+ 
+     
     # plot routines
-    lib.pyget_plot_x.argtypes = [ MapData_Type, c_int, c_int, c_char_p, POINTER(c_int) ]
-    lib.pyget_plot_x.restype  = POINTER(c_double)
-    lib.pyget_plot_y.argtypes = [ MapData_Type, c_int, c_int, c_char_p, POINTER(c_int) ]
-    lib.pyget_plot_y.restype  = POINTER(c_double)
-    lib.pyget_plot_z.argtypes = [ MapData_Type, c_int, c_int, c_char_p, POINTER(c_int) ]
-    lib.pyget_plot_z.restype  = POINTER(c_double)
-    lib.pyget_plot_array_free.argtypes = [ POINTER(c_double) ]
-
-    
-
+    lib.map_plot_x_array.argtypes = [ MapData_Type, c_int, c_int, c_char_p, POINTER(c_int) ]
+    lib.map_plot_x_array.restype  = POINTER(c_double)
+    lib.map_plot_y_array.argtypes = [ MapData_Type, c_int, c_int, c_char_p, POINTER(c_int) ]
+    lib.map_plot_y_array.restype  = POINTER(c_double)
+    lib.map_plot_z_array.argtypes = [ MapData_Type, c_int, c_int, c_char_p, POINTER(c_int) ]
+    lib.map_plot_z_array.restype  = POINTER(c_double)
+    lib.map_plot_array_free.argtypes = [ POINTER(c_double) ]
+ 
+     
+ 
     # modifyers
     lib.map_offset_vessel.argtypes = [MapData_Type, MapInput_Type, c_double, c_double, c_double, c_double, c_double, c_double, c_char_p, POINTER(c_int)]        
-    lib.py_linearize_matrix.argtypes = [MapInput_Type, MapData_Type, MapOutput_Type, MapConstraint_Type, c_double, c_char_p, POINTER(c_int)]        
-    lib.py_linearize_matrix.restype  = POINTER(POINTER(c_double))
-    lib.py_free_linearize_matrix.argtypes = [POINTER(POINTER(c_double))]
+    lib.map_linearize_matrix.argtypes = [MapInput_Type, MapData_Type, MapOutput_Type, MapConstraint_Type, c_double, POINTER(c_int), c_char_p]        
+    lib.map_linearize_matrix.restype  = POINTER(POINTER(c_double))
+    lib.map_free_linearize_matrix.argtypes = [POINTER(POINTER(c_double))]
 
     lib.map_init.argtypes = [ MapInit_Type,
                               MapInput_Type,
@@ -208,6 +248,10 @@ class Map(object):
                              POINTER(c_int),
                              c_char_p]
 
+    lib.map_size_elements.argtypes = [ MapData_Type,
+                                       POINTER(c_int),
+                                       c_char_p]
+
 
     def __init__( self ) :
         self.f_type_d       = self.CreateDataState()
@@ -218,7 +262,7 @@ class Map(object):
         self.f_type_z       = self.CreateConstraintState( )
         self.f_type_init    = self.CreateInitState( )
         self.f_type_initout = self.CreateInitoutState( )
-        # Map.lib.set_init_to_null(self.f_type_init, self.status, pointer(self.ierr) )
+        Map.lib.set_init_to_null(self.f_type_init, self.status, pointer(self.ierr) )
         self.summary_file("outlist.map.sum")
 
 
@@ -226,6 +270,13 @@ class Map(object):
         Map.lib.map_init( self.f_type_init, self.f_type_u, self.f_type_p, self.f_type_x, None, self.f_type_z, self.f_type_d, self.f_type_y, self.f_type_initout, pointer(self.ierr), self.status )
         if self.ierr.value != 0 :
             print self.status.value        
+
+
+    def size_elements(self):
+        size = Map.lib.map_size_elements(self.f_type_d, pointer(self.ierr), self.status )
+        if self.ierr.value != 0 :
+            print self.status.value        
+        return size
 
 
     def update_states(self, t, interval):
@@ -246,13 +297,14 @@ class Map(object):
     MAP_EXTERNCALL void MAP_Output_Delete( InputData* y )
     MAP_EXTERNCALL void MAP_OtherState_Delete( ModelData* data )
     """
-    def end( self ):
-        Map.lib.map_end( self.f_type_u, self.f_type_p, self.f_type_x, None, self.f_type_z, self.f_type_d, self.f_type_y, pointer(self.ierr), self.status )
+    def end(self):
+        Map.lib.map_end(self.f_type_u, self.f_type_p, self.f_type_x, None, self.f_type_z, self.f_type_d, self.f_type_y, pointer(self.ierr), self.status)
+
 
     """
     Set a name for the MAP summary file. Does not need to be called. If not called, the default name is 'outlist.sum.map'
     """
-    def summary_file( self, echo_file ):
+    def summary_file(self, echo_file):
         self.f_type_init.contents.summaryFileName = echo_file
         Map.lib.map_set_summary_file_name(self.f_type_init, self.status, pointer(self.ierr) )
 
@@ -317,6 +369,7 @@ class Map(object):
             print self.status.value        
         return obj
 
+
     """
     Calls function in fortdatamanager.c to create instance of c structs
     MAP_EXTERNCALL ConstraintData* MAP_ConstrState_Create( char* map_msg, MAP_ERROR_CODE *ierr )
@@ -326,6 +379,7 @@ class Map(object):
         if self.ierr.value != 0 :
             print self.status.value        
         return obj
+
 
     """
     Calls function in fortdatamanager.c to create instance of c structs
@@ -338,8 +392,54 @@ class Map(object):
         return obj
 
 
+    def map_set_sea_depth( self, depth ):
+         Map.lib.map_set_sea_depth( self.f_type_p, depth )
+
+    def map_set_gravity( self, g ):
+        Map.lib.map_set_gravity( self.f_type_p, g )
+
+    def map_set_sea_density( self, rho ):
+        Map.lib.map_set_sea_density( self.f_type_p, rho )
+
+    def plot_x( self, elementNum, length ) :
+        arr = [None]*length
+        array = POINTER(c_double)
+        array = Map.lib.map_plot_x_array( self.f_type_d, elementNum, length, self.status, pointer(self.ierr) )        
+        if self.ierr.value != 0 :
+            print self.status.value        
+            self.end( )
+            Map.lib.map_plot_array_free( array )        
+            sys.exit('MAP terminated premature.')
+        arr = [array[j] for j in range(length)]        
+        Map.lib.map_plot_array_free( array )        
+        return arr 
+
+    def plot_y( self, elementNum, length ) :
+        arr = [None]*length
+        array = POINTER(c_double)
+        array = Map.lib.map_plot_y_array( self.f_type_d, elementNum, length, self.status, pointer(self.ierr) )        
+        if self.ierr.value != 0 :
+            print self.status.value        
+            self.end( )
+            Map.lib.map_plot_array_free( array )        
+            sys.exit('MAP terminated premature.')
+        arr = [array[j] for j in range(length)]        
+        Map.lib.map_plot_array_free( array )        
+        return arr 
 
 
+    def plot_z( self, elementNum, length ) :
+        arr = [None]*length
+        array = POINTER(c_double)
+        array = Map.lib.map_plot_z_array( self.f_type_d, elementNum, length, self.status, pointer(self.ierr) )        
+        if self.ierr.value != 0 :
+            print self.status.value        
+            self.end( )
+            Map.lib.map_plot_array_free( array )        
+            sys.exit('MAP terminated premature.')
+        arr = [array[j] for j in range(length)]        
+        Map.lib.map_plot_array_free( array )        
+        return arr 
 
 
 
@@ -357,18 +457,18 @@ class Map(object):
         vessel position. Called C function:
         
         MAP_EXTERNCALL void map_get_fairlead_force_2d(double* H, double* V, MAP_OtherStateType_t* other_type, int index, char* map_msg, MAP_ERROR_CODE* ierr);
-
+    
         :param index: The element number the fairlead forces are being requested for. Zero indexed
         :returns: horizontal and vertical fairlead force [N]
-
+    
         >>> H,V = print get_fairlead_force_2d(1)        
         """
         H_ref = c_double(-999.9)
         V_ref = c_double(-999.9)
         Map.lib.map_get_fairlead_force_2d( pointer(H_ref), pointer(V_ref),self.f_type_d, index, self.status, pointer(self.ierr))
         return H_ref.value, V_ref.value
-
-
+    
+    
     def get_fairlead_force_3d(self, index):
         """Gets the horizontal and vertical fairlead force in a 3D frame along relative 
         referene global axis. Must ensure update_states() is called before accessing 
@@ -377,10 +477,10 @@ class Map(object):
         vessel position. Called C function:
         
         MAP_EXTERNCALL void map_get_fairlead_force_3d(double* fx, double* fy, double* fz, MAP_OtherStateType_t* other_type, int index, char* map_msg, MAP_ERROR_CODE* ierr);
-
+    
         :param index: The element number the fairlead forces are being requested for. Zero indexed
         :returns: horizontal and vertical fairlead force [N]
-
+    
         >>> fx,fy,fz = get_fairlead_force_3d(1)        
         """
         fx = c_double(-999.9)
@@ -397,88 +497,70 @@ class Map(object):
 
 
 
-    def map_set_sea_depth( self, depth ):
-        Map.lib.map_set_sea_depth( self.f_type_p, depth )
-
-    def map_set_gravity( self, g ):
-        Map.lib.map_set_gravity( self.f_type_p, g )
-
-    def map_set_sea_density( self, rho ):
-        Map.lib.map_set_sea_density( self.f_type_p, rho )
 
     def funcl( self, i ) :
-        self.val = Map.lib.pyget_residual_function_length( self.f_type_d, i, self.status, pointer(self.ierr) )
+        self.val = Map.lib.map_residual_function_length(self.f_type_d, i, self.status, pointer(self.ierr))
         if self.ierr.value != 0 :
             print self.status.value        
-            self.MAP_End( )
+            self.end( )
             sys.exit('MAP terminated premature.')
         return self.val
+
 
     def funch( self, i ) :
-        self.val = Map.lib.pyget_residual_function_height( self.f_type_d, i, self.status, pointer(self.ierr) )
+        self.val = Map.lib.map_residual_function_height(self.f_type_d, i, self.status, pointer(self.ierr))
         if self.ierr.value != 0 :
             print self.status.value        
-            self.MAP_End( )
+            self.end( )
             sys.exit('MAP terminated premature.')
         return self.val
 
+
     def dxdh( self, i ) :
-        self.val = Map.lib.pyget_jacobian_dxdh( self.f_type_d, i, self.status, pointer(self.ierr) )
+        self.val = Map.lib.map_jacobian_dxdh( self.f_type_d, i, self.status, pointer(self.ierr) )
         if self.ierr.value != 0 :
             print self.status.value        
-            self.MAP_End( )
+            self.end( )
             sys.exit('MAP terminated premature.')
         return self.val
 
 
     def dxdv( self, i ) :
-        self.val = Map.lib.pyget_jacobian_dxdv( self.f_type_d, i, self.status, pointer(self.ierr) )
+        self.val = Map.lib.map_jacobian_dxdv( self.f_type_d, i, self.status, pointer(self.ierr) )
         if self.ierr.value != 0 :
             print self.status.value        
-            self.MAP_End( )
+            self.end( )
             sys.exit('MAP terminated premature.')
         return self.val
+
 
     def dzdh( self, i ) :
-        self.val = Map.lib.pyget_jacobian_dzdh( self.f_type_d, i, self.status, pointer(self.ierr) )
+        self.val = Map.lib.map_jacobian_dzdh( self.f_type_d, i, self.status, pointer(self.ierr) )
         if self.ierr.value != 0 :
             print self.status.value        
-            self.MAP_End( )
+            self.end( )
             sys.exit('MAP terminated premature.')
         return self.val
+
 
     def dzdv( self, i ) :
-        self.val = Map.lib.pyget_jacobian_dzdv( self.f_type_d, i, self.status, pointer(self.ierr) )
+        self.val = Map.lib.map_jacobian_dzdv( self.f_type_d, i, self.status, pointer(self.ierr) )
         if self.ierr.value != 0 :
             print self.status.value        
-            self.MAP_End( )
+            self.end( )
             sys.exit('MAP terminated premature.')
         return self.val
-
-
-    def plot_x( self, elementNum, length ) :
-        arr = [None]*length
-        array = POINTER(c_double)
-        array = Map.lib.pyget_plot_x( self.f_type_d, elementNum, length, self.status, pointer(self.ierr) )        
-        if self.ierr.value != 0 :
-            print self.status.value        
-            self.MAP_End( )
-            Map.lib.pyget_plot_array_free( array )        
-            sys.exit('MAP terminated premature.')
-        arr = [array[j] for j in range(length)]        
-        Map.lib.pyget_plot_array_free( array )        
-        return arr 
 
 
     def linear( self, epsilon ) :
         array = POINTER(POINTER(c_double))
-        array = Map.lib.py_linearize_matrix( self.f_type_u, self.f_type_d, self.f_type_y, self.f_type_z, epsilon, self.status, pointer(self.ierr) )        
+        array = Map.lib.map_linearize_matrix( self.f_type_u, self.f_type_d, self.f_type_y, self.f_type_z, epsilon, pointer(self.ierr), self.status)        
         if self.ierr.value != 0 :
            print self.status.value        
-           self.MAP_End( )
+           self.end( )
            sys.exit('MAP terminated premature.')
         arr = [[array[j][i] for i in range(6)] for j in range(6)]
-        Map.lib.py_free_linearize_matrix(array)        
+        Map.lib.map_free_linearize_matrix(array)        
         return arr
     
 
@@ -486,51 +568,21 @@ class Map(object):
         Map.lib.map_offset_vessel(self.f_type_d, self.f_type_u, x,y,z,phi,the,psi, self.status, pointer(self.ierr) )
         if self.ierr.value != 0 :
             print self.status.value        
-            self.MAP_End( )
-            sys.exit('MAP terminated premature.')
-
-    
-    def plot_y( self, elementNum, length ) :
-        arr = [None]*length
-        array = POINTER(c_double)
-        array = Map.lib.pyget_plot_y( self.f_type_d, elementNum, length, self.status, pointer(self.ierr) )        
-        if self.ierr.value != 0 :
-            print self.status.value        
-            self.MAP_End( )
-            Map.lib.pyget_plot_array_free( array )        
-            sys.exit('MAP terminated premature.')
-        arr = [array[j] for j in range(length)]        
-        Map.lib.pyget_plot_array_free( array )        
-        return arr 
-
-
-    def plot_z( self, elementNum, length ) :
-        arr = [None]*length
-        array = POINTER(c_double)
-        array = Map.lib.pyget_plot_z( self.f_type_d, elementNum, length, self.status, pointer(self.ierr) )        
-        if self.ierr.value != 0 :
-            print self.status.value        
-            self.MAP_End( )
-            Map.lib.pyget_plot_array_free( array )        
-            sys.exit('MAP terminated premature.')
-        arr = [array[j] for j in range(length)]        
-        Map.lib.pyget_plot_array_free( array )        
-        return arr 
-    
+            self.end( )
+            sys.exit('MAP terminated premature.')    
 
     def read_file( self, fileName ):
         f           = open(fileName, 'r')
         charptr     = POINTER(c_char)
         line_offset = []
-        offset      = 0
         temp_str    = []
+        offset      = 0
     
         for line in f:
             line_offset.append(offset)
-            offset += len(line)
-    
+            offset += len(line)    
         f.seek(0)
-    
+        
         i = 0
         for line in f:
             words = line.split()
@@ -553,7 +605,8 @@ class Map(object):
             if line[0] == "-":
                 break
             else:
-                self.f_type_init.contents.libraryInputLine=line
+                # create_string_buffer(line, 255).raw
+                self.f_type_init.contents.libraryInputLine =  line+'\0'
                 Map.lib.map_add_cable_library_input_text(self.f_type_init)
    
         f.seek(line_offset[Node_ref+3])
@@ -561,7 +614,7 @@ class Map(object):
             if line[0] == "-":
                 break
             else:
-                self.f_type_init.contents.nodeInputLine=line
+                self.f_type_init.contents.nodeInputLine = line+'\0'
                 Map.lib.map_add_node_input_text(self.f_type_init)
 
         f.seek(line_offset[Element_ref+4])
@@ -569,7 +622,7 @@ class Map(object):
             if line[0] == "-":
                 break
             else:
-                self.f_type_init.contents.elementInputLine=line
+                self.f_type_init.contents.elementInputLine = line+'\0'
                 Map.lib.map_add_element_input_text(self.f_type_init)
                  
         f.seek(line_offset[Option_ref+5])
@@ -579,5 +632,6 @@ class Map(object):
             elif line[0]=="!":
                 None
             else:
-                self.f_type_init.contents.optionInputLine=line
+                # print line
+                self.f_type_init.contents.optionInputLine = line+'\0'
                 Map.lib.map_add_options_input_text(self.f_type_init)            

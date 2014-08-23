@@ -1,93 +1,84 @@
-/**
- * Copyright (c) 2014 mdm <marco.masciola@gmail.com>
- *
- * This file is part of MAP++.
- *
- * MAP++ is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * MAP++ is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with MAP++. If not, see <http://www.gnu.org/licenses/>.
- */
+/****************************************************************
+ *   Copyright (C) 2014 mdm                                     *
+ *   marco[dot]masciola[at]gmail                                *
+ *                                                              *
+ * Licensed to the Apache Software Foundation (ASF) under one   *
+ * or more contributor license agreements.  See the NOTICE file *
+ * distributed with this work for additional information        *
+ * regarding copyright ownership.  The ASF licenses this file   *
+ * to you under the Apache License, Version 2.0 (the            *
+ * "License"); you may not use this file except in compliance   *
+ * with the License.  You may obtain a copy of the License at   *
+ *                                                              *
+ *   http://www.apache.org/licenses/LICENSE-2.0                 *
+ *                                                              *
+ * Unless required by applicable law or agreed to in writing,   *
+ * software distributed under the License is distributed on an  *
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY       *
+ * KIND, either express or implied.  See the License for the    *
+ * specific language governing permissions and limitations      *      
+ * under the License.                                           *  
+ ****************************************************************/
 
 
-#include "map.h"
-#include "maperror.h"
-#include "protos.h"
-#include "pyprotos.h"
-#include "cminpack/minpack.h"
+#include "numeric.h"
+#include "lineroutines.h"
 
 
-int inner_function_evals(void* elementPtr, int m, int n, const __cminpack_real__* x, __cminpack_real__* fvec, __cminpack_real__* fjac, int ldfjac, int iflag) 
+int inner_function_evals(void* element_ptr, int m, int n, const __cminpack_real__* x, __cminpack_real__* fvec, __cminpack_real__* fjac, int ldfjac, int iflag) 
 {
-  Element* element = (Element*)elementPtr;
-  const MapReal Fh = x[0];
-  const MapReal Fv = x[1];  
-  const MapReal EA = element->lineProperty->ea;
-  const MapReal Lu = element->Lu.value;
-  const MapReal height = element->h.value;
-  const MapReal length = element->l.value;
-  const MapReal omega = element->lineProperty->omega;
-  const MapReal cb = element->lineProperty->cb;
+  Element* element = (Element*)element_ptr;
+  const double Fh = x[0];
+  const double Fv = x[1];  
+  const double EA = element->lineProperty->ea;
+  const double Lu = element->Lu.value;
+  const double height = element->h.value;
+  const double length = element->l.value;
+  const double omega = element->lineProperty->omega;
+  const double cb = element->lineProperty->cb;
   const bool contactFlag = element->options.omitContact;
   
   if (iflag==0) {
     return 0;
   };
-
+ 
   if (iflag!=2) {
-    if (contactFlag==true || omega<0.0 || (Fv-omega*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
-      fvec[0] = residual_function_length_no_contact(Fv, Fh, omega, Lu, EA, length);
-      fvec[1] = residual_function_height_no_contact(Fv, Fh, omega, Lu, EA, height); 
-    } else { /* true when a portion of the line rests on the seabed and the anchor tension is nonzero */
-      fvec[0] = residual_function_length_contact(Fv, Fh, omega, Lu, EA, length, cb);
-      fvec[1] = residual_function_height_contact(Fv, Fh, omega, Lu, EA, height, cb); 
-    };
+     if (contactFlag==true || omega<0.0 || (Fv-omega*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
+       fvec[0] = residual_function_length_no_contact(Fv, Fh, omega, Lu, EA, length);
+       fvec[1] = residual_function_height_no_contact(Fv, Fh, omega, Lu, EA, height); 
+     } else { /* true when a portion of the line rests on the seabed and the anchor tension is nonzero */
+       fvec[0] = residual_function_length_contact(Fv, Fh, omega, Lu, EA, length, cb);
+       fvec[1] = residual_function_height_contact(Fv, Fh, omega, Lu, EA, height, cb); 
+     };
   } else {
-    if (contactFlag==true || omega<0.0 || (Fv-omega*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
-      fjac[0] = jacobian_dxdh_no_contact(Fv, Fh, omega, Lu, EA);
-      fjac[1] = jacobian_dxdv_no_contact(Fv, Fh, omega, Lu, EA);
-      fjac[2] = jacobian_dzdh_no_contact(Fv, Fh, omega, Lu, EA);
-      fjac[3] = jacobian_dzdv_no_contact(Fv, Fh, omega, Lu, EA);
-    } else { /* true when a portion of the line rests on the seabed and the anchor tension is nonzero */
-      fjac[0] = jacobian_dxdh_contact(Fv, Fh, omega, Lu, EA, cb);
-      fjac[1] = jacobian_dxdv_contact(Fv, Fh, omega, Lu, EA, cb);
-      fjac[2] = jacobian_dzdh_contact(Fv, Fh, omega, Lu, EA, cb);
-      fjac[3] = jacobian_dzdv_contact(Fv, Fh, omega, Lu, EA, cb);
-    };
+     if (contactFlag==true || omega<0.0 || (Fv-omega*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
+       fjac[0] = jacobian_dxdh_no_contact(Fv, Fh, omega, Lu, EA);
+       fjac[1] = jacobian_dxdv_no_contact(Fv, Fh, omega, Lu, EA);
+       fjac[2] = jacobian_dzdh_no_contact(Fv, Fh, omega, Lu, EA);
+       fjac[3] = jacobian_dzdv_no_contact(Fv, Fh, omega, Lu, EA);
+     } else { /* true when a portion of the line rests on the seabed and the anchor tension is nonzero */
+       fjac[0] = jacobian_dxdh_contact(Fv, Fh, omega, Lu, EA, cb);
+       fjac[1] = jacobian_dxdv_contact(Fv, Fh, omega, Lu, EA, cb);
+       fjac[2] = jacobian_dzdh_contact(Fv, Fh, omega, Lu, EA, cb);
+       fjac[3] = jacobian_dzdv_contact(Fv, Fh, omega, Lu, EA, cb);
+     };
   };
   return 0;
 };
 
 
-/**
- *
- */
 MapReal residual_function_length_no_contact(const MapReal V, const MapReal H, const MapReal w, const MapReal Lu, const MapReal EA, const MapReal l)
 {  
   return (H/w)*asinh(V/H) - (H/w)*asinh( (V-w*Lu)/H ) + ((H*Lu)/(EA)) - l;
 };
 
 
-/**
- *
- */
 MapReal residual_function_height_no_contact(const MapReal V, const MapReal H, const MapReal w, const MapReal Lu, const MapReal EA, const MapReal h)
 {
   return (H/w)* sqrt(1 + pow((V/H), 2)) - (H/w)*sqrt(1 + pow(((V-w*Lu)/H), 2)) + 1/(EA)*(V*Lu - (w*Lu*Lu)/2) - h;
 };
 
 
-/**
- *
- */
 MapReal jacobian_dxdh_no_contact(const MapReal V, const MapReal H, const MapReal w, const MapReal Lu, const MapReal EA)
 {
   return (asinh(V/H) - asinh((V-w*Lu)/H))/w - ((V/H + pow(V/H, 2)/sqrt(1.0 + pow(V/H, 2)))/(V/H + sqrt(1.0 + pow(V/H, 2))) 
@@ -96,9 +87,6 @@ MapReal jacobian_dxdh_no_contact(const MapReal V, const MapReal H, const MapReal
 };
 
 
-/**
- *
- */
 MapReal jacobian_dxdv_no_contact(const MapReal V, const MapReal H, const MapReal w, const MapReal Lu, const MapReal EA)
 {
   return ((1.0 + V/H /sqrt(1.0 + pow(V/H, 2)))/(V/H + sqrt(1.0 + pow(V/H, 2))) 
@@ -107,9 +95,6 @@ MapReal jacobian_dxdv_no_contact(const MapReal V, const MapReal H, const MapReal
 };
 
 
-/**
- *
- */
 MapReal jacobian_dzdh_no_contact(const MapReal V, const MapReal H, const MapReal w, const MapReal Lu, const MapReal EA)
 {
   return ( sqrt( 1.0 + pow( V/H , 2) ) - sqrt( 1.0 + pow( (V-w*Lu)/H , 2) ) )/w  
@@ -117,19 +102,12 @@ MapReal jacobian_dzdh_no_contact(const MapReal V, const MapReal H, const MapReal
 };
 
 
-
-/**
- *
- */
 MapReal jacobian_dzdv_no_contact(const MapReal V, const MapReal H, const MapReal w, const MapReal Lu, const MapReal EA)
 {
   return ( V/H/sqrt( 1.0 + pow( V/H , 2) ) - (V-w*Lu)/H /sqrt( 1.0 + pow( (V-w*Lu)/H , 2) ) )/w + (Lu/(EA));
 };
 
 
-/**
- *
- */
 MapReal residual_function_length_contact(const MapReal V, const MapReal H, const MapReal w, const MapReal Lu, const MapReal EA, const MapReal l, const MapReal cb)
 {  
   if (-cb*(V-w*Lu)<H) { /* true when a portion of the line rests on the seabed and the anchor tension is nonzero */
@@ -140,9 +118,6 @@ MapReal residual_function_length_contact(const MapReal V, const MapReal H, const
 };
 
 
-/**
- *
- */
 MapReal residual_function_height_contact(const MapReal V, const MapReal H, const MapReal w, const MapReal Lu, const MapReal EA, const MapReal h, const MapReal cb)
 {
   // @todo remove this conditional statement because the equations are the same regardless of the outcome
@@ -154,9 +129,6 @@ MapReal residual_function_height_contact(const MapReal V, const MapReal H, const
 };
 
 
-/**
- *
- */
 MapReal jacobian_dxdh_contact(const MapReal V, const MapReal H, const MapReal w, const MapReal Lu, const MapReal EA, const MapReal cb)
 {
   if (-cb*(V-w*Lu)<H) { /* true when a portion of the line rests on the seabed and the anchor tension is nonzero */
@@ -167,9 +139,6 @@ MapReal jacobian_dxdh_contact(const MapReal V, const MapReal H, const MapReal w,
 };
 
 
-/**
- *
- */
 MapReal jacobian_dxdv_contact(const MapReal V, const MapReal H, const MapReal w, const MapReal Lu, const MapReal EA, const MapReal cb)
 {
   if (-cb*(V-w*Lu)<H) { /* true when a portion of the line rests on the seabed and the anchor tension is nonzero */
@@ -180,9 +149,6 @@ MapReal jacobian_dxdv_contact(const MapReal V, const MapReal H, const MapReal w,
 };
 
 
-/**
- *
- */
 MapReal jacobian_dzdh_contact(const MapReal V, const MapReal H, const MapReal w, const MapReal Lu, const MapReal EA, const MapReal cb)
 {
   // @todo remove this conditional statement because the equations are the same regardless of the outcome
@@ -195,9 +161,6 @@ MapReal jacobian_dzdh_contact(const MapReal V, const MapReal H, const MapReal w,
 
 
 
-/**
- *
- */
 MapReal jacobian_dzdv_contact(const MapReal V, const MapReal H, const MapReal w, const MapReal Lu, const MapReal EA, const MapReal cb)
 {
   // @todo remove this conditional statement because the equations are the same regardless of the outcome
@@ -209,320 +172,20 @@ MapReal jacobian_dzdv_contact(const MapReal V, const MapReal H, const MapReal w,
 };
 
 
-/**
- *
- */
-MAP_EXTERNCALL MapReal pyget_residual_function_length(MAP_OtherStateType_t* otherType, int i, char* map_msg, MAP_ERROR_CODE* ierr)
-{ 
-  ModelData* data = otherType->object;
-  Element* element = NULL;
-  MapReal Fh = 0.0;
-  MapReal Fv = 0.0;
-  MapReal EA = 0.0;
-  MapReal Lu = 0.0;
-  MapReal length = 0.0;
-  MapReal omega = 0.0;
-  MapReal cb = 0.0;
-  bool contactFlag = false;
-  char buffer[64] = "";
-  int cx = 0;
-  
-  *ierr = MAP_SAFE;
-  map_msg[0] = 0;
-  element = (Element*)list_get_at(&data->element, i);
-
-  if (element==NULL) {
-    cx = map_snprintf(buffer, 64, "Element out of range: %d.", i); assert(cx>=0);
-    *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_42);
-    return -999.9;
-  };
-
-  Fh = *(element->H.value);
-  Fv = *(element->V.value);  
-  EA = element->lineProperty->ea;
-  Lu = element->Lu.value;
-  length = element->l.value;
-  omega = element->lineProperty->omega;
-  contactFlag = element->options.omitContact;
-  cb = element->lineProperty->cb;
-
-  if (contactFlag==true || omega<0.0 || (Fv-omega*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
-    return residual_function_length_no_contact(Fv, Fh, omega, Lu, EA, length);
-  } else { /* true when a portion of the line rests on the seabed and the anchor tension is nonzero */
-    return residual_function_length_contact(Fv, Fh, omega, Lu, EA, length, cb);
-  };
-};
 
 
-/**
- *
- */
-MAP_EXTERNCALL MapReal pyget_residual_function_height(MAP_OtherStateType_t* otherType, int i, char* map_msg, MAP_ERROR_CODE* ierr)
+double get_maximum_line_length(Element* element)
 {
-  ModelData* data = otherType->object;
-  Element* element = NULL;
-  MapReal Fh = 0.0;
-  MapReal Fv = 0.0;
-  MapReal EA = 0.0;
-  MapReal Lu = 0.0;
-  MapReal height = 0.0;
-  MapReal omega = 0.0;
-  MapReal cb = 0.0;
-  bool contactFlag = false;
-  char buffer[64] = "";
-  int cx = 0;
-
-  *ierr = MAP_SAFE;
-  map_msg[0] = 0;
-  element = (Element*)list_get_at( &data->element, i );
-
-  if (element==NULL) {    
-    cx = map_snprintf(buffer, 64, "Element out of range: %d.", i); assert(cx>=0);
-    *ierr = map_set_universal_error( buffer, map_msg, ierr, MAP_FATAL_42);
-    return -999.9;
-  };
-
-  Fh = *(element->H.value);
-  Fv = *(element->V.value);  
-  EA = element->lineProperty->ea;
-  Lu = element->Lu.value;
-  height = element->h.value;
-  omega = element->lineProperty->omega;
-  contactFlag = element->options.omitContact;
-  cb = element->lineProperty->cb;
-
-  if (contactFlag==true || omega<0.0 || (Fv-omega*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
-    return residual_function_height_no_contact(Fv, Fh, omega, Lu, EA, height);
-  } else { /* true when a portion of the line rests on the seabed and the anchor tension is nonzero */
-    return residual_function_height_contact(Fv, Fh, omega, Lu, EA, height, cb);
-  };
-};
-
-
-/**
- *
- */
-MAP_EXTERNCALL MapReal pyget_jacobian_dxdh(MAP_OtherStateType_t* otherType, int i, char* map_msg, MAP_ERROR_CODE* ierr)
-{
-  ModelData* data = otherType->object;
-  Element* element = NULL;
-  MapReal Fh = 0.0;
-  MapReal Fv = 0.0;
-  MapReal EA = 0.0;
-  MapReal Lu = 0.0;
-  MapReal omega = 0.0;
-  MapReal cb = 0.0;
-  bool contactFlag = false;
-  char buffer[64] = "";
-  int cx = 0;
-
-  *ierr = MAP_SAFE;
-  map_msg[0] = 0;
-  element = (Element*)list_get_at(&data->element, i);
-
-  if (element==NULL) {    
-    cx = map_snprintf(buffer, 64, "Element out of range: %d.", i); assert(cx>=0);
-    *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_42);
-    return -999.9;
-  };
-
-  Fh = *(element->H.value);
-  Fv = *(element->V.value);  
-  EA = element->lineProperty->ea;
-  Lu = element->Lu.value;
-  omega = element->lineProperty->omega;
-  contactFlag = element->options.omitContact;
-  cb = element->lineProperty->cb;
-
-  if (contactFlag==true || omega<0.0 || (Fv-omega*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
-    return jacobian_dxdh_no_contact(Fv, Fh, omega, Lu, EA);
-  } else { /* true when a portion of the line rests on the seabed and the anchor tension is nonzero */
-    return jacobian_dxdh_contact(Fv, Fh, omega, Lu, EA, cb);
-  };
-};
-
-
-/**
- *
- */
-MAP_EXTERNCALL MapReal pyget_jacobian_dxdv(MAP_OtherStateType_t* otherType, int i, char* map_msg, MAP_ERROR_CODE* ierr)
-{
-  ModelData* data = otherType->object;
-  Element* element = NULL;
-  MapReal Fh = 0.0;
-  MapReal Fv = 0.0;
-  MapReal EA = 0.0;
-  MapReal Lu = 0.0;
-  MapReal omega = 0.0;
-  MapReal cb = 0.0;
-  bool contactFlag = false;
-  char buffer[64] = "";
-  int cx = 0;
-
-  *ierr = MAP_SAFE;
-  map_msg[0] = 0;
-  element = (Element*)list_get_at(&data->element, i);
-
-  if (element==NULL) {    
-    cx = map_snprintf(buffer, 64, "Element out of range: %d.", i); assert(cx>=0);
-    *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_42);
-    return -999.9;
-  };
-
-  Fh = *(element->H.value);
-  Fv = *(element->V.value);  
-  EA = element->lineProperty->ea;
-  Lu = element->Lu.value;
-  omega = element->lineProperty->omega;
-  contactFlag = element->options.omitContact;
-  cb = element->lineProperty->cb;
-
-  if (contactFlag==true || omega<0.0 || (Fv-omega*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
-    return jacobian_dxdv_no_contact(Fv, Fh, omega, Lu, EA);
-  } else { /* true when a portion of the line rests on the seabed and the anchor tension is nonzero */
-    return jacobian_dxdv_contact(Fv, Fh, omega, Lu, EA, cb);
-  };
-};
-
-
-/**
- *
- */
-MAP_EXTERNCALL MapReal pyget_jacobian_dzdh(MAP_OtherStateType_t* otherFortType, int i, char* map_msg, MAP_ERROR_CODE* ierr)
-{
-  ModelData* data = otherFortType->object;
-  Element* element = NULL;
-  MapReal Fh = 0.0;
-  MapReal Fv = 0.0;
-  MapReal EA = 0.0;
-  MapReal Lu = 0.0;
-  MapReal omega = 0.0;
-  MapReal cb = 0.0;
-  bool contactFlag = false;
-  char buffer[64] = "";
-  int cx = 0;
-
-  *ierr = MAP_SAFE;
-  map_msg[0] = 0;
-  element = (Element*)list_get_at(&data->element, i);
-
-  if (element==NULL) {    
-    cx = map_snprintf(buffer, 64, "Element out of range: %d.", i ); assert(cx>=0);
-    *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_42);
-    return -999.9;
-  };
-
-  Fh = *(element->H.value);
-  Fv = *(element->V.value);  
-  EA = element->lineProperty->ea;
-  Lu = element->Lu.value;
-  omega = element->lineProperty->omega;
-  contactFlag = element->options.omitContact;
-  cb = element->lineProperty->cb;
-  
-  if (contactFlag==true || omega<0.0 || (Fv-omega*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
-    return jacobian_dzdh_no_contact(Fv, Fh, omega, Lu, EA);
-  } else { /* true when a portion of the line rests on the seabed and the anchor tension is nonzero */
-    return jacobian_dzdh_contact(Fv, Fh, omega, Lu, EA, cb);
-  };
-};
-
-
-/**
- *
- */
-MAP_EXTERNCALL MapReal pyget_jacobian_dzdv(MAP_OtherStateType_t* otherFortType, int i, char* map_msg, MAP_ERROR_CODE* ierr)
-{
-  ModelData* data = otherFortType->object;
-  Element* element = NULL;
-  MapReal Fh = 0.0;
-  MapReal Fv = 0.0;
-  MapReal EA = 0.0;
-  MapReal Lu = 0.0;
-  MapReal omega  = 0.0;
-  MapReal cb = 0.0;
-  char buffer[64] = "";
-  bool contactFlag = false;
-  int cx = 0;
- 
-  *ierr = MAP_SAFE;
-  map_msg[0] = 0;
-  element = (Element*)list_get_at(&data->element, i);
-
-  if (element==NULL) {    
-    cx = map_snprintf(buffer, 64, "Element out of range: %d.", i); assert(cx>=0);
-    *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_42);
-    return -999.9;
-  };
-
-  Fh = *(element->H.value);
-  Fv = *(element->V.value);  
-  EA = element->lineProperty->ea;
-  Lu = element->Lu.value;
-  omega  = element->lineProperty->omega;
-  contactFlag = element->options.omitContact;
-  cb = element->lineProperty->cb;
-
-  if (contactFlag==true || omega<0.0 || (Fv-omega*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
-    return jacobian_dzdv_no_contact(Fv, Fh, omega, Lu, EA);
-  } else { /* true when a portion of the line rests on the seabed and the anchor tension is nonzero */
-    return jacobian_dzdv_contact(Fv, Fh, omega, Lu, EA, cb);
-  };
-};
-
-
-/**
- * check to see if the line is double backing
- ELSEIF ( W  >  0.0_DbKi )  THEN   ! .TRUE. when the line will sink in fluid
-
-         LMax      = XF - EA/W + SQRT( (EA/W)*(EA/W) + 2.0_DbKi*ZF*EA/W )  ! Compute the maximum stretched length of the line with seabed interaction beyond which the line would have to double-back on itself; here the line forms an "L" between the anchor and fairlead (i.e. it is horizontal along the seabed from the anchor, then vertical to the fairlead)
-
-         IF ( ( L  >=  LMax   ) .AND. ( CB >= 0.0_DbKi ) )  &  ! .TRUE. if the line is as long or longer than its maximum possible value with seabed interaction
-            CALL ProgAbort ( ' Unstretched mooring line length too large. '// &
-                         ' Routine Catenary() cannot solve quasi-static mooring line solution.' )
-
-
-      ENDIF
- */
-MAP_ERROR_CODE check_maximum_line_length(Element* element, const bool contactFlag, char *map_msg, MAP_ERROR_CODE *ierr)
-{
-  int cx = 0;
-  char buffer[64]="";
-  MapReal LMax = 0.0;
-  MapReal l = element->l.value;
-  MapReal h = element->h.value;
-  MapReal EA = element->lineProperty->ea;
-  MapReal W = element->lineProperty->omega;
-  MapReal Lu = element->Lu.value;
-
-  LMax = l - EA/W + sqrt(pow((EA/W),2) + 2.0*h*EA/W);
-  if (Lu>=LMax && contactFlag==false) {
-    cx = map_snprintf(buffer, 64, "LMax = %f meters.", LMax); assert(cx>=0);
-    *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_58);      
-    return MAP_FATAL;
-  };
-  return MAP_SAFE;
-};
-
-
-/**
- *
- */
-MapReal get_maximum_line_length(Element* element)
-{
-  MapReal l = element->l.value;
-  MapReal h = element->h.value;
-  MapReal EA = element->lineProperty->ea;
-  MapReal w = element->lineProperty->omega;
-  MapReal Lu = element->Lu.value;
+  const double l = element->l.value;
+  const double h = element->h.value;
+  const double EA = element->lineProperty->ea;
+  const double w = element->lineProperty->omega;
+  const double Lu = element->Lu.value;
 
   return (l - EA/w + sqrt(pow((EA/w),2) + 2.0*h*EA/w));
 };
 
 
-/**
- * Ax = b -> LUx = b. Then y is defined to be Ux
- */
 MAP_ERROR_CODE lu_back_substitution(OuterSolveAttributes* ns, const int n, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   int i = 0;
@@ -555,9 +218,7 @@ MAP_ERROR_CODE lu_back_substitution(OuterSolveAttributes* ns, const int n, char*
 };
 
 
-/**
- *
- */
+
 MAP_ERROR_CODE lu(OuterSolveAttributes* ns, const int n, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   int i = 0;
@@ -586,95 +247,96 @@ MAP_ERROR_CODE lu(OuterSolveAttributes* ns, const int n, char* map_msg, MAP_ERRO
 };
 
 
-/**
- * Forward difference jacobian
- */
-MAP_ERROR_CODE forward_difference_jacobian(MAP_OtherStateType_t* otherType, MAP_ConstraintStateType_t* zType, ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr)
+
+MAP_ERROR_CODE forward_difference_jacobian(MAP_OtherStateType_t* other_type, MAP_ConstraintStateType_t* z_type, ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr)
 {
-  OuterSolveAttributes* ns = &data->outer_loop;
+  OuterSolveAttributes* ns = &model_data->outer_loop;
   MAP_ERROR_CODE success = MAP_SAFE;
-  double originalDisplacement = 0.0;
+  double original_displacement = 0.0;
   const int THREE = 3;
-  const int N = zType->z_Len;
-  const int m = THREE*(otherType->Fz_connect_Len); // rows
-  const int n = THREE*(zType->z_Len);              // columns
-  char buffer[64] = "";
-  int cx = 0;
+  const int z_size = z_type->z_Len; 
+  const int m = THREE*(other_type->Fz_connect_Len); // rows
+  const int n = THREE*(z_type->z_Len);              // columns
+  bstring user_msg = NULL;
   int i = 0;
   int j = 0;
   
-  for (i=0 ; i<N ; i++) {
-    ns->b[THREE*i] = otherType->Fx_connect[i];
-    ns->b[THREE*i+1] = otherType->Fy_connect[i];
-    ns->b[THREE*i+2] = otherType->Fz_connect[i];      
+  for (i=0 ; i<z_size ; i++) {
+    ns->b[THREE*i] = other_type->Fx_connect[i];
+    ns->b[THREE*i+1] = other_type->Fy_connect[i];
+    ns->b[THREE*i+2] = other_type->Fz_connect[i];      
   }
 
-  /* 
-     First store the connect node force before applying ns->epsilon displacement      
-  */
+  /* First store the connect node force before applying ns->epsilon displacement */
   for (i=0 ; i<n ; i++) {            
-    for (j=0 ; j<N ; j++) {            
-      ns->jac[THREE*j][i] = -otherType->Fx_connect[j];
-      ns->jac[THREE*j+1][i] = -otherType->Fy_connect[j];
-      ns->jac[THREE*j+2][i] = -otherType->Fz_connect[j];
+    for (j=0 ; j<z_size ; j++) {            
+      ns->jac[THREE*j][i] = -other_type->Fx_connect[j];
+      ns->jac[THREE*j+1][i] = -other_type->Fy_connect[j];
+      ns->jac[THREE*j+2][i] = -other_type->Fz_connect[j];
     };
   };
     
-  for (j=0 ; j<N ; j++) {   // column               
-    for (i=0 ; i<N ; i++) { // rows           
-      originalDisplacement = zType->x[j];
-      zType->x[j] += ns->epsilon;
-      success = line_solve_sequence(data, 0.0, map_msg, ierr);
+  for (j=0 ; j<z_size ; j++) {   // column               
+    for (i=0 ; i<z_size ; i++) { // rows           
+      original_displacement = z_type->x[j];
+      z_type->x[j] += ns->epsilon;
+      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
       if (success) {
-        cx = map_snprintf(buffer, 64, "Forward difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j); assert(cx>=0);
-        *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_78);      
+        user_msg = bformat("Forward difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
+        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_78);        
+        success = bdestroy(user_msg); 
+        user_msg = NULL;
         return MAP_FATAL;
       };
-      ns->jac[THREE*i][THREE*j] += otherType->Fx_connect[i];
+      ns->jac[THREE*i][THREE*j] += other_type->Fx_connect[i];
       ns->jac[THREE*i][THREE*j] /= ns->epsilon;
-      ns->jac[THREE*i+1][THREE*j] += otherType->Fy_connect[i];
+      ns->jac[THREE*i+1][THREE*j] += other_type->Fy_connect[i];
       ns->jac[THREE*i+1][THREE*j] /= ns->epsilon;
-      ns->jac[THREE*i+2][THREE*j] += otherType->Fz_connect[i];
+      ns->jac[THREE*i+2][THREE*j] += other_type->Fz_connect[i];
       ns->jac[THREE*i+2][THREE*j] /= ns->epsilon;
-      zType->x[j] = originalDisplacement;
+      z_type->x[j] = original_displacement;
         
-      originalDisplacement = zType->y[j];
-      zType->y[j] += ns->epsilon;
-      success = line_solve_sequence(data, 0.0, map_msg, ierr);
+      original_displacement = z_type->y[j];
+      z_type->y[j] += ns->epsilon;
+      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
       if (success) {
-        cx = map_snprintf(buffer, 64, "Forward difference, y[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j); assert(cx>=0);
-        *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_78);      
+        user_msg = bformat("Forward difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
+        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_78);        
+        success = bdestroy(user_msg); 
+        user_msg = NULL;
         return MAP_FATAL;
       };
-      ns->jac[THREE*i][THREE*j+1] += otherType->Fx_connect[i];
+      ns->jac[THREE*i][THREE*j+1] += other_type->Fx_connect[i];
       ns->jac[THREE*i][THREE*j+1] /= ns->epsilon;
-      ns->jac[THREE*i+1][THREE*j+1] += otherType->Fy_connect[i];
+      ns->jac[THREE*i+1][THREE*j+1] += other_type->Fy_connect[i];
       ns->jac[THREE*i+1][THREE*j+1] /= ns->epsilon;
-      ns->jac[THREE*i+2][THREE*j+1] += otherType->Fz_connect[i];
+      ns->jac[THREE*i+2][THREE*j+1] += other_type->Fz_connect[i];
       ns->jac[THREE*i+2][THREE*j+1] /= ns->epsilon;
-      zType->y[j] = originalDisplacement;
+      z_type->y[j] = original_displacement;
     
-      originalDisplacement = zType->z[j];
-      zType->z[j] += ns->epsilon;
-      success = line_solve_sequence(data, 0.0, map_msg, ierr);
+      original_displacement = z_type->z[j];
+      z_type->z[j] += ns->epsilon;
+      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
       if (success) {
-        cx = map_snprintf(buffer, 64, "Forward difference, z[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j); assert(cx>=0);
-        *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_78);      
+        user_msg = bformat("Forward difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
+        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_78);        
+        success = bdestroy(user_msg); 
+        user_msg = NULL;
         return MAP_FATAL;
       };
-      ns->jac[THREE*i][THREE*j+2] += otherType->Fx_connect[i];
+      ns->jac[THREE*i][THREE*j+2] += other_type->Fx_connect[i];
       ns->jac[THREE*i][THREE*j+2] /= ns->epsilon;
-      ns->jac[THREE*i+1][THREE*j+2] += otherType->Fy_connect[i];
+      ns->jac[THREE*i+1][THREE*j+2] += other_type->Fy_connect[i];
       ns->jac[THREE*i+1][THREE*j+2] /= ns->epsilon;
-      ns->jac[THREE*i+2][THREE*j+2] += otherType->Fz_connect[i];
+      ns->jac[THREE*i+2][THREE*j+2] += other_type->Fz_connect[i];
       ns->jac[THREE*i+2][THREE*j+2] /= ns->epsilon;
-      zType->z[j] = originalDisplacement;
+      z_type->z[j] = original_displacement;
     };
   };
 
   /* read flag to set scaling parameter */
   if (ns->pg) {
-    for (i=0 ; i<THREE*N ; i++) { 
+    for (i=0 ; i<THREE*z_size ; i++) { 
       ns->jac[i][i] += (ns->ds/pow(ns->iterationCount,1.5)+ns->d);
     };
   };
@@ -683,95 +345,95 @@ MAP_ERROR_CODE forward_difference_jacobian(MAP_OtherStateType_t* otherType, MAP_
 };
 
 
-/**
- * Backward difference jacobian
- */
-MAP_ERROR_CODE backward_difference_jacobian(MAP_OtherStateType_t* otherType, MAP_ConstraintStateType_t* zType, ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE backward_difference_jacobian(MAP_OtherStateType_t* other_type, MAP_ConstraintStateType_t* z_type, ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr)
 {
-  OuterSolveAttributes* ns = &data->outer_loop;
+  OuterSolveAttributes* ns = &model_data->outer_loop;
   MAP_ERROR_CODE success = MAP_SAFE;
-  double originalDisplacement = 0.0;
+  double original_displacement = 0.0;
   const int THREE = 3;
-  const int N = zType->z_Len;
-  const int m = THREE*(otherType->Fz_connect_Len); // rows
-  const int n = THREE*(zType->z_Len);              // columns
-  char buffer[64] = "";
-  int cx = 0;
+  const int z_size = z_type->z_Len; // N
+  const int m = THREE*(other_type->Fz_connect_Len); // rows
+  const int n = THREE*(z_type->z_Len);              // columns
+  bstring user_msg = NULL;
   int i = 0;
   int j = 0;
   
-  for (i=0 ; i<N ; i++) {
-    ns->b[THREE*i] = otherType->Fx_connect[i];
-    ns->b[THREE*i+1] = otherType->Fy_connect[i];
-    ns->b[THREE*i+2] = otherType->Fz_connect[i];      
+  for (i=0 ; i<z_size ; i++) {
+    ns->b[THREE*i] = other_type->Fx_connect[i];
+    ns->b[THREE*i+1] = other_type->Fy_connect[i];
+    ns->b[THREE*i+2] = other_type->Fz_connect[i];      
   }
 
-  /* 
-     First store the connect node force before applying ns->epsilon displacement      
-  */
+  /* First store the connect node force before applying ns->epsilon displacement */
   for (i=0 ; i<n ; i++) {            
-    for (j=0 ; j<N ; j++) {            
-      ns->jac[THREE*j][i] = otherType->Fx_connect[j];
-      ns->jac[THREE*j+1][i] = otherType->Fy_connect[j];
-      ns->jac[THREE*j+2][i] = otherType->Fz_connect[j];
+    for (j=0 ; j<z_size ; j++) {            
+      ns->jac[THREE*j][i] = other_type->Fx_connect[j];
+      ns->jac[THREE*j+1][i] = other_type->Fy_connect[j];
+      ns->jac[THREE*j+2][i] = other_type->Fz_connect[j];
     };
   };
 
-  for (j=0 ; j<N ; j++) {   // column               
-    for (i=0 ; i<N ; i++) { // rows           
-      originalDisplacement = zType->x[j];
-      zType->x[j] -= ns->epsilon;
-      success = line_solve_sequence(data, 0.0, map_msg, ierr);
+  for (j=0 ; j<z_size ; j++) {   // column               
+    for (i=0 ; i<z_size ; i++) { // rows           
+      original_displacement = z_type->x[j];
+      z_type->x[j] -= ns->epsilon;
+      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
       if (success) {
-        cx = map_snprintf(buffer, 64, "Backward difference, x[%d]-delta, row %d, col %d.", j+1, THREE*i, THREE*j); assert(cx>=0);
-        *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_78);      
+        user_msg = bformat("Backward difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
+        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_78);        
+        success = bdestroy(user_msg); 
+        user_msg = NULL;
         return MAP_FATAL;
       };
-      ns->jac[THREE*i][THREE*j] -= otherType->Fx_connect[i];
+      ns->jac[THREE*i][THREE*j] -= other_type->Fx_connect[i];
       ns->jac[THREE*i][THREE*j] /= ns->epsilon;
-      ns->jac[THREE*i+1][THREE*j] -= otherType->Fy_connect[i];
+      ns->jac[THREE*i+1][THREE*j] -= other_type->Fy_connect[i];
       ns->jac[THREE*i+1][THREE*j] /= ns->epsilon;
-      ns->jac[THREE*i+2][THREE*j] -= otherType->Fz_connect[i];
+      ns->jac[THREE*i+2][THREE*j] -= other_type->Fz_connect[i];
       ns->jac[THREE*i+2][THREE*j] /= ns->epsilon;
-      zType->x[j] = originalDisplacement;
+      z_type->x[j] = original_displacement;
         
-      originalDisplacement = zType->y[j];
-      zType->y[j] -= ns->epsilon;
-      success = line_solve_sequence(data, 0.0, map_msg, ierr);
+      original_displacement = z_type->y[j];
+      z_type->y[j] -= ns->epsilon;
+      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
       if (success) {
-        cx = map_snprintf(buffer, 64, "Backward difference, y[%d]-delta, row %d, col %d.", j+1, THREE*i, THREE*j); assert(cx>=0);
-        *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_78);      
+        user_msg = bformat("Backward difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
+        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_78);        
+        success = bdestroy(user_msg); 
+        user_msg = NULL;
         return MAP_FATAL;
       };
-      ns->jac[THREE*i][THREE*j+1] -= otherType->Fx_connect[i];
+      ns->jac[THREE*i][THREE*j+1] -= other_type->Fx_connect[i];
       ns->jac[THREE*i][THREE*j+1] /= ns->epsilon;
-      ns->jac[THREE*i+1][THREE*j+1] -= otherType->Fy_connect[i];
+      ns->jac[THREE*i+1][THREE*j+1] -= other_type->Fy_connect[i];
       ns->jac[THREE*i+1][THREE*j+1] /= ns->epsilon;
-      ns->jac[THREE*i+2][THREE*j+1] -= otherType->Fz_connect[i];
+      ns->jac[THREE*i+2][THREE*j+1] -= other_type->Fz_connect[i];
       ns->jac[THREE*i+2][THREE*j+1] /= ns->epsilon;
-      zType->y[j] = originalDisplacement;
+      z_type->y[j] = original_displacement;
     
-      originalDisplacement = zType->z[j];
-      zType->z[j] -= ns->epsilon;
-      success = line_solve_sequence(data, 0.0, map_msg, ierr);
+      original_displacement = z_type->z[j];
+      z_type->z[j] -= ns->epsilon;
+      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
       if (success) {
-        cx = map_snprintf(buffer, 64, "Backward difference, z[%d]-delta, row %d, col %d.", j+1, THREE*i, THREE*j); assert(cx>=0);
-        *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_78);      
+        user_msg = bformat("Backward difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
+        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_78);        
+        success = bdestroy(user_msg); 
+        user_msg = NULL;
         return MAP_FATAL;
       };
-      ns->jac[THREE*i][THREE*j+2] -= otherType->Fx_connect[i];
+      ns->jac[THREE*i][THREE*j+2] -= other_type->Fx_connect[i];
       ns->jac[THREE*i][THREE*j+2] /= ns->epsilon;
-      ns->jac[THREE*i+1][THREE*j+2] -= otherType->Fy_connect[i];
+      ns->jac[THREE*i+1][THREE*j+2] -= other_type->Fy_connect[i];
       ns->jac[THREE*i+1][THREE*j+2] /= ns->epsilon;
-      ns->jac[THREE*i+2][THREE*j+2] -= otherType->Fz_connect[i];
+      ns->jac[THREE*i+2][THREE*j+2] -= other_type->Fz_connect[i];
       ns->jac[THREE*i+2][THREE*j+2] /= ns->epsilon;
-      zType->z[j] = originalDisplacement;
+      z_type->z[j] = original_displacement;
     };
   };
 
   /* read flag to set scaling parameter */
   if (ns->pg) {
-    for (i=0 ; i<THREE*N ; i++) { 
+    for (i=0 ; i<THREE*z_size ; i++) { 
       ns->jac[i][i] += (ns->ds/pow(ns->iterationCount,1.5)+ns->d);
     };
   };
@@ -780,131 +442,137 @@ MAP_ERROR_CODE backward_difference_jacobian(MAP_OtherStateType_t* otherType, MAP
 };
 
 
-/**
- * central difference jacobian
- */
-MAP_ERROR_CODE central_difference_jacobian(MAP_OtherStateType_t* otherType, MAP_ConstraintStateType_t* zType, ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE central_difference_jacobian(MAP_OtherStateType_t* other_type, MAP_ConstraintStateType_t* z_type, ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr)
 {
-  OuterSolveAttributes* ns = &data->outer_loop;
+  OuterSolveAttributes* ns = &model_data->outer_loop;
   MAP_ERROR_CODE success = MAP_SAFE;
-  double originalDisplacement = 0.0;
+  double original_displacement = 0.0;
   const int THREE = 3;
-  const int N = zType->z_Len;
-  const int m = THREE*(otherType->Fz_connect_Len); // rows
-  const int n = THREE*(zType->z_Len);              // columns
-  char buffer[64] = "";
-  int cx = 0;
+  const int z_size = z_type->z_Len; //M
+  const int m = THREE*(other_type->Fz_connect_Len); // rows
+  const int n = THREE*(z_type->z_Len);              // columns
+  bstring user_msg = NULL;
   int i = 0;
   int j = 0;
   
-  for (i=0 ; i<N ; i++) {
-    ns->b[THREE*i] = otherType->Fx_connect[i];
-    ns->b[THREE*i+1] = otherType->Fy_connect[i];
-    ns->b[THREE*i+2] = otherType->Fz_connect[i];      
+  for (i=0 ; i<z_size ; i++) {
+    ns->b[THREE*i] = other_type->Fx_connect[i];
+    ns->b[THREE*i+1] = other_type->Fy_connect[i];
+    ns->b[THREE*i+2] = other_type->Fz_connect[i];      
   }
 
-  /* 
-     First store the connect node force before applying ns->epsilon displacement      
-  */
-  for (j=0 ; j<N ; j++) {   // column               
-    for (i=0 ; i<N ; i++) { // rows           
-      originalDisplacement = zType->x[j];
-      zType->x[j] += ns->epsilon;
-      success = line_solve_sequence(data, 0.0, map_msg, ierr);
+  /* First store the connect node force before applying ns->epsilon displacement */
+  for (j=0 ; j<z_size ; j++) {   // column               
+    for (i=0 ; i<z_size ; i++) { // rows           
+      original_displacement = z_type->x[j];
+      z_type->x[j] += ns->epsilon;
+      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
       if (success) {
-        cx = map_snprintf(buffer, 64, "Central difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j); assert(cx>=0);
-        *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_78);      
+        user_msg = bformat("Central difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
+        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_78);        
+        success = bdestroy(user_msg); 
+        user_msg = NULL;
         return MAP_FATAL;
       };
-      ns->jac[THREE*i][THREE*j] = otherType->Fx_connect[i];      
-      ns->jac[THREE*i+1][THREE*j] = otherType->Fy_connect[i];
-      ns->jac[THREE*i+2][THREE*j] = otherType->Fz_connect[i];
-      zType->x[j] = originalDisplacement;
+      ns->jac[THREE*i][THREE*j] = other_type->Fx_connect[i];      
+      ns->jac[THREE*i+1][THREE*j] = other_type->Fy_connect[i];
+      ns->jac[THREE*i+2][THREE*j] = other_type->Fz_connect[i];
+      z_type->x[j] = original_displacement;
         
-      originalDisplacement = zType->y[j];
-      zType->y[j] += ns->epsilon;
+      original_displacement = z_type->y[j];
+      z_type->y[j] += ns->epsilon;
       if (success) {
-        cx = map_snprintf(buffer, 64, "Central difference, y[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j); assert(cx>=0);
-        *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_78);      
+        user_msg = bformat("Central difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
+        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_78);        
+        success = bdestroy(user_msg); 
+        user_msg = NULL;
         return MAP_FATAL;
       };
-      success = line_solve_sequence(data, 0.0, map_msg, ierr);
-      ns->jac[THREE*i][THREE*j+1] = otherType->Fx_connect[i];
-      ns->jac[THREE*i+1][THREE*j+1] = otherType->Fy_connect[i];
-      ns->jac[THREE*i+2][THREE*j+1] = otherType->Fz_connect[i];
-      zType->y[j] = originalDisplacement;
+      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+      ns->jac[THREE*i][THREE*j+1] = other_type->Fx_connect[i];
+      ns->jac[THREE*i+1][THREE*j+1] = other_type->Fy_connect[i];
+      ns->jac[THREE*i+2][THREE*j+1] = other_type->Fz_connect[i];
+      z_type->y[j] = original_displacement;
     
-      originalDisplacement = zType->z[j];
-      zType->z[j] += ns->epsilon;
+      original_displacement = z_type->z[j];
+      z_type->z[j] += ns->epsilon;
       if (success) {
-        cx = map_snprintf(buffer, 64, "Central difference, z[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j); assert(cx>=0);
-        *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_78);      
+        user_msg = bformat("Central difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
+        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_78);        
+        success = bdestroy(user_msg); 
+        user_msg = NULL;
         return MAP_FATAL;
       };
-      success = line_solve_sequence(data, 0.0, map_msg, ierr);
-      ns->jac[THREE*i][THREE*j+2] = otherType->Fx_connect[i];
-      ns->jac[THREE*i+1][THREE*j+2] = otherType->Fy_connect[i];
-      ns->jac[THREE*i+2][THREE*j+2] = otherType->Fz_connect[i];
-      zType->z[j] = originalDisplacement;
+      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+      ns->jac[THREE*i][THREE*j+2] = other_type->Fx_connect[i];
+      ns->jac[THREE*i+1][THREE*j+2] = other_type->Fy_connect[i];
+      ns->jac[THREE*i+2][THREE*j+2] = other_type->Fz_connect[i];
+      z_type->z[j] = original_displacement;
     };
   };
     
-  for (j=0 ; j<N ; j++) {   // column               
-    for (i=0 ; i<N ; i++) { // rows           
-      originalDisplacement = zType->x[j];
-      zType->x[j] -= ns->epsilon;
+  for (j=0 ; j<z_size ; j++) {   // column               
+    for (i=0 ; i<z_size ; i++) { // rows           
+      original_displacement = z_type->x[j];
+      z_type->x[j] -= ns->epsilon;
       if (success) {
-        cx = map_snprintf(buffer, 64, "Central difference, x[%d]-delta, row %d, col %d.", j+1, THREE*i, THREE*j); assert(cx>=0);
-        *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_78);      
+        user_msg = bformat("Central difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
+        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_78);        
+        success = bdestroy(user_msg); 
+        user_msg = NULL;
         return MAP_FATAL;
       };
-      success = line_solve_sequence(data, 0.0, map_msg, ierr);
-      ns->jac[THREE*i][THREE*j] -= otherType->Fx_connect[i];
+      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+      ns->jac[THREE*i][THREE*j] -= other_type->Fx_connect[i];
       ns->jac[THREE*i][THREE*j] /= (2*ns->epsilon);
-      ns->jac[THREE*i+1][THREE*j] -= otherType->Fy_connect[i];
+      ns->jac[THREE*i+1][THREE*j] -= other_type->Fy_connect[i];
       ns->jac[THREE*i+1][THREE*j] /= (2*ns->epsilon);
-      ns->jac[THREE*i+2][THREE*j] -= otherType->Fz_connect[i];
+      ns->jac[THREE*i+2][THREE*j] -= other_type->Fz_connect[i];
       ns->jac[THREE*i+2][THREE*j] /= (2*ns->epsilon);
-      zType->x[j] = originalDisplacement;
+      z_type->x[j] = original_displacement;
         
-      originalDisplacement = zType->y[j];
-      zType->y[j] -= ns->epsilon;
-      success = line_solve_sequence(data, 0.0, map_msg, ierr);
+      original_displacement = z_type->y[j];
+      z_type->y[j] -= ns->epsilon;
+      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
       if (success) {
-        cx = map_snprintf(buffer, 64, "Central difference, y[%d]-delta, row %d, col %d.", j+1, THREE*i, THREE*j); assert(cx>=0);
-        *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_78);      
+        user_msg = bformat("Central difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
+        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_78);        
+        success = bdestroy(user_msg); 
+        user_msg = NULL;
         return MAP_FATAL;
       };
-      ns->jac[THREE*i][THREE*j+1] -= otherType->Fx_connect[i];
+      ns->jac[THREE*i][THREE*j+1] -= other_type->Fx_connect[i];
       ns->jac[THREE*i][THREE*j+1] /= (2*ns->epsilon);
-      ns->jac[THREE*i+1][THREE*j+1] -= otherType->Fy_connect[i];
+      ns->jac[THREE*i+1][THREE*j+1] -= other_type->Fy_connect[i];
       ns->jac[THREE*i+1][THREE*j+1] /= (2*ns->epsilon);
-      ns->jac[THREE*i+2][THREE*j+1] -= otherType->Fz_connect[i];
+      ns->jac[THREE*i+2][THREE*j+1] -= other_type->Fz_connect[i];
       ns->jac[THREE*i+2][THREE*j+1] /= (2*ns->epsilon);
-      zType->y[j] = originalDisplacement;
+      z_type->y[j] = original_displacement;
     
-      originalDisplacement = zType->z[j];
-      zType->z[j] -= ns->epsilon;
-      success = line_solve_sequence(data, 0.0, map_msg, ierr);
+      original_displacement = z_type->z[j];
+      z_type->z[j] -= ns->epsilon;
+      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
       if (success) {
-        cx = map_snprintf(buffer, 64, "Central difference, z[%d]-delta, row %d, col %d.", j+1, THREE*i, THREE*j); assert(cx>=0);
-        *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_78);      
+        user_msg = bformat("Central difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
+        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_78);        
+        success = bdestroy(user_msg); 
+        user_msg = NULL;
         return MAP_FATAL;
       };
-      ns->jac[THREE*i][THREE*j+2] -= otherType->Fx_connect[i];
+      ns->jac[THREE*i][THREE*j+2] -= other_type->Fx_connect[i];
       ns->jac[THREE*i][THREE*j+2] /= (2*ns->epsilon);
-      ns->jac[THREE*i+1][THREE*j+2] -= otherType->Fy_connect[i];
+      ns->jac[THREE*i+1][THREE*j+2] -= other_type->Fy_connect[i];
       ns->jac[THREE*i+1][THREE*j+2] /= (2*ns->epsilon);
-      ns->jac[THREE*i+2][THREE*j+2] -= otherType->Fz_connect[i];
+      ns->jac[THREE*i+2][THREE*j+2] -= other_type->Fz_connect[i];
       ns->jac[THREE*i+2][THREE*j+2] /= (2*ns->epsilon);
-      zType->z[j] = originalDisplacement;
+      z_type->z[j] = original_displacement;
     };
   };
 
   /* read flag to set scaling parameter */
   if (ns->pg) {
     ns->coef = pow(ns->iterationCount,1.5);
-    for (i=0 ; i<THREE*N ; i++) { 
+    for (i=0 ; i<THREE*z_size ; i++) { 
       ns->jac[i][i] += (ns->ds/ns->coef + ns->d);
     };
   };
@@ -914,11 +582,10 @@ MAP_ERROR_CODE central_difference_jacobian(MAP_OtherStateType_t* otherType, MAP_
 
 
 
-MAP_ERROR_CODE call_minpack_lmder(Element* element, InnerSolveAttributes* inner_opt, ModelOptions* opt, const int lineNum, const double time, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE call_minpack_lmder(Element* element, InnerSolveAttributes* inner_opt, ModelOptions* opt, const int line_num, const double time, char* map_msg, MAP_ERROR_CODE* ierr)
 {
-  char buffer[64] = "";
-  int cx = 0;
   MAP_ERROR_CODE success = MAP_SAFE;
+  bstring user_msg = NULL;
 
   /* initial guess vector is set in set_element_initial_guess(..); otherwise, the previous solution is used as the initial guess */
   inner_opt->x[0] = *(element->H.value);
@@ -955,13 +622,14 @@ MAP_ERROR_CODE call_minpack_lmder(Element* element, InnerSolveAttributes* inner_
   element->residualNorm = (MapReal)__minpack_func__(enorm)(&inner_opt->m, inner_opt->fvec);
   
   if (element->options.diagnosticsFlag && (double)element->diagnosticType>time ) { 
-    printf("\n      %4.3f [sec]  Element %d\n",time, lineNum+1);
+    printf("\n      %4.3f [sec]  Element %d\n",time, line_num+1);
     printf("      ----------------------------------------------------\n");
     printf("      Residual l2 norm at solution:  %15.7g\n", element->residualNorm);
     printf("      Function evaluations:         %10i\n", element->numFuncEvals);
     printf("      Jacobian evaluations:         %10i\n", element->numJacEvals);
     printf("      Exit parameter                %10i\n\n", inner_opt->info);
   };
+  
   *(element->H.value) = inner_opt->x[0];
   *(element->V.value) = inner_opt->x[1];
   element->convergeReason = inner_opt->info;
@@ -969,8 +637,10 @@ MAP_ERROR_CODE call_minpack_lmder(Element* element, InnerSolveAttributes* inner_
   switch (inner_opt->info) {
   case 0 :
     success = MAP_FATAL;
-    cx = map_snprintf(buffer, 64, "Line segment %d.", lineNum); assert(cx>=0);
-    *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_39);
+    user_msg = bformat("Line segment %d.", line_num);
+    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_39);        
+    success = bdestroy(user_msg); 
+    user_msg = NULL;
     break;
   case 1 :
     success = MAP_SAFE;
@@ -986,23 +656,31 @@ MAP_ERROR_CODE call_minpack_lmder(Element* element, InnerSolveAttributes* inner_
     break;
   case 5 :
     success = MAP_FATAL;
-    cx = map_snprintf(buffer, 64, "Line segment %d.", lineNum); assert(cx>=0);
-    *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_40);
+    user_msg = bformat("Line segment %d.", line_num);
+    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_40);        
+    success = bdestroy(user_msg); 
+    user_msg = NULL;
     break;
   case 6 :
     success = MAP_FATAL;
-    cx = map_snprintf(buffer, 64, "Line segment %d.", lineNum); assert(cx>=0);
-    *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_ERROR_11);
+    user_msg = bformat("Line segment %d.", line_num);
+    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_ERROR_11);        
+    success = bdestroy(user_msg); 
+    user_msg = NULL;
     break;
   case 7 :
     success = MAP_FATAL;
-    cx = map_snprintf(buffer, 64, "Line segment %d.", lineNum); assert(cx>=0);
-    *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_ERROR_13);
+    user_msg = bformat("Line segment %d.", line_num);
+    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_ERROR_13);        
+    success = bdestroy(user_msg); 
+    user_msg = NULL;
     break;
   case 8 :
     success = MAP_FATAL;
-    cx = map_snprintf(buffer, 64, "Line segment %d.", lineNum); assert(cx>=0);
-    *ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_ERROR_12);
+    user_msg = bformat("Line segment %d.", line_num);
+    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_ERROR_12);        
+    success = bdestroy(user_msg); 
+    user_msg = NULL;
     break;
   default :
     success = MAP_SAFE;

@@ -1,37 +1,49 @@
-/***************************************************************************
- *   Copyright (C) 2014 mdm                                                *
- *   marco.masciola@gmail.com                                              *
- *                                                                         *
- *   MAP++ is free software; you can redistribute it and/or modify it      *
- *   under the terms of the GNU General Public License as published by     *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- *   This program is distributed in the hope that it will be useful,       *
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU General Public License for more details.                          *
- *                                                                         *
- *   You should have received a copy of the GNU General Public License     *
- *   along with this program; if not, write to the                         *
- *   Free Software Foundation, Inc.,                                       *
- *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.           *
- ***************************************************************************/
+/****************************************************************
+ *   Copyright (C) 2014 mdm                                     *
+ *   marco[dot]masciola[at]gmail                                *
+ *                                                              *
+ * Licensed to the Apache Software Foundation (ASF) under one   *
+ * or more contributor license agreements.  See the NOTICE file *
+ * distributed with this work for additional information        *
+ * regarding copyright ownership.  The ASF licenses this file   *
+ * to you under the Apache License, Version 2.0 (the            *
+ * "License"); you may not use this file except in compliance   *
+ * with the License.  You may obtain a copy of the License at   *
+ *                                                              *
+ *   http://www.apache.org/licenses/LICENSE-2.0                 *
+ *                                                              *
+ * Unless required by applicable law or agreed to in writing,   *
+ * software distributed under the License is distributed on an  *
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY       *
+ * KIND, either express or implied.  See the License for the    *
+ * specific language governing permissions and limitations      *      
+ * under the License.                                           *  
+ ****************************************************************/
 
 
 #ifndef _FREE_DATA_H
 #define _FREE_DATA_H
 
 
+#include "map.h"
+
+
+MAP_ERROR_CODE map_free_types(MAP_InputType_t* u_type, MAP_ParameterType_t* p_type, MAP_ContinuousStateType_t* x_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type);
+void MAP_InitInput_Delete(InitializationData* init_data);
+void MAP_OtherState_Delete(ModelData* model_data);
+MAP_ERROR_CODE free_outer_solve_data(OuterSolveAttributes* ns, const int size, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE free_vessel(Vessel* floater);
+
 /**
- * @brief     Deallocates the memory space for the init structure. Should be called immediately after map_init()
- * @param     init MAP-native initialization data structure. This is distinct from the FAST-framework data structure 
- * @param     map_msg error string
- * @param     ierr error code
- * @return    MAP_SAFE if it completes successfully
- * @see       {@link map_init()}
+ * Frees internal state data allcoated in the mapcall_msqs_init( ) function
+ *
+ * @todo: delete additional dependancies in data->z, data->yList, data->u
+ * @acceses: none
+ * @calledby: mapcall_msqs_end( )
+ * @see: allocate_outlist( )
  */
-MAP_EXTERNCALL int free_init_data (InitializationData* init, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE free_outlist(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr);
+
 
 /**
  * @brief     Deallocates all elements. Function loops through the elemenet link list and frees allocated data. Pointers
@@ -42,6 +54,7 @@ MAP_EXTERNCALL int free_init_data (InitializationData* init, char* map_msg, MAP_
  */
 MAP_ERROR_CODE free_element(list_t *restrict element);
 
+
 /**
  * @brief     Deallocates all nodes. Function loops through the elemenet link list and frees allocated data. Pointers
  *            are nullified.  
@@ -50,15 +63,6 @@ MAP_ERROR_CODE free_element(list_t *restrict element);
  * @see       {@link Element_t()}
  */
 MAP_ERROR_CODE free_node(list_t *restrict node);
-
-
-void MAP_InitInput_Delete(InitializationData* init_data);
-
-
-void MAP_OtherState_Delete(ModelData* model_data);
-
-
-MAP_ERROR_CODE free_vessel(Vessel* floater);
 
 
 #endif // _FREE_DATA_H

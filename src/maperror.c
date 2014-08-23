@@ -1,6 +1,28 @@
-#include "map.h"
+/****************************************************************
+ *   Copyright (C) 2014 mdm                                     *
+ *   marco[dot]masciola[at]gmail                                *
+ *                                                              *
+ * Licensed to the Apache Software Foundation (ASF) under one   *
+ * or more contributor license agreements.  See the NOTICE file *
+ * distributed with this work for additional information        *
+ * regarding copyright ownership.  The ASF licenses this file   *
+ * to you under the Apache License, Version 2.0 (the            *
+ * "License"); you may not use this file except in compliance   *
+ * with the License.  You may obtain a copy of the License at   *
+ *                                                              *
+ *   http://www.apache.org/licenses/LICENSE-2.0                 *
+ *                                                              *
+ * Unless required by applicable law or agreed to in writing,   *
+ * software distributed under the License is distributed on an  *
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY       *
+ * KIND, either express or implied.  See the License for the    *
+ * specific language governing permissions and limitations      *      
+ * under the License.                                           *  
+ ****************************************************************/
+
+
 #include "maperror.h"
-#include "protos.h"
+#include "mapinit.h"
 
 
 const char MAP_ERROR_STRING[][256] = {
@@ -89,6 +111,8 @@ const char MAP_ERROR_STRING[][256] = {
   /* MAP_FATAL_82   */  "Failed to convert Ca added mass in the cable library to a MapReal. Check the MAP input file",
   /* MAP_FATAL_83   */  "Failed to convert Cdn cross-flow drag coefficient parameter in the cable library to a MapReal. Check the MAP input file",
   /* MAP_FATAL_84   */  "Failed to convert Cdt tangent-flow drag coefficient parameter in the cable library to a MapReal. Check the MAP input file",
+  /* MAP_FATAL_85   */  "Error processing 'HELP' flag in the MAP input file",
+  /* MAP_FATAL_86   */  "Element out of range. This error was triggered in the initialization. This is likely due to incorrect settings in the MAP input file",
   /* MAP_ERROR_1    */  "Element option 'DAMGE_TIME' does not trail with a valid value. Ignoring this run-time flag. Chek the MAP input file",
   /* MAP_ERROR_2    */  "Value for 'INNER_FTOL' is not a valid numeric value. Using the default value <1e-6>",
   /* MAP_ERROR_3    */  "Value for 'OUTER_TOL' is not a valid numeric value. Using the default value <1e-6>",
@@ -103,7 +127,7 @@ const char MAP_ERROR_STRING[][256] = {
   /* MAP_ERROR_12   */  "INNER_GTOL is too small. No further reduction in the sum of squares is possible",
   /* MAP_ERROR_13   */  "INNER_XTOL is too small. No further reduction in the sum of squares is possible",
   /* MAP_ERROR_14   */  "Element option 'DIAGNOSTIC' does not trail with a valid value. Defaulting is to run diagnostic for the first iteration only",
-  /* MAP_ERROR_15   */  "Value for 'INTEGRATION_DT' is not a valid numeric value. Using the default value <0.01 sec>",
+  /* MAP_ERROR_15   */  "Value for 'INTEGRATION_DT' is not a valid input. No support for the LM/FEA model at this time",
   /* MAP_ERROR_16   */  "Value for 'KB_DEFAULT' is not a valid numeric value. Using the default value <3.0E6 N/m>",
   /* MAP_ERROR_17   */  "Value for 'CB_DEFAULT' is not a valid numeric value. Using the default value <3.0E5 Ns/m>",
   /* MAP_ERROR_18   */  "Value for 'SEG_SIZE' is not a valid numeric value. Using the default value <10>",
@@ -120,71 +144,68 @@ const char MAP_ERROR_STRING[][256] = {
 };
 
 
-/**
- *
- */
-void map_end_unix_color( char *dest )
+MAP_ERROR_CODE map_set_universal_error(bstring user_msg, char* map_msg, const MAP_ERROR_CODE ierr, const MAP_ERROR_CODE new_error)
 {
-  if(strlen(dest) + 1 > MAP_STR_LEN ) 
-  {
-    int len = strlen(dest);
-    dest[len-7] = '\\';
-    dest[len-5] = '3';
-    dest[len-4] = '3';
-    dest[len-3] = '[';
-    dest[len-2] = '0';
-    dest[len-1] = 'm';
-  };
-};
-
-
-/**
- *
- */
-MAP_ERROR_CODE map_set_universal_error( char *user_str, char* map_msg, const MAP_ERROR_CODE *current, const MAP_ERROR_CODE ierr )
-{
-  char buffer[MAP_STR_LEN] = "";
-  int cx = 0;
-  int num = 0;
-  int size = 0;
+  int error_number = 0;
+  int ret = 0;
+  bstring out_string = NULL;
+  bstring message = bformat("%s", map_msg); /* first format map_msg to contain previously raised errors */
   
-  if ( ierr >= MAP_WARNING_1 ) 
-  {
-    /* MAP did not quite fail. Let users know what the error is */
-    num = ierr-MAP_WARNING_1+1;
-    cx = map_snprintf( buffer, MAP_STR_LEN, "MAP_WARNING[%d] : %s. %s\n", num, MAP_ERROR_STRING[ierr], user_str);  
-    size = MAP_STR_LEN - strlen(buffer) - strlen(map_msg)-1;
-    if (size>0) map_strcat( map_msg, size, buffer );
-    assert( cx>=0 );    
-    if (*current<=MAP_WARNING) return MAP_WARNING;
-    else if (*current<=MAP_ERROR) return MAP_ERROR;
-    else return MAP_FATAL;
-  } else if (ierr >= MAP_ERROR_1 ) {
-    /* MAP failed but recovered */
-    num = ierr-MAP_ERROR_1+1;
-    cx = map_snprintf( buffer, MAP_STR_LEN, "%sMAP_ERROR[%d] : %s. %s\n%s", MAP_COLOR_YELLOW, num, MAP_ERROR_STRING[ierr], user_str, MAP_COLOR_END);  
-    size = MAP_STR_LEN - strlen(buffer) - strlen(map_msg)-1;
-    if (size>0) map_strcat( map_msg, size, buffer );
-    map_end_color(map_msg);
-    assert( cx>=0 );
-    if (*current<=MAP_ERROR) return MAP_ERROR;
-    else return MAP_FATAL;
-  } else {
-    /* MAP failed and program must end prematurely */
-    cx = map_snprintf( buffer, MAP_STR_LEN, "%sMAP_FATAL[%d]   : %s. %s\n%s", MAP_COLOR_RED, ierr, MAP_ERROR_STRING[ierr], user_str, MAP_COLOR_END);  
-    size = MAP_STR_LEN - strlen(buffer) - strlen(map_msg)-1;
-    if (size>0) map_strcat( map_msg, size, buffer );
-    map_end_color(map_msg);
+  if (new_error>=MAP_WARNING_1) { /* MAP did not quite fail. Let users know what the error is */    
+    error_number = new_error - MAP_WARNING_1 + 1;
+    if (user_msg==NULL) {
+      out_string = bformat("MAP_WARNING[%d] : %s.\n", error_number, MAP_ERROR_STRING[new_error]);
+    } else {
+      out_string = bformat("MAP_WARNING[%d] : %s. %s\n", error_number, MAP_ERROR_STRING[new_error], user_msg->data);
+    };
+    ret = bconcat(message, out_string);
+    ret = btrunc(message, MAP_ERROR_STRING_LENGTH-1);
+    copy_target_string(map_msg, message->data);
+    ret = bdestroy(out_string);
+    ret = bdestroy(message);
+    if (ierr<=MAP_WARNING) {
+      return MAP_WARNING;
+    } else if (ierr<=MAP_ERROR) {
+      return MAP_ERROR;
+    } else {
+      return MAP_FATAL;
+    };
+  } else if (new_error>=MAP_ERROR_1 ) { /* MAP failed but recovered */    
+    error_number = new_error-MAP_ERROR_1+1;    
+    if (user_msg==NULL) {
+      out_string = bformat("MAP_ERROR[%d] : %s.\n", error_number, MAP_ERROR_STRING[new_error]);
+    } else {
+      out_string = bformat("MAP_ERROR[%d] : %s. %s\n", error_number, MAP_ERROR_STRING[new_error], user_msg->data);
+    };
+    ret = bconcat(message, out_string);
+    ret = btrunc(message, MAP_ERROR_STRING_LENGTH-1);
+    copy_target_string(map_msg, message->data);
+    ret = bdestroy(out_string);
+    ret = bdestroy(message);
+    if (ierr<=MAP_ERROR) {
+      return MAP_ERROR;
+    } else {
+      return MAP_FATAL;
+    };
+  } else { /* MAP failed and program must end prematurely */    
+    error_number = new_error;
+    if (user_msg==NULL) {
+      out_string = bformat("MAP_FATAL[%d] : %s.\n", error_number, MAP_ERROR_STRING[new_error]);
+    } else {
+      out_string = bformat("MAP_FATAL[%d] : %s. %s\n", error_number, MAP_ERROR_STRING[new_error], user_msg->data);
+    };
+    ret = bconcat(message, out_string);
+    ret = btrunc(message, MAP_ERROR_STRING_LENGTH-1);
+    copy_target_string(map_msg, message->data);
+    ret = bdestroy(out_string);
+    ret = bdestroy(message);
     return MAP_FATAL;
   };
 };
 
 
-/*!
- *
- */
-void map_reset_universal_error( char *user_str, MAP_ERROR_CODE *ierr )
+void map_reset_universal_error(char* map_msg, MAP_ERROR_CODE* ierr)
 {
   *ierr = MAP_SAFE;
-  strcpy( user_str, "\0" );
+  strcpy(map_msg, "\0");
 };

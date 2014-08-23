@@ -92,7 +92,7 @@ clean:
 	rm -f *.o map_driver *.*~ *.*# Makefile~ *.mod *.valgrind
 
 memcheck:
-	valgrind  --leak-check=yes --show-reachable=yes --track-origins=yes ./map_driver
+	valgrind  --leak-check=yes --show-reachable=yes --track-origins=yes ./f_driver
 
 map_registry:
 	$(REGISTRY) -ccode MAP_Registry.txt
