@@ -31,36 +31,37 @@ if __name__ == '__main__':
 
     mooring_1 = Map( )
     
-    mooring_1.map_set_sea_depth(320)
+    mooring_1.map_set_sea_depth(120)
     mooring_1.map_set_gravity(9.81)
     mooring_1.map_set_sea_density(1020.0)
     
-    # mooring_1.read_file("../test/baseline_1.map") # 100 m depth    
-    # mooring_1.read_file("../test/baseline_2.map") # 100 m depth
-    # mooring_1.read_file("../test/baseline_4.map") # 100 m depth
-    mooring_1.read_file("../test/NRELOffshrBsline5MW_Platform_OC3Hywind_segmented.map") # 320 m depth
+    #mooring_1.read_file("../test/baseline_1.map") # 100 m depth    
+    #mooring_1.read_file("../test/baseline_2.map") # 100 m depth
+    mooring_1.read_file("../test/baseline_3.map") # 120 m depth
+    #mooring_1.read_file("../test/baseline_4.map") # 100 m depth
+    #mooring_1.read_file("../test/NRELOffshrBsline5MW_Platform_OC3Hywind_segmented.map") # 320 m depth
 
-    mooring_1.summary_file('name_me.txt')
+    # mooring_1.summary_file('name_me.txt')
     mooring_1.init( )
     
     #mooring_1.displace_vessel(5.0, 0.0, 0.0, 0.0, 0.0, 0.0)
 
-    mooring_1.update_states(0.0, 0)
+    #mooring_1.update_states(0.0, 0)
 
-    epsilon = 1e-3
-    K = mooring_1.linear(epsilon)    
-    print "\nHere is the linearized stiffness matrix with zero vessel displacement:"
-    print np.array(K)
+    #epsilon = 1e-3
+    #K = mooring_1.linear(epsilon)    
+    #print "\nHere is the linearized stiffness matrix with zero vessel displacement:"
+    #print np.array(K)
     
-    # H,V = mooring_1.get_fairlead_force_2d(0)    
-    # print H, "  ", V
-    # 
-    # fx,fy,fz = mooring_1.get_fairlead_force_3d(0)    
-    # print fx, "  ", fy, "  ", fz
-    # 
-    # ''' 
-    # function residual at (hopefully) the solution
-    # '''
+    H,V = mooring_1.get_fairlead_force_2d(0)    
+    print H, "  ", V
+     
+    fx,fy,fz = mooring_1.get_fairlead_force_3d(0)    
+    print fx, "  ", fy, "  ", fz
+    
+    ''' 
+    function residual at (hopefully) the solution
+    '''
     
     print mooring_1.funch(0) 
     print mooring_1.funcl(0)
@@ -93,7 +94,7 @@ if __name__ == '__main__':
     # ax.set_ylim([-50.0,50])        
     # ax.set_zlim([-30.0,-12])        
      
-    plt.show()
+    # plt.show()
     
     mooring_1.end( )
     

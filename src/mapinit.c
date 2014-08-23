@@ -2560,6 +2560,10 @@ MAP_ERROR_CODE reset_node(Node* node_ptr)
   node_ptr->externalForce.fx.value = -999.9;
   node_ptr->externalForce.fy.value = -999.9;
   node_ptr->externalForce.fz.value = -999.9;
+
+  node_ptr->sumForcePtr.fx.isFixed = false;
+  node_ptr->sumForcePtr.fy.isFixed = false;
+  node_ptr->sumForcePtr.fz.isFixed = false;
 };
 
 
