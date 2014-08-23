@@ -339,22 +339,22 @@ MAP_EXTERNCALL double** map_linearize_matrix(MAP_InputType_t* u_type, MAP_OtherS
        success = reset_force_to_zero(force.fx, force.fy, force.fz, force.mx, force.my, force.mz, n);
        if (i==0) {        
          success = fd_x_sequence(other_type, u_type, y_type, z_type, &force, epsilon, n, x_original, map_msg, ierr); CHECKERRQ(MAP_FATAL_62);
-         success = calculate_stiffness_2(K[0], &force, epsilon, n); CHECKERRQ(MAP_FATAL_62);
+         success = calculate_stiffness(K[0], &force, epsilon, n); CHECKERRQ(MAP_FATAL_62);
        } else if (i==1) {
          success = fd_y_sequence(other_type, u_type, y_type, z_type, &force, epsilon, n, y_original, map_msg, ierr); CHECKERRQ(MAP_FATAL_63);
-         success = calculate_stiffness_2(K[1], &force, epsilon, n); CHECKERRQ(MAP_FATAL_63);
+         success = calculate_stiffness(K[1], &force, epsilon, n); CHECKERRQ(MAP_FATAL_63);
        } else if (i==2) {
          success = fd_z_sequence(other_type, u_type, y_type, z_type, &force, epsilon, n, z_original, map_msg, ierr); CHECKERRQ(MAP_FATAL_64);
-         success = calculate_stiffness_2(K[2], &force, epsilon, n); CHECKERRQ(MAP_FATAL_64);
+         success = calculate_stiffness(K[2], &force, epsilon, n); CHECKERRQ(MAP_FATAL_64);
        } else if (i==3) {
          success = fd_phi_sequence(other_type, u_type, y_type, z_type, &force, epsilon, n, x_original, y_original, z_original, map_msg, ierr); //CHECKERRQ(MAP_FATAL_65);
-         success = calculate_stiffness_2(K[3], &force, epsilon, n); CHECKERRQ(MAP_FATAL_65);
+         success = calculate_stiffness(K[3], &force, epsilon, n); CHECKERRQ(MAP_FATAL_65);
        } else if (i==4) {
          success = fd_the_sequence(other_type, u_type, y_type, z_type, &force, epsilon, n, x_original, y_original, z_original, map_msg, ierr); //CHECKERRQ(MAP_FATAL_66);
-         success = calculate_stiffness_2(K[4], &force, epsilon, n); CHECKERRQ(MAP_FATAL_66);
+         success = calculate_stiffness(K[4], &force, epsilon, n); CHECKERRQ(MAP_FATAL_66);
        } else if (i==5) {
          success = fd_psi_sequence(other_type, u_type, y_type, z_type, &force, epsilon, n, x_original, y_original, z_original, map_msg, ierr); //CHECKERRQ(MAP_FATAL_67);
-         success = calculate_stiffness_2(K[5], &force, epsilon, n); CHECKERRQ(MAP_FATAL_67);
+         success = calculate_stiffness(K[5], &force, epsilon, n); CHECKERRQ(MAP_FATAL_67);
        };
      };
    } while (0);  

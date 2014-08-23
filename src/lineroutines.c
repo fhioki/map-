@@ -205,46 +205,47 @@ MAP_ERROR_CODE set_line_variables_post_solve(ModelData* model_data, char* map_ms
 
 MAP_ERROR_CODE set_psi(Element* element, char* map_msg, MAP_ERROR_CODE* ierr)
 {
-  double overlapValue = 0.0;
-  MapReal fairleadX = *(element->fairlead->positionPtr.x.value);
-  MapReal fairleadY = *(element->fairlead->positionPtr.y.value);
-  MapReal fairleadZ = *(element->fairlead->positionPtr.z.value);
-  MapReal anchorX = *(element->anchor->positionPtr.x.value);
-  MapReal anchorY = *(element->anchor->positionPtr.y.value);
-  MapReal anchorZ = *(element->anchor->positionPtr.z.value);
+  double overlap_value = 0.0;
+  const MapReal x_fair = *(element->fairlead->positionPtr.x.value);
+  const MapReal y_fair = *(element->fairlead->positionPtr.y.value);
+  const MapReal z_fair = *(element->fairlead->positionPtr.z.value);
+  const MapReal x_anch = *(element->anchor->positionPtr.x.value);
+  const MapReal y_anch = *(element->anchor->positionPtr.y.value);
+  const MapReal z_anch = *(element->anchor->positionPtr.z.value);
 
-  overlapValue = sqrt(pow((fairleadX-anchorX),2) + pow((fairleadY-anchorY),2) +  pow((fairleadZ-anchorZ),2));
+  overlap_value = sqrt(pow((x_fair-x_anch),2) + pow((y_fair-y_anch),2) +  pow((z_fair-z_anch),2));
   
   /* make sure the demoninator is not zero (or close to it) */
-  if (overlapValue<=1e-2) {    
+  if (overlap_value<=1e-2) {    
     // @todo: what happens when this returns prematurely?
     return MAP_WARNING;
   };
   
-  /* 
-     find the angle psi element simply finds the angle psi between the local and global reference frames simply by 
-     evaluating trig relationships
-  */
-  element->psi.value = atan2((fairleadY-anchorY), (fairleadX-anchorX));
+  /* find the angle psi element simply finds the angle psi between the local and global reference frames simply by 
+   * evaluating trig relationships
+   */
+  element->psi.value = atan2((y_fair-y_anch), (x_fair-x_anch));
   return MAP_SAFE;
 };
 
 
 MapReal set_horizontal_excursion(Element* element)
 {
-  const MapReal fairleadX = *(element->fairlead->positionPtr.x.value);
-  const MapReal fairleadY = *(element->fairlead->positionPtr.y.value);
-  const MapReal anchorX = *(element->anchor->positionPtr.x.value);
-  const MapReal anchorY = *(element->anchor->positionPtr.y.value);  
-  return sqrt(pow((fairleadX-anchorX),2) + pow((fairleadY-anchorY),2));
+  const MapReal x_fair = *(element->fairlead->positionPtr.x.value);
+  const MapReal y_fair = *(element->fairlead->positionPtr.y.value);
+  const MapReal x_anch = *(element->anchor->positionPtr.x.value);
+  const MapReal y_anch = *(element->anchor->positionPtr.y.value);  
+
+  return sqrt(pow((x_fair-x_anch),2) + pow((y_fair-y_anch),2));
 };
 
 
 MapReal set_vertical_excursion(Element* element)
 {
-  const MapReal fairleadZ = *(element->fairlead->positionPtr.z.value);
-  const MapReal anchorZ = *(element->anchor->positionPtr.z.value);
-  return fabs(fairleadZ - anchorZ);
+  const MapReal z_fair = *(element->fairlead->positionPtr.z.value);
+  const MapReal z_anch = *(element->anchor->positionPtr.z.value);
+
+  return fabs(z_fair - z_anch);
 };
 
 
@@ -265,19 +266,6 @@ MAP_ERROR_CODE set_element_initial_guess(ModelData* model_data, char* map_msg, M
     height = element_iter->h.value;
     Lu = element_iter->Lu.value;
     
-    /* @todo: this is legacy from MAP v > 1.0 for the case of a perfectly vertical cable        
-     * if ( norm <= TOL ) {
-     *   psi = 1.0;//checkpoint();
-     * } else {
-     *   if ( (fairlead->Y.value - anchor->Y.value) >= 0) {
-     *     // this simply finds the angle psi between the local and global reference frames simply by evaluation trig relationships
-     *     psi = acos( (fairlead->X.value - anchor->X.value)/norm );
-     *   } else {
-     *     psi = -acos( (fairlead->X.value - anchor->X.value)/norm );
-     *   }
-     * }
-     */
-
     /* note: the element horizontal (l) and vertical (h) excursion are previously initialized in set_line_variables_pre_solve(...) */ 
     if (length<=1e-2) {
       lambda = 1000000;
@@ -405,11 +393,13 @@ MAP_ERROR_CODE solve_line(ModelData* model_data, double time, char* map_msg, MAP
      * @todo: this should handle the exception of a perfectly vertical cable. Added to the priority list
      */    
     if (element_iter->l.value<=0.0) {
-      user_msg = bformat("Line segment %d, l = %d [m].", n, element_iter->l.value);
-      *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_54);        
-      success = bdestroy(user_msg); 
-      user_msg = NULL;
-      break; 
+ 
+      element_iter->l.value = 1e-3;
+      // user_msg = bformat("Line segment %d, l = %d [m].", n, element_iter->l.value);
+      // *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_54);        
+      // success = bdestroy(user_msg); 
+      // user_msg = NULL;
+      // break; 
     } else if (element_iter->h.value<=-MACHINE_EPSILON) {
       user_msg = bformat("Line segment %d, h = %d [m].", n, element_iter->h.value);
       *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_55);        
@@ -455,7 +445,6 @@ MAP_ERROR_CODE check_maximum_line_length(Element* element, const bool contact_fl
   LMax = l - EA/W + sqrt(pow((EA/W),2) + 2.0*h*EA/W);
   if (Lu>=LMax && contact_flag==false) {
     user_msg = bformat("LMax = %f [m].", LMax);
-    // printf("%s\n",user_msg->data);
     *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_59);        
     success = bdestroy(user_msg); 
     user_msg = NULL;
@@ -530,13 +519,16 @@ MAP_ERROR_CODE set_moment_minus(const MAP_OutputType_t* y_type, const Vessel* ve
   double rz = 0.0;
 
   for (i=0 ; i<size ; i++) {    
-    /* 
-       @todo: this is not consistent with set_moment_minus_2... 
-              ensure moments are in the global frame
-    */
+    /* @todo: this is not consistent with set_moment_minus_2... 
+     *        ensure moments are in the global frame
+     */
     rx = (vessel->xi[i] - vessel->refOrigin.x.value);
     ry = (vessel->yi[i] - vessel->refOrigin.y.value);
     rz = (vessel->zi[i] - vessel->refOrigin.z.value);    
+
+    /* cross  product: 
+     * \mathbf{m}=\mathbf{r} \times \mathbf{F} 
+     */
     mx[i] -= ((-y_type->Fz[i]*ry) - (-y_type->Fy[i]*rz));
     my[i] -= ((-y_type->Fx[i]*rz) - (-y_type->Fz[i]*rx));
     mz[i] -= ((-y_type->Fy[i]*rx) - (-y_type->Fx[i]*ry));
@@ -557,6 +549,10 @@ MAP_ERROR_CODE set_moment_plus(const MAP_OutputType_t* output_type, const Vessel
     rx = (vessel->xi[i] - vessel->refOrigin.x.value);
     ry = (vessel->yi[i] - vessel->refOrigin.y.value);
     rz = (vessel->zi[i] - vessel->refOrigin.z.value);    
+
+    /* cross  product: 
+     * \mathbf{m}=\mathbf{r} \times \mathbf{F} 
+     */
     mx[i] += ((-output_type->Fz[i]*ry) - (-output_type->Fy[i]*rz));
     my[i] += ((-output_type->Fx[i]*rz) - (-output_type->Fz[i]*rx));
     mz[i] += ((-output_type->Fy[i]*rx) - (-output_type->Fx[i]*ry));
@@ -889,7 +885,7 @@ MAP_ERROR_CODE fd_psi_sequence(MAP_OtherStateType_t* other_type, MAP_InputType_t
 
 
 
-MAP_ERROR_CODE calculate_stiffness_2(double* K, Fd* force, const double delta, const int size)
+MAP_ERROR_CODE calculate_stiffness(double* K, Fd* force, const double delta, const int size)
 {  
   int i = 0;
   for (i=0 ; i<size ; i++) {
@@ -917,11 +913,10 @@ MAP_ERROR_CODE set_moment_plus_2(const MAP_InputType_t* u_type, const MAP_Output
 
   double delta = 1e-4;
   for (i=0 ; i<size ; i++) {    
-    /* 
-       @todo forces are in global frame. Make sure everything is consistent. Should also add
-       reference origin. This need s to be converted to the global frame to be consistent with
-       uType. 
-    */
+    /* @todo: forces are in global frame. Make sure everything is consistent. Should also add
+     *        reference origin. This need s to be converted to the global frame to be consistent with
+     *       uType. 
+     */
     rx = u_type->x[i];// (vessel->xi[i] - vessel->refOrigin.x.value);
     ry = u_type->y[i];// (vessel->yi[i] - vessel->refOrigin.y.value);
     rz = u_type->z[i];// (vessel->zi[i] - vessel->refOrigin.z.value);    
@@ -967,17 +962,3 @@ MAP_ERROR_CODE set_moment_minus_2(const MAP_InputType_t* u_type, const MAP_Outpu
   };
   return MAP_SAFE;
 };
-
-
-// /**
-//  * success = calculate_stiffness(stiffness, fx, epsilon, N);
-//  */
-// MAP_ERROR_CODE calculate_stiffness(double* K, double* force, const double delta, const int size)
-// {  
-//   *K = 0.0;
-//   int i = 0;
-//   for (i=0 ; i<size ; i++) {
-//     *K += (force[i]/(2*delta));
-//   };
-//   return MAP_SAFE;
-// };

@@ -28,7 +28,7 @@
 int inner_function_evals(void* element_ptr, int m, int n, const __cminpack_real__* x, __cminpack_real__* fvec, __cminpack_real__* fjac, int ldfjac, int iflag) 
 {
   Element* element = (Element*)element_ptr;
-  const double Fh = x[0];
+  double Fh = x[0];
   const double Fv = x[1];  
   const double EA = element->lineProperty->ea;
   const double Lu = element->Lu.value;
@@ -42,26 +42,30 @@ int inner_function_evals(void* element_ptr, int m, int n, const __cminpack_real_
     return 0;
   };
  
+  if (Fh<1e-3) {
+    Fh = 1e-3;
+  };
+
   if (iflag!=2) {
-     if (contactFlag==true || omega<0.0 || (Fv-omega*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
-       fvec[0] = residual_function_length_no_contact(Fv, Fh, omega, Lu, EA, length);
-       fvec[1] = residual_function_height_no_contact(Fv, Fh, omega, Lu, EA, height); 
-     } else { /* true when a portion of the line rests on the seabed and the anchor tension is nonzero */
-       fvec[0] = residual_function_length_contact(Fv, Fh, omega, Lu, EA, length, cb);
-       fvec[1] = residual_function_height_contact(Fv, Fh, omega, Lu, EA, height, cb); 
-     };
+    if (contactFlag==true || omega<0.0 || (Fv-omega*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
+      fvec[0] = residual_function_length_no_contact(Fv, Fh, omega, Lu, EA, length);
+      fvec[1] = residual_function_height_no_contact(Fv, Fh, omega, Lu, EA, height); 
+    } else { /* true when a portion of the line rests on the seabed and the anchor tension is nonzero */
+      fvec[0] = residual_function_length_contact(Fv, Fh, omega, Lu, EA, length, cb);
+      fvec[1] = residual_function_height_contact(Fv, Fh, omega, Lu, EA, height, cb); 
+    };
   } else {
-     if (contactFlag==true || omega<0.0 || (Fv-omega*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
-       fjac[0] = jacobian_dxdh_no_contact(Fv, Fh, omega, Lu, EA);
-       fjac[1] = jacobian_dxdv_no_contact(Fv, Fh, omega, Lu, EA);
-       fjac[2] = jacobian_dzdh_no_contact(Fv, Fh, omega, Lu, EA);
-       fjac[3] = jacobian_dzdv_no_contact(Fv, Fh, omega, Lu, EA);
-     } else { /* true when a portion of the line rests on the seabed and the anchor tension is nonzero */
-       fjac[0] = jacobian_dxdh_contact(Fv, Fh, omega, Lu, EA, cb);
-       fjac[1] = jacobian_dxdv_contact(Fv, Fh, omega, Lu, EA, cb);
-       fjac[2] = jacobian_dzdh_contact(Fv, Fh, omega, Lu, EA, cb);
-       fjac[3] = jacobian_dzdv_contact(Fv, Fh, omega, Lu, EA, cb);
-     };
+    if (contactFlag==true || omega<0.0 || (Fv-omega*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
+      fjac[0] = jacobian_dxdh_no_contact(Fv, Fh, omega, Lu, EA);
+      fjac[1] = jacobian_dxdv_no_contact(Fv, Fh, omega, Lu, EA);
+      fjac[2] = jacobian_dzdh_no_contact(Fv, Fh, omega, Lu, EA);
+      fjac[3] = jacobian_dzdv_no_contact(Fv, Fh, omega, Lu, EA);
+    } else { /* true when a portion of the line rests on the seabed and the anchor tension is nonzero */
+      fjac[0] = jacobian_dxdh_contact(Fv, Fh, omega, Lu, EA, cb);
+      fjac[1] = jacobian_dxdv_contact(Fv, Fh, omega, Lu, EA, cb);
+      fjac[2] = jacobian_dzdh_contact(Fv, Fh, omega, Lu, EA, cb);
+      fjac[3] = jacobian_dzdv_contact(Fv, Fh, omega, Lu, EA, cb);
+    };
   };
   return 0;
 };
@@ -579,7 +583,6 @@ MAP_ERROR_CODE central_difference_jacobian(MAP_OtherStateType_t* other_type, MAP
 
   return MAP_SAFE;
 };
-
 
 
 MAP_ERROR_CODE call_minpack_lmder(Element* element, InnerSolveAttributes* inner_opt, ModelOptions* opt, const int line_num, const double time, char* map_msg, MAP_ERROR_CODE* ierr)

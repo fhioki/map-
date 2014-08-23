@@ -58,9 +58,6 @@ MAP_ERROR_CODE set_force_minus(const double* inputType, double* force, const int
 MAP_ERROR_CODE set_force_plus(const double* inputType, double* force, const int size);
 
 
-MAP_ERROR_CODE calculate_stiffness(double* K, double* force, const double delta, const int size);
-
-
 /**
  * success = set_moment_minus(yType, vessel, mx, my, mz, N)
  */
@@ -85,7 +82,7 @@ MAP_ERROR_CODE fd_z_sequence(MAP_OtherStateType_t* other_type, MAP_InputType_t* 
 MAP_ERROR_CODE fd_phi_sequence(MAP_OtherStateType_t* other_type, MAP_InputType_t* u_type, MAP_OutputType_t* y_type, MAP_ConstraintStateType_t* z_type, Fd* force, const double epsilon, const int size, const double* original_x, const double* original_y, const double* original_z, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE fd_the_sequence(MAP_OtherStateType_t* other_type, MAP_InputType_t* u_type, MAP_OutputType_t* y_type, MAP_ConstraintStateType_t* z_type, Fd* force, const double epsilon, const int size, const double* original_x, const double* original_y, const double* original_z, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE fd_psi_sequence(MAP_OtherStateType_t* other_type, MAP_InputType_t* u_type, MAP_OutputType_t* y_type, MAP_ConstraintStateType_t* z_type, Fd* force, const double epsilon, const int size, const double* original_x, const double* original_y, const double* original_z, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE calculate_stiffness_2(double* K, Fd* force, const double delta, const int size);
+MAP_ERROR_CODE calculate_stiffness(double* K, Fd* force, const double delta, const int size);
 MAP_ERROR_CODE set_moment_plus_2(const MAP_InputType_t* u_type, const MAP_OutputType_t* y_type, const Vessel* vessel, double* mx, double* my, double* mz, const int size);
 MAP_ERROR_CODE set_moment_minus_2(const MAP_InputType_t* u_type, const MAP_OutputType_t* y_type, const Vessel* vessel, double* mx, double* my, double* mz, const int size);
 
