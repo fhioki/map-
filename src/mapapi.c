@@ -276,7 +276,6 @@ MAP_EXTERNCALL void map_offset_vessel(MAP_OtherStateType_t* other_type, MAP_Inpu
 
 MAP_EXTERNCALL double** map_linearize_matrix(MAP_InputType_t* u_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type, MAP_ConstraintStateType_t* z_type, double epsilon, MAP_ERROR_CODE* ierr, char* map_msg)
 {
-  checkpoint();
   MapReal* x_original = NULL;
   MapReal* y_original = NULL;
   MapReal* z_original = NULL;
@@ -291,6 +290,7 @@ MAP_EXTERNCALL double** map_linearize_matrix(MAP_InputType_t* u_type, MAP_OtherS
   double** K;
  
   map_reset_universal_error(map_msg, ierr);
+
   K = (double**)malloc(SIX*sizeof(double*));
   for (i=0 ; i<SIX ; i++) {
     K[i] = (double*)malloc(SIX*sizeof(double));
@@ -388,85 +388,9 @@ MAP_EXTERNCALL void map_free_linearize_matrix(double** array)
 };
 
 
-MAP_EXTERNCALL double* map_plot_x_array(MAP_OtherStateType_t* otherType, int i, int numPlotPoints, char *map_msg, MAP_ERROR_CODE *ierr)
+MAP_EXTERNCALL double* map_plot_x_array(MAP_OtherStateType_t* other_type, int i, int num_points, char *map_msg, MAP_ERROR_CODE *ierr)
 {
-  ModelData* data = otherType->object;
-  const Element* element = (Element*)list_get_at(&data->element, i);  
-  MapReal H = 0.0;
-  MapReal V = 0.0;
-  MapReal EA = 0.0;
-  MapReal Lu = 0.0;
-  MapReal Lb = 0.0;
-  MapReal w = 0.0;
-  MapReal S = 0.0;
-  MapReal dS = 0.0;
-  MapReal fairleadX=0.0;
-  MapReal anchorX=0.0;
-  MapReal cb = 0.0;
-  MapReal lambda = 0.0;
-  double* arrayX = NULL;
-  char buffer[64] = "";
-  int ret = 0;
-  int cx = 0;
-  int s = 0;
-  bstring user_msg = NULL;
-
-  *ierr = MAP_SAFE;
-  map_msg[0] = 0;
-  // element = (Element*)list_get_at(&data->element, i);
-
-  if (element==NULL) {    
-    user_msg = bformat("Element out of range: <%d>.", i);
-    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_42);        
-    ret = bdestroy(user_msg); 
-    user_msg = NULL;
-  } else {
-    fairleadX = *(element->fairlead->positionPtr.x.value);
-    anchorX = *(element->anchor->positionPtr.x.value);
-    arrayX = (double*)malloc(numPlotPoints*sizeof(double));
-    H = *(element->H.value);
-    V = *(element->V.value);  
-    EA = element->lineProperty->ea;
-    Lu = element->Lu.value;   
-    w = element->lineProperty->omega;
-    cb = element->lineProperty->cb;
-    dS = Lu/(MapReal)(numPlotPoints-1) ;
-    
-    /* If the cable is not resting on the seabed, we use the classic catenary equation
-     * for a hanging chain to plot the mooring line profile. Otherwise if it is, we 
-     * the modified version as done in the FAST wind turbine program. 
-     *     
-     * @ref : J. Jonkman, November 2007. "Dynamic Modeling and Loads Analysis of an 
-     *        Offshore Floating Wind Turbine." NREL Technical Report NREL/TP-500-41958.
-     */        
-    if (element->options.omitContact==true || w<0.0 || (V-w*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
-      for (s=0 ; s<numPlotPoints ; s++) {
-        arrayX[s] = fairleadX - ( (H/w)*ARCSINH( V/H ) - (H/w)*ARCSINH( (V-S*w)/H ) + (H*S)/(EA) )*cos(element->psi.value);
-        S += dS;
-      };
-    } else {
-      Lb = Lu - (V/w);      
-      lambda = (Lb-H/(cb*w))>0 ? (Lb-H/(cb*w)) : 0; 
-      for (s=0 ; s<numPlotPoints ; s++) {
-        if (0<=S && S<=(Lb-H/(cb*w))) { /* for 0 <= s <= Lb - H/(Cb*w) */
-          arrayX[s] = S*cos(element->psi.value) + anchorX; 
-        } else if ((Lb-H/(cb/w))<S && S<=Lb) { /* for Lb - H/(Cb*w) < s <= Lb */
-          arrayX[s] = (S + ((cb*w)/(2*EA)) * (S*S - 2*(Lb-H/(cb*w))*S + (Lb- H/(cb*w))*lambda))*cos(element->psi.value) + anchorX; 
-        } else { /* for Lb < s <= L */
-          arrayX[s] = (Lb + (H/w)*ARCSINH((w*(S-Lb))/H))*cos(element->psi.value)    
-            - ( ((H*S)/(EA)) + ((cb*w)/(2*EA))*(-Lb*Lb + (Lb-H/(cb*w))*lambda))*cos(element->psi.value) + anchorX; 
-        };
-        S += dS;
-      };
-    };
-  };
-  return arrayX;
-};
-
-
-MAP_EXTERNCALL double* map_plot_y_array(MAP_OtherStateType_t* otherType, int i, int numPlotPoints, char* map_msg, MAP_ERROR_CODE* ierr)
-{
-  ModelData* data = otherType->object;
+  ModelData* model_data = other_type->object;
   Element* element = NULL;
   MapReal H = 0.0;
   MapReal V = 0.0;
@@ -476,39 +400,34 @@ MAP_EXTERNCALL double* map_plot_y_array(MAP_OtherStateType_t* otherType, int i, 
   MapReal w = 0.0;
   MapReal S = 0.0;
   MapReal dS = 0.0;
-  MapReal fairleadY=0.0;
-  MapReal anchorY=0.0;
+  MapReal fairlead_x = 0.0;
+  MapReal anchor_x = 0.0;
   MapReal cb = 0.0;
   MapReal lambda = 0.0;
-  double* arrayY = NULL;
-  char buffer[64] = "";
-  int cx = 0;
-  int s = 0;
+  double* array_x = NULL;
   int ret = 0;
+  int s = 0;
   bstring user_msg = NULL;
+
+  map_reset_universal_error(map_msg, ierr);
+  element = (Element*)list_get_at(&model_data->element, i);  
   
-  *ierr = MAP_SAFE;
-  map_msg[0] = 0;
-  element = (Element*)list_get_at(&data->element, i);
-  
-  if (element==NULL) {
+  if (element==NULL) {    
     user_msg = bformat("Element out of range: <%d>.", i);
     *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_42);        
     ret = bdestroy(user_msg); 
     user_msg = NULL;
-    //cx = map_snprintf(buffer, 64, "Element out of range: %d.", i); assert(cx>=0);
-    //*ierr = map_set_universal_error(buffer, map_msg, ierr, MAP_FATAL_42);
-  } else {    
-    fairleadY = *(element->fairlead->positionPtr.y.value);
-    anchorY = *(element->anchor->positionPtr.y.value);
-    arrayY = (double*)malloc(numPlotPoints*sizeof(double));
+  } else {
+    fairlead_x = *(element->fairlead->positionPtr.x.value);
+    anchor_x = *(element->anchor->positionPtr.x.value);
+    array_x = (double*)malloc(num_points*sizeof(double));
     H = *(element->H.value);
     V = *(element->V.value);  
     EA = element->lineProperty->ea;
-    Lu = element->Lu.value;
+    Lu = element->Lu.value;   
     w = element->lineProperty->omega;
     cb = element->lineProperty->cb;
-    dS = Lu/(MapReal)(numPlotPoints-1) ;
+    dS = Lu/(MapReal)(num_points-1) ;
     
     /* If the cable is not resting on the seabed, we use the classic catenary equation
      * for a hanging chain to plot the mooring line profile. Otherwise if it is, we 
@@ -518,33 +437,106 @@ MAP_EXTERNCALL double* map_plot_y_array(MAP_OtherStateType_t* otherType, int i, 
      *        Offshore Floating Wind Turbine." NREL Technical Report NREL/TP-500-41958.
      */        
     if (element->options.omitContact==true || w<0.0 || (V-w*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
-      for (s=0 ; s<numPlotPoints ; s++) {
-        arrayY[s] = fairleadY - ( (H/w)*ARCSINH( V/H ) - (H/w)*ARCSINH( (V-S*w)/H ) + (H*S)/(EA) )*sin(element->psi.value);
-        S += dS; 
+      for (s=0 ; s<num_points ; s++) {
+        array_x[s] = fairlead_x - ( (H/w)*ARCSINH( V/H ) - (H/w)*ARCSINH( (V-S*w)/H ) + (H*S)/(EA) )*cos(element->psi.value);
+        S += dS;
       };
     } else {
       Lb = Lu - (V/w);      
       lambda = (Lb-H/(cb*w))>0 ? (Lb-H/(cb*w)) : 0; 
-      for (s=0 ; s<numPlotPoints ; s++) {
+      for (s=0 ; s<num_points ; s++) {
         if (0<=S && S<=(Lb-H/(cb*w))) { /* for 0 <= s <= Lb - H/(Cb*w) */
-          arrayY[s] = S*sin(element->psi.value) + anchorY; 
+          array_x[s] = S*cos(element->psi.value) + anchor_x; 
         } else if ((Lb-H/(cb/w))<S && S<=Lb) { /* for Lb - H/(Cb*w) < s <= Lb */
-          arrayY[s] = (S + ((cb*w)/(2*EA))*(S*S - 2*(Lb-H/(cb*w))*S + (Lb- H/(cb*w))*lambda))*sin(element->psi.value) + anchorY; 
+          array_x[s] = (S + ((cb*w)/(2*EA)) * (S*S - 2*(Lb-H/(cb*w))*S + (Lb- H/(cb*w))*lambda))*cos(element->psi.value) + anchor_x; 
         } else { /* for Lb < s <= L */
-          arrayY[s] = (Lb + (H/w)*ARCSINH((w*(S-Lb))/H))*sin(element->psi.value)    
-            - (((H*S)/(EA)) + ((cb*w)/(2*EA))*(-Lb*Lb + (Lb-H/(cb*w))*lambda))*sin(element->psi.value) + anchorY; 
+          array_x[s] = (Lb + (H/w)*ARCSINH((w*(S-Lb))/H))*cos(element->psi.value)    
+            - ( ((H*S)/(EA)) + ((cb*w)/(2*EA))*(-Lb*Lb + (Lb-H/(cb*w))*lambda))*cos(element->psi.value) + anchor_x; 
         };
         S += dS;
       };
     };
   };
-  return arrayY;
+  return array_x;
 };
 
 
-MAP_EXTERNCALL double* map_plot_z_array(MAP_OtherStateType_t* otherType, int i, int numPlotPoints, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_EXTERNCALL double* map_plot_y_array(MAP_OtherStateType_t* other_type, int i, int num_points, char* map_msg, MAP_ERROR_CODE* ierr)
 {
-  ModelData* data = otherType->object;
+  ModelData* data = other_type->object;
+  Element* element = NULL;
+  MapReal H = 0.0;
+  MapReal V = 0.0;
+  MapReal EA = 0.0;
+  MapReal Lu = 0.0;
+  MapReal Lb = 0.0;
+  MapReal w = 0.0;
+  MapReal S = 0.0;
+  MapReal dS = 0.0;
+  MapReal fairlead_y = 0.0;
+  MapReal anchor_y = 0.0;
+  MapReal cb = 0.0;
+  MapReal lambda = 0.0;
+  double* array_y = NULL;
+  int s = 0;
+  int ret = 0;
+  bstring user_msg = NULL;
+
+  map_reset_universal_error(map_msg, ierr);  
+  element = (Element*)list_get_at(&data->element, i);
+  
+  if (element==NULL) {
+    user_msg = bformat("Element out of range: <%d>.", i);
+    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_42);        
+    ret = bdestroy(user_msg); 
+    user_msg = NULL;
+  } else {    
+    fairlead_y = *(element->fairlead->positionPtr.y.value);
+    anchor_y = *(element->anchor->positionPtr.y.value);
+    array_y = (double*)malloc(num_points*sizeof(double));
+    H = *(element->H.value);
+    V = *(element->V.value);  
+    EA = element->lineProperty->ea;
+    Lu = element->Lu.value;
+    w = element->lineProperty->omega;
+    cb = element->lineProperty->cb;
+    dS = Lu/(MapReal)(num_points-1) ;
+    
+    /* If the cable is not resting on the seabed, we use the classic catenary equation
+     * for a hanging chain to plot the mooring line profile. Otherwise if it is, we 
+     * the modified version as done in the FAST wind turbine program. 
+     *     
+     * @ref : J. Jonkman, November 2007. "Dynamic Modeling and Loads Analysis of an 
+     *        Offshore Floating Wind Turbine." NREL Technical Report NREL/TP-500-41958.
+     */        
+    if (element->options.omitContact==true || w<0.0 || (V-w*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
+      for (s=0 ; s<num_points ; s++) {
+        array_y[s] = fairlead_y - ( (H/w)*ARCSINH( V/H ) - (H/w)*ARCSINH( (V-S*w)/H ) + (H*S)/(EA) )*sin(element->psi.value);
+        S += dS; 
+      };
+    } else {
+      Lb = Lu - (V/w);      
+      lambda = (Lb-H/(cb*w))>0 ? (Lb-H/(cb*w)) : 0; 
+      for (s=0 ; s<num_points ; s++) {
+        if (0<=S && S<=(Lb-H/(cb*w))) { /* for 0 <= s <= Lb - H/(Cb*w) */
+          array_y[s] = S*sin(element->psi.value) + anchor_y; 
+        } else if ((Lb-H/(cb/w))<S && S<=Lb) { /* for Lb - H/(Cb*w) < s <= Lb */
+          array_y[s] = (S + ((cb*w)/(2*EA))*(S*S - 2*(Lb-H/(cb*w))*S + (Lb- H/(cb*w))*lambda))*sin(element->psi.value) + anchor_y; 
+        } else { /* for Lb < s <= L */
+          array_y[s] = (Lb + (H/w)*ARCSINH((w*(S-Lb))/H))*sin(element->psi.value)    
+            - (((H*S)/(EA)) + ((cb*w)/(2*EA))*(-Lb*Lb + (Lb-H/(cb*w))*lambda))*sin(element->psi.value) + anchor_y; 
+        };
+        S += dS;
+      };
+    };
+  };
+  return array_y;
+};
+
+
+MAP_EXTERNCALL double* map_plot_z_array(MAP_OtherStateType_t* other_type, int i, int num_points, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  ModelData* data = other_type->object;
   Element* element = NULL;
   MapReal H = 0.0;
   MapReal V = 0.0;
@@ -555,17 +547,14 @@ MAP_EXTERNCALL double* map_plot_z_array(MAP_OtherStateType_t* otherType, int i, 
   MapReal w = 0.0;
   MapReal S = 0.0;
   MapReal dS = 0.0;
-  MapReal fairleadZ = 0.0;
-  MapReal anchorZ = 0.0;
-  double* arrayZ = NULL;
-  char buffer[64] = "";
+  MapReal fairlead_z = 0.0;
+  MapReal anchor_z = 0.0;
+  double* array_z = NULL;
   int ret = 0;
-  int cx = 0;
   int s = 0;
   bstring user_msg = NULL;
 
-  *ierr = MAP_SAFE;
-  map_msg[0] = 0;
+  map_reset_universal_error(map_msg, ierr);  
   element = (Element*)list_get_at(&data->element, i);
   
   if (element==NULL){
@@ -574,15 +563,15 @@ MAP_EXTERNCALL double* map_plot_z_array(MAP_OtherStateType_t* otherType, int i, 
     ret = bdestroy(user_msg); 
     user_msg = NULL;
   } else {
-    fairleadZ = *(element->fairlead->positionPtr.z.value);
-    anchorZ = *(element->anchor->positionPtr.z.value);    
-    arrayZ = (double*)malloc(numPlotPoints*sizeof(double));
+    fairlead_z = *(element->fairlead->positionPtr.z.value);
+    anchor_z = *(element->anchor->positionPtr.z.value);    
+    array_z = (double*)malloc(num_points*sizeof(double));
     H = *(element->H.value);
     V = *(element->V.value);  
     EA = element->lineProperty->ea;
     Lu = element->Lu.value;
     w = element->lineProperty->omega;
-    dS = Lu/(MapReal)(numPlotPoints-1) ;
+    dS = Lu/(MapReal)(num_points-1) ;
 
     /* If the cable is not resting on the seabed, we use the classic catenary equation
      * for a hanging chain to plot the mooring line profile. Otherwise if it is, we 
@@ -592,25 +581,24 @@ MAP_EXTERNCALL double* map_plot_z_array(MAP_OtherStateType_t* otherType, int i, 
      *        Offshore Floating Wind Turbine." NREL Technical Report NREL/TP-500-41958.
      */        
     if (element->options.omitContact==true || w<0.0 || (V-w*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
-      for (s=0 ; s<numPlotPoints ; s++) {
-        arrayZ[s] =  fairleadZ - ((H/w)*(sqrt(1+pow(V/H,2)) - sqrt(1+pow((V-w*S)/H,2))) + (1/EA)*(V*S+w*S*S/2)); /* Z position of element in global coordinates */
+      for (s=0 ; s<num_points ; s++) {
+        array_z[s] =  fairlead_z - ((H/w)*(sqrt(1+pow(V/H,2)) - sqrt(1+pow((V-w*S)/H,2))) + (1/EA)*(V*S+w*S*S/2)); /* Z position of element in global coordinates */
         S += dS;
       };
     } else {
       Lb = Lu - (V/w);      
-      for (s=0 ; s<numPlotPoints ; s++) {        
+      for (s=0 ; s<num_points ; s++) {        
         if (0<=S && S<=Lb) {           
-          arrayZ[s] = anchorZ; 
+          array_z[s] = anchor_z; 
         } else {        
           /* @todo: verify this equation before someone uses this program to  design something that matters */           
-          arrayZ[s] = ((H/w)*(sqrt(1 + pow((w*(S-Lb)/H),2)) - 1) + ((w*pow((S-Lb),2))/(2*EA))) + anchorZ; 
-
+          array_z[s] = ((H/w)*(sqrt(1 + pow((w*(S-Lb)/H),2)) - 1) + ((w*pow((S-Lb),2))/(2*EA))) + anchor_z; 
         };
         S += dS;
       };      
     };
   };
-  return arrayZ;
+  return array_z;
 };
 
 
@@ -915,55 +903,55 @@ MAP_EXTERNCALL void map_set_summary_file_name(MAP_InitInputType_t* init_type, ch
 };
 
 
-// MAP_EXTERNCALL void map_get_header_string(int* n, char** str_array, MAP_OtherStateType_t* other_type)
-// { 
-//   int count = 0;    
-//   ModelData* model_data = other_type->object;
-//   VarTypePtr* vartype_ptr = NULL;
-//   VarType* vartype = NULL;
-// 
-//   list_iterator_start(&model_data->yList->out_list_ptr);
-//   while (list_iterator_hasnext(&model_data->yList->out_list_ptr)) { 
-//     vartype_ptr = (VarTypePtr*)list_iterator_next(&model_data->yList->out_list_ptr);
-//     strcpy(str_array[count],vartype_ptr->name);
-//     count++;
-//   };
-//   list_iterator_stop(&model_data->yList->out_list_ptr);     
-// 
-//   list_iterator_start(&model_data->yList->out_list);
-//   while (list_iterator_hasnext(&model_data->yList->out_list)) { 
-//     vartype = (VarType*)list_iterator_next(&model_data->yList->out_list);
-//     strcpy(str_array[count],vartype->name);
-//     count++;
-//   };
-//   list_iterator_stop(&model_data->yList->out_list);     
-//   /* @todo this should raise and error when count != n */
-// };
+MAP_EXTERNCALL void map_get_header_string(int* n, char** str_array, MAP_OtherStateType_t* other_type)
+{ 
+  int count = 0;    
+  ModelData* model_data = other_type->object;
+  VarTypePtr* vartype_ptr = NULL;
+  VarType* vartype = NULL;
+
+  list_iterator_start(&model_data->yList->out_list_ptr);
+  while (list_iterator_hasnext(&model_data->yList->out_list_ptr)) { 
+    vartype_ptr = (VarTypePtr*)list_iterator_next(&model_data->yList->out_list_ptr);
+    strcpy(str_array[count],vartype_ptr->name->data);
+    count++;
+  };
+  list_iterator_stop(&model_data->yList->out_list_ptr);     
+
+  list_iterator_start(&model_data->yList->out_list);
+  while (list_iterator_hasnext(&model_data->yList->out_list)) { 
+    vartype = (VarType*)list_iterator_next(&model_data->yList->out_list);
+    strcpy(str_array[count],vartype->name->data);
+    count++;
+  };
+  list_iterator_stop(&model_data->yList->out_list);     
+  /* @todo this should raise and error when count != n */
+};
 
 
-// MAP_EXTERNCALL void map_get_unit_string(int* n, char** str_array, MAP_OtherStateType_t* other_type)
-// { 
-//   int count = 0;    
-//   ModelData* model_data = other_type->object;
-//   VarTypePtr* vartype_ptr = NULL;
-//   VarType* vartype = NULL;
-// 
-//   list_iterator_start(&model_data->yList->out_list_ptr);
-//   while (list_iterator_hasnext(&model_data->yList->out_list_ptr)) { 
-//     vartype_ptr = (VarTypePtr*)list_iterator_next(&model_data->yList->out_list_ptr );
-//     strcpy(str_array[count],vartype_ptr->units);
-//     count++;
-//   };
-//   list_iterator_stop(&model_data->yList->out_list_ptr);     
-// 
-//   list_iterator_start(&model_data->yList->out_list);
-//   while (list_iterator_hasnext(&model_data->yList->out_list)) { 
-//     vartype = (VarType*)list_iterator_next(&model_data->yList->out_list );
-//     strcpy(str_array[count],vartype->units);
-//     count++;
-//   };
-//   list_iterator_stop(&model_data->yList->out_list);     
-// };
+MAP_EXTERNCALL void map_get_unit_string(int* n, char** str_array, MAP_OtherStateType_t* other_type)
+{ 
+  int count = 0;    
+  ModelData* model_data = other_type->object;
+  VarTypePtr* vartype_ptr = NULL;
+  VarType* vartype = NULL;
+
+  list_iterator_start(&model_data->yList->out_list_ptr);
+  while (list_iterator_hasnext(&model_data->yList->out_list_ptr)) { 
+    vartype_ptr = (VarTypePtr*)list_iterator_next(&model_data->yList->out_list_ptr );
+    strcpy(str_array[count],vartype_ptr->units->data);
+    count++;
+  };
+  list_iterator_stop(&model_data->yList->out_list_ptr);     
+
+  list_iterator_start(&model_data->yList->out_list);
+  while (list_iterator_hasnext(&model_data->yList->out_list)) { 
+    vartype = (VarType*)list_iterator_next(&model_data->yList->out_list );
+    strcpy(str_array[count],vartype->units->data);
+    count++;
+  };
+  list_iterator_stop(&model_data->yList->out_list);     
+};
 
 
 

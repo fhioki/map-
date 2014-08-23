@@ -2505,9 +2505,6 @@ MAP_ERROR_CODE set_element_vartype(Element* element_ptr)
 // };
 
 
-// /**
-//  *
-//  */
 // MAP_ERROR_CODE initialize_node_sum_force_ptr(char* unit, char* alias, const int num, VarTypePtr* type)
 // {
 //   type->name = malloc(sizeof(char)*strlen(alias)+1);
@@ -2740,6 +2737,7 @@ const char* remove_first_character(const char* string)
 {
   return string+1;
 };
+
 
 // /**
 //  * @see: http://stackoverflow.com/questions/504810/how-do-i-find-the-current-machines-full-hostname-in-c-hostname-and-domain-info

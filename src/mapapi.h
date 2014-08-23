@@ -30,9 +30,9 @@ MAP_EXTERNCALL void map_add_cable_library_input_text(MAP_InitInputType_t* init_t
 MAP_EXTERNCALL void map_add_node_input_text(MAP_InitInputType_t* init_type);
 MAP_EXTERNCALL void map_add_element_input_text(MAP_InitInputType_t* init_type);
 MAP_EXTERNCALL void map_add_options_input_text(MAP_InitInputType_t* init_type);
-MAP_EXTERNCALL double* map_plot_x_array(MAP_OtherStateType_t* otherFortType, int i, int numPlotPoints, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_EXTERNCALL double* map_plot_y_array(MAP_OtherStateType_t* otherFortType, int i, int numPlotPoints, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_EXTERNCALL double* map_plot_z_array(MAP_OtherStateType_t* otherFortType, int i, int numPlotPoints, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_EXTERNCALL double* map_plot_x_array(MAP_OtherStateType_t* other_type, int i, int num_points, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_EXTERNCALL double* map_plot_y_array(MAP_OtherStateType_t* other_type, int i, int num_points, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_EXTERNCALL double* map_plot_z_array(MAP_OtherStateType_t* other_type, int i, int num_points, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_EXTERNCALL void map_plot_array_free(MapReal * array) ;
 MAP_EXTERNCALL MapReal map_residual_function_length(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_EXTERNCALL MapReal map_residual_function_height(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr);

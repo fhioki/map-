@@ -94,7 +94,7 @@ if __name__ == '__main__':
     # ax.set_ylim([-50.0,50])        
     # ax.set_zlim([-30.0,-12])        
      
-    # plt.show()
+    plt.show()
     
     mooring_1.end( )
     

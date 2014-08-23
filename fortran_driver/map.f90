@@ -106,21 +106,6 @@ MODULE MAP
   !==========================================================================================================
   
   
-  ! ==========   MAP_set_initinput_to_null   ======     <---------------------------------------------------+
-  !                                                                                              !          |
-  !
-  INTERFACE                                                                                      !          |
-     SUBROUTINE MAP_set_initinput_to_null(interf,msg,err) bind(C,name='initialize_init_data_to_null')        !          |
-       IMPORT                                                                                    !          |
-       IMPLICIT NONE                                                                             !          |
-       TYPE( MAP_InitInputType_C ) interf                                                        !          |
-       CHARACTER(KIND=C_CHAR),DIMENSION(*) :: msg                                                !          |
-       INTEGER(KIND=C_INT) :: err                                                                !          |
-     END SUBROUTINE MAP_Set_InitInput_To_Null                                                    !          |
-  END INTERFACE                                                                                  !   -------+
-  !==========================================================================================================
-
-
   ! ==========   MAP_SetCableLibraryData   ======     <-----------------------------------------------------+
   !                                                                                              !          |
   ! Calls C function "MAPCALL_SetCableLibaryData(MAP_InitInputType)" in MAP_FortranBinding.cpp.  !          |
@@ -354,7 +339,6 @@ CONTAINS
     ! Call the constructor for each MAP class to create and instance of each C++ object    
     CALL MAP_InitInput_Initialize(InitInp%C_obj%object, msgMap,statMap)    
     CALL MAP_Other_Initialize(other%C_obj%object, msgMap,statMap)
-    !CALL MAP_Set_InitInput_To_Null(InitInp%C_obj, msgMap,statMap)
      
     ! Set the environmental properties:
     !   depth           = water depth [m]
