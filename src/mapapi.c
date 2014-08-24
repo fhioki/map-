@@ -130,7 +130,7 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
     success = set_line_variables_pre_solve(model_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_86);// @rm, not needed. This is called in line_solve_sequence
     success = reset_node_force_to_zero(model_data, map_msg, ierr); // @rm, not needed. This is called in line_solve_sequence
     success = set_element_initial_guess(model_data, map_msg, ierr);
-    success = first_solve(model_data, u_type, z_type, other_type, y_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_39);
+    success = first_solve(model_data, p_type, u_type, z_type, other_type, y_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_39);
     success = set_line_variables_post_solve(model_data, map_msg, ierr);    // @rm, not needed. This is called in line_solve_sequence
     success = write_summary_file(init_data, p_type, model_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_37);           
     // success = get_iteration_output_stream(y_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
@@ -156,9 +156,9 @@ MAP_EXTERNCALL void map_update_states(double t,
    map_reset_universal_error(map_msg, ierr);
    do {
      if (model_data->MAP_SOLVE_TYPE==MONOLITHIC) {
-       success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+       success = line_solve_sequence(model_data, p_type, 0.0, map_msg, ierr);
      } else {
-       success = node_solve_sequence(model_data, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+       success = node_solve_sequence(model_data, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
      };    
    } while (0);
 };    
@@ -272,7 +272,7 @@ MAP_EXTERNCALL void map_offset_vessel(MAP_OtherStateType_t* other_type, MAP_Inpu
 
 
 
-MAP_EXTERNCALL double** map_linearize_matrix(MAP_InputType_t* u_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type, MAP_ConstraintStateType_t* z_type, double epsilon, MAP_ERROR_CODE* ierr, char* map_msg)
+MAP_EXTERNCALL double** map_linearize_matrix(MAP_InputType_t* u_type, MAP_ParameterType_t* p_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type, MAP_ConstraintStateType_t* z_type, double epsilon, MAP_ERROR_CODE* ierr, char* map_msg)
 {
   MapReal* x_original = NULL;
   MapReal* y_original = NULL;
@@ -336,22 +336,22 @@ MAP_EXTERNCALL double** map_linearize_matrix(MAP_InputType_t* u_type, MAP_OtherS
      for (i=0 ; i<SIX ; i++) { /* down, force direction changes */
        success = reset_force_to_zero(force.fx, force.fy, force.fz, force.mx, force.my, force.mz, n);
        if (i==0) {        
-         success = fd_x_sequence(other_type, u_type, y_type, z_type, &force, epsilon, n, x_original, map_msg, ierr); CHECKERRQ(MAP_FATAL_62);
+         success = fd_x_sequence(other_type, p_type, u_type, y_type, z_type, &force, epsilon, n, x_original, map_msg, ierr); CHECKERRQ(MAP_FATAL_62);
          success = calculate_stiffness(K[0], &force, epsilon, n); CHECKERRQ(MAP_FATAL_62);
        } else if (i==1) {
-         success = fd_y_sequence(other_type, u_type, y_type, z_type, &force, epsilon, n, y_original, map_msg, ierr); CHECKERRQ(MAP_FATAL_63);
+         success = fd_y_sequence(other_type, p_type, u_type, y_type, z_type, &force, epsilon, n, y_original, map_msg, ierr); CHECKERRQ(MAP_FATAL_63);
          success = calculate_stiffness(K[1], &force, epsilon, n); CHECKERRQ(MAP_FATAL_63);
        } else if (i==2) {
-         success = fd_z_sequence(other_type, u_type, y_type, z_type, &force, epsilon, n, z_original, map_msg, ierr); CHECKERRQ(MAP_FATAL_64);
+         success = fd_z_sequence(other_type, p_type, u_type, y_type, z_type, &force, epsilon, n, z_original, map_msg, ierr); CHECKERRQ(MAP_FATAL_64);
          success = calculate_stiffness(K[2], &force, epsilon, n); CHECKERRQ(MAP_FATAL_64);
        } else if (i==3) {
-         success = fd_phi_sequence(other_type, u_type, y_type, z_type, &force, epsilon, n, x_original, y_original, z_original, map_msg, ierr); //CHECKERRQ(MAP_FATAL_65);
+         success = fd_phi_sequence(other_type, p_type, u_type, y_type, z_type, &force, epsilon, n, x_original, y_original, z_original, map_msg, ierr); //CHECKERRQ(MAP_FATAL_65);
          success = calculate_stiffness(K[3], &force, epsilon, n); CHECKERRQ(MAP_FATAL_65);
        } else if (i==4) {
-         success = fd_the_sequence(other_type, u_type, y_type, z_type, &force, epsilon, n, x_original, y_original, z_original, map_msg, ierr); //CHECKERRQ(MAP_FATAL_66);
+         success = fd_the_sequence(other_type, p_type, u_type, y_type, z_type, &force, epsilon, n, x_original, y_original, z_original, map_msg, ierr); //CHECKERRQ(MAP_FATAL_66);
          success = calculate_stiffness(K[4], &force, epsilon, n); CHECKERRQ(MAP_FATAL_66);
        } else if (i==5) {
-         success = fd_psi_sequence(other_type, u_type, y_type, z_type, &force, epsilon, n, x_original, y_original, z_original, map_msg, ierr); //CHECKERRQ(MAP_FATAL_67);
+         success = fd_psi_sequence(other_type, p_type, u_type, y_type, z_type, &force, epsilon, n, x_original, y_original, z_original, map_msg, ierr); //CHECKERRQ(MAP_FATAL_67);
          success = calculate_stiffness(K[5], &force, epsilon, n); CHECKERRQ(MAP_FATAL_67);
        };
      };
@@ -361,7 +361,7 @@ MAP_EXTERNCALL double** map_linearize_matrix(MAP_InputType_t* u_type, MAP_OtherS
    success = restore_original_displacement(u_type->x, x_original, n);
    success = restore_original_displacement(u_type->y, y_original, n);
    success = restore_original_displacement(u_type->z, z_original, n);
-   success = line_solve_sequence(data, 0.0, map_msg, ierr); 
+   success = line_solve_sequence(data, p_type, 0.0, map_msg, ierr); 
    
   MAPFREE(force.fx);
   MAPFREE(force.fy);

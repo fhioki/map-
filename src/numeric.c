@@ -28,7 +28,7 @@
 int inner_function_evals(void* element_ptr, int m, int n, const __cminpack_real__* x, __cminpack_real__* fvec, __cminpack_real__* fjac, int ldfjac, int iflag) 
 {
   Element* element = (Element*)element_ptr;
-  double Fh = x[0];
+  double Fh = x[0]; /* Fh is not const because it is artificially set to epsilon when the line is perfectly vertical */
   const double Fv = x[1];  
   const double EA = element->lineProperty->ea;
   const double Lu = element->Lu.value;
@@ -252,7 +252,7 @@ MAP_ERROR_CODE lu(OuterSolveAttributes* ns, const int n, char* map_msg, MAP_ERRO
 
 
 
-MAP_ERROR_CODE forward_difference_jacobian(MAP_OtherStateType_t* other_type, MAP_ConstraintStateType_t* z_type, ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE forward_difference_jacobian(MAP_OtherStateType_t* other_type, MAP_ParameterType_t* p_type, MAP_ConstraintStateType_t* z_type, ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   OuterSolveAttributes* ns = &model_data->outer_loop;
   MAP_ERROR_CODE success = MAP_SAFE;
@@ -283,7 +283,7 @@ MAP_ERROR_CODE forward_difference_jacobian(MAP_OtherStateType_t* other_type, MAP
     for (i=0 ; i<z_size ; i++) { // rows           
       original_displacement = z_type->x[j];
       z_type->x[j] += ns->epsilon;
-      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+      success = line_solve_sequence(model_data, p_type, 0.0, map_msg, ierr);
       if (success) {
         set_universal_error_with_message(map_msg, ierr, MAP_FATAL_78, "Forward difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
         return MAP_FATAL;
@@ -298,7 +298,7 @@ MAP_ERROR_CODE forward_difference_jacobian(MAP_OtherStateType_t* other_type, MAP
         
       original_displacement = z_type->y[j];
       z_type->y[j] += ns->epsilon;
-      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+      success = line_solve_sequence(model_data, p_type, 0.0, map_msg, ierr);
       if (success) {
         set_universal_error_with_message(map_msg, ierr, MAP_FATAL_78, "Forward difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
         return MAP_FATAL;
@@ -313,7 +313,7 @@ MAP_ERROR_CODE forward_difference_jacobian(MAP_OtherStateType_t* other_type, MAP
     
       original_displacement = z_type->z[j];
       z_type->z[j] += ns->epsilon;
-      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+      success = line_solve_sequence(model_data, p_type, 0.0, map_msg, ierr);
       if (success) {
         set_universal_error_with_message(map_msg, ierr, MAP_FATAL_78, "Forward difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
         return MAP_FATAL;
@@ -339,7 +339,7 @@ MAP_ERROR_CODE forward_difference_jacobian(MAP_OtherStateType_t* other_type, MAP
 };
 
 
-MAP_ERROR_CODE backward_difference_jacobian(MAP_OtherStateType_t* other_type, MAP_ConstraintStateType_t* z_type, ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE backward_difference_jacobian(MAP_OtherStateType_t* other_type, MAP_ParameterType_t* p_type, MAP_ConstraintStateType_t* z_type, ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   OuterSolveAttributes* ns = &model_data->outer_loop;
   MAP_ERROR_CODE success = MAP_SAFE;
@@ -370,7 +370,7 @@ MAP_ERROR_CODE backward_difference_jacobian(MAP_OtherStateType_t* other_type, MA
     for (i=0 ; i<z_size ; i++) { // rows           
       original_displacement = z_type->x[j];
       z_type->x[j] -= ns->epsilon;
-      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+      success = line_solve_sequence(model_data, p_type, 0.0, map_msg, ierr);
       if (success) {
         set_universal_error_with_message(map_msg, ierr, MAP_FATAL_78, "Backward difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
         return MAP_FATAL;
@@ -385,7 +385,7 @@ MAP_ERROR_CODE backward_difference_jacobian(MAP_OtherStateType_t* other_type, MA
         
       original_displacement = z_type->y[j];
       z_type->y[j] -= ns->epsilon;
-      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+      success = line_solve_sequence(model_data, p_type, 0.0, map_msg, ierr);
       if (success) {
         set_universal_error_with_message(map_msg, ierr, MAP_FATAL_78, "Backward difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
         return MAP_FATAL;
@@ -400,7 +400,7 @@ MAP_ERROR_CODE backward_difference_jacobian(MAP_OtherStateType_t* other_type, MA
     
       original_displacement = z_type->z[j];
       z_type->z[j] -= ns->epsilon;
-      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+      success = line_solve_sequence(model_data, p_type, 0.0, map_msg, ierr);
       if (success) {
         set_universal_error_with_message(map_msg, ierr, MAP_FATAL_78, "Backward difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
         return MAP_FATAL;
@@ -426,7 +426,7 @@ MAP_ERROR_CODE backward_difference_jacobian(MAP_OtherStateType_t* other_type, MA
 };
 
 
-MAP_ERROR_CODE central_difference_jacobian(MAP_OtherStateType_t* other_type, MAP_ConstraintStateType_t* z_type, ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE central_difference_jacobian(MAP_OtherStateType_t* other_type, MAP_ParameterType_t* p_type, MAP_ConstraintStateType_t* z_type, ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   OuterSolveAttributes* ns = &model_data->outer_loop;
   MAP_ERROR_CODE success = MAP_SAFE;
@@ -449,7 +449,7 @@ MAP_ERROR_CODE central_difference_jacobian(MAP_OtherStateType_t* other_type, MAP
     for (i=0 ; i<z_size ; i++) { // rows           
       original_displacement = z_type->x[j];
       z_type->x[j] += ns->epsilon;
-      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+      success = line_solve_sequence(model_data, p_type, 0.0, map_msg, ierr);
       if (success) {
         set_universal_error_with_message(map_msg, ierr, MAP_FATAL_78, "Central difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
         return MAP_FATAL;
@@ -465,7 +465,7 @@ MAP_ERROR_CODE central_difference_jacobian(MAP_OtherStateType_t* other_type, MAP
         set_universal_error_with_message(map_msg, ierr, MAP_FATAL_78, "Central difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
         return MAP_FATAL;
       };
-      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+      success = line_solve_sequence(model_data, p_type, 0.0, map_msg, ierr);
       ns->jac[THREE*i][THREE*j+1] = other_type->Fx_connect[i];
       ns->jac[THREE*i+1][THREE*j+1] = other_type->Fy_connect[i];
       ns->jac[THREE*i+2][THREE*j+1] = other_type->Fz_connect[i];
@@ -477,7 +477,7 @@ MAP_ERROR_CODE central_difference_jacobian(MAP_OtherStateType_t* other_type, MAP
         set_universal_error_with_message(map_msg, ierr, MAP_FATAL_78, "Central difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
         return MAP_FATAL;
       };
-      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+      success = line_solve_sequence(model_data, p_type, 0.0, map_msg, ierr);
       ns->jac[THREE*i][THREE*j+2] = other_type->Fx_connect[i];
       ns->jac[THREE*i+1][THREE*j+2] = other_type->Fy_connect[i];
       ns->jac[THREE*i+2][THREE*j+2] = other_type->Fz_connect[i];
@@ -493,7 +493,7 @@ MAP_ERROR_CODE central_difference_jacobian(MAP_OtherStateType_t* other_type, MAP
         set_universal_error_with_message(map_msg, ierr, MAP_FATAL_78, "Central difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
         return MAP_FATAL;
       };
-      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+      success = line_solve_sequence(model_data, p_type, 0.0, map_msg, ierr);
       ns->jac[THREE*i][THREE*j] -= other_type->Fx_connect[i];
       ns->jac[THREE*i][THREE*j] /= (2*ns->epsilon);
       ns->jac[THREE*i+1][THREE*j] -= other_type->Fy_connect[i];
@@ -504,7 +504,7 @@ MAP_ERROR_CODE central_difference_jacobian(MAP_OtherStateType_t* other_type, MAP
         
       original_displacement = z_type->y[j];
       z_type->y[j] -= ns->epsilon;
-      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+      success = line_solve_sequence(model_data, p_type, 0.0, map_msg, ierr);
       if (success) {
         set_universal_error_with_message(map_msg, ierr, MAP_FATAL_78, "Central difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
         return MAP_FATAL;
@@ -519,7 +519,7 @@ MAP_ERROR_CODE central_difference_jacobian(MAP_OtherStateType_t* other_type, MAP
     
       original_displacement = z_type->z[j];
       z_type->z[j] -= ns->epsilon;
-      success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
+      success = line_solve_sequence(model_data, p_type, 0.0, map_msg, ierr);
       if (success) {
         set_universal_error_with_message(map_msg, ierr, MAP_FATAL_78, "Central difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
         return MAP_FATAL;

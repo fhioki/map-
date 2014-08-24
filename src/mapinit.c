@@ -286,14 +286,14 @@ MAP_ERROR_CODE set_vessel(Vessel* floater, const MAP_InputType_t* u_type, char* 
 };
 
 
-MAP_ERROR_CODE first_solve(ModelData* model_data, MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE first_solve(ModelData* model_data, MAP_ParameterType_t* p_type, MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_ERROR_CODE success = MAP_SAFE;
   
   if (model_data->MAP_SOLVE_TYPE==MONOLITHIC) {
-    success = line_solve_sequence(model_data, 0.0, map_msg, ierr); /* @todo CHECKERRQ() */
+    success = line_solve_sequence(model_data, p_type, 0.0, map_msg, ierr); /* @todo CHECKERRQ() */
   } else {
-    success = node_solve_sequence(model_data, u_type, z_type, other_type, map_msg, ierr); /* @todo CHECKERRQ() */
+    success = node_solve_sequence(model_data, p_type, u_type, z_type, other_type, map_msg, ierr); /* @todo CHECKERRQ() */
   };
 
   /* @todo replace with MAP_RETURN? */

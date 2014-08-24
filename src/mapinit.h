@@ -752,7 +752,7 @@ MAP_ERROR_CODE initialize_cable_library_variables(ModelData* model_data, MAP_Par
  *      - wa1, wa2, wa3 : are work arrays of length n.
  *      - wa4           : a work array of length m.  
  */
-MAP_ERROR_CODE first_solve(ModelData* model_data, MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE first_solve(ModelData* model_data, MAP_ParameterType_t* p_type, MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type, char* map_msg, MAP_ERROR_CODE* ierr);
 
 
 /**
