@@ -133,6 +133,8 @@ MAP_ERROR_CODE reset_node_force_to_zero(ModelData* model_data, char* map_msg, MA
 MAP_ERROR_CODE set_element_initial_guess(ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr);
 
 
+MAP_ERROR_CODE solve_linear_spring_cable(Element* element, char* map_msg, MAP_ERROR_CODE* ierr);
+
 /**
  * MAP_InputType_t* uType,
  * MAP_ConstraintStateType_t* zType,

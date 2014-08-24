@@ -108,8 +108,6 @@ struct VarType_t {
   MapReal value;         /**< the value */
   bstring units;           /*< units for printing information to a summary file or output buffer */
   bstring name;            /*< name of the variable. This is used for identifying it in the output buffer */
-  // char* units;           /*< units for printing information to a summary file or output buffer */
-  // char* name;            /*< name of the variable. This is used for identifying it in the output buffer */
   bool isFixed;          /**< if isFixed = true, then we are not solving for this variable */
   int referenceCounter;  /**< for ensuring the variable is assigned to one of: input, param, or constraint */
   int id;                /**< node or element this value is attached to */
@@ -125,8 +123,6 @@ struct VarTypePtr_t {
   MapReal* value;        /**< the value */
   bstring units;           /*< units for printing information to a summary file or output buffer */
   bstring name;            /*< name of the variable. This is used for identifying it in the output buffer */
-  // char* units;           /**< units for printing information to a summary file or output buffer */
-  // char* name;            /**< name of the variable. This is used for identifying it in the output buffer */
   bool isFixed;          /**< If isFixed = true, then we are not solving for this variable */
   int referenceCounter;  /**< For ensuring the variable is assigned to one of: input, param, or constraint */
   int id;                /**< node or element this value is attached to */
@@ -233,6 +229,7 @@ typedef struct {
   bool layLengthFlag;
   bool damageTimeFlag;
   bool diagnosticsFlag;
+  bool linear_spring;
 } LineOptions;
 
 
@@ -251,7 +248,6 @@ struct CableLibrary_t {
   MapReal cDragNormal;      /**< Quadtradice drag coefficient in the cable cross-flow direction [non-dimensional] */
   MapReal cDragTangent;     /**< Tangential drag oefficient [non-dimensional] */
   bstring label;            /**< Provides the string a recognizable name (such as 'nylon' or 'steel') */
-  // char* label;              /**< Provides the string a recognizable name (such as 'nylon' or 'steel') */
 }; typedef struct CableLibrary_t CableLibrary;
 
 
@@ -295,7 +291,6 @@ struct Element_t {
   VarType TAtAnchor;          /**< Tension magnitude at anchor [N] */
   Force forceAtFairlead;      //*< @rm is this even necessary? I don't think so. Element should not store node forces. They only can contribute force in sumForcePrt
   Force forceAtAnchor;        //*< @rm is this even necessary? I don't think so. Element should not store node forces. They only can contribute force in sumForcePrt
-  // char* label;                /**< reference a pre-defined property in the line dictionary */
   bstring label;              /**< reference a pre-defined property in the line dictionary */
   Node* anchor;               /**< Anchor node */
   Node* fairlead;             /**< Fairlead node */

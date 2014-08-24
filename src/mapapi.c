@@ -411,6 +411,15 @@ MAP_EXTERNCALL double* map_plot_x_array(MAP_OtherStateType_t* other_type, int i,
   
   if (element==NULL) {    
     set_universal_error_with_message(map_msg, ierr, MAP_FATAL_42, "Element out of range: <%d>.", i);
+  } else if (element->options.linear_spring) {
+    fairlead_x = *(element->fairlead->positionPtr.x.value);
+    anchor_x = *(element->anchor->positionPtr.x.value);
+    array_x = (double*)malloc(num_points*sizeof(double));
+    dS = (fairlead_x-anchor_x)/(MapReal)(num_points-1);
+    for (s=0 ; s<num_points ; s++) {
+      array_x[s] = fairlead_x - S;
+      S += dS;
+    };    
   } else {
     fairlead_x = *(element->fairlead->positionPtr.x.value);
     anchor_x = *(element->anchor->positionPtr.x.value);
@@ -480,6 +489,15 @@ MAP_EXTERNCALL double* map_plot_y_array(MAP_OtherStateType_t* other_type, int i,
   
   if (element==NULL) {
     set_universal_error_with_message(map_msg, ierr, MAP_FATAL_42, "Element out of range: <%d>.", i);
+  } else if (element->options.linear_spring) {
+    fairlead_y = *(element->fairlead->positionPtr.y.value);
+    anchor_y = *(element->anchor->positionPtr.y.value);
+    array_y = (double*)malloc(num_points*sizeof(double));
+    dS = (fairlead_y-anchor_y)/(MapReal)(num_points-1);
+    for (s=0 ; s<num_points ; s++) {
+      array_y[s] = fairlead_y - S;
+      S += dS;
+    };    
   } else {    
     fairlead_y = *(element->fairlead->positionPtr.y.value);
     anchor_y = *(element->anchor->positionPtr.y.value);
@@ -548,6 +566,15 @@ MAP_EXTERNCALL double* map_plot_z_array(MAP_OtherStateType_t* other_type, int i,
   
   if (element==NULL){
     set_universal_error_with_message(map_msg, ierr, MAP_FATAL_42, "Element out of range: <%d>.", i);
+  } else if (element->options.linear_spring) {
+    fairlead_z = *(element->fairlead->positionPtr.z.value);
+    anchor_z = *(element->anchor->positionPtr.z.value);
+    array_z = (double*)malloc(num_points*sizeof(double));
+    dS = fabs(fairlead_z-anchor_z)/(MapReal)(num_points-1);
+    for (s=0 ; s<num_points ; s++) {
+      array_z[s] = fairlead_z - S;
+      S += dS;
+    };    
   } else {
     fairlead_z = *(element->fairlead->positionPtr.z.value);
     anchor_z = *(element->anchor->positionPtr.z.value);    

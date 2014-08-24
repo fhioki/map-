@@ -1949,6 +1949,8 @@ MAP_ERROR_CODE set_element_option_flags(struct bstrList* words, int* i_parsed, E
     element_ptr->options.lineTensionFlag = true;
   } else if (biseqcstrcaseless(words->entry[index], "OMIT_CONTACT")) {
     element_ptr->options.omitContact = true;
+  } else if (biseqcstrcaseless(words->entry[index], "LINEAR_SPRING")) {
+    element_ptr->options.linear_spring = true;
   } else if (biseqcstrcaseless(words->entry[index], "SEG_SIZE")) {
     do {
       index++;
@@ -2291,6 +2293,7 @@ MAP_ERROR_CODE reset_element(Element* element_ptr)
   element_ptr->options.layLengthFlag = false;
   element_ptr->options.damageTimeFlag = false;
   element_ptr->options.diagnosticsFlag = false;
+  element_ptr->options.linear_spring = false;
   
   element_ptr->lineProperty = NULL;      
   element_ptr->label = NULL;

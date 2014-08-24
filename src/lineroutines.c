@@ -186,21 +186,26 @@ MAP_ERROR_CODE set_line_variables_post_solve(ModelData* model_data, char* map_ms
     
     /* tension at fairlead */
     element_iter->T.value = sqrt(H*H + V*V);
-     
-    /* line in contact with seabed options */
-    w = element_iter->lineProperty->omega;
-    cb = element_iter->lineProperty->cb;
-    contact_flag = element_iter->options.omitContact;
-    Lu = element_iter->Lu.value;
-    if (contact_flag==true || w<0.0 || (V-w*Lu)>0.0) { 
-      element_iter->lb.value = 0.0;
+
+    if (element_iter->options.linear_spring) {
       Ha = H;
-      Va = V - w*Lu;
-    } else { /* line is touching the seabed */
-      Lb = Lu - (V/w);
-      element_iter->lb.value = Lb;
-      ((H-cb*w*Lb)>0.0) ? (Ha = (H-cb*w*Lb)) : (Ha = 0.0);
-      Va = 0.0;
+      Va = V;
+    } else {
+      /* line in contact with seabed options */
+      w = element_iter->lineProperty->omega;
+      cb = element_iter->lineProperty->cb;
+      contact_flag = element_iter->options.omitContact;
+      Lu = element_iter->Lu.value;
+      if (contact_flag==true || w<0.0 || (V-w*Lu)>0.0) { 
+        element_iter->lb.value = 0.0;
+        Ha = H;
+        Va = V - w*Lu;
+      } else { /* line is touching the seabed */
+        Lb = Lu - (V/w);
+        element_iter->lb.value = Lb;
+        ((H-cb*w*Lb)>0.0) ? (Ha = (H-cb*w*Lb)) : (Ha = 0.0);
+        Va = 0.0;
+      };
     };
     
     /* tension at anchor */
@@ -414,7 +419,11 @@ MAP_ERROR_CODE solve_line(ModelData* model_data, double time, char* map_msg, MAP
         break;
       };
     };    
-    success = call_minpack_lmder(element_iter, &model_data->inner_loop, &model_data->modelOptions, n, time, map_msg, ierr); CHECKERRQ(MAP_FATAL_79);
+    if (element_iter->options.linear_spring) {
+      success = solve_linear_spring_cable(element_iter, map_msg, ierr); CHECKERRQ(MAP_FATAL_87);
+    } else {
+      success = call_minpack_lmder(element_iter, &model_data->inner_loop, &model_data->modelOptions, n, time, map_msg, ierr); CHECKERRQ(MAP_FATAL_79);
+    };
     n++;
   };
   list_iterator_stop(&model_data->element); /* ending the iteration "session" */    
@@ -426,6 +435,61 @@ MAP_ERROR_CODE solve_line(ModelData* model_data, double time, char* map_msg, MAP
   } else {
     return MAP_FATAL;
   };
+};
+
+
+MAP_ERROR_CODE solve_linear_spring_cable(Element* element, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  MAP_ERROR_CODE success = MAP_SAFE;
+  double d_norm = 0.0;
+  Vector d;  /* r1-r2 */
+  Vector r1; /* anchor position */
+  Vector r2; /* fairlead position */
+  Vector force;
+  Vector d_unit;
+  const double EA = element->lineProperty->ea;
+  const double Lu = element->Lu.value;  
+
+  /* line anchor position */
+  r1.x = *element->anchor->positionPtr.x.value; 
+  r1.y = *element->anchor->positionPtr.y.value; 
+  r1.z = *element->anchor->positionPtr.z.value; 
+
+  /* line fairlead position */
+  r2.x = *element->fairlead->positionPtr.x.value; 
+  r2.y = *element->fairlead->positionPtr.y.value; 
+  r2.z = *element->fairlead->positionPtr.z.value; 
+
+  /* difference vector */
+  d.x =  r1.x - r2.x;
+  d.y =  r1.y - r2.y;
+  d.z =  r1.z - r2.z;
+  
+  /* calculate norm of \mathbf{d} */
+  d_norm = sqrt(d.x*d.x + d.y*d.y + d.z*d.z);
+
+  if (d_norm<MACHINE_EPSILON) {
+    return MAP_FATAL;
+  }
+
+  /* \hat{u}_{\mathbf{d}} = \frac{\mathbf{d}} {\left \| \mathbf{d} \right \|} */
+  d_unit.x = d.x/d_norm; 
+  d_unit.y = d.y/d_norm; 
+  d_unit.z = d.z/d_norm; 
+
+  if (d_norm<=Lu) { /* a cable cannot support a compression; force will be negative */
+    force.x = 0.0;
+    force.x = 0.0;
+    force.x = 0.0;
+  } else {
+    force.x = EA/Lu*(d_norm - Lu)*d_unit.x;
+    force.y = EA/Lu*(d_norm - Lu)*d_unit.y;
+    force.z = EA/Lu*(d_norm - Lu)*d_unit.z;
+  };
+
+  *(element->H.value) = sqrt(force.x*force.x + force.y*force.y);
+  *(element->V.value) = fabs(force.z);
+  return MAP_SAFE;
 };
 
 
