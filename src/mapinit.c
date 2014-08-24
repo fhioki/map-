@@ -154,7 +154,7 @@ MAP_ERROR_CODE allocate_outlist(ModelData* data, char* map_msg, MAP_ERROR_CODE* 
 { 
   data->yList = malloc(sizeof(OutputList)); 
   if (data->yList==NULL) {
-    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_46);    
+    set_universal_error(map_msg, ierr, MAP_FATAL_46);    
     return MAP_FATAL;
   };
   return MAP_SAFE;
@@ -245,7 +245,6 @@ MAP_ERROR_CODE set_vessel(Vessel* floater, const MAP_InputType_t* u_type, char* 
   MAP_ERROR_CODE success = MAP_SAFE;
   int i = 0;
   int n = u_type->x_Len;
-  bstring user_msg = NULL;
 
   do {
     /* vessel displacement */
@@ -311,7 +310,6 @@ MAP_ERROR_CODE first_solve(ModelData* model_data, MAP_InputType_t* u_type, MAP_C
 MAP_ERROR_CODE allocate_outer_solve_data(OuterSolveAttributes* ns, const int size, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   int ret = 0;
-  // bstring user_msg = NULL;
   const int THREE = 3;  
   const int SIZE = THREE*size;
   int i = 0;
@@ -324,32 +322,32 @@ MAP_ERROR_CODE allocate_outer_solve_data(OuterSolveAttributes* ns, const int siz
   ns->y = (double*)malloc(SIZE*sizeof(double*));  
   
   if (ns->jac==NULL) {
-    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_8);        
+    set_universal_error(map_msg, ierr, MAP_FATAL_8);        
     return MAP_FATAL;
   };
 
   if (ns->x==NULL) {
-    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_8);        
+    set_universal_error(map_msg, ierr, MAP_FATAL_8);        
     return MAP_FATAL;
   };
 
   if (ns->b==NULL) {
-    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_8);        
+    set_universal_error(map_msg, ierr, MAP_FATAL_8);        
     return MAP_FATAL;
   };
 
   if (ns->l==NULL) {
-    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_8);        
+    set_universal_error(map_msg, ierr, MAP_FATAL_8);        
     return MAP_FATAL;
   };
 
   if (ns->u==NULL) {
-    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_8);        
+    set_universal_error(map_msg, ierr, MAP_FATAL_8);        
     return MAP_FATAL;
   };
 
   if (ns->y==NULL) {
-    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_8);        
+    set_universal_error(map_msg, ierr, MAP_FATAL_8);        
     return MAP_FATAL;
   };
 
@@ -956,7 +954,6 @@ MAP_ERROR_CODE set_library_tangent_drag_coefficient(bstring word, CableLibrary* 
 MAP_ERROR_CODE set_model_options_list(ModelData* model_data, InitializationData* init_data, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_ERROR_CODE success = MAP_SAFE;
-  bstring user_msg = NULL;
   int i = 0;
   const int n_lines = (init_data->solverOptionsString->qty)-1;
   struct bstrList* parsed = NULL;
@@ -986,10 +983,7 @@ MAP_ERROR_CODE set_model_options_list(ModelData* model_data, InitializationData*
       success = check_ref_position_flag(parsed, &model_data->vessel.refOrigin); CHECKERRQ(MAP_FATAL_36);
       success = check_uncaught_flag(parsed);       
       if (success) {
-        user_msg = bformat("word: <%s>", parsed->entry[0]->data);
-        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_WARNING_1);        
-        success = bdestroy(user_msg); /* clear user_msg to not inavertendly picked up elsewhere */
-        user_msg = NULL;
+        set_universal_error_with_message(map_msg, ierr, MAP_WARNING_1, "word: <%s>", parsed->entry[0]->data);
       };
     } while (0);   
     success = bstrListDestroy(parsed);
@@ -1022,7 +1016,6 @@ MAP_ERROR_CODE reset_cable_library(CableLibrary* library_ptr)
 MAP_ERROR_CODE set_cable_library_list(ModelData* model_data, InitializationData* init_data, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_ERROR_CODE success = MAP_SAFE;
-  bstring user_msg = NULL;
   int i = 0;
   int n = 0;
   int next = 0; 
@@ -1097,7 +1090,6 @@ MAP_ERROR_CODE initialize_cable_library_variables(ModelData* model_data, MAP_Par
   const double g = p_type->g;
   const double PI = 3.14159264;
   CableLibrary* library_iter = NULL;
-  bstring user_msg = NULL;
 
   list_iterator_start(&model_data->cableLibrary); /* starting an iteration "session" */
   while ( list_iterator_hasnext(&model_data->cableLibrary)) { /* tell whether more values available */ 
@@ -1110,10 +1102,7 @@ MAP_ERROR_CODE initialize_cable_library_variables(ModelData* model_data, MAP_Par
 
     library_iter->a = area;
     if (fabs(library_iter->omega)<=1) {
-      user_msg = bformat("omega = %f <= 1.0", library_iter->omega);
-      *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_WARNING_5);
-      success = bdestroy(user_msg); /* clear user_msg to not inavertendly picked up elsewhere */
-      user_msg = NULL;
+      set_universal_error_with_message(map_msg, ierr, MAP_WARNING_5, "omega = %f <= 1.0", library_iter->omega);
     };
   };
   list_iterator_stop(&model_data->cableLibrary); /* ending the iteration "session" */    
@@ -1566,7 +1555,6 @@ MAP_ERROR_CODE allocate_types_for_nodes(MAP_InputType_t* u_type, MAP_ConstraintS
   int vessel_num = 0;
   int connect_num = 0;
   MAP_ERROR_CODE success = MAP_SAFE;
-  bstring user_msg = NULL;
   const int num_nodes = node_input_string->qty;
   struct bstrList* parsed = NULL;
   struct tagbstring tokens; 
@@ -1594,10 +1582,7 @@ MAP_ERROR_CODE allocate_types_for_nodes(MAP_InputType_t* u_type, MAP_ConstraintS
               vessel_num++;
               break; /* break the while-loop because the agenda is reached */
             } else {
-              user_msg = bformat("Value: <%s>", parsed->entry[i_parsed]->data);
-              *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_25);        
-              success = bdestroy(user_msg); /* clear user_msg to not inavertendly picked up elsewhere */
-              user_msg = NULL;
+              set_universal_error_with_message(map_msg, ierr, MAP_FATAL_25, "Value: <%s>", parsed->entry[i_parsed]->data);
             };
           };          
           next++;
@@ -1681,7 +1666,6 @@ MAP_ERROR_CODE set_node_list(const MAP_ParameterType_t* p_type,  MAP_InputType_t
   Node* node_iter = NULL;
   struct bstrList* parsed = NULL;
   struct tagbstring tokens; 
-  bstring user_msg = NULL;
   bstring alias = NULL;
   bstring value_string = NULL;
   const double depth = p_type->depth;
@@ -1732,10 +1716,7 @@ MAP_ERROR_CODE set_node_list(const MAP_ParameterType_t* p_type,  MAP_InputType_t
               success = associate_vartype_ptr(&node_iter->sumForcePtr.fy, y_type->Fy, vessel_num);
               success = associate_vartype_ptr(&node_iter->sumForcePtr.fz, y_type->Fz, vessel_num);
             } else {
-              user_msg = bformat("Value: <%s>", parsed->entry[i_parsed]->data);
-              *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_25);        
-              success = bdestroy(user_msg); /* clear user_msg to not inavertendly picked up elsewhere */
-              user_msg = NULL;
+              set_universal_error_with_message(map_msg, ierr, MAP_FATAL_25, "Value: <%s>", parsed->entry[i_parsed]->data);
             };
             next++;
           } else if (next==2) { /* set initial X node position values */
@@ -1752,10 +1733,7 @@ MAP_ERROR_CODE set_node_list(const MAP_ParameterType_t* p_type,  MAP_InputType_t
             alias = bformat("Z[%d]", i+1);                          
             if (biseqcstrcaseless(parsed->entry[i_parsed],"DEPTH")) {         
               if (node_iter->type!=FIX) { /* can only use 'DEPTH' flag in input file for FIX (anchor) nodes */
-                user_msg = bformat("Value: <%s>", parsed->entry[i_parsed]->data);
-                *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_71); 
-                success = bdestroy(user_msg); /* clear user_msg to not inavertendly picked up elsewhere */
-                user_msg = NULL;
+                set_universal_error_with_message(map_msg, ierr, MAP_FATAL_71, "Value: <%s>", parsed->entry[i_parsed]->data);
               } else {
                 value_string = bformat("%f", -depth);                          
                 success = set_vartype_ptr("[m]", alias, i, &node_iter->positionPtr.z, value_string); CHECKERRQ(MAP_FATAL_19);
@@ -1924,7 +1902,6 @@ MAP_ERROR_CODE set_element_option_flags(struct bstrList* words, int* i_parsed, E
 {
   MAP_ERROR_CODE success = MAP_SAFE;
   int index = *i_parsed;
-  bstring user_msg = NULL;
   
   if (biseqcstrcaseless(words->entry[index],"PLOT")) {    
     element_ptr->options.plotFlag = true;
@@ -1983,10 +1960,7 @@ MAP_ERROR_CODE set_element_option_flags(struct bstrList* words, int* i_parsed, E
       element_ptr->segmentSize = (MapReal)atof(words->entry[index]->data);
       *i_parsed = index;
     } else { /* should not cancel the simulation; simply ignore it */      
-      user_msg = bformat("Option <%s>", words->entry[index]->data);
-      *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_ERROR_18);
-      success = bdestroy(user_msg); 
-      user_msg = NULL;    
+      set_universal_error_with_message(map_msg, ierr, MAP_FATAL_18, "Option <%s>", words->entry[index]->data);
     };          
   } else if (biseqcstrcaseless(words->entry[index], "LAY_LENGTH")) {
     element_ptr->options.layLengthFlag = true;
@@ -2002,10 +1976,7 @@ MAP_ERROR_CODE set_element_option_flags(struct bstrList* words, int* i_parsed, E
       element_ptr->damageTime = (MapReal)atof(words->entry[index]->data);
       *i_parsed = index;
     } else { /* should not cancel the simulation; simply ignore it */      
-      user_msg = bformat("Option <%s>", words->entry[index]->data);
-      *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_ERROR_1);
-      success = bdestroy(user_msg); 
-      user_msg = NULL;    
+      set_universal_error_with_message(map_msg, ierr, MAP_ERROR_1, "Option <%s>", words->entry[index]->data);
     };          
   } else if (biseqcstrcaseless(words->entry[index], "DIAGNOSTIC")) {
     do {
@@ -2019,17 +1990,11 @@ MAP_ERROR_CODE set_element_option_flags(struct bstrList* words, int* i_parsed, E
       element_ptr->diagnosticType = (int)atoi(words->entry[index]->data);
       *i_parsed = index;
     } else { /* should not cancel the simulation; simply ignore it */      
-      user_msg = bformat("Option <%s>", words->entry[index]->data);
-      *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_ERROR_14);
-      success = bdestroy(user_msg); 
-      user_msg = NULL;    
+      set_universal_error_with_message(map_msg, ierr, MAP_ERROR_14, "Option <%s>", words->entry[index]->data);
     };          
   } else {
     /* should not cancel the simulation; simply ignore it */
-    user_msg = bformat("Option <%s>", words->entry[index]->data);
-    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_WARNING_3);
-    success = bdestroy(user_msg); /* clear user_msg to not inavertendly picked up elsewhere */
-    user_msg = NULL;
+    set_universal_error_with_message(map_msg, ierr, MAP_WARNING_3, "Option <%s>", words->entry[index]->data);
   };
   return MAP_SAFE;
 };
@@ -2046,7 +2011,6 @@ MAP_ERROR_CODE set_element_list(MAP_ConstraintStateType_t* z_type, ModelData* mo
   Element* element_iter = NULL;
   struct bstrList* parsed = NULL;
   struct tagbstring tokens; 
-  bstring user_msg = NULL;
   bstring alias = NULL;
 
   cstr2tbstr(tokens," \t\n\r"); /* token for splitting line into indivdual words is a tab and space */   
@@ -2060,10 +2024,7 @@ MAP_ERROR_CODE set_element_list(MAP_ConstraintStateType_t* z_type, ModelData* mo
   z_type->V = (double*)malloc(z_type->V_Len*sizeof(double));
 
   if (z_type->H==NULL || z_type->V==NULL) {
-    user_msg = bformat("Failed allocation of a z_type");
-    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_53);
-    success = bdestroy(user_msg); /* clear user_msg to not inavertendly picked up elsewhere */
-    user_msg = NULL;
+    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_53, "Failed allocation of a z_type");
     return MAP_FATAL;
   };
   
@@ -2568,7 +2529,6 @@ MAP_ERROR_CODE associate_element_with_cable_property(Element* element_ptr, Model
 {
   MAP_ERROR_CODE success = MAP_SAFE;
   CableLibrary* library_iterator = NULL;
-  bstring user_msg = NULL;
 
   library_iterator = NULL;
   element_ptr->lineProperty = NULL;
@@ -2584,10 +2544,7 @@ MAP_ERROR_CODE associate_element_with_cable_property(Element* element_ptr, Model
   };
   list_iterator_stop(&model_data->cableLibrary); /* ending the iteration session */  
   if (element_ptr->lineProperty==NULL) {        
-    user_msg = bformat("No libraries match <%s>.", word);
-    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_27);
-    success = bdestroy(user_msg); 
-    user_msg = NULL;
+    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_27, "No libraries match <%s>.", word);
     return MAP_FATAL;
   };
   return MAP_SAFE;
@@ -2599,7 +2556,6 @@ MAP_ERROR_CODE associate_element_with_anchor_node(Element* element_ptr, ModelDat
   MAP_ERROR_CODE success = MAP_SAFE;
   Node* node_iter = NULL;
   int node_num = 0;
-  bstring user_msg = NULL;
 
   element_ptr->anchor = NULL;
   
@@ -2608,17 +2564,11 @@ MAP_ERROR_CODE associate_element_with_anchor_node(Element* element_ptr, ModelDat
     node_iter = (Node*)list_get_at(&model_data->node, node_num-1);
     element_ptr->anchor = node_iter; /* create the associate with anchor here */
     if (!node_iter) {
-      user_msg = bformat("Element %d.", element_num);
-      *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_30);        
-      success = bdestroy(user_msg); /* clear user_msg to not inavertendly picked up elsewhere */
-      user_msg = NULL;
+      set_universal_error_with_message(map_msg, ierr, MAP_FATAL_30, "Element %d.", element_num);
       return MAP_FATAL;
     };
   } else {
-    user_msg = bformat("Element %d.", element_num);
-    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_28);        
-    success = bdestroy(user_msg); 
-    user_msg = NULL;
+    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_28, "Element %d.", element_num);
     return MAP_FATAL;
   };
   return MAP_SAFE;
@@ -2630,7 +2580,6 @@ MAP_ERROR_CODE associate_element_with_fairlead_node(Element* element_ptr, ModelD
   Node* node_iter = NULL;
   int node_num = 0;
   MAP_ERROR_CODE success = MAP_SAFE;
-  bstring user_msg = NULL;
 
   element_ptr->fairlead = NULL;
 
@@ -2639,21 +2588,14 @@ MAP_ERROR_CODE associate_element_with_fairlead_node(Element* element_ptr, ModelD
     node_iter = (Node*)list_get_at(&model_data->node, node_num-1);
     element_ptr->fairlead = node_iter; /* create the associate with anchor here */
     if (!node_iter) {
-      user_msg = bformat("Element %d.", element_num);
-      *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_31);        
-      success = bdestroy(user_msg); /* clear user_msg to not inavertendly picked up elsewhere */
-      user_msg = NULL;
+      set_universal_error_with_message(map_msg, ierr, MAP_FATAL_31, "Element %d.", element_num);
       return MAP_FATAL;
     };
   } else {
-    user_msg = bformat("Element %d.", element_num);
-    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_29);        
-    success = bdestroy(user_msg); 
-    user_msg = NULL;
+    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_29, "Element %d.", element_num);
     return MAP_FATAL;
   };
   return MAP_SAFE;
-
 };
 
 

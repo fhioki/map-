@@ -115,7 +115,6 @@ MAP_ERROR_CODE set_line_variables_pre_solve(ModelData* model_data, char* map_msg
 {
   MAP_ERROR_CODE success = MAP_SAFE;
   Element* element_iter = NULL;
-  bstring user_msg = NULL;
   int i = 0;
 
   list_iterator_start(&model_data->element);            /* starting an iteration "session" */
@@ -139,10 +138,7 @@ MAP_ERROR_CODE set_line_variables_pre_solve(ModelData* model_data, char* map_msg
     /* angle of azimuth */
     success = set_psi(element_iter, map_msg, ierr); 
     if (success!=MAP_SAFE) {
-      user_msg = bformat("Element number %d", i);
-      *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_WARNING_6);        
-      success = bdestroy(user_msg); 
-      user_msg = NULL;
+      set_universal_error_with_message(map_msg, ierr, MAP_WARNING_6, "Element number %d", i);
     };
     i++;
   };
@@ -325,7 +321,6 @@ MAP_ERROR_CODE node_solve_sequence(ModelData* model_data, MAP_InputType_t* u_typ
   int i = 0;
   int j = 0;
   int lineCounter = 0;
-  bstring user_msg = NULL;
 
   ns->iterationCount = 1;
   do {
@@ -357,7 +352,7 @@ MAP_ERROR_CODE node_solve_sequence(ModelData* model_data, MAP_InputType_t* u_typ
     };
     ns->iterationCount++;
     if (ns->iterationCount>ns->maxIts) {
-      *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_80);
+      set_universal_error(map_msg, ierr, MAP_FATAL_80);
       break;
     };
     
@@ -382,37 +377,25 @@ MAP_ERROR_CODE solve_line(ModelData* model_data, double time, char* map_msg, MAP
 {
   MAP_ERROR_CODE success = MAP_SAFE;
   Element* element_iter = NULL;
-  bstring user_msg = NULL;
   int n = 1; /* line counter */
 
   list_iterator_start(&model_data->element);            /* starting an iteration "session" */
   while (list_iterator_hasnext(&model_data->element)) { /* tell whether more values available */ 
     element_iter = (Element*)list_iterator_next(&model_data->element);
 
-    /* check for fatal errors 
-     * @todo: this should handle the exception of a perfectly vertical cable. Added to the priority list
-     */    
-    if (element_iter->l.value<=0.0) {
- 
-      element_iter->l.value = 1e-3;
-      // user_msg = bformat("Line segment %d, l = %d [m].", n, element_iter->l.value);
-      // *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_54);        
-      // success = bdestroy(user_msg); 
-      // user_msg = NULL;
-      // break; 
+    if (element_iter->l.value<MAP_HORIZONTAL_TOL && element_iter->l.value>=0.0) { /* perfectly vertical */
+      /* this should be triggered for  perfectly vertical cable */
+      element_iter->l.value = MAP_HORIZONTAL_TOL;
+    } else if (element_iter->l.value<0.0) {
+      set_universal_error_with_message(map_msg, ierr, MAP_FATAL_54, "Line segment %d, l = %d [m].", n, element_iter->l.value);
+      break; 
     } else if (element_iter->h.value<=-MACHINE_EPSILON) {
-      user_msg = bformat("Line segment %d, h = %d [m].", n, element_iter->h.value);
-      *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_55);        
-      success = bdestroy(user_msg); 
-      user_msg = NULL;
+      set_universal_error_with_message(map_msg, ierr, MAP_FATAL_55, "Line segment %d, h = %d [m].", n, element_iter->h.value);
       break; 
     } else if (element_iter->lineProperty->omega>0.0) {
       success = check_maximum_line_length(element_iter, element_iter->options.omitContact, map_msg, ierr);
       if (success) {        
-        user_msg = bformat("Line segment %d.", n);
-        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_59);        
-        success = bdestroy(user_msg); 
-        user_msg = NULL;
+        set_universal_error_with_message(map_msg, ierr, MAP_FATAL_59, "Line segment %d.", n);
         break;
       };
     };    
@@ -440,14 +423,10 @@ MAP_ERROR_CODE check_maximum_line_length(Element* element, const bool contact_fl
   MapReal EA = element->lineProperty->ea;
   MapReal W = element->lineProperty->omega;
   MapReal Lu = element->Lu.value;
-  bstring user_msg = NULL;
 
   LMax = l - EA/W + sqrt(pow((EA/W),2) + 2.0*h*EA/W);
   if (Lu>=LMax && contact_flag==false) {
-    user_msg = bformat("LMax = %f [m].", LMax);
-    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_59);        
-    success = bdestroy(user_msg); 
-    user_msg = NULL;
+    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_59, "LMax = %f [m].", LMax);
     return MAP_FATAL;
   };
   return MAP_SAFE;

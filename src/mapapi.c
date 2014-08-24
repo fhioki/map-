@@ -58,7 +58,6 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
   InitializationData* init_data = init_type->object;   
   ModelData* model_data = other_type->object;
   MAP_ERROR_CODE success = MAP_SAFE;
-  bstring user_msg = NULL;
 
   size_t len = strlen(map_msg);
   
@@ -195,33 +194,32 @@ MAP_EXTERNCALL void map_end(MAP_InputType_t* u_type,
   CableLibrary* iterCableLibrary = NULL;
   ModelData* model_data = other_type->object;
   MAP_ERROR_CODE success = MAP_SAFE;
-  bstring user_msg = NULL;
 
-   map_reset_universal_error(map_msg, ierr);  
-   do {
-     success = free_outer_solve_data(&model_data->outer_loop, z_type->x_Len, map_msg, ierr); CHECKERRQ(MAP_FATAL_73);
-     success = map_free_types(u_type, p_type, x_type, z_type, other_type, y_type); 
-     list_destroy(&model_data->yList->out_list);    /* destroy output lists for writting information to output file */
-     list_destroy(&model_data->yList->out_list_ptr); /* destroy output lists for writting information to output file */
-     success = free_outlist(model_data,map_msg,ierr); CHECKERRQ(MAP_FATAL_47);//@rm, should be replaced with a MAPFREE(data->yList)   
-     success = free_element(&model_data->element);
-     success = free_node(&model_data->node);
-     success = free_vessel(&model_data->vessel);
+  map_reset_universal_error(map_msg, ierr);  
+  do {
+    success = free_outer_solve_data(&model_data->outer_loop, z_type->x_Len, map_msg, ierr); CHECKERRQ(MAP_FATAL_73);
+    success = map_free_types(u_type, p_type, x_type, z_type, other_type, y_type); 
+    list_destroy(&model_data->yList->out_list);    /* destroy output lists for writting information to output file */
+    list_destroy(&model_data->yList->out_list_ptr); /* destroy output lists for writting information to output file */
+    success = free_outlist(model_data,map_msg,ierr); CHECKERRQ(MAP_FATAL_47);//@rm, should be replaced with a MAPFREE(data->yList)   
+    success = free_element(&model_data->element);
+    success = free_node(&model_data->node);
+    success = free_vessel(&model_data->vessel);
    
    
-     list_iterator_start(&model_data->cableLibrary);          /* starting an iteration "session" */
-     while ( list_iterator_hasnext(&model_data->cableLibrary)) { /* tell whether more values available */
-       iterCableLibrary = (CableLibrary*)list_iterator_next(&model_data->cableLibrary);
-       bdestroy(iterCableLibrary->label);
-     };
-     list_iterator_stop(&model_data->cableLibrary);             /* ending the iteration "session" */  
+    list_iterator_start(&model_data->cableLibrary);          /* starting an iteration "session" */
+    while ( list_iterator_hasnext(&model_data->cableLibrary)) { /* tell whether more values available */
+      iterCableLibrary = (CableLibrary*)list_iterator_next(&model_data->cableLibrary);
+      bdestroy(iterCableLibrary->label);
+    };
+    list_iterator_stop(&model_data->cableLibrary);             /* ending the iteration "session" */  
      
-     list_destroy(&model_data->element);
-     list_destroy(&model_data->node);
-     list_destroy(&model_data->cableLibrary);
-     MAPFREE(model_data->modelOptions.repeat_angle);
-     MAP_OtherState_Delete(model_data);
-   } while (0);
+    list_destroy(&model_data->element);
+    list_destroy(&model_data->node);
+    list_destroy(&model_data->cableLibrary);
+    MAPFREE(model_data->modelOptions.repeat_angle);
+    MAP_OtherState_Delete(model_data);
+  } while (0);
 };
 
 
@@ -407,16 +405,12 @@ MAP_EXTERNCALL double* map_plot_x_array(MAP_OtherStateType_t* other_type, int i,
   double* array_x = NULL;
   int ret = 0;
   int s = 0;
-  bstring user_msg = NULL;
 
   map_reset_universal_error(map_msg, ierr);
   element = (Element*)list_get_at(&model_data->element, i);  
   
   if (element==NULL) {    
-    user_msg = bformat("Element out of range: <%d>.", i);
-    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_42);        
-    ret = bdestroy(user_msg); 
-    user_msg = NULL;
+    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_42, "Element out of range: <%d>.", i);
   } else {
     fairlead_x = *(element->fairlead->positionPtr.x.value);
     anchor_x = *(element->anchor->positionPtr.x.value);
@@ -480,16 +474,12 @@ MAP_EXTERNCALL double* map_plot_y_array(MAP_OtherStateType_t* other_type, int i,
   double* array_y = NULL;
   int s = 0;
   int ret = 0;
-  bstring user_msg = NULL;
 
   map_reset_universal_error(map_msg, ierr);  
   element = (Element*)list_get_at(&data->element, i);
   
   if (element==NULL) {
-    user_msg = bformat("Element out of range: <%d>.", i);
-    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_42);        
-    ret = bdestroy(user_msg); 
-    user_msg = NULL;
+    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_42, "Element out of range: <%d>.", i);
   } else {    
     fairlead_y = *(element->fairlead->positionPtr.y.value);
     anchor_y = *(element->anchor->positionPtr.y.value);
@@ -552,16 +542,12 @@ MAP_EXTERNCALL double* map_plot_z_array(MAP_OtherStateType_t* other_type, int i,
   double* array_z = NULL;
   int ret = 0;
   int s = 0;
-  bstring user_msg = NULL;
 
   map_reset_universal_error(map_msg, ierr);  
   element = (Element*)list_get_at(&data->element, i);
   
   if (element==NULL){
-    user_msg = bformat("Element out of range: <%d>.", i);
-    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_42);        
-    ret = bdestroy(user_msg); 
-    user_msg = NULL;
+    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_42, "Element out of range: <%d>.", i);
   } else {
     fairlead_z = *(element->fairlead->positionPtr.z.value);
     anchor_z = *(element->anchor->positionPtr.z.value);    
@@ -620,15 +606,12 @@ MAP_EXTERNCALL MapReal map_residual_function_length(MAP_OtherStateType_t* other_
   MapReal omega = 0.0;
   MapReal cb = 0.0;
   bool contact_flag = false;
-  bstring user_msg = NULL;
 
   map_reset_universal_error(map_msg, ierr);  
   element = (Element*)list_get_at(&model_data->element, i);
 
   if (element==NULL) {
-    user_msg = bformat("Element out of range: %d.", i);
-    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_42);
-    bdestroy(user_msg);
+    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_42, "Element out of range: <%d>.", i);
     return -999.9;
   };
 
@@ -661,15 +644,13 @@ MAP_EXTERNCALL MapReal map_residual_function_height(MAP_OtherStateType_t* other_
   MapReal omega = 0.0;
   MapReal cb = 0.0;
   bool contact_flag = false;
-  bstring user_msg = NULL;
+
 
   map_reset_universal_error(map_msg, ierr);  
   element = (Element*)list_get_at(&model_data->element, i);
 
   if (element==NULL) {    
-    user_msg = bformat("Element out of range: %d.", i);
-    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_42);
-    bdestroy(user_msg);
+    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_42, "Element out of range: <%d>.", i);
     return -999.9;
   };
 
@@ -701,15 +682,12 @@ MAP_EXTERNCALL MapReal map_jacobian_dxdh(MAP_OtherStateType_t* other_type, int i
   MapReal omega = 0.0;
   MapReal cb = 0.0;
   bool contact_flag = false;
-  bstring user_msg = NULL;
 
   map_reset_universal_error(map_msg, ierr);  
   element = (Element*)list_get_at(&model_data->element, i);
 
   if (element==NULL) {    
-    user_msg = bformat("Element out of range: %d.", i);
-    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_42);
-    bdestroy(user_msg);
+    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_42, "Element out of range: <%d>.", i);
     return -999.9;
   };
 
@@ -740,15 +718,12 @@ MAP_EXTERNCALL MapReal map_jacobian_dxdv(MAP_OtherStateType_t* other_type, int i
   MapReal omega = 0.0;
   MapReal cb = 0.0;
   bool contact_flag = false;
-  bstring user_msg = NULL;
 
   map_reset_universal_error(map_msg, ierr);  
   element = (Element*)list_get_at(&model_data->element, i);
   
   if (element==NULL) {    
-    user_msg = bformat("Element out of range: %d.", i);
-    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_42);
-    bdestroy(user_msg);
+    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_42, "Element out of range: <%d>.", i);
     return -999.9;
   };
 
@@ -779,15 +754,12 @@ MAP_EXTERNCALL MapReal map_jacobian_dzdh(MAP_OtherStateType_t* other_type, int i
   MapReal omega = 0.0;
   MapReal cb = 0.0;
   bool contact_flag = false;
-  bstring user_msg = NULL;
 
   map_reset_universal_error(map_msg, ierr);  
   element = (Element*)list_get_at(&model_data->element, i);
 
   if (element==NULL) {    
-    user_msg = bformat("Element out of range: %d.", i);
-    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_42);
-    bdestroy(user_msg);
+    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_42, "Element out of range: <%d>.", i);
     return -999.9;
   };
 
@@ -818,15 +790,12 @@ MAP_EXTERNCALL MapReal map_jacobian_dzdv(MAP_OtherStateType_t* other_type, int i
   MapReal omega  = 0.0;
   MapReal cb = 0.0;
   bool contact_flag = false;
-  bstring user_msg = NULL;
 
   map_reset_universal_error(map_msg, ierr);  
   element = (Element*)list_get_at(&model_data->element, i);
 
   if (element==NULL) {    
-    user_msg = bformat("Element out of range: %d.", i);
-    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_42);
-    bdestroy(user_msg);
+    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_42, "Element out of range: <%d>.", i);
     return -999.9;
   };
 
@@ -850,7 +819,6 @@ MAP_EXTERNCALL void map_get_fairlead_force_2d(double* H, double* V, MAP_OtherSta
 {
   Element* iter_element = NULL;
   ModelData* model_data = other_type->object;
-  bstring user_msg = NULL;
 
   map_reset_universal_error(map_msg, ierr);  
 
@@ -860,9 +828,7 @@ MAP_EXTERNCALL void map_get_fairlead_force_2d(double* H, double* V, MAP_OtherSta
     *V = *(iter_element->V.value);
   } else {
     /* throw error: element out of range */
-    user_msg = bformat("Element out of range: %d.", index);
-    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_42);
-    bdestroy(user_msg);
+    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_42, "Element out of range: %d.", index);
   };
 }
 
@@ -872,7 +838,6 @@ MAP_EXTERNCALL void map_get_fairlead_force_3d(double* fx, double* fy, double* fz
   Element* iter_element = NULL;
   ModelData* model_data = other_type->object;
   double psi = 0.0;
-  bstring user_msg = NULL;
 
   if (index<=list_size(&model_data->element)-1) {
     iter_element = (Element*)list_get_at(&model_data->element, index);
@@ -882,9 +847,7 @@ MAP_EXTERNCALL void map_get_fairlead_force_3d(double* fx, double* fy, double* fz
     *fz = *(iter_element->V.value);
   } else {
     /* throw error: element out of range */
-    user_msg = bformat("Element out of range: %d.", index);
-    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_42);
-    bdestroy(user_msg);
+    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_42, "Element out of range: %d.", index);
   };
 }
 
@@ -1043,11 +1006,10 @@ MAP_EXTERNCALL InitializationData* MAP_InitInput_Create(char* map_msg, MAP_ERROR
   map_reset_universal_error(map_msg, ierr);
   new_data = malloc(sizeof(InitializationData));
   if (new_data == NULL) {
-    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_4);    
+    set_universal_error(map_msg, ierr, MAP_FATAL_4);    
     return new_data;
   } else {
-    initialize_init_data_to_null(new_data);
-    *ierr = MAP_SAFE;
+    initialize_init_data_to_null(new_data);    
     return new_data;
   };
 };
@@ -1057,10 +1019,10 @@ MAP_EXTERNCALL MAP_InitInputType_t* map_create_init_type(char* map_msg, MAP_ERRO
 {
   MAP_InitInputType_t* new_data = NULL;  
 
-  *ierr = MAP_SAFE;
+  map_reset_universal_error(map_msg, ierr);
   new_data = malloc(sizeof(MAP_InitInputType_t));
   if (new_data==NULL) {
-    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_4);    
+    set_universal_error(map_msg, ierr, MAP_FATAL_4);    
   } else {    
     initialize_init_type_to_null(new_data); /* set F2C types to null */
     new_data->object = NULL;
@@ -1077,11 +1039,10 @@ MAP_EXTERNCALL ModelData* MAP_OtherState_Create(char* map_msg, MAP_ERROR_CODE* i
   map_reset_universal_error(map_msg, ierr);
   new_data = malloc(sizeof(ModelData));
   if (new_data==NULL) {
-    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_43);    
+    set_universal_error(map_msg, ierr, MAP_FATAL_43);    
     return new_data;
   } else {
-    initialize_model_data_to_null(new_data);
-    *ierr = MAP_SAFE;
+    initialize_model_data_to_null(new_data);    
     return new_data;
   };
 };
@@ -1090,10 +1051,10 @@ MAP_EXTERNCALL MAP_OtherStateType_t* map_create_other_type(char* map_msg, MAP_ER
 {
   MAP_OtherStateType_t* new_data = NULL;  
 
-  *ierr = MAP_SAFE;
+  map_reset_universal_error(map_msg, ierr);
   new_data = malloc(sizeof(MAP_OtherStateType_t)); 
   if (new_data==NULL) {
-    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_43);    
+    set_universal_error(map_msg, ierr, MAP_FATAL_43);    
   } else {
     new_data->object = NULL;
     new_data->object = (ModelData*)(uintptr_t)MAP_OtherState_Create(map_msg, ierr);
@@ -1106,10 +1067,10 @@ MAP_EXTERNCALL MAP_InitOutputType_t* map_create_initout_type(char* map_msg, MAP_
 {
   MAP_InitOutputType_t* new_type = NULL;  
 
-  *ierr = MAP_SAFE;
+  map_reset_universal_error(map_msg, ierr);
   new_type = malloc(sizeof(MAP_InitOutputType_t));
   if (new_type==NULL) {
-    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_11);    
+    set_universal_error(map_msg, ierr, MAP_FATAL_11);    
   } else {
     new_type->object = NULL;
   };
@@ -1121,10 +1082,10 @@ MAP_EXTERNCALL MAP_InputType_t* map_create_input_type(char* map_msg, MAP_ERROR_C
 {
   MAP_InputType_t* new_type = NULL;  
 
-  *ierr = MAP_SAFE;
+  map_reset_universal_error(map_msg, ierr);
   new_type = malloc(sizeof(MAP_InputType_t)); 
   if (new_type == NULL) {
-    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_5);        
+    set_universal_error(map_msg, ierr, MAP_FATAL_5);        
   } else { 
     new_type->object = NULL;
   };
@@ -1136,10 +1097,10 @@ MAP_EXTERNCALL MAP_ParameterType_t* map_create_parameter_type(char* map_msg, MAP
 {
   MAP_ParameterType_t* new_type = NULL;  
 
-  *ierr = MAP_SAFE;
+  map_reset_universal_error(map_msg, ierr);
   new_type = malloc(sizeof(MAP_ParameterType_t));
   if (new_type==NULL) {
-    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_6);    
+    set_universal_error(map_msg, ierr, MAP_FATAL_6);    
   } else {
     new_type->object = NULL;
   };
@@ -1151,10 +1112,10 @@ MAP_EXTERNCALL MAP_ConstraintStateType_t* map_create_constraint_type(char* map_m
 {
   MAP_ConstraintStateType_t* new_type = NULL;  
 
-  *ierr = MAP_SAFE;
+  map_reset_universal_error(map_msg, ierr);
   new_type = malloc(sizeof(MAP_ConstraintStateType_t)); 
   if (new_type==NULL) {
-    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_8);    
+    set_universal_error(map_msg, ierr, MAP_FATAL_8);    
   } else {
     new_type->object = NULL;
   };
@@ -1166,10 +1127,10 @@ MAP_EXTERNCALL MAP_OutputType_t* map_create_output_type(char* map_msg, MAP_ERROR
 {
   MAP_OutputType_t* new_type = NULL;  
 
-  *ierr = MAP_SAFE;
+  map_reset_universal_error(map_msg, ierr);
   new_type = malloc(sizeof(MAP_OutputType_t));
   if (new_type==NULL) {
-    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_10);    
+    set_universal_error(map_msg, ierr, MAP_FATAL_10);    
   } else {
     new_type->object = NULL;
   };
@@ -1181,10 +1142,10 @@ MAP_EXTERNCALL MAP_ContinuousStateType_t* map_create_continuous_type(char* map_m
 {
   MAP_ContinuousStateType_t* new_data = NULL;  
 
-  *ierr = MAP_SAFE;
+  map_reset_universal_error(map_msg, ierr);
   new_data = malloc(sizeof(MAP_ContinuousStateType_t)); 
   if (new_data==NULL) {
-    *ierr = map_set_universal_error(NULL, map_msg, *ierr, MAP_FATAL_7);    
+    set_universal_error(map_msg, ierr, MAP_FATAL_7);    
   } else {
     new_data->object = NULL;    
   };

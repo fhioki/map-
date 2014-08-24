@@ -42,8 +42,8 @@ int inner_function_evals(void* element_ptr, int m, int n, const __cminpack_real_
     return 0;
   };
  
-  if (Fh<1e-3) {
-    Fh = 1e-3;
+  if (Fh<MAP_HORIZONTAL_TOL) { /* perfectly vertical case */
+    Fh = MAP_HORIZONTAL_TOL;
   };
 
   if (iflag!=2) {
@@ -261,7 +261,6 @@ MAP_ERROR_CODE forward_difference_jacobian(MAP_OtherStateType_t* other_type, MAP
   const int z_size = z_type->z_Len; 
   const int m = THREE*(other_type->Fz_connect_Len); // rows
   const int n = THREE*(z_type->z_Len);              // columns
-  bstring user_msg = NULL;
   int i = 0;
   int j = 0;
   
@@ -286,10 +285,7 @@ MAP_ERROR_CODE forward_difference_jacobian(MAP_OtherStateType_t* other_type, MAP
       z_type->x[j] += ns->epsilon;
       success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
       if (success) {
-        user_msg = bformat("Forward difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
-        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_78);        
-        success = bdestroy(user_msg); 
-        user_msg = NULL;
+        set_universal_error_with_message(map_msg, ierr, MAP_FATAL_78, "Forward difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
         return MAP_FATAL;
       };
       ns->jac[THREE*i][THREE*j] += other_type->Fx_connect[i];
@@ -304,10 +300,7 @@ MAP_ERROR_CODE forward_difference_jacobian(MAP_OtherStateType_t* other_type, MAP
       z_type->y[j] += ns->epsilon;
       success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
       if (success) {
-        user_msg = bformat("Forward difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
-        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_78);        
-        success = bdestroy(user_msg); 
-        user_msg = NULL;
+        set_universal_error_with_message(map_msg, ierr, MAP_FATAL_78, "Forward difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
         return MAP_FATAL;
       };
       ns->jac[THREE*i][THREE*j+1] += other_type->Fx_connect[i];
@@ -322,10 +315,7 @@ MAP_ERROR_CODE forward_difference_jacobian(MAP_OtherStateType_t* other_type, MAP
       z_type->z[j] += ns->epsilon;
       success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
       if (success) {
-        user_msg = bformat("Forward difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
-        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_78);        
-        success = bdestroy(user_msg); 
-        user_msg = NULL;
+        set_universal_error_with_message(map_msg, ierr, MAP_FATAL_78, "Forward difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
         return MAP_FATAL;
       };
       ns->jac[THREE*i][THREE*j+2] += other_type->Fx_connect[i];
@@ -358,7 +348,6 @@ MAP_ERROR_CODE backward_difference_jacobian(MAP_OtherStateType_t* other_type, MA
   const int z_size = z_type->z_Len; // N
   const int m = THREE*(other_type->Fz_connect_Len); // rows
   const int n = THREE*(z_type->z_Len);              // columns
-  bstring user_msg = NULL;
   int i = 0;
   int j = 0;
   
@@ -383,10 +372,7 @@ MAP_ERROR_CODE backward_difference_jacobian(MAP_OtherStateType_t* other_type, MA
       z_type->x[j] -= ns->epsilon;
       success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
       if (success) {
-        user_msg = bformat("Backward difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
-        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_78);        
-        success = bdestroy(user_msg); 
-        user_msg = NULL;
+        set_universal_error_with_message(map_msg, ierr, MAP_FATAL_78, "Backward difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
         return MAP_FATAL;
       };
       ns->jac[THREE*i][THREE*j] -= other_type->Fx_connect[i];
@@ -401,10 +387,7 @@ MAP_ERROR_CODE backward_difference_jacobian(MAP_OtherStateType_t* other_type, MA
       z_type->y[j] -= ns->epsilon;
       success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
       if (success) {
-        user_msg = bformat("Backward difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
-        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_78);        
-        success = bdestroy(user_msg); 
-        user_msg = NULL;
+        set_universal_error_with_message(map_msg, ierr, MAP_FATAL_78, "Backward difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
         return MAP_FATAL;
       };
       ns->jac[THREE*i][THREE*j+1] -= other_type->Fx_connect[i];
@@ -419,10 +402,7 @@ MAP_ERROR_CODE backward_difference_jacobian(MAP_OtherStateType_t* other_type, MA
       z_type->z[j] -= ns->epsilon;
       success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
       if (success) {
-        user_msg = bformat("Backward difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
-        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_78);        
-        success = bdestroy(user_msg); 
-        user_msg = NULL;
+        set_universal_error_with_message(map_msg, ierr, MAP_FATAL_78, "Backward difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
         return MAP_FATAL;
       };
       ns->jac[THREE*i][THREE*j+2] -= other_type->Fx_connect[i];
@@ -455,7 +435,6 @@ MAP_ERROR_CODE central_difference_jacobian(MAP_OtherStateType_t* other_type, MAP
   const int z_size = z_type->z_Len; //M
   const int m = THREE*(other_type->Fz_connect_Len); // rows
   const int n = THREE*(z_type->z_Len);              // columns
-  bstring user_msg = NULL;
   int i = 0;
   int j = 0;
   
@@ -472,10 +451,7 @@ MAP_ERROR_CODE central_difference_jacobian(MAP_OtherStateType_t* other_type, MAP
       z_type->x[j] += ns->epsilon;
       success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
       if (success) {
-        user_msg = bformat("Central difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
-        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_78);        
-        success = bdestroy(user_msg); 
-        user_msg = NULL;
+        set_universal_error_with_message(map_msg, ierr, MAP_FATAL_78, "Central difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
         return MAP_FATAL;
       };
       ns->jac[THREE*i][THREE*j] = other_type->Fx_connect[i];      
@@ -486,10 +462,7 @@ MAP_ERROR_CODE central_difference_jacobian(MAP_OtherStateType_t* other_type, MAP
       original_displacement = z_type->y[j];
       z_type->y[j] += ns->epsilon;
       if (success) {
-        user_msg = bformat("Central difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
-        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_78);        
-        success = bdestroy(user_msg); 
-        user_msg = NULL;
+        set_universal_error_with_message(map_msg, ierr, MAP_FATAL_78, "Central difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
         return MAP_FATAL;
       };
       success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
@@ -501,10 +474,7 @@ MAP_ERROR_CODE central_difference_jacobian(MAP_OtherStateType_t* other_type, MAP
       original_displacement = z_type->z[j];
       z_type->z[j] += ns->epsilon;
       if (success) {
-        user_msg = bformat("Central difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
-        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_78);        
-        success = bdestroy(user_msg); 
-        user_msg = NULL;
+        set_universal_error_with_message(map_msg, ierr, MAP_FATAL_78, "Central difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
         return MAP_FATAL;
       };
       success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
@@ -520,10 +490,7 @@ MAP_ERROR_CODE central_difference_jacobian(MAP_OtherStateType_t* other_type, MAP
       original_displacement = z_type->x[j];
       z_type->x[j] -= ns->epsilon;
       if (success) {
-        user_msg = bformat("Central difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
-        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_78);        
-        success = bdestroy(user_msg); 
-        user_msg = NULL;
+        set_universal_error_with_message(map_msg, ierr, MAP_FATAL_78, "Central difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
         return MAP_FATAL;
       };
       success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
@@ -539,10 +506,7 @@ MAP_ERROR_CODE central_difference_jacobian(MAP_OtherStateType_t* other_type, MAP
       z_type->y[j] -= ns->epsilon;
       success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
       if (success) {
-        user_msg = bformat("Central difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
-        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_78);        
-        success = bdestroy(user_msg); 
-        user_msg = NULL;
+        set_universal_error_with_message(map_msg, ierr, MAP_FATAL_78, "Central difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
         return MAP_FATAL;
       };
       ns->jac[THREE*i][THREE*j+1] -= other_type->Fx_connect[i];
@@ -557,10 +521,7 @@ MAP_ERROR_CODE central_difference_jacobian(MAP_OtherStateType_t* other_type, MAP
       z_type->z[j] -= ns->epsilon;
       success = line_solve_sequence(model_data, 0.0, map_msg, ierr);
       if (success) {
-        user_msg = bformat("Central difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
-        *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_78);        
-        success = bdestroy(user_msg); 
-        user_msg = NULL;
+        set_universal_error_with_message(map_msg, ierr, MAP_FATAL_78, "Central difference, x[%d]+delta, row %d, col %d.", j+1, THREE*i, THREE*j);
         return MAP_FATAL;
       };
       ns->jac[THREE*i][THREE*j+2] -= other_type->Fx_connect[i];
@@ -588,7 +549,6 @@ MAP_ERROR_CODE central_difference_jacobian(MAP_OtherStateType_t* other_type, MAP
 MAP_ERROR_CODE call_minpack_lmder(Element* element, InnerSolveAttributes* inner_opt, ModelOptions* opt, const int line_num, const double time, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_ERROR_CODE success = MAP_SAFE;
-  bstring user_msg = NULL;
 
   /* initial guess vector is set in set_element_initial_guess(..); otherwise, the previous solution is used as the initial guess */
   inner_opt->x[0] = *(element->H.value);
@@ -640,10 +600,7 @@ MAP_ERROR_CODE call_minpack_lmder(Element* element, InnerSolveAttributes* inner_
   switch (inner_opt->info) {
   case 0 :
     success = MAP_FATAL;
-    user_msg = bformat("Line segment %d.", line_num);
-    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_39);        
-    success = bdestroy(user_msg); 
-    user_msg = NULL;
+    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_39, "Line segment %d.", line_num);
     break;
   case 1 :
     success = MAP_SAFE;
@@ -659,31 +616,19 @@ MAP_ERROR_CODE call_minpack_lmder(Element* element, InnerSolveAttributes* inner_
     break;
   case 5 :
     success = MAP_FATAL;
-    user_msg = bformat("Line segment %d.", line_num);
-    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_FATAL_40);        
-    success = bdestroy(user_msg); 
-    user_msg = NULL;
+    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_40, "Line segment %d.", line_num);
     break;
   case 6 :
     success = MAP_FATAL;
-    user_msg = bformat("Line segment %d.", line_num);
-    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_ERROR_11);        
-    success = bdestroy(user_msg); 
-    user_msg = NULL;
+    set_universal_error_with_message(map_msg, ierr, MAP_ERROR_11, "Line segment %d.", line_num);
     break;
   case 7 :
     success = MAP_FATAL;
-    user_msg = bformat("Line segment %d.", line_num);
-    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_ERROR_13);        
-    success = bdestroy(user_msg); 
-    user_msg = NULL;
+    set_universal_error_with_message(map_msg, ierr, MAP_ERROR_13, "Line segment %d.", line_num);
     break;
   case 8 :
     success = MAP_FATAL;
-    user_msg = bformat("Line segment %d.", line_num);
-    *ierr = map_set_universal_error(user_msg, map_msg, *ierr, MAP_ERROR_12);        
-    success = bdestroy(user_msg); 
-    user_msg = NULL;
+    set_universal_error_with_message(map_msg, ierr, MAP_ERROR_12, "Line segment %d.", line_num);
     break;
   default :
     success = MAP_SAFE;

@@ -71,13 +71,12 @@ MAP_ERROR_CODE write_summary_file(InitializationData* init, MAP_ParameterType_t*
   time_t timer;
   FILE* file = fopen(init->summaryFileName->data, "w");
   char time_buffer[TIME_BUFFER_SIZE] = "\0";
-  bstring user_msg = NULL;
   
   time(&timer);
   tm_info = localtime(&timer);
   
   if (file==NULL) {
-    *ierr = map_set_universal_error(init->summaryFileName, map_msg, *ierr, MAP_FATAL_38);
+    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_38, "File name: <%s>", init->summaryFileName->data);
     return MAP_FATAL;
   };
   
@@ -586,7 +585,6 @@ MAP_ERROR_CODE write_node_information_to_summary_file(FILE* file, ModelData* mod
   const unsigned int num_nodes = list_size(&model_data->node);  
   unsigned int col = 0;
   MAP_ERROR_CODE success = MAP_SAFE;
-  bstring user_msg = NULL;
 
   do {
     for (i=0 ; i<num_nodes ; i+=FOUR) {
@@ -654,7 +652,6 @@ MAP_ERROR_CODE write_node_information_to_summary_file(FILE* file, ModelData* mod
 MAP_ERROR_CODE write_element_information_to_summary_file(FILE* file, ModelData* model_data)
 {
   const unsigned int num_elements = list_size(&model_data->element);
-  bstring user_msg = NULL;
   Element* element_iter = NULL;  
   bstring line0 = NULL;
   bstring line1 = NULL;
@@ -785,7 +782,6 @@ MAP_ERROR_CODE write_element_information_to_summary_file(FILE* file, ModelData* 
 MAP_ERROR_CODE write_expanded_input_file_to_summary_file(FILE* file, InitializationData* init_data)
 {
   const char* line = NULL;
-  bstring user_msg = NULL;
   int len = 0;
   int i = 0;
 

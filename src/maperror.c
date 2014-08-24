@@ -64,7 +64,7 @@ const char MAP_ERROR_STRING[][256] = {
   /* MAP_FATAL_35   */  "Failed to allocate memory for the 'REPEAT' array",
   /* MAP_FATAL_36   */  "Vessel reference origin 'REF_POSITION' is not set correctly. Correct format is 'REF_POSITION xval yval zval'. Check the MAP input file",
   /* MAP_FATAL_37   */  "Failed to write the MAP summary file",
-  /* MAP_FATAL_38   */  "Could not create the summary file. File name",
+  /* MAP_FATAL_38   */  "Could not create the summary file.",
   /* MAP_FATAL_39   */  "Could not run the first solve. Solver option (INNER_FTOL, INNER_GTOL, INNER_XTOL, INNER_MAX_ITS) could be inadvertendly set to a negative value or line geometry/line cable library is not properly defined",
   /* MAP_FATAL_40   */  "Number of function calls has reached or exceeded INNER_MAX_ITS",
   /* MAP_FATAL_41   */  "Cable mass density is zero. Neutrally buoyant cables cannot be solved using quasi-statis model",
@@ -144,62 +144,35 @@ const char MAP_ERROR_STRING[][256] = {
 };
 
 
-MAP_ERROR_CODE map_set_universal_error(bstring user_msg, char* map_msg, const MAP_ERROR_CODE ierr, const MAP_ERROR_CODE new_error)
+void set_universal_error(char* map_msg, MAP_ERROR_CODE* ierr, const MAP_ERROR_CODE new_error_code)
 {
   int error_number = 0;
   int ret = 0;
   bstring out_string = NULL;
   bstring message = bformat("%s", map_msg); /* first format map_msg to contain previously raised errors */
   
-  if (new_error>=MAP_WARNING_1) { /* MAP did not quite fail. Let users know what the error is */    
-    error_number = new_error - MAP_WARNING_1 + 1;
-    if (user_msg==NULL) {
-      out_string = bformat("MAP_WARNING[%d] : %s.\n", error_number, MAP_ERROR_STRING[new_error]);
-    } else {
-      out_string = bformat("MAP_WARNING[%d] : %s. %s\n", error_number, MAP_ERROR_STRING[new_error], user_msg->data);
-    };
-    ret = bconcat(message, out_string);
-    ret = btrunc(message, MAP_ERROR_STRING_LENGTH-1);
-    copy_target_string(map_msg, message->data);
-    ret = bdestroy(out_string);
-    ret = bdestroy(message);
-    if (ierr<=MAP_WARNING) {
-      return MAP_WARNING;
-    } else if (ierr<=MAP_ERROR) {
-      return MAP_ERROR;
-    } else {
-      return MAP_FATAL;
-    };
-  } else if (new_error>=MAP_ERROR_1 ) { /* MAP failed but recovered */    
-    error_number = new_error-MAP_ERROR_1+1;    
-    if (user_msg==NULL) {
-      out_string = bformat("MAP_ERROR[%d] : %s.\n", error_number, MAP_ERROR_STRING[new_error]);
-    } else {
-      out_string = bformat("MAP_ERROR[%d] : %s. %s\n", error_number, MAP_ERROR_STRING[new_error], user_msg->data);
-    };
-    ret = bconcat(message, out_string);
-    ret = btrunc(message, MAP_ERROR_STRING_LENGTH-1);
-    copy_target_string(map_msg, message->data);
-    ret = bdestroy(out_string);
-    ret = bdestroy(message);
-    if (ierr<=MAP_ERROR) {
-      return MAP_ERROR;
-    } else {
-      return MAP_FATAL;
-    };
+  if (new_error_code>=MAP_WARNING_1) { /* MAP did not quite fail. Let users know what the error is */    
+    error_number = new_error_code-MAP_WARNING_1 + 1;
+    out_string = bformat("MAP_WARNING[%d] : %s.\n", error_number, MAP_ERROR_STRING[new_error_code]);
+  } else if (new_error_code>=MAP_ERROR_1 ) { /* MAP failed but recovered */    
+    error_number = new_error_code-MAP_ERROR_1+1;    
+    out_string = bformat("MAP_ERROR[%d] : %s.\n", error_number, MAP_ERROR_STRING[new_error_code]);
   } else { /* MAP failed and program must end prematurely */    
-    error_number = new_error;
-    if (user_msg==NULL) {
-      out_string = bformat("MAP_FATAL[%d] : %s.\n", error_number, MAP_ERROR_STRING[new_error]);
-    } else {
-      out_string = bformat("MAP_FATAL[%d] : %s. %s\n", error_number, MAP_ERROR_STRING[new_error], user_msg->data);
-    };
-    ret = bconcat(message, out_string);
-    ret = btrunc(message, MAP_ERROR_STRING_LENGTH-1);
-    copy_target_string(map_msg, message->data);
-    ret = bdestroy(out_string);
-    ret = bdestroy(message);
-    return MAP_FATAL;
+    error_number = new_error_code;
+    out_string = bformat("MAP_FATAL[%d] : %s.\n", error_number, MAP_ERROR_STRING[new_error_code]);
+  };
+
+  ret = bconcat(message, out_string);
+  ret = btrunc(message, MAP_ERROR_STRING_LENGTH-1);
+  copy_target_string(map_msg, message->data);
+  ret = bdestroy(out_string);
+  ret = bdestroy(message);
+  if (*ierr<=MAP_WARNING) {
+    *ierr = MAP_WARNING;
+  } else if (*ierr<=MAP_ERROR) {
+    *ierr = MAP_ERROR;
+  } else {
+    *ierr = MAP_FATAL;
   };
 };
 
@@ -208,4 +181,85 @@ void map_reset_universal_error(char* map_msg, MAP_ERROR_CODE* ierr)
 {
   *ierr = MAP_SAFE;
   strcpy(map_msg, "\0");
+};
+
+
+void set_universal_error_with_message(char* map_msg, MAP_ERROR_CODE* ierr, const MAP_ERROR_CODE new_error_code, const char* in_string, ...)
+{
+  va_list arglist;
+  bstring out_string = NULL;
+  bstring user_msg = NULL;
+  bstring message = bformat("%s", map_msg); /* first format map_msg to contain previously raised errors */
+  const int START_VSNBUFF = 16;    
+  int error_number = 0;
+  int ret = 0;
+  int r = 0;
+  int n = 0;
+
+  /* This is a re-implementation of the bstring library routines 'bformat(...)  
+   * Take the variable argument list and create a string with it. This lets you
+   * create a custom message to be rpinted to the terminal.
+   */
+  do { 
+    n = (int)(2*strlen(in_string));
+    if (n<START_VSNBUFF) {
+      n = START_VSNBUFF;
+    };
+    user_msg = bfromcstralloc(n+2, "");
+    if (!user_msg) {
+      n = 1;
+      user_msg = bfromcstralloc(n+2, "");
+      if (!user_msg) {
+        user_msg = NULL;
+        break;
+      };
+    };
+    while (1) {
+      va_start(arglist, in_string);      
+      r = vsnprintf((char*)user_msg->data, n+1, in_string, arglist); /* this is a copy of exvsnprintf in bstring library */
+      va_end(arglist);
+      user_msg->data[n] = (unsigned char)'\0';
+      user_msg->slen = (int)strlen((char*)user_msg->data);
+      if (user_msg->slen < n) {
+        break;
+      };
+      if (r>n) {
+        n = r;
+      } else {
+        n += n;
+      };
+      if (0!=balloc(user_msg, n+2)) {
+        bdestroy(user_msg);
+        break;
+      };
+    }; 
+  } while (0);
+
+  if (new_error_code>=MAP_WARNING_1) { 
+    /* MAP did not quite fail. Let users know what the error is */    
+    error_number = new_error_code - MAP_WARNING_1 + 1;
+    out_string = bformat("MAP_WARNING[%d] : %s. %s\n", error_number, MAP_ERROR_STRING[new_error_code], user_msg->data);
+  } else if (new_error_code>=MAP_ERROR_1 ) { 
+    /* MAP failed but recovered */    
+    error_number = new_error_code - MAP_ERROR_1+1;    
+    out_string = bformat("MAP_ERROR[%d] : %s. %s\n", error_number, MAP_ERROR_STRING[new_error_code], user_msg->data);
+  } else { 
+    /* MAP failed and program must end prematurely */    
+    error_number = new_error_code;
+    out_string = bformat("MAP_FATAL[%d] : %s. %s\n", error_number, MAP_ERROR_STRING[new_error_code], user_msg->data);
+  };
+
+  ret = bconcat(message, out_string);
+  ret = btrunc(message, MAP_ERROR_STRING_LENGTH-1);
+  copy_target_string(map_msg, message->data);
+  ret = bdestroy(out_string);
+  ret = bdestroy(message);
+  ret = bdestroy(user_msg);
+  if (*ierr<=MAP_WARNING) {
+    *ierr = MAP_WARNING;
+  } else if (*ierr<=MAP_ERROR) {
+    *ierr = MAP_ERROR;
+  } else {
+    *ierr = MAP_FATAL;
+  };
 };

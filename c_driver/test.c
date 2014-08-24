@@ -70,12 +70,6 @@ int main(int argc, char *argv[])
    * to C (because 2D arrays between C and fortran do no align in memory). 1D arrays do line 
    * up. A better, more generic, non-text driven way of setting model parameters should be use. 
    */
-
-
-
-  
-
-
   strcpy(line_def[0], "upper     0.07      160        600000000        1.0    1.0E8    0.6 -1.0    0.05\0");
   strcpy(line_def[1], "middle    0.08      180        700000000        1.0    1.0E8    0.6 -1.0    0.05\0");
   strcpy(line_def[2], "lower     0.085     200        800000000        1.0    1.0E8    0.6 -1.0    0.05\0");
@@ -92,7 +86,7 @@ int main(int argc, char *argv[])
   strcpy(option_def[1], "inner_xtol 1e-9\0");
   strcpy(option_def[2], "outer_tol 1e-5\0");
   strcpy(option_def[3], "pg_cooked 1000 1\0");
-  strcpy(option_def[4], "outer_bd\0");
+  strcpy(option_def[4], "outer_fd\0");
   strcpy(option_def[5], "inner_max_its 500\0");
   strcpy(option_def[6], "outer_max_its 500\0");
   strcpy(option_def[7], "repeat 120 240\0");
