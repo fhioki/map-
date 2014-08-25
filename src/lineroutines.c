@@ -485,8 +485,8 @@ MAP_ERROR_CODE solve_linear_spring_cable(Element* element, char* map_msg, MAP_ER
 
   if (d_norm<=Lu) { /* a cable cannot support a compression; force will be negative */
     force.x = 0.0;
-    force.x = 0.0;
-    force.x = 0.0;
+    force.y = 0.0;
+    force.z = 0.0;
   } else {
     force.x = EA/Lu*(d_norm - Lu)*d_unit.x;
     force.y = EA/Lu*(d_norm - Lu)*d_unit.y;
