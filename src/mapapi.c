@@ -252,8 +252,13 @@ MAP_EXTERNCALL void map_offset_vessel(MAP_OtherStateType_t* other_type, MAP_Inpu
 
   /* define transformation matrix */
   R[0][0] = cpsi*cthe;    R[0][1] = cpsi*sthe*sphi - spsi*cphi;   R[0][2] = cpsi*sthe*cphi + spsi*sphi;
-  R[1][0] = sphi*cthe;    R[1][1] = sphi*sthe*sphi + cpsi*cphi;   R[1][2] = spsi*sthe*cphi - cpsi*sphi;
+  R[1][0] = spsi*cthe;    R[1][1] = sphi*sthe*sphi + cpsi*cphi;   R[1][2] = spsi*sthe*cphi - cpsi*sphi;
   R[2][0] = -sthe;        R[2][1] = cthe*sphi;                    R[2][2] = cthe*cphi;
+
+  printf("%1.3f   %1.3f   %1.3f\n",R[0][0],R[0][1],R[0][2]);
+  printf("%1.3f   %1.3f   %1.3f\n",R[1][0],R[1][1],R[1][2]);
+  printf("%1.3f   %1.3f   %1.3f\n",R[2][0],R[2][1],R[2][2]);
+  printf("\n");
 
   for (i=0 ; i<u_size ; i++) { 
     /* @todo: need to include the reference position for non-zero reference origins , i.e. r = (xi-ref) 
