@@ -308,7 +308,7 @@ MAP_ERROR_CODE line_solve_sequence(ModelData* model_data, MAP_ParameterType_t* p
   do { 
     success = set_line_variables_pre_solve(model_data, map_msg, ierr);
     success = reset_node_force_to_zero(model_data, map_msg, ierr);    
-    success = solve_line(model_data, t, map_msg, ierr); 
+    success = solve_line(model_data, t, map_msg, ierr); CHECKERRQ(MAP_FATAL_88);
     // /* prematurely terminating the the line solve routine to return back to the
     //    caller function. Do a back tracking on the solution and attempt recovery */
     // if (success==MAP_FATAL) {
@@ -321,7 +321,13 @@ MAP_ERROR_CODE line_solve_sequence(ModelData* model_data, MAP_ParameterType_t* p
     success = calculate_node_sum_force(model_data, p_type);
   } while (0);
 
-  MAP_RETURN;
+  if (success==MAP_SAFE) {
+    return MAP_SAFE;
+  } else if (success==MAP_ERROR) {
+    return MAP_ERROR;
+  } else {
+    return MAP_FATAL;
+  };
 };    
 
 
@@ -357,7 +363,7 @@ MAP_ERROR_CODE node_solve_sequence(ModelData* model_data, MAP_ParameterType_t* p
       success = forward_difference_jacobian(other_type, p_type, z_type, model_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_77);
       break;
     };
-    success = line_solve_sequence(model_data, p_type, 0.0, map_msg, ierr);
+    success = line_solve_sequence(model_data, p_type, 0.0, map_msg, ierr); CHECKERRQ(MAP_FATAL_78);
     success = lu(ns, SIZE, map_msg, ierr); CHECKERRQ(MAP_FATAL_74);
     success = lu_back_substitution(ns, SIZE, map_msg, ierr); CHECKERRQ(MAP_FATAL_74);
     
