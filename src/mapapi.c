@@ -255,11 +255,6 @@ MAP_EXTERNCALL void map_offset_vessel(MAP_OtherStateType_t* other_type, MAP_Inpu
   R[1][0] = spsi*cthe;    R[1][1] = sphi*sthe*sphi + cpsi*cphi;   R[1][2] = spsi*sthe*cphi - cpsi*sphi;
   R[2][0] = -sthe;        R[2][1] = cthe*sphi;                    R[2][2] = cthe*cphi;
 
-  printf("%1.3f   %1.3f   %1.3f\n",R[0][0],R[0][1],R[0][2]);
-  printf("%1.3f   %1.3f   %1.3f\n",R[1][0],R[1][1],R[1][2]);
-  printf("%1.3f   %1.3f   %1.3f\n",R[2][0],R[2][1],R[2][2]);
-  printf("\n");
-
   for (i=0 ; i<u_size ; i++) { 
     /* @todo: need to include the reference position for non-zero reference origins , i.e. r = (xi-ref) 
      *        xi, yi, and zi are the original node position. We are adding the new displacement to it.
@@ -350,13 +345,13 @@ MAP_EXTERNCALL double** map_linearize_matrix(MAP_InputType_t* u_type, MAP_Parame
          success = fd_z_sequence(other_type, p_type, u_type, y_type, z_type, &force, epsilon, n, z_original, map_msg, ierr); CHECKERRQ(MAP_FATAL_64);
          success = calculate_stiffness(K[2], &force, epsilon, n); CHECKERRQ(MAP_FATAL_64);
        } else if (i==3) {
-         success = fd_phi_sequence(other_type, p_type, u_type, y_type, z_type, &force, epsilon, n, x_original, y_original, z_original, map_msg, ierr); //CHECKERRQ(MAP_FATAL_65);
+         success = fd_phi_sequence(other_type, p_type, u_type, y_type, z_type, &force, epsilon, n, x_original, y_original, z_original, map_msg, ierr); CHECKERRQ(MAP_FATAL_65);
          success = calculate_stiffness(K[3], &force, epsilon, n); CHECKERRQ(MAP_FATAL_65);
        } else if (i==4) {
-         success = fd_the_sequence(other_type, p_type, u_type, y_type, z_type, &force, epsilon, n, x_original, y_original, z_original, map_msg, ierr); //CHECKERRQ(MAP_FATAL_66);
+         success = fd_the_sequence(other_type, p_type, u_type, y_type, z_type, &force, epsilon, n, x_original, y_original, z_original, map_msg, ierr); CHECKERRQ(MAP_FATAL_66);
          success = calculate_stiffness(K[4], &force, epsilon, n); CHECKERRQ(MAP_FATAL_66);
        } else if (i==5) {
-         success = fd_psi_sequence(other_type, p_type, u_type, y_type, z_type, &force, epsilon, n, x_original, y_original, z_original, map_msg, ierr); //CHECKERRQ(MAP_FATAL_67);
+         success = fd_psi_sequence(other_type, p_type, u_type, y_type, z_type, &force, epsilon, n, x_original, y_original, z_original, map_msg, ierr); CHECKERRQ(MAP_FATAL_67);
          success = calculate_stiffness(K[5], &force, epsilon, n); CHECKERRQ(MAP_FATAL_67);
        };
      };

@@ -47,8 +47,8 @@ if __name__ == '__main__':
     
     mooring_1.displace_vessel(5.0, 0.0, 0.0, 0.0, 0.0, 0.0)
     mooring_1.update_states(0.0, 0)
-    mooring_1.displace_vessel(5.0, 0.0, 0.0, 0.0, 0.0, 10.0)
-    mooring_1.update_states(0.0, 0)
+    #mooring_1.displace_vessel(5.0, 0.0, 0.0, 0.0, 0.0, 10.0)
+    #mooring_1.update_states(0.0, 0)
 #    mooring_1.displace_vessel(15.0, 0.0, 0.0, 0.0, 0.0, 10.0)
 #    mooring_1.update_states(0.0, 0)
 

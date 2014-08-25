@@ -1,6 +1,6 @@
 Outputs were generated using MAP++ v1.00-55-g5e28.
 
-    Monday August 25-2014 at 09:18:15 AM
+    Monday August 25-2014 at 09:23:17 AM
 
     Gravity constant          [m/s^2]  : 9.81
     Sea density               [kg/m^3] : 1020.00
@@ -22,9 +22,9 @@ Y  [m]    |  0.000                   0.000                 -27.000              
 Z  [m]    |  -200.000               -47.890                -200.000               -47.890
 M  [kg]   |  0.000                   0.000                  0.000                  0.000
 B  [m^3]  |  0.000                   0.000                  0.000                  0.000
-FX [N]    | (-24.694)              ( 24.694)              (-24.694)              ( 24.694)
+FX [N]    | ( 0.000)               ( 0.000)               (-24.694)              ( 24.694)
 FY [N]    | ( 0.000)               ( 0.000)               ( 0.000)               ( 0.000)
-FZ [N]    | (-3679937.939)         ( 3833408.201)         (-3679937.939)         ( 3833408.201)
+FZ [N]    | (-3756673.038)         ( 3756673.038)         (-3679937.939)         ( 3833408.201)
 
 
           | Node 5 Data            Node 6 Data            Node 7 Data            Node 8 Data
@@ -35,9 +35,9 @@ Y  [m]    |  -27.000                -27.000                 -0.000              
 Z  [m]    |  -200.000               -47.890                -200.000               -47.890
 M  [kg]   |  0.000                   0.000                  0.000                  0.000
 B  [m^3]  |  0.000                   0.000                  0.000                  0.000
-FX [N]    | (-24.694)              ( 24.694)              (-24.694)              ( 24.694)
+FX [N]    | ( 0.000)               ( 0.000)               (-24.694)              ( 24.694)
 FY [N]    | ( 0.000)               ( 0.000)               ( 0.000)               ( 0.000)
-FZ [N]    | (-3679937.939)         ( 3833408.201)         (-3679937.939)         ( 3833408.201)
+FZ [N]    | (-3756673.038)         ( 3756673.038)         (-3679937.939)         ( 3833408.201)
 
 
           | Node 9 Data            Node 10 Data           Node 11 Data           Node 12 Data
@@ -48,9 +48,9 @@ Y  [m]    |  -0.000                  -0.000                 27.000              
 Z  [m]    |  -200.000               -47.890                -200.000               -47.890
 M  [kg]   |  0.000                   0.000                  0.000                  0.000
 B  [m^3]  |  0.000                   0.000                  0.000                  0.000
-FX [N]    | (-24.694)              ( 24.694)              (-24.694)              ( 24.694)
+FX [N]    | ( 0.000)               ( 0.000)               (-24.694)              ( 24.694)
 FY [N]    | ( 0.000)               ( 0.000)               ( 0.000)               ( 0.000)
-FZ [N]    | (-3679937.939)         ( 3833408.201)         (-3679937.939)         ( 3833408.201)
+FZ [N]    | (-3756673.038)         ( 3756673.038)         (-3679937.939)         ( 3833408.201)
 
 
           | Node 13 Data           Node 14 Data           Node 15 Data           Node 16 Data
@@ -61,28 +61,28 @@ Y  [m]    |   27.000                 27.000                 0.000               
 Z  [m]    |  -200.000               -47.890                -200.000               -47.890
 M  [kg]   |  0.000                   0.000                  0.000                  0.000
 B  [m^3]  |  0.000                   0.000                  0.000                  0.000
-FX [N]    | (-24.694)              ( 24.694)              (-24.694)              ( 24.694)
+FX [N]    | ( 0.000)               ( 0.000)               (-24.694)              ( 24.694)
 FY [N]    | ( 0.000)               ( 0.000)               ( 0.000)               ( 0.000)
-FZ [N]    | (-3679937.939)         ( 3833408.201)         (-3679937.939)         ( 3833408.201)
+FZ [N]    | (-3756673.038)         ( 3756673.038)         (-3679937.939)         ( 3833408.201)
 
 
                 | Element 1
                 | ---------------------------------------
 Material        |  Material
 Lu        [m]   |  151.730
-Lb        [m]   | 0.000
-H         [N]   |  24.694
-V         [N]   |  3833408.201
-T         [N]   |  3833408.201
+Lb        [m]   | -999.900
+H         [N]   | 0.000
+V         [N]   |  3756673.038
+T         [N]   |  3756673.038
 Alpha     [deg] |  90.000
-HAnch     [N]   |  24.694
-VAnch     [N]   |  3679937.939
-TAnch     [N]   |  3679937.939
+HAnch     [N]   | 0.000
+VAnch     [N]   |  3756673.038
+TAnch     [N]   |  3756673.038
 AlphaAnch [deg] |  90.000
-L^2-Norm        |  4.642554e-16
-Function Evals  |  4
-Jacobian Evals  |  3
-Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
+L^2-Norm        |  999.9
+Function Evals  |  0
+Jacobian Evals  |  0
+Term. criteria  |  -1 : Uncaught error.
 
 
                 | Element 2
@@ -108,19 +108,19 @@ Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
                 | ---------------------------------------
 Material        |  Material
 Lu        [m]   |  151.730
-Lb        [m]   | 0.000
-H         [N]   |  24.694
-V         [N]   |  3833408.201
-T         [N]   |  3833408.201
+Lb        [m]   | -999.900
+H         [N]   | 0.000
+V         [N]   |  3756673.038
+T         [N]   |  3756673.038
 Alpha     [deg] |  90.000
-HAnch     [N]   |  24.694
-VAnch     [N]   |  3679937.939
-TAnch     [N]   |  3679937.939
+HAnch     [N]   | 0.000
+VAnch     [N]   |  3756673.038
+TAnch     [N]   |  3756673.038
 AlphaAnch [deg] |  90.000
-L^2-Norm        |  4.642554e-16
-Function Evals  |  4
-Jacobian Evals  |  3
-Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
+L^2-Norm        |  999.9
+Function Evals  |  0
+Jacobian Evals  |  0
+Term. criteria  |  -1 : Uncaught error.
 
 
                 | Element 4
@@ -146,19 +146,19 @@ Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
                 | ---------------------------------------
 Material        |  Material
 Lu        [m]   |  151.730
-Lb        [m]   | 0.000
-H         [N]   |  24.694
-V         [N]   |  3833408.201
-T         [N]   |  3833408.201
+Lb        [m]   | -999.900
+H         [N]   | 0.000
+V         [N]   |  3756673.038
+T         [N]   |  3756673.038
 Alpha     [deg] |  90.000
-HAnch     [N]   |  24.694
-VAnch     [N]   |  3679937.939
-TAnch     [N]   |  3679937.939
+HAnch     [N]   | 0.000
+VAnch     [N]   |  3756673.038
+TAnch     [N]   |  3756673.038
 AlphaAnch [deg] |  90.000
-L^2-Norm        |  4.642554e-16
-Function Evals  |  4
-Jacobian Evals  |  3
-Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
+L^2-Norm        |  999.9
+Function Evals  |  0
+Jacobian Evals  |  0
+Term. criteria  |  -1 : Uncaught error.
 
 
                 | Element 6
@@ -184,19 +184,19 @@ Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
                 | ---------------------------------------
 Material        |  Material
 Lu        [m]   |  151.730
-Lb        [m]   | 0.000
-H         [N]   |  24.694
-V         [N]   |  3833408.201
-T         [N]   |  3833408.201
+Lb        [m]   | -999.900
+H         [N]   | 0.000
+V         [N]   |  3756673.038
+T         [N]   |  3756673.038
 Alpha     [deg] |  90.000
-HAnch     [N]   |  24.694
-VAnch     [N]   |  3679937.939
-TAnch     [N]   |  3679937.939
+HAnch     [N]   | 0.000
+VAnch     [N]   |  3756673.038
+TAnch     [N]   |  3756673.038
 AlphaAnch [deg] |  90.000
-L^2-Norm        |  4.642554e-16
-Function Evals  |  4
-Jacobian Evals  |  3
-Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
+L^2-Norm        |  999.9
+Function Evals  |  0
+Jacobian Evals  |  0
+Term. criteria  |  -1 : Uncaught error.
 
 
                 | Element 8
@@ -244,13 +244,13 @@ Node  Type       X       Y       Z      M     B     FX    FY    FZ
 ---------------------- LINE PROPERTIES ---------------------------------------
 Element  LineType  UnstrLen  NodeAnch  NodeFair  Flags
 [-]      [-]       [m]       [-]       [-]       [-]
-1       Material   151.73       1         2         
+1       Material   151.73       1         2         linear_spring
 2       Material   151.73       3         4         
-3   Material   151.73   5   6   
+3   Material   151.73   5   6   linear_spring   
 4   Material   151.73   7   8   
-5   Material   151.73   9   10   
+5   Material   151.73   9   10   linear_spring   
 6   Material   151.73   11   12   
-7   Material   151.73   13   14   
+7   Material   151.73   13   14   linear_spring   
 8   Material   151.73   15   16   
 ---------------------- SOLVER OPTIONS-----------------------------------------
 Option 
