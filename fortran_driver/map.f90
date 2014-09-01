@@ -912,4 +912,32 @@ CONTAINS
   END SUBROUTINE MAP_C2F_Input_Array_Allocation
 
 
+  SUBROUTINE copy_inputs_for_c(u, ErrStat, ErrMsg)
+    TYPE(MAP_InputType), INTENT(INOUT)  :: u
+    INTEGER(IntKi),      INTENT(INOUT)  :: ErrStat     ! Error status of the operation
+    CHARACTER(*),        INTENT(INOUT)  :: ErrMsg      ! Error message if ErrStat /= ErrID_None
+
+    u%c_obj%x = C_LOC(u%x(1))
+    u%c_obj%x_Len = SIZE(u%x)
+    u%c_obj%y = C_LOC(u%y(1))
+    u%c_obj%y_Len = SIZE(u%y)
+    u%c_obj%z = C_LOC(u%z(1))
+    u%c_obj%z_Len = SIZE(u%z)    
+  END SUBROUTINE copy_inputs_for_c
+
+
+  SUBROUTINE deallocate_primitives_for_c(u, ErrStat, ErrMsg)
+    TYPE(MAP_InputType), INTENT(INOUT)  :: u
+    INTEGER(IntKi),      INTENT(INOUT)  :: ErrStat     ! Error status of the operation
+    CHARACTER(*),        INTENT(INOUT)  :: ErrMsg      ! Error message if ErrStat /= ErrID_None
+
+    u%c_obj%x = C_NULL_ptr    
+    u%c_obj%y = C_NULL_ptr    
+    u%c_obj%z = C_NULL_ptr    
+    DEALLOCATE(u%x)
+    DEALLOCATE(u%y)
+    DEALLOCATE(u%z)
+  END SUBROUTINE deallocate_primitives_for_c
+
+
 END MODULE MAP
