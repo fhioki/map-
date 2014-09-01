@@ -172,19 +172,19 @@ PROGRAM Main
         CALL WrScr(ErrMsg) 
      END IF
      
-     ! CALL MAP_CalcOutput( t_global            , &
-     !                      MAP_Input(1)        , &
-     !                      MAP_Parameter       , &
-     !                      MAP_ContinuousState , &
-     !                      MAP_DiscreteState   , &
-     !                      MAP_ConstraintState , &
-     !                      MAP_OtherState      , &
-     !                      MAP_Output          , &
-     !                      ErrStat             , &
-     !                      ErrMsg )
-     ! IF ( ErrStat .NE. 0 ) THEN
-     !    CALL WrScr(ErrMsg) 
-     ! END IF
+     CALL MAP_CalcOutput( t_global            , &
+                          MAP_Input(1)        , &
+                          MAP_Parameter       , &
+                          MAP_ContinuousState , &
+                          MAP_DiscreteState   , &
+                          MAP_ConstraintState , &
+                          MAP_OtherState      , &
+                          MAP_Output          , &
+                          ErrStat             , &
+                          ErrMsg )
+     IF ( ErrStat .NE. 0 ) THEN
+        CALL WrScr(ErrMsg) 
+     END IF
   
      ! update the global time step by one delta t
      t_global = ( n_t_global + 1 )* dt_global + t_initial

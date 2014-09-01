@@ -1,6 +1,6 @@
-Outputs were generated using MAP++ 496a-dirty.
+Outputs were generated using MAP++ 844c-dirty.
 
-    Sunday August 31-2014 at 22:39:26 PM
+    Monday September 01-2014 at 01:22:41 AM
 
     Gravity constant          [m/s^2]  : 9.81
     Sea density               [kg/m^3] : 1025.00
@@ -38,45 +38,6 @@ M  [kg]   |  0.000                   0.000                  0.000               
 B  [m^3]  |  0.000                   0.000                  0.000                  0.000
 FX [N]    | (-0.000)               ( 0.000)               (-0.000)               ( 0.000)
 FY [N]    | (-239636.333)          ( 239636.333)          (-239636.333)          ( 239636.333)
-FZ [N]    | ( 391238.903)          ( 511561.602)          ( 391238.903)          ( 511561.602)
-
-
-          | Node 5 Data            Node 6 Data            Node 7 Data            Node 8 Data
-          | -------------------------------------------------------------------------------------------
-Type      |  FIX                    VESSEL                 FIX                    VESSEL
-X  [m]    |  -520.000               -20.000                -520.000               -20.000
-Y  [m]    |  -0.000                  -0.000                 -0.000                 -0.000
-Z  [m]    |  -120.000               -40.000                -120.000               -40.000
-M  [kg]   |  0.000                   0.000                  0.000                  0.000
-B  [m^3]  |  0.000                   0.000                  0.000                  0.000
-FX [N]    | (-239636.333)          ( 239636.333)          (-239636.333)          ( 239636.333)
-FY [N]    | ( 0.000)               ( 0.000)               ( 0.000)               ( 0.000)
-FZ [N]    | ( 391238.903)          ( 511561.602)          ( 391238.903)          ( 511561.602)
-
-
-          | Node 9 Data            Node 10 Data           Node 11 Data           Node 12 Data
-          | -------------------------------------------------------------------------------------------
-Type      |  FIX                    VESSEL                 FIX                    VESSEL
-X  [m]    |  -0.000                  -0.000                 -0.000                 -0.000
-Y  [m]    |   520.000                20.000                 520.000                20.000
-Z  [m]    |  -120.000               -40.000                -120.000               -40.000
-M  [kg]   |  0.000                   0.000                  0.000                  0.000
-B  [m^3]  |  0.000                   0.000                  0.000                  0.000
-FX [N]    | (-0.000)               ( 0.000)               (-0.000)               ( 0.000)
-FY [N]    | ( 239636.333)          (-239636.333)          ( 239636.333)          (-239636.333)
-FZ [N]    | ( 391238.903)          ( 511561.602)          ( 391238.903)          ( 511561.602)
-
-
-          | Node 13 Data           Node 14 Data           Node 15 Data           Node 16 Data
-          | -------------------------------------------------------------------------------------------
-Type      |  FIX                    VESSEL                 FIX                    VESSEL
-X  [m]    |   520.000                20.000                 520.000                20.000
-Y  [m]    |  -0.000                  -0.000                 -0.000                 -0.000
-Z  [m]    |  -120.000               -40.000                -120.000               -40.000
-M  [kg]   |  0.000                   0.000                  0.000                  0.000
-B  [m^3]  |  0.000                   0.000                  0.000                  0.000
-FX [N]    | ( 239636.333)          (-239636.333)          ( 239636.333)          (-239636.333)
-FY [N]    | (-0.000)               ( 0.000)               (-0.000)               ( 0.000)
 FZ [N]    | ( 391238.903)          ( 511561.602)          ( 391238.903)          ( 511561.602)
 
 
@@ -118,120 +79,6 @@ Jacobian Evals  |  4
 Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
 
 
-                | Element 3
-                | ---------------------------------------
-Material        |  chainup
-Lu        [m]   |  680.000
-Lb        [m]   | 0.000
-H         [N]   |  239636.333
-V         [N]   |  511561.602
-T         [N]   |  564907.819
-Alpha     [deg] |  64.900
-HAnch     [N]   |  239636.333
-VAnch     [N]   | -391238.903
-TAnch     [N]   |  458795.653
-AlphaAnch [deg] | -58.512
-L^2-Norm        |  5.684342e-14
-Function Evals  |  5
-Jacobian Evals  |  4
-Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
-
-
-                | Element 4
-                | ---------------------------------------
-Material        |  chainup
-Lu        [m]   |  680.000
-Lb        [m]   | 0.000
-H         [N]   |  239636.333
-V         [N]   |  511561.602
-T         [N]   |  564907.819
-Alpha     [deg] |  64.900
-HAnch     [N]   |  239636.333
-VAnch     [N]   | -391238.903
-TAnch     [N]   |  458795.653
-AlphaAnch [deg] | -58.512
-L^2-Norm        |  5.684342e-14
-Function Evals  |  5
-Jacobian Evals  |  4
-Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
-
-
-                | Element 5
-                | ---------------------------------------
-Material        |  chainup
-Lu        [m]   |  680.000
-Lb        [m]   | 0.000
-H         [N]   |  239636.333
-V         [N]   |  511561.602
-T         [N]   |  564907.819
-Alpha     [deg] |  64.900
-HAnch     [N]   |  239636.333
-VAnch     [N]   | -391238.903
-TAnch     [N]   |  458795.653
-AlphaAnch [deg] | -58.512
-L^2-Norm        |  5.684342e-14
-Function Evals  |  5
-Jacobian Evals  |  4
-Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
-
-
-                | Element 6
-                | ---------------------------------------
-Material        |  chainup
-Lu        [m]   |  680.000
-Lb        [m]   | 0.000
-H         [N]   |  239636.333
-V         [N]   |  511561.602
-T         [N]   |  564907.819
-Alpha     [deg] |  64.900
-HAnch     [N]   |  239636.333
-VAnch     [N]   | -391238.903
-TAnch     [N]   |  458795.653
-AlphaAnch [deg] | -58.512
-L^2-Norm        |  5.684342e-14
-Function Evals  |  5
-Jacobian Evals  |  4
-Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
-
-
-                | Element 7
-                | ---------------------------------------
-Material        |  chainup
-Lu        [m]   |  680.000
-Lb        [m]   | 0.000
-H         [N]   |  239636.333
-V         [N]   |  511561.602
-T         [N]   |  564907.819
-Alpha     [deg] |  64.900
-HAnch     [N]   |  239636.333
-VAnch     [N]   | -391238.903
-TAnch     [N]   |  458795.653
-AlphaAnch [deg] | -58.512
-L^2-Norm        |  5.684342e-14
-Function Evals  |  5
-Jacobian Evals  |  4
-Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
-
-
-                | Element 8
-                | ---------------------------------------
-Material        |  chainup
-Lu        [m]   |  680.000
-Lb        [m]   | 0.000
-H         [N]   |  239636.333
-V         [N]   |  511561.602
-T         [N]   |  564907.819
-Alpha     [deg] |  64.900
-HAnch     [N]   |  239636.333
-VAnch     [N]   | -391238.903
-TAnch     [N]   |  458795.653
-AlphaAnch [deg] | -58.512
-L^2-Norm        |  5.684342e-14
-Function Evals  |  5
-Jacobian Evals  |  4
-Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
-
-
 ---------------------- LINE DICTIONARY ---------------------------------------
 LineType  Diam      MassDenInAir   EA            CB
 [-]       [m]       [kg/m]         [N]           [-]
@@ -245,29 +92,11 @@ Node  Type       X       Y       Z      M     B     FX    FY    FZ
 2     Vessel     0     -20      -40     0     0      #     #     #                                                                                                                                                                                             
 3     fix        0    -520      -120    0     0      #     #     #                                                                                                                                                                                             
 4     Vessel     0     -20      -40     0     0      #     #     #                                                                                                                                                                                             
-5   fix   -520.0000   -0.0000   -120.0000   0   0   #0.0000   #0.0000   #0.0000
-6   Vessel   -20.0000   -0.0000   -40.0000   0   0   #0.0000   #0.0000   #0.0000
-7   fix   -520.0000   -0.0000   -120.0000   0   0   #0.0000   #0.0000   #0.0000
-8   Vessel   -20.0000   -0.0000   -40.0000   0   0   #0.0000   #0.0000   #0.0000
-9   fix   -0.0000   520.0000   -120.0000   0   0   #0.0000   #-0.0000   #0.0000
-10   Vessel   -0.0000   20.0000   -40.0000   0   0   #0.0000   #-0.0000   #0.0000
-11   fix   -0.0000   520.0000   -120.0000   0   0   #0.0000   #-0.0000   #0.0000
-12   Vessel   -0.0000   20.0000   -40.0000   0   0   #0.0000   #-0.0000   #0.0000
-13   fix   520.0000   -0.0000   -120.0000   0   0   #0.0000   #0.0000   #0.0000
-14   Vessel   20.0000   -0.0000   -40.0000   0   0   #0.0000   #0.0000   #0.0000
-15   fix   520.0000   -0.0000   -120.0000   0   0   #0.0000   #0.0000   #0.0000
-16   Vessel   20.0000   -0.0000   -40.0000   0   0   #0.0000   #0.0000   #0.0000
 ---------------------- LINE PROPERTIES ---------------------------------------
 Element  LineType  UnstrLen  NodeAnch  NodeFair  Flags
 [-]      [-]       [m]       [-]       [-]       [-]
-1        chainup   680        1         2        plot gx_pos h_fair damage_time 99 omit_contact                                                                                                                                                                
-2        chainup   680        3         4        plot  omit_contact                                                                                                                                                                                            
-3   chainup   680   5   6   plot   gx_pos   h_fair   damage_time   99   omit_contact   
-4   chainup   680   7   8   plot   omit_contact   
-5   chainup   680   9   10   plot   gx_pos   h_fair   damage_time   99   omit_contact   
-6   chainup   680   11   12   plot   omit_contact   
-7   chainup   680   13   14   plot   gx_pos   h_fair   damage_time   99   omit_contact   
-8   chainup   680   15   16   plot   omit_contact   
+1        chainup   680        1         2        plot gx_dpos h_fair damage_time 99 omit_contact                                                                                                                                                               
+2        chainup   680        3         4        plot omit_contact                                                                                                                                                                                             
 ---------------------- SOLVER OPTIONS-----------------------------------------
 Option 
 [-] 
@@ -278,4 +107,4 @@ inner_xtol 1e-6
 outer_tol 1e-4                                                                                                                                                                                                                                                 
 inner_max_its 400                                                                                                                                                                                                                                              
 outer_max_its 400                                                                                                                                                                                                                                              
-repeat 90 180 -90                                                                                                                                                                                                                                              
+ repeat 90 180 -90                                                                                                                                                                                                                                             

@@ -70,18 +70,18 @@ int main(int argc, char *argv[])
    * to C (because 2D arrays between C and fortran do no align in memory). 1D arrays do line 
    * up. A better, more generic, non-text driven way of setting model parameters should be use. 
    */
-  strcpy(line_def[0], "upper     0.07      160        600000000        1.0    1.0E8    0.6 -1.0    0.05\0");
-  strcpy(line_def[1], "middle    0.08      180        700000000        1.0    1.0E8    0.6 -1.0    0.05\0");
-  strcpy(line_def[2], "lower     0.085     200        800000000        1.0    1.0E8    0.6 -1.0    0.05\0");
-  strcpy(node_def[0], "1     fix       -300     0      depth   0     0      #      #       #\0");
-  strcpy(node_def[1], "2     Connect  #-120    #0     #-70     0     0      0      0       0\0");
-  strcpy(node_def[2], "3     Connect  #-53     #0     #-20     0     0      0      0       0\0");
-  strcpy(node_def[3], "4     vessel    -25     15       0.0    0     0      #      #       #\0");
-  strcpy(node_def[4], "5     Vessel    -25    -15       0.0    0     0      #      #       #\0");
-  strcpy(element_def[0], "1        lower     122       1         2 omit_contact gx_pos\0");
-  strcpy(element_def[1], "2        middle    122       2         3 omit_contact gx_pos\0");
-  strcpy(element_def[2], "3        upper     50        3         4 omit_contact gx_pos\0");
-  strcpy(element_def[3], "4        upper     50        3         5 omit_contact gx_pos\0");
+  strcpy(line_def[0], "upper     0.07      160        600000000        1.0    1.0E8    0.6 -1.0    0.05 \0");
+  strcpy(line_def[1], "middle    0.08      180        700000000        1.0    1.0E8    0.6 -1.0    0.05 \0");
+  strcpy(line_def[2], "lower     0.085     200        800000000        1.0    1.0E8    0.6 -1.0    0.05 \0");
+  strcpy(node_def[0], "1     fix       -300     0      depth   0     0      #      #       # \0");
+  strcpy(node_def[1], "2     Connect  #-120    #0     #-70     0     0      0      0       0 \0");
+  strcpy(node_def[2], "3     Connect  #-53     #0     #-20     0     0      0      0       0 \0");
+  strcpy(node_def[3], "4     vessel    -25     15       0.0    0     0      #      #       # \0");
+  strcpy(node_def[4], "5     Vessel    -25    -15       0.0    0     0      #      #       # \0");
+  strcpy(element_def[0], "1        lower     122       1         2 omit_contact gx_dpos \0");
+  strcpy(element_def[1], "2        middle    122       2         3 omit_contact gx_pos \0");
+  strcpy(element_def[2], "3        upper     50        3         4 omit_contact gx_pos \0");
+  strcpy(element_def[3], "4        upper     50        3         5 omit_contact gx_pos \0");
   strcpy(option_def[0], " help\0");
   strcpy(option_def[1], "inner_xtol 1e-9\0");
   strcpy(option_def[2], "outer_tol 1e-5\0");
@@ -181,15 +181,23 @@ int main(int argc, char *argv[])
 //    u_type->y[0] = vessel_y_position;
 //    /* vessel position:                   X    Y                  Z    phi  the  psi */
 //    // map_offset_vessel(other_type, u_type, 0.0, vessel_y_position, 0.0, 0.0, 0.0, 0.0, map_msg, &ierr); // @todo: <----- inconsistent argument order, map_msg, ierr?
-//    map_update_states(time, its, u_type, p_type, x_type, NULL, z_type, other_type, &ierr, map_msg);    // @todo: <----- inconsistent argument order, ierr, map_msg?
+    map_update_states(time, its, u_type, p_type, x_type, NULL, z_type, other_type, &ierr, map_msg);    // @todo: <----- inconsistent argument order, ierr, map_msg?
+    if (ierr!=MAP_SAFE) {
+      printf("%s\n",map_msg);
+    };
+
 //    
 //    printf("Time step %0.1f: ", time);
 //    printf("Element 0 fairlead force: %0.2f  %0.2f  %0.2f\n", y_type->Fx[0], y_type->Fy[0], y_type->Fz[0]);
 //
 //    
 //    /* OPTIONAL: if you want output headers    <-------------------------------------+   */
-//    map_calc_output(time, u_type, p_type, x_type, NULL, z_type,                //    |
-//                    other_type, y_type, &ierr, map_msg);                       //    |
+    map_calc_output(time, u_type, p_type, x_type, NULL, z_type,                //    |
+                    other_type, y_type, &ierr, map_msg);                       //    |
+    if (ierr!=MAP_SAFE) {
+      printf("%s\n",map_msg);
+    };
+
 //    printf("\t");                                                              //    |
 //    for (i=0 ; i<y_type->wrtOutput_Len ; i++) {                                //    |
 //      printf("%0.2f\t",y_type->wrtOutput[i]);                                  //    |

@@ -436,6 +436,8 @@ MAP_ERROR_CODE solve_line(ModelData* model_data, double time, char* map_msg, MAP
 
   if (*ierr==MAP_SAFE) {
     return MAP_SAFE;
+  } else if (*ierr==MAP_WARNING) {
+    return MAP_SAFE;
   } else if (*ierr==MAP_ERROR) {
     return MAP_ERROR;
   } else {

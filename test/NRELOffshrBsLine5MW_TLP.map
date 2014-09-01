@@ -13,7 +13,7 @@ Node Type     X     Y     Z     M     B     FX   FY   FZ
 Element  LineType  UnstrLen    NodeAnch  NodeFair  Flags
 (-)      (-)       (m)         (-)       (-)       (-)
 1       Material   151.73       1         2         linear_spring
-2       Material   151.73       3         4         
+2       Material   151.73       3         4         gf_po 
 ---------------------- SOLVER OPTIONS-----------------------------------------
 Option
 (-)   

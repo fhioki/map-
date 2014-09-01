@@ -529,48 +529,7 @@ CONTAINS
     TYPE(MAP_InputType)                             :: u_interp    ! Inputs at t
     
     ! create space for arrays/meshes in u_interp
-    CALL MAP_CopyInput(u(1), u_interp, MESH_NEWCOPY, ErrStat, ErrMsg)      
-    !CALL CheckError(ErrStat2,ErrMsg2)
-    !IF ( ErrStat >= AbortErrLev ) RETURN
-    ! @bonnie: memory leak occuring in MAP_CopyInput. This is a critical leak that must be addressed now 
-    !          because the number of bytes lost is proportional to simulation length.
-    !
-    !     ==20524== 
-    !     ==20524== HEAP SUMMARY:
-    !     ==20524==     in use at exit: 1,920 bytes in 30 blocks
-    !     ==20524==   total heap usage: 1,502 allocs, 1,472 frees, 184,509 bytes allocated
-    !     ==20524== 
-    !     ==20524== 640 bytes in 10 blocks are definitely lost in loss record 1 of 3
-    !     ==20524==    at 0x4C2AB80: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-    !     ==20524==    by 0x56B3B5: __map_types_MOD_map_copyinput (in /media/sf_Dropbox/cemats/fortran_driver/map_driver.exe)
-    !     ==20524==    by 0x595814: __map_MOD_map_updatestates (in /media/sf_Dropbox/cemats/fortran_driver/map_driver.exe)
-    !     ==20524==    by 0x59BD7C: MAIN__ (in /media/sf_Dropbox/cemats/fortran_driver/map_driver.exe)
-    !     ==20524==    by 0x59C922: main (in /media/sf_Dropbox/cemats/fortran_driver/map_driver.exe)
-    !     ==20524== 
-    !     ==20524== 640 bytes in 10 blocks are definitely lost in loss record 2 of 3
-    !     ==20524==    at 0x4C2AB80: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-    !     ==20524==    by 0x56BA9D: __map_types_MOD_map_copyinput (in /media/sf_Dropbox/cemats/fortran_driver/map_driver.exe)
-    !     ==20524==    by 0x595814: __map_MOD_map_updatestates (in /media/sf_Dropbox/cemats/fortran_driver/map_driver.exe)
-    !     ==20524==    by 0x59BD7C: MAIN__ (in /media/sf_Dropbox/cemats/fortran_driver/map_driver.exe)
-    !     ==20524==    by 0x59C922: main (in /media/sf_Dropbox/cemats/fortran_driver/map_driver.exe)
-    !     ==20524== 
-    !     ==20524== 640 bytes in 10 blocks are definitely lost in loss record 3 of 3
-    !     ==20524==    at 0x4C2AB80: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-    !     ==20524==    by 0x56C1F1: __map_types_MOD_map_copyinput (in /media/sf_Dropbox/cemats/fortran_driver/map_driver.exe)
-    !     ==20524==    by 0x595814: __map_MOD_map_updatestates (in /media/sf_Dropbox/cemats/fortran_driver/map_driver.exe)
-    !     ==20524==    by 0x59BD7C: MAIN__ (in /media/sf_Dropbox/cemats/fortran_driver/map_driver.exe)
-    !     ==20524==    by 0x59C922: main (in /media/sf_Dropbox/cemats/fortran_driver/map_driver.exe)
-    !     ==20524== 
-    !     ==20524== LEAK SUMMARY:
-    !     ==20524==    definitely lost: 1,920 bytes in 30 blocks
-    !     ==20524==    indirectly lost: 0 bytes in 0 blocks
-    !     ==20524==      possibly lost: 0 bytes in 0 blocks
-    !     ==20524==    still reachable: 0 bytes in 0 blocks
-    !     ==20524==         suppressed: 0 bytes in 0 blocks
-    !     ==20524== 
-    !     ==20524== For counts of detected and suppressed errors, rerun with: -v
-    !     ==20524== ERROR SUMMARY: 23 errors from 5 contexts (suppressed: 0 from 0)
-    
+    CALL MAP_CopyInput(u(1), u_interp, MESH_NEWCOPY, ErrStat, ErrMsg)          
     CALL MAP_Input_ExtrapInterp(u, utimes, u_interp, t, ErrStat, ErrMsg)
     !CALL CheckError(ErrStat2,ErrMsg2)
     !IF ( ErrStat >= AbortErrLev ) RETURN
@@ -585,14 +544,14 @@ CONTAINS
     !         if you need the absolute position, add them: u_interp%PtFairleadDisplacement(1)%TranslationDisp(1,i) + u_interp%PtFairleadDisplacement(1)%Pos
     ! Copy the mesh input to the MAP C types
     DO i = 1,u_interp%PtFairDisplacement%NNodes
-       u_interp%X(i) = -999.9! u_interp%PtFairDisplacement%Position(1,i) + u_interp%PtFairDisplacement%TranslationDisp(1,i)
-       u_interp%Y(i) = -888.8! u_interp%PtFairDisplacement%Position(2,i) + u_interp%PtFairDisplacement%TranslationDisp(2,i)
-       u_interp%Z(i) = -777.7! u_interp%PtFairDisplacement%Position(3,i) + u_interp%PtFairDisplacement%TranslationDisp(3,i)
+       u_interp%X(i) = u_interp%PtFairDisplacement%Position(1,i) + u_interp%PtFairDisplacement%TranslationDisp(1,i)
+       u_interp%Y(i) = u_interp%PtFairDisplacement%Position(2,i) + u_interp%PtFairDisplacement%TranslationDisp(2,i)
+       u_interp%Z(i) = u_interp%PtFairDisplacement%Position(3,i) + u_interp%PtFairDisplacement%TranslationDisp(3,i)
     END DO
     
     ! @bonnie: remove. This is just to test MAP by using fake fairlead displacements
-    u_interp%X(3) = u_interp%X(3)+time
-    write (*,*) u_interp%X(3)!u(1)%x(1)
+    u_interp%X(1) = u_interp%X(1)+time
+    !write (*,*) u_interp%X(3)!u(1)%x(1)
 
     CALL copy_inputs_for_c(u_interp, ErrStat, ErrMsg)
 
@@ -870,6 +829,7 @@ CONTAINS
     CALL C_F_POINTER(other%C_obj%Fx_anchor, other%Fx_anchor, (/other%C_obj%Fx_anchor_Len/))  
     CALL C_F_POINTER(other%C_obj%Fy_anchor, other%Fy_anchor, (/other%C_obj%Fy_anchor_Len/))  
     CALL C_F_POINTER(other%C_obj%Fz_anchor, other%Fz_anchor, (/other%C_obj%Fz_anchor_Len/))  
+    ErrStat = ErrID_None
   END SUBROUTINE MAP_C2F_OtherState_Array_Allocation
 
 
@@ -884,6 +844,7 @@ CONTAINS
     CALL C_F_POINTER(y%C_obj%Fy, y%Fy, (/y%C_obj%Fy_Len/))  
     CALL C_F_POINTER(y%C_obj%Fz, y%Fz, (/y%C_obj%Fz_Len/))  
     CALL C_F_POINTER(y%C_obj%wrtOutput, y%wrtOutput, (/y%C_obj%wrtOutput_Len/))  
+    ErrStat = ErrID_None
   END SUBROUTINE MAP_C2F_Output_Array_Allocation
 
 
@@ -899,6 +860,7 @@ CONTAINS
     CALL C_F_POINTER(z%C_obj%x, z%x, (/z%C_obj%x_Len/))  
     CALL C_F_POINTER(z%C_obj%y, z%y, (/z%C_obj%y_Len/))  
     CALL C_F_POINTER(z%C_obj%z, z%z, (/z%C_obj%z_Len/))  
+    ErrStat = ErrID_None
   END SUBROUTINE MAP_C2F_ConstrState_Array_Allocation   
 
 
@@ -912,6 +874,7 @@ CONTAINS
     CALL C_F_POINTER(u%C_obj%x, u%x, (/u%C_obj%x_Len/))  
     CALL C_F_POINTER(u%C_obj%y, u%y, (/u%C_obj%y_Len/))  
     CALL C_F_POINTER(u%C_obj%z, u%z, (/u%C_obj%z_Len/))  
+    ErrStat = ErrID_None
   END SUBROUTINE MAP_C2F_Input_Array_Allocation
 
 

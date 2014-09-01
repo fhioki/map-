@@ -35,13 +35,14 @@ MAP_ERROR_CODE get_iteration_output_stream(MAP_OutputType_t *y_type, MAP_OtherSt
   ModelData* model_data = other_type->object;
   VarTypePtr* vartype_ptr = NULL;
   VarType* vartype = NULL;
-
+  
+  /* this should only be run once at initialization */
   if (!y_type->wrtOutput) { /* if NULL, then wrtOutput is not initialized */
     /* first set size of out list */
     y_type->wrtOutput_Len = (int)list_size(&model_data->yList->out_list_ptr);
     y_type->wrtOutput_Len += (int)list_size(&model_data->yList->out_list);
     
-    /* allocation array */
+    /* allocation of the array */
     y_type->wrtOutput = malloc(sizeof(double)*y_type->wrtOutput_Len);
   };
 

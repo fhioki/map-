@@ -14,8 +14,8 @@ Node  Type       X       Y       Z      M     B     FX    FY    FZ
 ---------------------- LINE P ROPERTIES ---------------------------------------
 Element  LineType  UnstrLen  NodeAnch  NodeFair  Flags
 (-)      (-)       (m)       (-)       (-)       (-)
-1        chainup   680        1         2        plot gx_pos h_fair damage_time 99 omit_contact
-2        chainup   680        3         4        plot  omit_contact
+1        chainup   680        1         2        plot gx_dpos h_fair damage_time 99 omit_contact
+2        chainup   680        3         4        plot omit_contact
 ---------------------- SOLVER OPTIONS-----------------------------------------
 Option 
 (-) 
@@ -26,4 +26,4 @@ inner_xtol 1e-6
 outer_tol 1e-4
 inner_max_its 400
 outer_max_its 400
-repeat 90 180 -90
+ repeat 90 180 -90

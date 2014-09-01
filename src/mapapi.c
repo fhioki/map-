@@ -134,7 +134,7 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
     success = first_solve(model_data, p_type, u_type, z_type, other_type, y_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_39);
     success = set_line_variables_post_solve(model_data, map_msg, ierr);    // @rm, not needed. This is called in line_solve_sequence
     success = write_summary_file(init_data, p_type, model_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_37);           
-    // success = get_iteration_output_stream(y_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+    success = get_iteration_output_stream(y_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
   } while (0);  
   free_init_data(init_data, map_msg, ierr); 
   MAP_InitInput_Delete(init_data);
@@ -170,7 +170,6 @@ MAP_EXTERNCALL void map_update_states(double t,
       * in set_node_list(...)
       */
      if (u_type!=model_data->HEAD_U_TYPE) { /* this is intended to be triggered when couled to FAST */
-       checkpoint();
        list_iterator_start(&model_data->u_update_list);  
        while (list_iterator_hasnext(&model_data->u_update_list)) { 
          point_iter = (ReferencePoint*)list_iterator_next(&model_data->u_update_list);               
@@ -181,13 +180,13 @@ MAP_EXTERNCALL void map_update_states(double t,
        };
        list_iterator_stop(&model_data->u_update_list);
 
-       /* This proves the node position is updated with the Fortran interpolated input */
-       list_iterator_start(&model_data->node);  
-       while (list_iterator_hasnext(&model_data->node)) { 
-         node_iter = (Node*)list_iterator_next(&model_data->node);               
-         printf("After update>  %1.2f  %1.2f  %1.2f\n", *node_iter->positionPtr.x.value, *node_iter->positionPtr.y.value, *node_iter->positionPtr.z.value);
-       };
-       list_iterator_stop(&model_data->node);
+       // /* This proves the node position is updated with the Fortran interpolated input */
+       // list_iterator_start(&model_data->node);  
+       // while (list_iterator_hasnext(&model_data->node)) { 
+       //   node_iter = (Node*)list_iterator_next(&model_data->node);               
+       //   printf("After update>  %1.2f  %1.2f  %1.2f\n", *node_iter->positionPtr.x.value, *node_iter->positionPtr.y.value, *node_iter->positionPtr.z.value);
+       // };
+       // list_iterator_stop(&model_data->node);
        
        if (i!=u_type->x_Len) { /* raise error if the input array are exceeded */
          set_universal_error_with_message(map_msg, ierr, MAP_FATAL_89, "u_type range: <%d>. Updated array range: <%d>", u_type->x_Len, i);
