@@ -27,10 +27,10 @@
 #include "map.h"
 
 
-MAP_ERROR_CODE call_minpack_lmder(Element* element, InnerSolveAttributes* inner_opt, ModelOptions* opt, const int line_num, const double time, char* map_msg, MAP_ERROR_CODE* ierr);
-double get_maximum_line_length(Element* element);
+MAP_ERROR_CODE call_minpack_lmder(Line* line, InnerSolveAttributes* inner_opt, ModelOptions* opt, const int line_num, const double time, char* map_msg, MAP_ERROR_CODE* ierr);
+double get_maximum_line_length(Line* line);
 
-int inner_function_evals(void* element_ptr, int m, int n, const __cminpack_real__* x, __cminpack_real__* fvec, __cminpack_real__* fjac, int ldfjac, int iflag);
+int inner_function_evals(void* line_ptr, int m, int n, const __cminpack_real__* x, __cminpack_real__* fvec, __cminpack_real__* fjac, int ldfjac, int iflag);
 
 MapReal residual_function_length_no_contact(const MapReal V, const MapReal H, const MapReal w, const MapReal Lu, const MapReal EA, const MapReal l);
 MapReal residual_function_height_no_contact(const MapReal V, const MapReal H, const MapReal w, const MapReal Lu, const MapReal EA, const MapReal h);

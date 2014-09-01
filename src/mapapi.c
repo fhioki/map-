@@ -75,36 +75,36 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
      *  - cable library (properties)
      * The following are simclist routines 
      */
-    list_init(&model_data->cableLibrary); 
+    list_init(&model_data->library); 
     list_init(&model_data->node); 
-    list_init(&model_data->element);  
+    list_init(&model_data->line);  
     list_init(&model_data->u_update_list);  
-    list_attributes_copy(&model_data->cableLibrary, cable_library_meter, 1); 
+    list_attributes_copy(&model_data->library, cable_library_meter, 1); 
     list_attributes_copy(&model_data->node, node_meter, 1); 
-    list_attributes_copy(&model_data->element, cable_element_meter, 1);    
+    list_attributes_copy(&model_data->line, cable_line_meter, 1);    
     list_attributes_copy(&model_data->u_update_list, u_list_meter, 1);    
 
     success = allocate_outlist(model_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_47);
-    list_init(&model_data->yList->out_list); /* simclist routine */
-    list_init(&model_data->yList->out_list_ptr); /* simclist routine */
+    list_init(&model_data->y_list->out_list); /* simclist routine */
+    list_init(&model_data->y_list->out_list_ptr); /* simclist routine */
 
     /* The follow routines expand the input file contents based on the number of repeat
-     * angles. If not repeat angles are declared, then expandedNodeInputString=nodeInputString
-     * and expandedElementInputString=elementInputString. This is just a convenient way
+     * angles. If not repeat angles are declared, then expanded_node_input_string=node_input_string
+     * and expanded_line_input_string=line_input_string. This is just a convenient way
      * to duplicate lines if a symetric mooring is employed
      */
     success = set_model_options_list(model_data, init_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_33);
     success = set_cable_library_list(model_data, init_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);
 
     success = repeat_nodes(model_data, init_data, map_msg, ierr);
-    success = repeat_elements(model_data, init_data, map_msg, ierr);
+    success = repeat_lines(model_data, init_data, map_msg, ierr);
      
-    success = set_node_list(p_type, u_type, z_type, other_type, y_type, model_data, init_data->expandedNodeInputString, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);    
-    success = set_element_list(z_type, model_data, init_data->expandedElementInputString, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);    
+    success = set_node_list(p_type, u_type, z_type, other_type, y_type, model_data, init_data->expanded_node_input_string, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);    
+    success = set_line_list(z_type, model_data, init_data->expanded_line_input_string, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);    
     
     /* now create an output list to print to and output file. */
-    list_attributes_copy(&model_data->yList->out_list, vartype_meter, 1);  
-    list_attributes_copy(&model_data->yList->out_list_ptr, vartype_ptr_meter, 1);  
+    list_attributes_copy(&model_data->y_list->out_list, vartype_meter, 1);  
+    list_attributes_copy(&model_data->y_list->out_list_ptr, vartype_ptr_meter, 1);  
     success = set_output_list(model_data, io_type, map_msg, ierr); 
     success = set_vessel(&model_data->vessel, u_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_69);
     
@@ -123,14 +123,14 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
      
     printf("MAP environment properties (set externally)...\n");
     printf("    Gravity constant          [m/s^2]  : %1.2f\n", p_type->g ); 
-    printf("    Sea density               [kg/m^3] : %1.2f\n", p_type->rhoSea );
+    printf("    Sea density               [kg/m^3] : %1.2f\n", p_type->rho_sea );
     printf("    Water depth               [m]      : %1.2f\n", p_type->depth );
-    printf("    Vessel reference position [m]      : %1.2f , %1.2f , %1.2f\n", model_data->vessel.refOrigin.x.value, model_data->vessel.refOrigin.y.value, model_data->vessel.refOrigin.z.value); 
+    printf("    Vessel reference position [m]      : %1.2f , %1.2f , %1.2f\n", model_data->vessel.ref_origin.x.value, model_data->vessel.ref_origin.y.value, model_data->vessel.ref_origin.z.value); 
    
     success = initialize_cable_library_variables(model_data, p_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_41);
     success = set_line_variables_pre_solve(model_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_86);// @rm, not needed. This is called in line_solve_sequence
     success = reset_node_force_to_zero(model_data, map_msg, ierr); // @rm, not needed. This is called in line_solve_sequence
-    success = set_element_initial_guess(model_data, map_msg, ierr);
+    success = set_line_initial_guess(model_data, map_msg, ierr);
     success = first_solve(model_data, p_type, u_type, z_type, other_type, y_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_39);
     success = set_line_variables_post_solve(model_data, map_msg, ierr);    // @rm, not needed. This is called in line_solve_sequence
     success = write_summary_file(init_data, p_type, model_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_37);           
@@ -184,7 +184,7 @@ MAP_EXTERNCALL void map_update_states(double t,
        // list_iterator_start(&model_data->node);  
        // while (list_iterator_hasnext(&model_data->node)) { 
        //   node_iter = (Node*)list_iterator_next(&model_data->node);               
-       //   printf("After update>  %1.2f  %1.2f  %1.2f\n", *node_iter->positionPtr.x.value, *node_iter->positionPtr.y.value, *node_iter->positionPtr.z.value);
+       //   printf("After update>  %1.2f  %1.2f  %1.2f\n", *node_iter->position_ptr.x.value, *node_iter->position_ptr.y.value, *node_iter->position_ptr.z.value);
        // };
        // list_iterator_stop(&model_data->node);
        
@@ -238,20 +238,20 @@ MAP_EXTERNCALL void map_end(MAP_InputType_t* u_type,
   do {
     success = free_outer_solve_data(&model_data->outer_loop, z_type->x_Len, map_msg, ierr); CHECKERRQ(MAP_FATAL_73);
     success = map_free_types(u_type, p_type, x_type, z_type, other_type, y_type); 
-    list_destroy(&model_data->yList->out_list);    /* destroy output lists for writting information to output file */
-    list_destroy(&model_data->yList->out_list_ptr); /* destroy output lists for writting information to output file */
-    success = free_outlist(model_data,map_msg,ierr); CHECKERRQ(MAP_FATAL_47);//@rm, should be replaced with a MAPFREE(data->yList)   
-    success = free_element(&model_data->element);
+    list_destroy(&model_data->y_list->out_list);    /* destroy output lists for writting information to output file */
+    list_destroy(&model_data->y_list->out_list_ptr); /* destroy output lists for writting information to output file */
+    success = free_outlist(model_data,map_msg,ierr); CHECKERRQ(MAP_FATAL_47);//@rm, should be replaced with a MAPFREE(data->y_list)   
+    success = free_line(&model_data->line);
     success = free_node(&model_data->node);
     success = free_vessel(&model_data->vessel);
-    success = free_cable_library(&model_data->cableLibrary);
+    success = free_cable_library(&model_data->library);
     success = free_update_list(&model_data->u_update_list);
      
-    list_destroy(&model_data->element);
+    list_destroy(&model_data->line);
     list_destroy(&model_data->node);
-    list_destroy(&model_data->cableLibrary);
+    list_destroy(&model_data->library);
     list_destroy(&model_data->u_update_list);  
-    MAPFREE(model_data->modelOptions.repeat_angle);
+    MAPFREE(model_data->model_options.repeat_angle);
     MAP_OtherState_Delete(model_data);
   } while (0);
 };
@@ -423,7 +423,7 @@ MAP_EXTERNCALL void map_free_linearize_matrix(double** array)
 MAP_EXTERNCALL double* map_plot_x_array(MAP_OtherStateType_t* other_type, int i, int num_points, char *map_msg, MAP_ERROR_CODE *ierr)
 {
   ModelData* model_data = other_type->object;
-  Element* element = NULL;
+  Line* line = NULL;
   MapReal H = 0.0;
   MapReal V = 0.0;
   MapReal EA = 0.0;
@@ -441,13 +441,13 @@ MAP_EXTERNCALL double* map_plot_x_array(MAP_OtherStateType_t* other_type, int i,
   int s = 0;
 
   map_reset_universal_error(map_msg, ierr);
-  element = (Element*)list_get_at(&model_data->element, i);  
+  line = (Line*)list_get_at(&model_data->line, i);  
   
-  if (element==NULL) {    
-    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_42, "Element out of range: <%d>.", i);
-  } else if (element->options.linear_spring) {
-    fairlead_x = *(element->fairlead->positionPtr.x.value);
-    anchor_x = *(element->anchor->positionPtr.x.value);
+  if (line==NULL) {    
+    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_42, "Line out of range: <%d>.", i);
+  } else if (line->options.linear_spring) {
+    fairlead_x = *(line->fairlead->position_ptr.x.value);
+    anchor_x = *(line->anchor->position_ptr.x.value);
     array_x = (double*)malloc(num_points*sizeof(double));
     dS = (fairlead_x-anchor_x)/(MapReal)(num_points-1);
     for (s=0 ; s<num_points ; s++) {
@@ -455,15 +455,15 @@ MAP_EXTERNCALL double* map_plot_x_array(MAP_OtherStateType_t* other_type, int i,
       S += dS;
     };    
   } else {
-    fairlead_x = *(element->fairlead->positionPtr.x.value);
-    anchor_x = *(element->anchor->positionPtr.x.value);
+    fairlead_x = *(line->fairlead->position_ptr.x.value);
+    anchor_x = *(line->anchor->position_ptr.x.value);
     array_x = (double*)malloc(num_points*sizeof(double));
-    H = *(element->H.value);
-    V = *(element->V.value);  
-    EA = element->lineProperty->ea;
-    Lu = element->Lu.value;   
-    w = element->lineProperty->omega;
-    cb = element->lineProperty->cb;
+    H = *(line->H.value);
+    V = *(line->V.value);  
+    EA = line->line_property->EA;
+    Lu = line->Lu.value;   
+    w = line->line_property->omega;
+    cb = line->line_property->cb;
     dS = Lu/(MapReal)(num_points-1) ;
     
     /* If the cable is not resting on the seabed, we use the classic catenary equation
@@ -473,9 +473,9 @@ MAP_EXTERNCALL double* map_plot_x_array(MAP_OtherStateType_t* other_type, int i,
      * @ref : J. Jonkman, November 2007. "Dynamic Modeling and Loads Analysis of an 
      *        Offshore Floating Wind Turbine." NREL Technical Report NREL/TP-500-41958.
      */        
-    if (element->options.omitContact==true || w<0.0 || (V-w*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
+    if (line->options.omit_contact==true || w<0.0 || (V-w*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
       for (s=0 ; s<num_points ; s++) {
-        array_x[s] = fairlead_x - ( (H/w)*ARCSINH( V/H ) - (H/w)*ARCSINH( (V-S*w)/H ) + (H*S)/(EA) )*cos(element->psi.value);
+        array_x[s] = fairlead_x - ( (H/w)*ARCSINH( V/H ) - (H/w)*ARCSINH( (V-S*w)/H ) + (H*S)/(EA) )*cos(line->psi.value);
         S += dS;
       };
     } else {
@@ -483,12 +483,12 @@ MAP_EXTERNCALL double* map_plot_x_array(MAP_OtherStateType_t* other_type, int i,
       lambda = (Lb-H/(cb*w))>0 ? (Lb-H/(cb*w)) : 0; 
       for (s=0 ; s<num_points ; s++) {
         if (0<=S && S<=(Lb-H/(cb*w))) { /* for 0 <= s <= Lb - H/(Cb*w) */
-          array_x[s] = S*cos(element->psi.value) + anchor_x; 
+          array_x[s] = S*cos(line->psi.value) + anchor_x; 
         } else if ((Lb-H/(cb/w))<S && S<=Lb) { /* for Lb - H/(Cb*w) < s <= Lb */
-          array_x[s] = (S + ((cb*w)/(2*EA)) * (S*S - 2*(Lb-H/(cb*w))*S + (Lb- H/(cb*w))*lambda))*cos(element->psi.value) + anchor_x; 
+          array_x[s] = (S + ((cb*w)/(2*EA)) * (S*S - 2*(Lb-H/(cb*w))*S + (Lb- H/(cb*w))*lambda))*cos(line->psi.value) + anchor_x; 
         } else { /* for Lb < s <= L */
-          array_x[s] = (Lb + (H/w)*ARCSINH((w*(S-Lb))/H))*cos(element->psi.value)    
-            - ( ((H*S)/(EA)) + ((cb*w)/(2*EA))*(-Lb*Lb + (Lb-H/(cb*w))*lambda))*cos(element->psi.value) + anchor_x; 
+          array_x[s] = (Lb + (H/w)*ARCSINH((w*(S-Lb))/H))*cos(line->psi.value)    
+            - ( ((H*S)/(EA)) + ((cb*w)/(2*EA))*(-Lb*Lb + (Lb-H/(cb*w))*lambda))*cos(line->psi.value) + anchor_x; 
         };
         S += dS;
       };
@@ -501,7 +501,7 @@ MAP_EXTERNCALL double* map_plot_x_array(MAP_OtherStateType_t* other_type, int i,
 MAP_EXTERNCALL double* map_plot_y_array(MAP_OtherStateType_t* other_type, int i, int num_points, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   ModelData* data = other_type->object;
-  Element* element = NULL;
+  Line* line = NULL;
   MapReal H = 0.0;
   MapReal V = 0.0;
   MapReal EA = 0.0;
@@ -519,13 +519,13 @@ MAP_EXTERNCALL double* map_plot_y_array(MAP_OtherStateType_t* other_type, int i,
   int ret = 0;
 
   map_reset_universal_error(map_msg, ierr);  
-  element = (Element*)list_get_at(&data->element, i);
+  line = (Line*)list_get_at(&data->line, i);
   
-  if (element==NULL) {
-    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_42, "Element out of range: <%d>.", i);
-  } else if (element->options.linear_spring) {
-    fairlead_y = *(element->fairlead->positionPtr.y.value);
-    anchor_y = *(element->anchor->positionPtr.y.value);
+  if (line==NULL) {
+    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_42, "Line out of range: <%d>.", i);
+  } else if (line->options.linear_spring) {
+    fairlead_y = *(line->fairlead->position_ptr.y.value);
+    anchor_y = *(line->anchor->position_ptr.y.value);
     array_y = (double*)malloc(num_points*sizeof(double));
     dS = (fairlead_y-anchor_y)/(MapReal)(num_points-1);
     for (s=0 ; s<num_points ; s++) {
@@ -533,15 +533,15 @@ MAP_EXTERNCALL double* map_plot_y_array(MAP_OtherStateType_t* other_type, int i,
       S += dS;
     };    
   } else {    
-    fairlead_y = *(element->fairlead->positionPtr.y.value);
-    anchor_y = *(element->anchor->positionPtr.y.value);
+    fairlead_y = *(line->fairlead->position_ptr.y.value);
+    anchor_y = *(line->anchor->position_ptr.y.value);
     array_y = (double*)malloc(num_points*sizeof(double));
-    H = *(element->H.value);
-    V = *(element->V.value);  
-    EA = element->lineProperty->ea;
-    Lu = element->Lu.value;
-    w = element->lineProperty->omega;
-    cb = element->lineProperty->cb;
+    H = *(line->H.value);
+    V = *(line->V.value);  
+    EA = line->line_property->EA;
+    Lu = line->Lu.value;
+    w = line->line_property->omega;
+    cb = line->line_property->cb;
     dS = Lu/(MapReal)(num_points-1) ;
     
     /* If the cable is not resting on the seabed, we use the classic catenary equation
@@ -551,9 +551,9 @@ MAP_EXTERNCALL double* map_plot_y_array(MAP_OtherStateType_t* other_type, int i,
      * @ref : J. Jonkman, November 2007. "Dynamic Modeling and Loads Analysis of an 
      *        Offshore Floating Wind Turbine." NREL Technical Report NREL/TP-500-41958.
      */        
-    if (element->options.omitContact==true || w<0.0 || (V-w*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
+    if (line->options.omit_contact==true || w<0.0 || (V-w*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
       for (s=0 ; s<num_points ; s++) {
-        array_y[s] = fairlead_y - ( (H/w)*ARCSINH( V/H ) - (H/w)*ARCSINH( (V-S*w)/H ) + (H*S)/(EA) )*sin(element->psi.value);
+        array_y[s] = fairlead_y - ( (H/w)*ARCSINH( V/H ) - (H/w)*ARCSINH( (V-S*w)/H ) + (H*S)/(EA) )*sin(line->psi.value);
         S += dS; 
       };
     } else {
@@ -561,12 +561,12 @@ MAP_EXTERNCALL double* map_plot_y_array(MAP_OtherStateType_t* other_type, int i,
       lambda = (Lb-H/(cb*w))>0 ? (Lb-H/(cb*w)) : 0; 
       for (s=0 ; s<num_points ; s++) {
         if (0<=S && S<=(Lb-H/(cb*w))) { /* for 0 <= s <= Lb - H/(Cb*w) */
-          array_y[s] = S*sin(element->psi.value) + anchor_y; 
+          array_y[s] = S*sin(line->psi.value) + anchor_y; 
         } else if ((Lb-H/(cb/w))<S && S<=Lb) { /* for Lb - H/(Cb*w) < s <= Lb */
-          array_y[s] = (S + ((cb*w)/(2*EA))*(S*S - 2*(Lb-H/(cb*w))*S + (Lb- H/(cb*w))*lambda))*sin(element->psi.value) + anchor_y; 
+          array_y[s] = (S + ((cb*w)/(2*EA))*(S*S - 2*(Lb-H/(cb*w))*S + (Lb- H/(cb*w))*lambda))*sin(line->psi.value) + anchor_y; 
         } else { /* for Lb < s <= L */
-          array_y[s] = (Lb + (H/w)*ARCSINH((w*(S-Lb))/H))*sin(element->psi.value)    
-            - (((H*S)/(EA)) + ((cb*w)/(2*EA))*(-Lb*Lb + (Lb-H/(cb*w))*lambda))*sin(element->psi.value) + anchor_y; 
+          array_y[s] = (Lb + (H/w)*ARCSINH((w*(S-Lb))/H))*sin(line->psi.value)    
+            - (((H*S)/(EA)) + ((cb*w)/(2*EA))*(-Lb*Lb + (Lb-H/(cb*w))*lambda))*sin(line->psi.value) + anchor_y; 
         };
         S += dS;
       };
@@ -579,7 +579,7 @@ MAP_EXTERNCALL double* map_plot_y_array(MAP_OtherStateType_t* other_type, int i,
 MAP_EXTERNCALL double* map_plot_z_array(MAP_OtherStateType_t* other_type, int i, int num_points, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   ModelData* data = other_type->object;
-  Element* element = NULL;
+  Line* line = NULL;
   MapReal H = 0.0;
   MapReal V = 0.0;
   MapReal Va = 0.0;
@@ -596,13 +596,13 @@ MAP_EXTERNCALL double* map_plot_z_array(MAP_OtherStateType_t* other_type, int i,
   int s = 0;
 
   map_reset_universal_error(map_msg, ierr);  
-  element = (Element*)list_get_at(&data->element, i);
+  line = (Line*)list_get_at(&data->line, i);
   
-  if (element==NULL){
-    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_42, "Element out of range: <%d>.", i);
-  } else if (element->options.linear_spring) {
-    fairlead_z = *(element->fairlead->positionPtr.z.value);
-    anchor_z = *(element->anchor->positionPtr.z.value);
+  if (line==NULL){
+    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_42, "Line out of range: <%d>.", i);
+  } else if (line->options.linear_spring) {
+    fairlead_z = *(line->fairlead->position_ptr.z.value);
+    anchor_z = *(line->anchor->position_ptr.z.value);
     array_z = (double*)malloc(num_points*sizeof(double));
     dS = fabs(fairlead_z-anchor_z)/(MapReal)(num_points-1);
     for (s=0 ; s<num_points ; s++) {
@@ -610,14 +610,14 @@ MAP_EXTERNCALL double* map_plot_z_array(MAP_OtherStateType_t* other_type, int i,
       S += dS;
     };    
   } else {
-    fairlead_z = *(element->fairlead->positionPtr.z.value);
-    anchor_z = *(element->anchor->positionPtr.z.value);    
+    fairlead_z = *(line->fairlead->position_ptr.z.value);
+    anchor_z = *(line->anchor->position_ptr.z.value);    
     array_z = (double*)malloc(num_points*sizeof(double));
-    H = *(element->H.value);
-    V = *(element->V.value);  
-    EA = element->lineProperty->ea;
-    Lu = element->Lu.value;
-    w = element->lineProperty->omega;
+    H = *(line->H.value);
+    V = *(line->V.value);  
+    EA = line->line_property->EA;
+    Lu = line->Lu.value;
+    w = line->line_property->omega;
     dS = Lu/(MapReal)(num_points-1) ;
 
     /* If the cable is not resting on the seabed, we use the classic catenary equation
@@ -627,9 +627,9 @@ MAP_EXTERNCALL double* map_plot_z_array(MAP_OtherStateType_t* other_type, int i,
      * @ref : J. Jonkman, November 2007. "Dynamic Modeling and Loads Analysis of an 
      *        Offshore Floating Wind Turbine." NREL Technical Report NREL/TP-500-41958.
      */        
-    if (element->options.omitContact==true || w<0.0 || (V-w*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
+    if (line->options.omit_contact==true || w<0.0 || (V-w*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
       for (s=0 ; s<num_points ; s++) {
-        array_z[s] =  fairlead_z - ((H/w)*(sqrt(1+pow(V/H,2)) - sqrt(1+pow((V-w*S)/H,2))) + (1/EA)*(V*S+w*S*S/2)); /* Z position of element in global coordinates */
+        array_z[s] =  fairlead_z - ((H/w)*(sqrt(1+pow(V/H,2)) - sqrt(1+pow((V-w*S)/H,2))) + (1/EA)*(V*S+w*S*S/2)); /* Z position of line in global coordinates */
         S += dS;
       };
     } else {
@@ -658,7 +658,7 @@ MAP_EXTERNCALL void map_plot_array_free(MapReal* array)
 MAP_EXTERNCALL MapReal map_residual_function_length(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr)
 { 
   ModelData* model_data = other_type->object;
-  Element* element = NULL;
+  Line* line = NULL;
   MapReal Fh = 0.0;
   MapReal Fv = 0.0;
   MapReal EA = 0.0;
@@ -669,21 +669,21 @@ MAP_EXTERNCALL MapReal map_residual_function_length(MAP_OtherStateType_t* other_
   bool contact_flag = false;
 
   map_reset_universal_error(map_msg, ierr);  
-  element = (Element*)list_get_at(&model_data->element, i);
+  line = (Line*)list_get_at(&model_data->line, i);
 
-  if (element==NULL) {
-    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_42, "Element out of range: <%d>.", i);
+  if (line==NULL) {
+    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_42, "Line out of range: <%d>.", i);
     return -999.9;
   };
 
-  Fh = *(element->H.value);
-  Fv = *(element->V.value);  
-  EA = element->lineProperty->ea;
-  Lu = element->Lu.value;
-  length = element->l.value;
-  omega = element->lineProperty->omega;
-  contact_flag = element->options.omitContact;
-  cb = element->lineProperty->cb;
+  Fh = *(line->H.value);
+  Fv = *(line->V.value);  
+  EA = line->line_property->EA;
+  Lu = line->Lu.value;
+  length = line->l.value;
+  omega = line->line_property->omega;
+  contact_flag = line->options.omit_contact;
+  cb = line->line_property->cb;
 
   if (contact_flag==true || omega<0.0 || (Fv-omega*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
     return residual_function_length_no_contact(Fv, Fh, omega, Lu, EA, length);
@@ -696,7 +696,7 @@ MAP_EXTERNCALL MapReal map_residual_function_length(MAP_OtherStateType_t* other_
 MAP_EXTERNCALL MapReal map_residual_function_height(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   ModelData* model_data = other_type->object;
-  Element* element = NULL;
+  Line* line = NULL;
   MapReal Fh = 0.0;
   MapReal Fv = 0.0;
   MapReal EA = 0.0;
@@ -708,21 +708,21 @@ MAP_EXTERNCALL MapReal map_residual_function_height(MAP_OtherStateType_t* other_
 
 
   map_reset_universal_error(map_msg, ierr);  
-  element = (Element*)list_get_at(&model_data->element, i);
+  line = (Line*)list_get_at(&model_data->line, i);
 
-  if (element==NULL) {    
-    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_42, "Element out of range: <%d>.", i);
+  if (line==NULL) {    
+    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_42, "Line out of range: <%d>.", i);
     return -999.9;
   };
 
-  Fh = *(element->H.value);
-  Fv = *(element->V.value);  
-  EA = element->lineProperty->ea;
-  Lu = element->Lu.value;
-  height = element->h.value;
-  omega = element->lineProperty->omega;
-  contact_flag = element->options.omitContact;
-  cb = element->lineProperty->cb;
+  Fh = *(line->H.value);
+  Fv = *(line->V.value);  
+  EA = line->line_property->EA;
+  Lu = line->Lu.value;
+  height = line->h.value;
+  omega = line->line_property->omega;
+  contact_flag = line->options.omit_contact;
+  cb = line->line_property->cb;
 
   if (contact_flag==true || omega<0.0 || (Fv-omega*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
     return residual_function_height_no_contact(Fv, Fh, omega, Lu, EA, height);
@@ -735,7 +735,7 @@ MAP_EXTERNCALL MapReal map_residual_function_height(MAP_OtherStateType_t* other_
 MAP_EXTERNCALL MapReal map_jacobian_dxdh(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   ModelData* model_data = other_type->object;
-  Element* element = NULL;
+  Line* line = NULL;
   MapReal Fh = 0.0;
   MapReal Fv = 0.0;
   MapReal EA = 0.0;
@@ -745,20 +745,20 @@ MAP_EXTERNCALL MapReal map_jacobian_dxdh(MAP_OtherStateType_t* other_type, int i
   bool contact_flag = false;
 
   map_reset_universal_error(map_msg, ierr);  
-  element = (Element*)list_get_at(&model_data->element, i);
+  line = (Line*)list_get_at(&model_data->line, i);
 
-  if (element==NULL) {    
-    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_42, "Element out of range: <%d>.", i);
+  if (line==NULL) {    
+    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_42, "Line out of range: <%d>.", i);
     return -999.9;
   };
 
-  Fh = *(element->H.value);
-  Fv = *(element->V.value);  
-  EA = element->lineProperty->ea;
-  Lu = element->Lu.value;
-  omega = element->lineProperty->omega;
-  contact_flag = element->options.omitContact;
-  cb = element->lineProperty->cb;
+  Fh = *(line->H.value);
+  Fv = *(line->V.value);  
+  EA = line->line_property->EA;
+  Lu = line->Lu.value;
+  omega = line->line_property->omega;
+  contact_flag = line->options.omit_contact;
+  cb = line->line_property->cb;
 
   if (contact_flag==true || omega<0.0 || (Fv-omega*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
     return jacobian_dxdh_no_contact(Fv, Fh, omega, Lu, EA);
@@ -771,7 +771,7 @@ MAP_EXTERNCALL MapReal map_jacobian_dxdh(MAP_OtherStateType_t* other_type, int i
 MAP_EXTERNCALL MapReal map_jacobian_dxdv(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   ModelData* model_data = other_type->object;
-  Element* element = NULL;
+  Line* line = NULL;
   MapReal Fh = 0.0;
   MapReal Fv = 0.0;
   MapReal EA = 0.0;
@@ -781,20 +781,20 @@ MAP_EXTERNCALL MapReal map_jacobian_dxdv(MAP_OtherStateType_t* other_type, int i
   bool contact_flag = false;
 
   map_reset_universal_error(map_msg, ierr);  
-  element = (Element*)list_get_at(&model_data->element, i);
+  line = (Line*)list_get_at(&model_data->line, i);
   
-  if (element==NULL) {    
-    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_42, "Element out of range: <%d>.", i);
+  if (line==NULL) {    
+    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_42, "Line out of range: <%d>.", i);
     return -999.9;
   };
 
-  Fh = *(element->H.value);
-  Fv = *(element->V.value);  
-  EA = element->lineProperty->ea;
-  Lu = element->Lu.value;
-  omega = element->lineProperty->omega;
-  contact_flag = element->options.omitContact;
-  cb = element->lineProperty->cb;
+  Fh = *(line->H.value);
+  Fv = *(line->V.value);  
+  EA = line->line_property->EA;
+  Lu = line->Lu.value;
+  omega = line->line_property->omega;
+  contact_flag = line->options.omit_contact;
+  cb = line->line_property->cb;
   
   if (contact_flag==true || omega<0.0 || (Fv-omega*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
     return jacobian_dxdv_no_contact(Fv, Fh, omega, Lu, EA);
@@ -807,7 +807,7 @@ MAP_EXTERNCALL MapReal map_jacobian_dxdv(MAP_OtherStateType_t* other_type, int i
 MAP_EXTERNCALL MapReal map_jacobian_dzdh(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   ModelData* model_data = other_type->object;
-  Element* element = NULL;
+  Line* line = NULL;
   MapReal Fh = 0.0;
   MapReal Fv = 0.0;
   MapReal EA = 0.0;
@@ -817,20 +817,20 @@ MAP_EXTERNCALL MapReal map_jacobian_dzdh(MAP_OtherStateType_t* other_type, int i
   bool contact_flag = false;
 
   map_reset_universal_error(map_msg, ierr);  
-  element = (Element*)list_get_at(&model_data->element, i);
+  line = (Line*)list_get_at(&model_data->line, i);
 
-  if (element==NULL) {    
-    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_42, "Element out of range: <%d>.", i);
+  if (line==NULL) {    
+    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_42, "Line out of range: <%d>.", i);
     return -999.9;
   };
 
-  Fh = *(element->H.value);
-  Fv = *(element->V.value);  
-  EA = element->lineProperty->ea;
-  Lu = element->Lu.value;
-  omega = element->lineProperty->omega;
-  contact_flag = element->options.omitContact;
-  cb = element->lineProperty->cb;
+  Fh = *(line->H.value);
+  Fv = *(line->V.value);  
+  EA = line->line_property->EA;
+  Lu = line->Lu.value;
+  omega = line->line_property->omega;
+  contact_flag = line->options.omit_contact;
+  cb = line->line_property->cb;
   
   if (contact_flag==true || omega<0.0 || (Fv-omega*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
     return jacobian_dzdh_no_contact(Fv, Fh, omega, Lu, EA);
@@ -843,7 +843,7 @@ MAP_EXTERNCALL MapReal map_jacobian_dzdh(MAP_OtherStateType_t* other_type, int i
 MAP_EXTERNCALL MapReal map_jacobian_dzdv(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   ModelData* model_data = other_type->object;
-  Element* element = NULL;
+  Line* line = NULL;
   MapReal Fh = 0.0;
   MapReal Fv = 0.0;
   MapReal EA = 0.0;
@@ -853,20 +853,20 @@ MAP_EXTERNCALL MapReal map_jacobian_dzdv(MAP_OtherStateType_t* other_type, int i
   bool contact_flag = false;
 
   map_reset_universal_error(map_msg, ierr);  
-  element = (Element*)list_get_at(&model_data->element, i);
+  line = (Line*)list_get_at(&model_data->line, i);
 
-  if (element==NULL) {    
-    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_42, "Element out of range: <%d>.", i);
+  if (line==NULL) {    
+    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_42, "Line out of range: <%d>.", i);
     return -999.9;
   };
 
-  Fh = *(element->H.value);
-  Fv = *(element->V.value);  
-  EA = element->lineProperty->ea;
-  Lu = element->Lu.value;
-  omega  = element->lineProperty->omega;
-  contact_flag = element->options.omitContact;
-  cb = element->lineProperty->cb;
+  Fh = *(line->H.value);
+  Fv = *(line->V.value);  
+  EA = line->line_property->EA;
+  Lu = line->Lu.value;
+  omega  = line->line_property->omega;
+  contact_flag = line->options.omit_contact;
+  cb = line->line_property->cb;
 
   if (contact_flag==true || omega<0.0 || (Fv-omega*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
     return jacobian_dzdv_no_contact(Fv, Fh, omega, Lu, EA);
@@ -878,52 +878,52 @@ MAP_EXTERNCALL MapReal map_jacobian_dzdv(MAP_OtherStateType_t* other_type, int i
 
 MAP_EXTERNCALL void map_get_fairlead_force_2d(double* H, double* V, MAP_OtherStateType_t* other_type, int index, char* map_msg, MAP_ERROR_CODE* ierr)
 {
-  Element* iter_element = NULL;
+  Line* iter_line = NULL;
   ModelData* model_data = other_type->object;
 
   map_reset_universal_error(map_msg, ierr);  
 
-  if (index<=list_size(&model_data->element)-1) {
-    iter_element = (Element*)list_get_at(&model_data->element, index);
-    *H = *(iter_element->H.value);
-    *V = *(iter_element->V.value);
+  if (index<=list_size(&model_data->line)-1) {
+    iter_line = (Line*)list_get_at(&model_data->line, index);
+    *H = *(iter_line->H.value);
+    *V = *(iter_line->V.value);
   } else {
-    /* throw error: element out of range */
-    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_42, "Element out of range: %d.", index);
+    /* throw error: line out of range */
+    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_42, "Line out of range: %d.", index);
   };
 }
 
 
 MAP_EXTERNCALL void map_get_fairlead_force_3d(double* fx, double* fy, double* fz, MAP_OtherStateType_t* other_type, int index, char* map_msg, MAP_ERROR_CODE* ierr)
 {
-  Element* iter_element = NULL;
+  Line* iter_line = NULL;
   ModelData* model_data = other_type->object;
   double psi = 0.0;
 
-  if (index<=list_size(&model_data->element)-1) {
-    iter_element = (Element*)list_get_at(&model_data->element, index);
-    psi = iter_element->psi.value;
-    *fx = *(iter_element->H.value)*cos(psi);
-    *fy = *(iter_element->H.value)*sin(psi);
-    *fz = *(iter_element->V.value);
+  if (index<=list_size(&model_data->line)-1) {
+    iter_line = (Line*)list_get_at(&model_data->line, index);
+    psi = iter_line->psi.value;
+    *fx = *(iter_line->H.value)*cos(psi);
+    *fy = *(iter_line->H.value)*sin(psi);
+    *fz = *(iter_line->V.value);
   } else {
-    /* throw error: element out of range */
-    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_42, "Element out of range: %d.", index);
+    /* throw error: line out of range */
+    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_42, "Line out of range: %d.", index);
   };
 }
 
 
-MAP_EXTERNCALL int map_size_elements(MAP_OtherStateType_t* other_type, MAP_ERROR_CODE* ierr, char* map_msg)
+MAP_EXTERNCALL int map_size_lines(MAP_OtherStateType_t* other_type, MAP_ERROR_CODE* ierr, char* map_msg)
 {
   ModelData* model_data = other_type->object;
-  return list_size(&model_data->element);
+  return list_size(&model_data->line);
 }
 
 
 MAP_EXTERNCALL void map_set_summary_file_name(MAP_InitInputType_t* init_type, char *map_msg, MAP_ERROR_CODE *ierr) 
 {  
   InitializationData* init_data = init_type->object;   
-  init_data->summaryFileName = bformat("%s", init_type->summaryFileName);
+  init_data->summary_file_name = bformat("%s", init_type->summary_file_name);
 };
 
 
@@ -934,21 +934,21 @@ MAP_EXTERNCALL void map_get_header_string(int* n, char** str_array, MAP_OtherSta
   VarTypePtr* vartype_ptr = NULL;
   VarType* vartype = NULL;
 
-  list_iterator_start(&model_data->yList->out_list_ptr);
-  while (list_iterator_hasnext(&model_data->yList->out_list_ptr)) { 
-    vartype_ptr = (VarTypePtr*)list_iterator_next(&model_data->yList->out_list_ptr);
+  list_iterator_start(&model_data->y_list->out_list_ptr);
+  while (list_iterator_hasnext(&model_data->y_list->out_list_ptr)) { 
+    vartype_ptr = (VarTypePtr*)list_iterator_next(&model_data->y_list->out_list_ptr);
     strcpy(str_array[count],vartype_ptr->name->data);
     count++;
   };
-  list_iterator_stop(&model_data->yList->out_list_ptr);     
+  list_iterator_stop(&model_data->y_list->out_list_ptr);     
 
-  list_iterator_start(&model_data->yList->out_list);
-  while (list_iterator_hasnext(&model_data->yList->out_list)) { 
-    vartype = (VarType*)list_iterator_next(&model_data->yList->out_list);
+  list_iterator_start(&model_data->y_list->out_list);
+  while (list_iterator_hasnext(&model_data->y_list->out_list)) { 
+    vartype = (VarType*)list_iterator_next(&model_data->y_list->out_list);
     strcpy(str_array[count],vartype->name->data);
     count++;
   };
-  list_iterator_stop(&model_data->yList->out_list);     
+  list_iterator_stop(&model_data->y_list->out_list);     
   /* @todo this should raise and error when count != n */
 };
 
@@ -960,21 +960,21 @@ MAP_EXTERNCALL void map_get_unit_string(int* n, char** str_array, MAP_OtherState
   VarTypePtr* vartype_ptr = NULL;
   VarType* vartype = NULL;
 
-  list_iterator_start(&model_data->yList->out_list_ptr);
-  while (list_iterator_hasnext(&model_data->yList->out_list_ptr)) { 
-    vartype_ptr = (VarTypePtr*)list_iterator_next(&model_data->yList->out_list_ptr );
+  list_iterator_start(&model_data->y_list->out_list_ptr);
+  while (list_iterator_hasnext(&model_data->y_list->out_list_ptr)) { 
+    vartype_ptr = (VarTypePtr*)list_iterator_next(&model_data->y_list->out_list_ptr );
     strcpy(str_array[count],vartype_ptr->units->data);
     count++;
   };
-  list_iterator_stop(&model_data->yList->out_list_ptr);     
+  list_iterator_stop(&model_data->y_list->out_list_ptr);     
 
-  list_iterator_start(&model_data->yList->out_list);
-  while (list_iterator_hasnext(&model_data->yList->out_list)) { 
-    vartype = (VarType*)list_iterator_next(&model_data->yList->out_list );
+  list_iterator_start(&model_data->y_list->out_list);
+  while (list_iterator_hasnext(&model_data->y_list->out_list)) { 
+    vartype = (VarType*)list_iterator_next(&model_data->y_list->out_list );
     strcpy(str_array[count],vartype->units->data);
     count++;
   };
-  list_iterator_stop(&model_data->yList->out_list);     
+  list_iterator_stop(&model_data->y_list->out_list);     
 };
 
 
@@ -987,7 +987,7 @@ MAP_EXTERNCALL void set_init_to_null(MAP_InitInputType_t* init_type, char* map_m
 {
   InitializationData* init = init_type->object; 
 
-  init->summaryFileName = NULL;  
+  init->summary_file_name = NULL;  
 };
 
 
@@ -1001,7 +1001,7 @@ MAP_EXTERNCALL void map_set_sea_depth(MAP_ParameterType_t* p_type, const MapReal
 
 MAP_EXTERNCALL void map_set_sea_density(MAP_ParameterType_t* p_type, const MapReal rho)
 {
-  p_type->rhoSea = rho;
+  p_type->rho_sea = rho;
 };
 
 
@@ -1015,48 +1015,48 @@ MAP_EXTERNCALL void map_set_gravity(MAP_ParameterType_t* p_type, double gravity)
 MAP_EXTERNCALL void map_add_cable_library_input_text(MAP_InitInputType_t* init_type)
 {
   InitializationData* init_data = init_type->object; 
-  const int n = init_data->libraryInputString->qty;
+  const int n = init_data->library_input_string->qty;
   int ret = 0;
   
-  ret = bstrListAlloc(init_data->libraryInputString, n+1);
-  init_data->libraryInputString->entry[n] = bfromcstr(init_type->libraryInputLine);
-  init_data->libraryInputString->qty++;
+  ret = bstrListAlloc(init_data->library_input_string, n+1);
+  init_data->library_input_string->entry[n] = bfromcstr(init_type->library_input_str);
+  init_data->library_input_string->qty++;
 };
 
 
 MAP_EXTERNCALL void map_add_node_input_text(MAP_InitInputType_t* init_type)
 {
   InitializationData* init_data = init_type->object; 
-  const int n = init_data->nodeInputString->qty;
+  const int n = init_data->node_input_string->qty;
   int ret = 0;
   
-  ret = bstrListAlloc(init_data->nodeInputString, n+1);
-  init_data->nodeInputString->entry[n] = bfromcstr(init_type->nodeInputLine);
-  init_data->nodeInputString->qty++;
+  ret = bstrListAlloc(init_data->node_input_string, n+1);
+  init_data->node_input_string->entry[n] = bfromcstr(init_type->node_input_str);
+  init_data->node_input_string->qty++;
 };
 
 
-MAP_EXTERNCALL void map_add_element_input_text(MAP_InitInputType_t* init_type)
+MAP_EXTERNCALL void map_add_line_input_text(MAP_InitInputType_t* init_type)
 {
   InitializationData* init_data = init_type->object; 
-  const int n = init_data->elementInputString->qty;
+  const int n = init_data->line_input_string->qty;
   int ret = 0;
   
-  ret = bstrListAlloc(init_data->elementInputString, n+1);
-  init_data->elementInputString->entry[n] = bfromcstr(init_type->elementInputLine);
-  init_data->elementInputString->qty++;
+  ret = bstrListAlloc(init_data->line_input_string, n+1);
+  init_data->line_input_string->entry[n] = bfromcstr(init_type->line_input_str);
+  init_data->line_input_string->qty++;
 };
 
 
 MAP_EXTERNCALL void map_add_options_input_text(MAP_InitInputType_t* init_type)
 {
   InitializationData* init_data = init_type->object; 
-  const int n = init_data->solverOptionsString->qty;
+  const int n = init_data->solver_options_string->qty;
   int ret = 0;
   
-  ret = bstrListAlloc(init_data->solverOptionsString, n+1);
-  init_data->solverOptionsString->entry[n] = bfromcstr(init_type->optionInputLine);
-  init_data->solverOptionsString->qty++;
+  ret = bstrListAlloc(init_data->solver_options_string, n+1);
+  init_data->solver_options_string->entry[n] = bfromcstr(init_type->option_input_str);
+  init_data->solver_options_string->qty++;
 };
 
 
@@ -1224,13 +1224,13 @@ MAP_EXTERNCALL int free_init_data(InitializationData* init_data, char* map_msg, 
 {
   int ret = 0;
 
-  ret = bdestroy(init_data->summaryFileName);
-  ret = bstrListDestroy(init_data->expandedNodeInputString);
-  ret = bstrListDestroy(init_data->expandedElementInputString);
-  ret = bstrListDestroy(init_data->libraryInputString);  
-  ret = bstrListDestroy(init_data->nodeInputString);
-  ret = bstrListDestroy(init_data->elementInputString);
-  ret = bstrListDestroy(init_data->solverOptionsString);
+  ret = bdestroy(init_data->summary_file_name);
+  ret = bstrListDestroy(init_data->expanded_node_input_string);
+  ret = bstrListDestroy(init_data->expanded_line_input_string);
+  ret = bstrListDestroy(init_data->library_input_string);  
+  ret = bstrListDestroy(init_data->node_input_string);
+  ret = bstrListDestroy(init_data->line_input_string);
+  ret = bstrListDestroy(init_data->solver_options_string);
 
 
   return MAP_SAFE;

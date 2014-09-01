@@ -25,18 +25,18 @@
 #include "lineroutines.h"
 
 
-int inner_function_evals(void* element_ptr, int m, int n, const __cminpack_real__* x, __cminpack_real__* fvec, __cminpack_real__* fjac, int ldfjac, int iflag) 
+int inner_function_evals(void* line_ptr, int m, int n, const __cminpack_real__* x, __cminpack_real__* fvec, __cminpack_real__* fjac, int ldfjac, int iflag) 
 {
-  Element* element = (Element*)element_ptr;
+  Line* line = (Line*)line_ptr;
   double Fh = x[0]; /* Fh is not const because it is artificially set to epsilon when the line is perfectly vertical */
   const double Fv = x[1];  
-  const double EA = element->lineProperty->ea;
-  const double Lu = element->Lu.value;
-  const double height = element->h.value;
-  const double length = element->l.value;
-  const double omega = element->lineProperty->omega;
-  const double cb = element->lineProperty->cb;
-  const bool contactFlag = element->options.omitContact;
+  const double EA = line->line_property->EA;
+  const double Lu = line->Lu.value;
+  const double height = line->h.value;
+  const double length = line->l.value;
+  const double omega = line->line_property->omega;
+  const double cb = line->line_property->cb;
+  const bool contactFlag = line->options.omit_contact;
   
   if (iflag==0) {
     return 0;
@@ -178,13 +178,13 @@ MapReal jacobian_dzdv_contact(const MapReal V, const MapReal H, const MapReal w,
 
 
 
-double get_maximum_line_length(Element* element)
+double get_maximum_line_length(Line* line)
 {
-  const double l = element->l.value;
-  const double h = element->h.value;
-  const double EA = element->lineProperty->ea;
-  const double w = element->lineProperty->omega;
-  const double Lu = element->Lu.value;
+  const double l = line->l.value;
+  const double h = line->h.value;
+  const double EA = line->line_property->EA;
+  const double w = line->line_property->omega;
+  const double Lu = line->Lu.value;
 
   return (l - EA/w + sqrt(pow((EA/w),2) + 2.0*h*EA/w));
 };
@@ -331,7 +331,7 @@ MAP_ERROR_CODE forward_difference_jacobian(MAP_OtherStateType_t* other_type, MAP
   /* read flag to set scaling parameter */
   if (ns->pg) {
     for (i=0 ; i<THREE*z_size ; i++) { 
-      ns->jac[i][i] += (ns->ds/pow(ns->iterationCount,1.5)+ns->d);
+      ns->jac[i][i] += (ns->ds/pow(ns->iteration_count,1.5)+ns->d);
     };
   };
 
@@ -418,7 +418,7 @@ MAP_ERROR_CODE backward_difference_jacobian(MAP_OtherStateType_t* other_type, MA
   /* read flag to set scaling parameter */
   if (ns->pg) {
     for (i=0 ; i<THREE*z_size ; i++) { 
-      ns->jac[i][i] += (ns->ds/pow(ns->iterationCount,1.5)+ns->d);
+      ns->jac[i][i] += (ns->ds/pow(ns->iteration_count,1.5)+ns->d);
     };
   };
 
@@ -536,7 +536,7 @@ MAP_ERROR_CODE central_difference_jacobian(MAP_OtherStateType_t* other_type, MAP
 
   /* read flag to set scaling parameter */
   if (ns->pg) {
-    ns->coef = pow(ns->iterationCount,1.5);
+    ns->coef = pow(ns->iteration_count,1.5);
     for (i=0 ; i<THREE*z_size ; i++) { 
       ns->jac[i][i] += (ns->ds/ns->coef + ns->d);
     };
@@ -546,19 +546,19 @@ MAP_ERROR_CODE central_difference_jacobian(MAP_OtherStateType_t* other_type, MAP
 };
 
 
-MAP_ERROR_CODE call_minpack_lmder(Element* element, InnerSolveAttributes* inner_opt, ModelOptions* opt, const int line_num, const double time, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE call_minpack_lmder(Line* line, InnerSolveAttributes* inner_opt, ModelOptions* opt, const int line_num, const double time, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_ERROR_CODE success = MAP_SAFE;
 
-  /* initial guess vector is set in set_element_initial_guess(..); otherwise, the previous solution is used as the initial guess */
-  inner_opt->x[0] = *(element->H.value);
-  inner_opt->x[1] = *(element->V.value);
+  /* initial guess vector is set in set_line_initial_guess(..); otherwise, the previous solution is used as the initial guess */
+  inner_opt->x[0] = *(line->H.value);
+  inner_opt->x[1] = *(line->V.value);
 
-  element->numFuncEvals = 0;
-  element->numJacEvals = 0;
+  line->evals = 0;
+  line->njac_evals = 0;
 
   inner_opt->info = __cminpack_func__(lmder)(inner_function_evals, 
-                                      element, 
+                                      line, 
                                       inner_opt->m, 
                                       inner_opt->n, 
                                       inner_opt->x, 
@@ -573,8 +573,8 @@ MAP_ERROR_CODE call_minpack_lmder(Element* element, InnerSolveAttributes* inner_
                                       inner_opt->mode, 
                                       inner_opt->factor, 
                                       inner_opt->nprint, 
-                                      &element->numFuncEvals, 
-                                      &element->numJacEvals, 
+                                      &line->evals, 
+                                      &line->njac_evals, 
                                       inner_opt->ipvt, 
                                       inner_opt->qtf, 
                                       inner_opt->wa1 ,
@@ -582,20 +582,20 @@ MAP_ERROR_CODE call_minpack_lmder(Element* element, InnerSolveAttributes* inner_
                                       inner_opt->wa3 , 
                                       inner_opt->wa4);
   
-  element->residualNorm = (MapReal)__minpack_func__(enorm)(&inner_opt->m, inner_opt->fvec);
+  line->residual_norm = (MapReal)__minpack_func__(enorm)(&inner_opt->m, inner_opt->fvec);
   
-  if (element->options.diagnosticsFlag && (double)element->diagnosticType>time ) { 
-    printf("\n      %4.3f [sec]  Element %d\n",time, line_num+1);
+  if (line->options.diagnostics_flag && (double)line->diagnostic_type>time ) { 
+    printf("\n      %4.3f [sec]  Line %d\n",time, line_num+1);
     printf("      ----------------------------------------------------\n");
-    printf("      Residual l2 norm at solution:  %15.7g\n", element->residualNorm);
-    printf("      Function evaluations:         %10i\n", element->numFuncEvals);
-    printf("      Jacobian evaluations:         %10i\n", element->numJacEvals);
+    printf("      Residual l2 norm at solution:  %15.7g\n", line->residual_norm);
+    printf("      Function evaluations:         %10i\n", line->evals);
+    printf("      Jacobian evaluations:         %10i\n", line->njac_evals);
     printf("      Exit parameter                %10i\n\n", inner_opt->info);
   };
   
-  *(element->H.value) = inner_opt->x[0];
-  *(element->V.value) = inner_opt->x[1];
-  element->convergeReason = inner_opt->info;
+  *(line->H.value) = inner_opt->x[0];
+  *(line->V.value) = inner_opt->x[1];
+  line->converge_reason = inner_opt->info;
   
   switch (inner_opt->info) {
   case 0 :

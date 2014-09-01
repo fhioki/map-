@@ -10,7 +10,7 @@ Node  Type       X       Y       Z      M     B     FX    FY    FZ
 3     fix       -520     0      -120    0     0      #     #     #
 4     Vessel    -20      0       40     0     0      #     #     # 
 ---------------------- LINE P ROPERTIES ---------------------------------------
-Element  LineType  UnstrLen  NodeAnch  NodeFair  Flags
+Line    LineType  UnstrLen  NodeAnch  NodeFair  Flags
 (-)      (-)       (m)       (-)       (-)       (-)
 1        chainup   680        1         2        plot gx_pos gy_pos gz_a_pos h_fair H_ANCH damage_time 99 omit_contact diagnostic 9
 2        chainup   630        3         4        plot gx_pos gy_pos gz_a_pos H_ANCH damage_time 99 

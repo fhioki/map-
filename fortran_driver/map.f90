@@ -142,7 +142,7 @@ MODULE MAP
   ! Pases strings from the "ELEMENT PROPERTIES" porition of the MPA input file to the C++        !          |
   !   data structure.                                                                            !          |
   INTERFACE                                                                                      !          |
-     SUBROUTINE MAP_SetElementData( interf ) bind(C,name='map_add_element_input_text')           !          |
+     SUBROUTINE MAP_SetElementData( interf ) bind(C,name='map_add_line_input_text')           !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
        TYPE( MAP_InitInputType_C ) interf                                                        !          |
@@ -345,38 +345,38 @@ CONTAINS
     !   gravity         = the acceleration due to gravity [N] -or- [kg*m/s^2]
     !   sea_density     = density of sea water [kg/m^3]
     !   coupled_to_FAST = flag letting MAP know it is coupled to FAST. MAP won't create the output file when .TRUE.
-    InitInp%C_Obj%gravity         =  InitInp%gravity
-    InitInp%C_Obj%seaDensity      =  InitInp%seaDensity
-    InitInp%C_Obj%depth           = -InitInp%depth
-    InitInp%C_Obj%summaryFilename =  InitInp%summaryFilename   ! @gh : copy MAP fortran type to C interop derived type
+    InitInp%C_Obj%gravity           =  InitInp%gravity
+    InitInp%C_Obj%sea_density       =  InitInp%sea_density
+    InitInp%C_Obj%depth             = -InitInp%depth
+    InitInp%C_Obj%summary_file_name =  InitInp%summary_file_name   ! @gh : copy MAP fortran type to C interop derived type
     
     ! Set the gravity constant, water depth, and sea density in MAP.
     ! This calls functions in MAP_FortranBinding.cpp
-    CALL MAP_set_gravity( p%C_obj, InitInp%C_Obj%gravity )
-    CALL MAP_set_depth( p%C_obj, InitInp%C_Obj%depth )
-    CALL MAP_set_density( p%C_obj, InitInp%C_Obj%seaDensity )
-    CALL MAP_set_summary_file_name ( InitInp%C_obj, ErrMsg, ErrStat )
+    CALL MAP_set_gravity(p%C_obj, InitInp%C_Obj%gravity)
+    CALL MAP_set_depth(p%C_obj, InitInp%C_Obj%depth)
+    CALL MAP_set_density(p%C_obj, InitInp%C_Obj%sea_density)
+    CALL MAP_set_summary_file_name(InitInp%C_obj, ErrMsg, ErrStat)
 
     ! Read the MAP input file, and pass the arguments to the C++ sructures. 
     ! @note : this call the following C function in MAP_FortranBinding.cpp
-    CALL map_read_input_file_contents(InitInp%filename , InitInp, ErrStat)
+    CALL map_read_input_file_contents(InitInp%file_name , InitInp, ErrStat)
     IF (ErrStat .NE. ErrID_None ) THEN
        CALL MAP_CheckError("MAP ERROR: cannot read the MAP input file.",ErrMSg)
        RETURN
     END IF
 
     ! This binds MSQS_Init function in C++ with Fortran
-    CALL MSQS_Init( InitInp%C_obj   , &
-                    u%C_obj         , &
-                    p%C_obj         , &
-                    x%C_obj         , &
-                    xd%C_obj        , &
-                    z%C_obj         , &
-                    other%C_obj     , &
-                    y%C_obj         , &
-                    InitOut%C_obj   , &
-                    status_from_MAP , &
-                    message_from_MAP )
+    CALL MSQS_Init(InitInp%C_obj   , &
+                   u%C_obj         , &
+                   p%C_obj         , &
+                   x%C_obj         , &
+                   xd%C_obj        , &
+                   z%C_obj         , &
+                   other%C_obj     , &
+                   y%C_obj         , &
+                   InitOut%C_obj   , &
+                   status_from_MAP , &
+                   message_from_MAP )
 
     ! Give the MAP code/message status to the FAST 
     IF( status_from_MAP .NE. 0 ) THEN
@@ -550,17 +550,14 @@ CONTAINS
     END DO
     
     ! @bonnie: remove. This is just to test MAP by using fake fairlead displacements
-    u_interp%X(1) = u_interp%X(1)+time
-    !write (*,*) u_interp%X(3)!u(1)%x(1)
+    ! write (*,*) u_interp%X(1)!u(1)%x(1)
 
     CALL copy_inputs_for_c(u_interp, ErrStat, ErrMsg)
 
     ! @bonnie: If we pass in u(1) as an argument into MSQS_UpdateStates, then the program behaves as expected. It does not seem 
     !          that u_interp is setup in a way to be handled by the C code -> this is why the states are not updated when 
     !          UpdateStates is called. I think there is a discrepancy here because the arrays are allocated/deallocation in C. 
-    !          I think MAP_Input_ExtrapInterp neglected this detail? If so, this might also explain the memory leaks. 
-    ! u(1)%X(3) = u(1)%X(3)+time
-    
+    !          I think MAP_Input_ExtrapInterp neglected this detail? If so, this might also explain the memory leaks.     
     CALL MSQS_UpdateStates( time            , &
                             interval        , & 
                             u_interp%C_obj  , &
@@ -614,17 +611,23 @@ CONTAINS
     REAL(KIND=C_FLOAT)                              :: time = 0
   
     time = t
+
+    DO i = 1,u%PtFairDisplacement%NNodes
+       u%X(i) = u%PtFairDisplacement%Position(1,i) + u%PtFairDisplacement%TranslationDisp(1,i)
+       u%Y(i) = u%PtFairDisplacement%Position(2,i) + u%PtFairDisplacement%TranslationDisp(2,i)
+       u%Z(i) = u%PtFairDisplacement%Position(3,i) + u%PtFairDisplacement%TranslationDisp(3,i)
+    END DO
   
-    CALL MSQS_CalcOutput( time            , & 
-                          u%C_obj         , &
-                          p%C_obj         , &
-                          x%C_obj         , &
-                          xd%C_obj        , &
-                          z%C_obj         , &
-                          O%C_obj         , &
-                          y%C_obj         , &
-                          status_from_MAP , &
-                          message_from_MAP ) 
+    CALL MSQS_CalcOutput(time            , & 
+                         u%C_obj         , &
+                         p%C_obj         , &
+                         x%C_obj         , &
+                         xd%C_obj        , &
+                         z%C_obj         , &
+                         O%C_obj         , &
+                         y%C_obj         , &
+                         status_from_MAP , &
+                         message_from_MAP ) 
   
     ! Give the MAP code/message status to the FAST 
     IF( status_from_MAP .NE. 0 ) THEN
@@ -745,8 +748,8 @@ CONTAINS
             IF ( temp(1:1).EQ."-" ) THEN                           !          |                 !          |
                index_begn=2                                        !          |                 !          |
             ELSE                                                   !          |                 !          |
-               InitInp%C_obj%libraryInputLine = temp               !          |                 !          |
-               CALL MAP_SetCableLibraryData( InitInp%C_obj )       !          |                 !          |
+               InitInp%C_obj%library_input_str = temp              !          |                 !          |
+               CALL MAP_SetCableLibraryData(InitInp%C_obj)         !          |                 !          |
             END IF                                                 !          |                 !          |
          END IF                                                    !          |                 !          |
       END IF                                                       !          |                 !          |
@@ -759,8 +762,8 @@ CONTAINS
             IF ( temp(1:1).EQ."-" ) THEN                           !          |                 !          |
                index_begn=3                                        !          |                 !          |
             ELSE                                                   !          |                 !          |
-               InitInp%C_obj%nodeInputLine = temp                  !          |                 !          |
-               CALL MAP_SetNodeData( InitInp%C_obj )               !          |                 !          |
+               InitInp%C_obj%node_input_str = temp                 !          |                 !          |
+               CALL MAP_SetNodeData(InitInp%C_obj)                 !          |                 !          |
             END IF                                                 !          |                 !          |
          END IF                                                    !          |                 !          |
       END IF                                                       !          |                 !          |
@@ -773,8 +776,8 @@ CONTAINS
             IF ( temp(1:1).EQ."-" ) THEN                           !          |                 !          |
                index_begn=4                                        !          |                 !          |
             ELSE                                                   !          |                 !          |
-               InitInp%C_obj%elementInputLine = temp               !          |                 !          |
-                CALL MAP_SetElementData( InitInp%C_obj )           !          |                 !          |
+               InitInp%C_obj%line_input_str = temp                 !          |                 !          |
+                CALL MAP_SetElementData(InitInp%C_obj)             !          |                 !          |
             END IF                                                 !          |                 !          |
          END IF                                                    !          |                 !          |
       END IF                                                       !          |                 !          |
@@ -785,8 +788,8 @@ CONTAINS
          index_optn = index_optn + 1                               !          |                 !          |
          IF ( index_optn.GE.4 ) THEN                               !          |                 !          |
             IF ( temp(1:1).NE."!" )  THEN                          !          |                 !          |
-               InitInp%C_obj%optionInputLine = temp                !          |                 !          |
-               CALL MAP_SetSolverOptions( InitInp%C_obj )          !          |                 !          |
+               InitInp%C_obj%option_input_str = temp               !          |                 !          |
+               CALL MAP_SetSolverOptions(InitInp%C_obj)            !          |                 !          |
             END IF                                                 !          |                 !          |
          END IF                                                    !          |                 !          |
       END IF                                                       !          |                 !          |

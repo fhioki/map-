@@ -221,9 +221,9 @@ MAP_ERROR_CODE write_node_z_sum_force_to_summary_file(const int num_col, const i
 MAP_ERROR_CODE write_node_information_to_summary_file(FILE* file, ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr);
 
 /**
- * @brief write the complete element block to the summary file
+ * @brief write the complete line block to the summary file
  *        <pre>
- *                        | Element 1
+ *                        | Line 1
  *                        | ---------------------------------------
  *        Material        |  Material
  *        Lu        [m]   |  0.000
@@ -244,7 +244,7 @@ MAP_ERROR_CODE write_node_information_to_summary_file(FILE* file, ModelData* mod
  * @param file file where string is being dumped to
  * @param model_data internal state data {@link ModelData}
  */
-MAP_ERROR_CODE write_element_information_to_summary_file(FILE* file, ModelData* model_data);
+MAP_ERROR_CODE write_line_information_to_summary_file(FILE* file, ModelData* model_data);
 
 /**
  * @brief prints the expanded MAP input file. This can be used as a check to make sure the repeat flags 

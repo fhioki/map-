@@ -89,26 +89,26 @@ int main(int argc, char **argv)
   strcpy(option_def[6], "repeat 12 280\0");
   
   /* set cable library data */
-  strcpy(_init_type->libraryInputLine, line_def[0]); map_add_cable_library_input_text(_init_type); 
-  strcpy(_init_type->libraryInputLine, line_def[1]); map_add_cable_library_input_text(_init_type); 
+  strcpy(_init_type->library_input_str, line_def[0]); map_add_cable_library_input_text(_init_type); 
+  strcpy(_init_type->library_input_str, line_def[1]); map_add_cable_library_input_text(_init_type); 
    
   /* set node data */
-  strcpy(_init_type->nodeInputLine, node_def[0]); map_add_node_input_text(_init_type);  
-  strcpy(_init_type->nodeInputLine, node_def[1]); map_add_node_input_text(_init_type);
+  strcpy(_init_type->node_input_str, node_def[0]); map_add_node_input_text(_init_type);  
+  strcpy(_init_type->node_input_str, node_def[1]); map_add_node_input_text(_init_type);
   
   /* set line properties */
-  strcpy(_init_type->elementInputLine, element_def[0]); map_add_element_input_text(_init_type);  
+  strcpy(_init_type->line_input_str, element_def[0]); map_add_line_input_text(_init_type);  
   
   /* set solver options */
-  strcpy(_init_type->optionInputLine, option_def[0]); map_add_options_input_text(_init_type);  
-  strcpy(_init_type->optionInputLine, option_def[1]); map_add_options_input_text(_init_type);  
-  strcpy(_init_type->optionInputLine, option_def[2]); map_add_options_input_text(_init_type);  
-  strcpy(_init_type->optionInputLine, option_def[3]); map_add_options_input_text(_init_type);  
-  strcpy(_init_type->optionInputLine, option_def[4]); map_add_options_input_text(_init_type);  
-  strcpy(_init_type->optionInputLine, option_def[5]); map_add_options_input_text(_init_type);  
-  //strcpy(_init_type->optionInputLine, option_def[6]); map_add_options_input_text(_init_type);   
+  strcpy(_init_type->option_input_str, option_def[0]); map_add_options_input_text(_init_type);  
+  strcpy(_init_type->option_input_str, option_def[1]); map_add_options_input_text(_init_type);  
+  strcpy(_init_type->option_input_str, option_def[2]); map_add_options_input_text(_init_type);  
+  strcpy(_init_type->option_input_str, option_def[3]); map_add_options_input_text(_init_type);  
+  strcpy(_init_type->option_input_str, option_def[4]); map_add_options_input_text(_init_type);  
+  strcpy(_init_type->option_input_str, option_def[5]); map_add_options_input_text(_init_type);  
+  //strcpy(_init_type->option_input_str, option_def[6]); map_add_options_input_text(_init_type);   
    
-  strcpy(_init_type->summaryFileName,"baseline.sum.map\0"); map_set_summary_file_name(_init_type, map_msg, &ierr);
+  strcpy(_init_type->summary_file_name,"baseline.sum.map\0"); map_set_summary_file_name(_init_type, map_msg, &ierr);
    
    
    

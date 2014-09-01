@@ -9,7 +9,7 @@ Node  Type       X       Y       Z      M     B     FX      FY      FZ
 1  fix    -50    0  -100  0 0 # # #
 2  Vessel  0     0   0    0 0 # # #
 ---------------------- LINEP ROPERTIES ---------------------------------------
-Element  LineType  UnstrLen  NodeAnch  NodeFair  Flags
+Line   LineType  UnstrLen  NodeAnch  NodeFair  Flags
 (-)      (-)       (m)       (-)       (-)       (-)
 1     chainup      150        1         2        linear_spring gy_pos h_fair
 ---------------------- SOLVER OPTIONS-----------------------------------------

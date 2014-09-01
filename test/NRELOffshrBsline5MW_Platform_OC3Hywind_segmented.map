@@ -11,7 +11,7 @@ Node Type       X     Y     Z     M     B     FX    FY    FZ
 2    connect   500    0    -200    0     0     0     0     0
 3    Vessel    5.2    0    -70.0   0     0     #     #     #
 ---------------------- LINE PROPERTIES ---------------------------------------
-Element  LineType  UnstrLen    NodeAnch  NodeFair  Flags
+Line    LineType  UnstrLen    NodeAnch  NodeFair  Flags
 (-)      (-)       (m)         (-)       (-)       (-)
 1       Material   402.2        1         2        
 2       material   500.0        2         3         x_excursion  z_excursion  azimuth  tension_fair omit_contact

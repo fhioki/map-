@@ -149,7 +149,7 @@ class Map(object):
     lib.map_set_summary_file_name.argtype=[MapInit_Type, c_char_p, POINTER(c_int) ]
     lib.map_add_cable_library_input_text.argtype=[MapInit_Type]
     lib.map_add_node_input_text.argtype=[MapInit_Type]
-    lib.map_add_element_input_text.argtype=[MapInit_Type]
+    lib.map_add_line_input_text.argtype=[MapInit_Type]
     lib.map_add_options_input_text.argtype=[MapInit_Type]
 
     lib.map_create_init_type.argtype       = [ c_char_p, POINTER(c_int) ]
@@ -176,7 +176,7 @@ class Map(object):
     lib.map_set_gravity.argtypes     = [ MapParameter_Type, c_double ]
     lib.map_set_sea_density.argtypes = [ MapParameter_Type, c_double ]
     
-    lib.map_size_elements.restype = c_int
+    lib.map_size_lines.restype = c_int
 
     # numeric routines
     lib.map_residual_function_length.restype = c_double
@@ -248,7 +248,7 @@ class Map(object):
                              POINTER(c_int),
                              c_char_p]
 
-    lib.map_size_elements.argtypes = [ MapData_Type,
+    lib.map_size_lines.argtypes = [ MapData_Type,
                                        POINTER(c_int),
                                        c_char_p]
 
@@ -272,8 +272,8 @@ class Map(object):
             print self.status.value        
 
 
-    def size_elements(self):
-        size = Map.lib.map_size_elements(self.f_type_d, pointer(self.ierr), self.status )
+    def size_lines(self):
+        size = Map.lib.map_size_lines(self.f_type_d, pointer(self.ierr), self.status )
         if self.ierr.value != 0 :
             print self.status.value        
         return size
@@ -401,10 +401,10 @@ class Map(object):
     def map_set_sea_density( self, rho ):
         Map.lib.map_set_sea_density( self.f_type_p, rho )
 
-    def plot_x( self, elementNum, length ) :
+    def plot_x( self, lineNum, length ) :
         arr = [None]*length
         array = POINTER(c_double)
-        array = Map.lib.map_plot_x_array( self.f_type_d, elementNum, length, self.status, pointer(self.ierr) )        
+        array = Map.lib.map_plot_x_array( self.f_type_d, lineNum, length, self.status, pointer(self.ierr) )        
         if self.ierr.value != 0 :
             print self.status.value        
             self.end( )
@@ -414,10 +414,10 @@ class Map(object):
         Map.lib.map_plot_array_free( array )        
         return arr 
 
-    def plot_y( self, elementNum, length ) :
+    def plot_y( self, lineNum, length ) :
         arr = [None]*length
         array = POINTER(c_double)
-        array = Map.lib.map_plot_y_array( self.f_type_d, elementNum, length, self.status, pointer(self.ierr) )        
+        array = Map.lib.map_plot_y_array( self.f_type_d, lineNum, length, self.status, pointer(self.ierr) )        
         if self.ierr.value != 0 :
             print self.status.value        
             self.end( )
@@ -428,10 +428,10 @@ class Map(object):
         return arr 
 
 
-    def plot_z( self, elementNum, length ) :
+    def plot_z( self, lineNum, length ) :
         arr = [None]*length
         array = POINTER(c_double)
-        array = Map.lib.map_plot_z_array( self.f_type_d, elementNum, length, self.status, pointer(self.ierr) )        
+        array = Map.lib.map_plot_z_array( self.f_type_d, lineNum, length, self.status, pointer(self.ierr) )        
         if self.ierr.value != 0 :
             print self.status.value        
             self.end( )
@@ -451,14 +451,14 @@ class Map(object):
 
     def get_fairlead_force_2d(self, index):
         """Gets the horizontal and vertical fairlead force in a 2D plane along the 
-        straight-line element. Must ensure update_states() is called before accessing 
+        straight-line line. Must ensure update_states() is called before accessing 
         this function. The function will not solve the forces for a new vessel position
         if it updated. , otherwise the fairlead forces are not updated with the new 
         vessel position. Called C function:
         
         MAP_EXTERNCALL void map_get_fairlead_force_2d(double* H, double* V, MAP_OtherStateType_t* other_type, int index, char* map_msg, MAP_ERROR_CODE* ierr);
     
-        :param index: The element number the fairlead forces are being requested for. Zero indexed
+        :param index: The line number the fairlead forces are being requested for. Zero indexed
         :returns: horizontal and vertical fairlead force [N]
     
         >>> H,V = print get_fairlead_force_2d(1)        
@@ -478,7 +478,7 @@ class Map(object):
         
         MAP_EXTERNCALL void map_get_fairlead_force_3d(double* fx, double* fy, double* fz, MAP_OtherStateType_t* other_type, int index, char* map_msg, MAP_ERROR_CODE* ierr);
     
-        :param index: The element number the fairlead forces are being requested for. Zero indexed
+        :param index: The line number the fairlead forces are being requested for. Zero indexed
         :returns: horizontal and vertical fairlead force [N]
     
         >>> fx,fy,fz = get_fairlead_force_3d(1)        
@@ -592,9 +592,9 @@ class Map(object):
             elif words[0] == "Node":
                 next(f)
                 Node_ref = i
-            elif words[0] == "Element":
+            elif words[0] == "Line":
                 next(f)
-                Element_ref = i 
+                Line_ref = i 
             elif words[0] == "Option":
                 next(f)
                 Option_ref = i     
@@ -617,13 +617,13 @@ class Map(object):
                 self.f_type_init.contents.nodeInputLine = line+'\0'
                 Map.lib.map_add_node_input_text(self.f_type_init)
 
-        f.seek(line_offset[Element_ref+4])
+        f.seek(line_offset[Line_ref+4])
         for line in f:
             if line[0] == "-":
                 break
             else:
                 self.f_type_init.contents.elementInputLine = line+'\0'
-                Map.lib.map_add_element_input_text(self.f_type_init)
+                Map.lib.map_add_line_input_text(self.f_type_init)
                  
         f.seek(line_offset[Option_ref+5])
         for line in f:

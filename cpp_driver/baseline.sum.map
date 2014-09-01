@@ -1,6 +1,6 @@
-Outputs were generated using MAP++ v1.00-55-g5e28.
+Outputs were generated using MAP++ c364-dirty.
 
-    Sunday August 24-2014 at 23:10:25 PM
+    Monday September 01-2014 at 12:37:47 PM
 
     Gravity constant          [m/s^2]  : 9.81
     Sea density               [kg/m^3] : 1025.00
@@ -34,7 +34,7 @@ FY [N]    | ( 0.000)               ( 0.000)
 FZ [N]    | ( 0.000)               ( 149176.924)
 
 
-                | Element 1
+                | Line 1
                 | ---------------------------------------
 Material        |  chainup
 Lu        [m]   |  125.000
@@ -64,7 +64,7 @@ Node  Type       X       Y       Z      M     B     FX    FY    FZ
 1  fix    -50    0  -100  0 0 # # #
 2  Vessel  0     0   0    0 0 # # #
 ---------------------- LINE PROPERTIES ---------------------------------------
-Element  LineType  UnstrLen  NodeAnch  NodeFair  Flags
+Line  LineType  UnstrLen  NodeAnch  NodeFair  Flags
 [-]      [-]       [m]       [-]       [-]       [-]
 1 chainup  125 1 2 gy_pos h_fair
 ---------------------- SOLVER OPTIONS-----------------------------------------

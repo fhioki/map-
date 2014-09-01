@@ -68,14 +68,14 @@ C_MAP_PackInitInput( float * ReKiBuf,  int * Re_BufSz ,
   DbKiBuf = NULL ;
   IntKiBuf = NULL ;
   *Db_BufSz   += 1  ; // gravity
-  *Db_BufSz   += 1  ; // seaDensity
+  *Db_BufSz   += 1  ; // sea_density
   *Db_BufSz   += 1  ; // depth
   if ( ! OnlySize ) {
     if ( *Re_BufSz > 0  ) ReKiBuf  = (float  *)malloc(*Re_BufSz*sizeof(float) ) ;
     if ( *Db_BufSz > 0  ) DbKiBuf  = (double *)malloc(*Db_BufSz*sizeof(double) ) ;
     if ( *Int_BufSz > 0 ) IntKiBuf = (int    *)malloc(*Int_BufSz*sizeof(int) ) ;
     DbKiBuf[Db_Xferred++] = InData->gravity ;
-    DbKiBuf[Db_Xferred++] = InData->seaDensity ;
+    DbKiBuf[Db_Xferred++] = InData->sea_density ;
     DbKiBuf[Db_Xferred++] = InData->depth ;
   }
   return(ErrStat) ;
@@ -105,7 +105,7 @@ C_MAP_UnpackInitInput( float * ReKiBuf,
   IntKiBuf = NULL ;
   OutData->gravity = DbKiBuf [ Db_Xferred ] ; 
   Db_Xferred   = Db_Xferred   + 1 ; 
-  OutData->seaDensity = DbKiBuf [ Db_Xferred ] ; 
+  OutData->sea_density = DbKiBuf [ Db_Xferred ] ; 
   Db_Xferred   = Db_Xferred   + 1 ; 
   OutData->depth = DbKiBuf [ Db_Xferred ] ; 
   Db_Xferred   = Db_Xferred   + 1 ; 
@@ -788,14 +788,14 @@ C_MAP_PackParam( float * ReKiBuf,  int * Re_BufSz ,
   IntKiBuf = NULL ;
   *Db_BufSz   += 1  ; // g
   *Db_BufSz   += 1  ; // depth
-  *Db_BufSz   += 1  ; // rhoSea
+  *Db_BufSz   += 1  ; // rho_sea
   if ( ! OnlySize ) {
     if ( *Re_BufSz > 0  ) ReKiBuf  = (float  *)malloc(*Re_BufSz*sizeof(float) ) ;
     if ( *Db_BufSz > 0  ) DbKiBuf  = (double *)malloc(*Db_BufSz*sizeof(double) ) ;
     if ( *Int_BufSz > 0 ) IntKiBuf = (int    *)malloc(*Int_BufSz*sizeof(int) ) ;
     DbKiBuf[Db_Xferred++] = InData->g ;
     DbKiBuf[Db_Xferred++] = InData->depth ;
-    DbKiBuf[Db_Xferred++] = InData->rhoSea ;
+    DbKiBuf[Db_Xferred++] = InData->rho_sea ;
   }
   return(ErrStat) ;
 }
@@ -826,7 +826,7 @@ C_MAP_UnpackParam( float * ReKiBuf,
   Db_Xferred   = Db_Xferred   + 1 ; 
   OutData->depth = DbKiBuf [ Db_Xferred ] ; 
   Db_Xferred   = Db_Xferred   + 1 ; 
-  OutData->rhoSea = DbKiBuf [ Db_Xferred ] ; 
+  OutData->rho_sea = DbKiBuf [ Db_Xferred ] ; 
   Db_Xferred   = Db_Xferred   + 1 ; 
   if ( ReKiBuf != NULL )  free(ReKiBuf) ;
   if ( DbKiBuf != NULL )  free(DbKiBuf) ;

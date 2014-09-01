@@ -85,7 +85,7 @@ if __name__ == '__main__':
 
     fig = plt.figure()
     ax = Axes3D(fig)
-    for i in range(0,mooring_1.size_elements()):
+    for i in range(0,mooring_1.size_lines()):
         x = mooring_1.plot_x( i, 50 )
         y = mooring_1.plot_y( i, 50 )
         z = mooring_1.plot_z( i, 50 )    

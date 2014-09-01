@@ -32,7 +32,7 @@ MAP_ERROR_CODE initialize_fortran_types(MAP_InputType_t* u_type, MAP_ParameterTy
 MAP_ERROR_CODE allocate_outlist(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr);
 size_t cable_library_meter(const void* el);
 size_t node_meter(const void* el);
-size_t cable_element_meter( const void* el);
+size_t cable_line_meter( const void* el);
 size_t u_list_meter(const void *el); 
 
 /**
@@ -148,7 +148,7 @@ InitializationData* MAP_InitInput_Create(char* map_msg, MAP_ERROR_CODE* ierr);
 /**
  * @brief   Sets model solver options corresponding to the MAP input file parameters 
  * @details Called in {@link map_init} to set the corresponding model (solver) options
- *          in MAP. This is different from element flags. Note that this function can 
+ *          in MAP. This is different from line flags. Note that this function can 
  *          return MAP_WARNING and MAP_ERROR; these errors/warnings do not trip MAP_FATAL_33.
  *          Function must be modified to account for new options added at a future date. 
  *          Valid solver options input parameter include:
@@ -646,25 +646,25 @@ MAP_ERROR_CODE expand_node_force_y(double* fy, const char* word);
 MAP_ERROR_CODE expand_node_force_z(Vector* force, const double angle, const double fx, const double fy, const char* word, bstring line);
 
 
-MAP_ERROR_CODE repeat_elements(ModelData* model_data, InitializationData* init, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE set_element_list(MAP_ConstraintStateType_t* z_type, ModelData* model_data, struct bstrList* element_input_string, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE reset_element(Element* element_ptr);
-MAP_ERROR_CODE expand_element_number(const int n_line, bstring line); 
-MAP_ERROR_CODE expand_element_property_name(const char* word, bstring line); 
-MAP_ERROR_CODE expand_element_length(const char* word, bstring line); 
-MAP_ERROR_CODE expand_element_anchor_number(const char* word, const int index, const int n, bstring line); 
-MAP_ERROR_CODE expand_element_fairlead_number(const char* word, const int index, const int n, bstring line); 
-MAP_ERROR_CODE expand_element_flag(const char* word, bstring line); 
+MAP_ERROR_CODE repeat_lines(ModelData* model_data, InitializationData* init, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE set_line_list(MAP_ConstraintStateType_t* z_type, ModelData* model_data, struct bstrList* line_input_string, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE reset_line(Line* line_ptr);
+MAP_ERROR_CODE expand_line_number(const int n_line, bstring line); 
+MAP_ERROR_CODE expand_line_property_name(const char* word, bstring line); 
+MAP_ERROR_CODE expand_line_length(const char* word, bstring line); 
+MAP_ERROR_CODE expand_line_anchor_number(const char* word, const int index, const int n, bstring line); 
+MAP_ERROR_CODE expand_line_fairlead_number(const char* word, const int index, const int n, bstring line); 
+MAP_ERROR_CODE expand_line_flag(const char* word, bstring line); 
 
 
 MAP_ERROR_CODE set_vartype_ptr(const char* unit, bstring alias, const int num, VarTypePtr* type, bstring property);
 MAP_ERROR_CODE set_vartype(const char* unit, bstring alias, const int num, VarType* type, bstring property );
 MAP_ERROR_CODE compare_length(int a, int b);
-MAP_ERROR_CODE set_element_vartype(Element* element_ptr);
-MAP_ERROR_CODE associate_element_with_cable_property(Element* element_ptr, ModelData* model_data, const char* word, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE associate_element_with_anchor_node(Element* element_ptr, ModelData* model_data, const int element_num, const char* word, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE associate_element_with_fairlead_node(Element* element_ptr, ModelData* model_data, const int element_num, const char* word, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE set_element_option_flags(struct bstrList* word, int* index, Element* element_ptr, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE set_line_vartype(Line* line_ptr);
+MAP_ERROR_CODE associate_line_with_cable_property(Line* line_ptr, ModelData* model_data, const char* word, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE associate_line_with_anchor_node(Line* line_ptr, ModelData* model_data, const int line_num, const char* word, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE associate_line_with_fairlead_node(Line* line_ptr, ModelData* model_data, const int line_num, const char* word, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE set_line_option_flags(struct bstrList* word, int* index, Line* line_ptr, char* map_msg, MAP_ERROR_CODE* ierr);
 
 /**
  * @brief
@@ -724,7 +724,7 @@ MAP_ERROR_CODE initialize_cable_library_variables(ModelData* model_data, MAP_Par
  *
  *  OBTAINED FROM THE CMINPACK SOURCE. The following defintions of the inputs for lmder(...) are provided in the cminpack docmentation.  
  *  
- *  info = __cminpack_func__(lmder)( inner_function_evals, elementIter, m, n, x, fvec, fjac, ldfjac, ftol, xtol, gtol, 
+ *  info = __cminpack_func__(lmder)( inner_function_evals, lineIter, m, n, x, fvec, fjac, ldfjac, ftol, xtol, gtol, 
  *                                   maxfev, diag, mode, factor, nprint, &nfev, &njev, ipvt, qtf, wa1, wa2, wa3, wa4);
  *     
  *      - ftol          : a nonnegative input variable. Termination occurs when both the actual and predicted relative reductions in the sum of squares are at most ftol. Therefore, ftol measures the relative error desired in the sum of squares.
@@ -747,8 +747,8 @@ MAP_ERROR_CODE initialize_cable_library_variables(ModelData* model_data, MAP_Par
  *      - info=8        : gtol is too small. fvec is orthogonal to the columns of the Jacobian to machine precision.
  *      - nfev          : an integer output variable set to the number of calls to fcn with iflag = 1.
  *      - njev          : an integer output variable set to the number of calls to fcn with iflag = 2.
- *      - ipvt          : an integer output array of length n. ipvt defines a permutation matrix p such that jac*p = q*r, where jac is the final calculated Jacobian, q is orthogonal (not stored), and r is upper triangular with diagonal elements of nonincreasing magnitude. Column j of p is column ipvt(j) of the identity matrix.
- *      - qtf           : an output array of length n which contains the first n elements of the vector (q transpose)*fvec.
+ *      - ipvt          : an integer output array of length n. ipvt defines a permutation matrix p such that jac*p = q*r, where jac is the final calculated Jacobian, q is orthogonal (not stored), and r is upper triangular with diagonal lines of nonincreasing magnitude. Column j of p is column ipvt(j) of the identity matrix.
+ *      - qtf           : an output array of length n which contains the first n lines of the vector (q transpose)*fvec.
  *      - wa1, wa2, wa3 : are work arrays of length n.
  *      - wa4           : a work array of length m.  
  */

@@ -1,6 +1,6 @@
-Outputs were generated using MAP++ 844c-dirty.
+Outputs were generated using MAP++ c364-dirty.
 
-    Monday September 01-2014 at 01:22:41 AM
+    Monday September 01-2014 at 12:44:21 PM
 
     Gravity constant          [m/s^2]  : 9.81
     Sea density               [kg/m^3] : 1025.00
@@ -41,7 +41,7 @@ FY [N]    | (-239636.333)          ( 239636.333)          (-239636.333)         
 FZ [N]    | ( 391238.903)          ( 511561.602)          ( 391238.903)          ( 511561.602)
 
 
-                | Element 1
+                | Line 1
                 | ---------------------------------------
 Material        |  chainup
 Lu        [m]   |  680.000
@@ -60,7 +60,7 @@ Jacobian Evals  |  4
 Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
 
 
-                | Element 2
+                | Line 2
                 | ---------------------------------------
 Material        |  chainup
 Lu        [m]   |  680.000
@@ -93,10 +93,10 @@ Node  Type       X       Y       Z      M     B     FX    FY    FZ
 3     fix        0    -520      -120    0     0      #     #     #                                                                                                                                                                                             
 4     Vessel     0     -20      -40     0     0      #     #     #                                                                                                                                                                                             
 ---------------------- LINE PROPERTIES ---------------------------------------
-Element  LineType  UnstrLen  NodeAnch  NodeFair  Flags
+Line  LineType  UnstrLen  NodeAnch  NodeFair  Flags
 [-]      [-]       [m]       [-]       [-]       [-]
-1        chainup   680        1         2        plot gx_dpos h_fair damage_time 99 omit_contact                                                                                                                                                               
-2        chainup   680        3         4        plot omit_contact                                                                                                                                                                                             
+1        chainup   680        1         2        plot gx_pos h_fair damage_time 99 omit_contact                                                                                                                                                                
+2        chainup   680        3         4        plot gx_pos omit_contact                                                                                                                                                                                      
 ---------------------- SOLVER OPTIONS-----------------------------------------
 Option 
 [-] 

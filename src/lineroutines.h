@@ -97,12 +97,12 @@ MAP_ERROR_CODE set_line_variables_pre_solve(ModelData* model_data, char* map_msg
  */
 MAP_ERROR_CODE set_line_variables_post_solve(ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr);
 
-MapReal set_vertical_excursion(Element* element);
-MapReal set_horizontal_excursion(Element* element);
+MapReal set_vertical_excursion(Line* line);
+MapReal set_horizontal_excursion(Line* line);
 
 
 /**
- *  'psi' is the angle between the element x-axis (local frame) and X-axis (global frame). This essentially produces this rotation matrix:
+ *  'psi' is the angle between the line x-axis (local frame) and X-axis (global frame). This essentially produces this rotation matrix:
  *  
  *  \mathbf{R}(\psi) = \begin{bmatrix}
  *                     \cos\psi & -\sin\psi & 0 \\ 
@@ -110,12 +110,12 @@ MapReal set_horizontal_excursion(Element* element);
  *                            0 &         0 & 1
  *                     \end{bmatrix}
  *  
- *       1) first find psi - the angle of rotation between the element frame and the global reference frame
+ *       1) first find psi - the angle of rotation between the line frame and the global reference frame
  *       2) r_j = fairlead displacement
  *       3) r_i = anchor displacement
  *       4) cos^{-1}( dot( (r_j-r_i) , (u_i) ) / ( norm(r_j-r_i) ) )
  */
-MAP_ERROR_CODE set_psi(Element* element, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE set_psi(Line* line, char* map_msg, MAP_ERROR_CODE* ierr);
 
 
 MAP_ERROR_CODE reset_node_force_to_zero(ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr);
@@ -130,10 +130,10 @@ MAP_ERROR_CODE reset_node_force_to_zero(ModelData* model_data, char* map_msg, MA
  * @acceses: none
  * @calledby: mapcall_msqs_init( )
  */                                                   
-MAP_ERROR_CODE set_element_initial_guess(ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE set_line_initial_guess(ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr);
 
 
-MAP_ERROR_CODE solve_linear_spring_cable(Element* element, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE solve_linear_spring_cable(Line* line, char* map_msg, MAP_ERROR_CODE* ierr);
 
 /**
  * MAP_InputType_t* uType,
@@ -159,7 +159,7 @@ MAP_ERROR_CODE solve_line(ModelData* model_data, double time, char* map_msg, MAP
 
       ENDIF
  */
-MAP_ERROR_CODE check_maximum_line_length(Element* element, const bool contact_flag, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE check_maximum_line_length(Line* line, const bool contact_flag, char* map_msg, MAP_ERROR_CODE* ierr);
 
 
 /**

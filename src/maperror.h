@@ -59,13 +59,13 @@ typedef enum MAP_ERROR_CODE {
   MAP_FATAL_23  , // A Node 'FY' VarType could not be converted to a numeric value. Check the MAP input file
   MAP_FATAL_24  , // A Node 'FZ' VarType could not be converted to a numeric value. Check the MAP input file
   MAP_FATAL_25  , // Node is assigned an invalid type
-  MAP_FATAL_26  , // Element unstretched length could not be converted to a numeric value. Check the MAP input file 
-  MAP_FATAL_27  , // Invalid element LineType assignment. Cannot find a LineType in the line dictionary. Check the MAP input file for consistency 
-  MAP_FATAL_28  , // NodeAnch is an invalid anchor type for an element. can not convert value to a float. Check the MAP input file
-  MAP_FATAL_29  , // NodeFiar is an invalid anchor type for an element. can not convert value to a float. Check the MAP input file
-  MAP_FATAL_30  , // Attempting to assign an invalid anchor node to an element
-  MAP_FATAL_31  , // Attempting to assign an invalid fairlead node to an element
-  MAP_FATAL_32  , // An element property is set incorrectly in the MAP input file
+  MAP_FATAL_26  , // Line unstretched length could not be converted to a numeric value. Check the MAP input file 
+  MAP_FATAL_27  , // Invalid line LineType assignment. Cannot find a LineType in the line dictionary. Check the MAP input file for consistency 
+  MAP_FATAL_28  , // NodeAnch is an invalid anchor type for an line. can not convert value to a float. Check the MAP input file
+  MAP_FATAL_29  , // NodeFiar is an invalid anchor type for an line. can not convert value to a float. Check the MAP input file
+  MAP_FATAL_30  , // Attempting to assign an invalid anchor node to an line
+  MAP_FATAL_31  , // Attempting to assign an invalid fairlead node to an line
+  MAP_FATAL_32  , // An line property is set incorrectly in the MAP input file
   MAP_FATAL_33  , // Could not complete the initialization process in MAP_Init() beause of syntax errors in the MAP input file. Check the 'MODEL OPTIONS' section of the MAP input file
   MAP_FATAL_34  , // Could convert a 'REPEAT' parameter to a numeric value. Check the MAP input file
   MAP_FATAL_35  , // Failed to allocate memory for the 'REPEAT' array
@@ -87,8 +87,8 @@ typedef enum MAP_ERROR_CODE {
   MAP_FATAL_51  , // Length of internal output state array and fortran derivived type do not match
   MAP_FATAL_52  , // Length of internal constraint state array and fortran derivived type do not match
   MAP_FATAL_53  , // Could not allocate memory for H/V constraint state
-  MAP_FATAL_54  , // Local cooridinates are computed incorrectly. Element horizontal excusion is negative
-  MAP_FATAL_55  , // Local cooridinates are computed incorrectly. Element vertical excusion is negative
+  MAP_FATAL_54  , // Local cooridinates are computed incorrectly. Line horizontal excusion is negative
+  MAP_FATAL_55  , // Local cooridinates are computed incorrectly. Line vertical excusion is negative
   MAP_FATAL_56  , // Line unstretched length cannot be negative
   MAP_FATAL_57  , // Line axial stiffness cannot be negative
   MAP_FATAL_58  , // Unstretched line length is too large for the quasi-static model (double backing)
@@ -111,7 +111,7 @@ typedef enum MAP_ERROR_CODE {
   MAP_FATAL_75  , // Backward difference Jacobian failed. 
   MAP_FATAL_76  , // Central difference Jacobian failed. 
   MAP_FATAL_77  , // Forward difference Jacobian failed. 
-  MAP_FATAL_78  , // Line element failed to converge durring finite difference operation. Outer-loop Jacbobian failure: 
+  MAP_FATAL_78  , // Line line failed to converge durring finite difference operation. Outer-loop Jacbobian failure: 
   MAP_FATAL_79  , // Solution failed in MinPack LMDER
   MAP_FATAL_80  , // Maximum outer-loop iterations reached
   MAP_FATAL_81  , // Failed to convert CIntDamp internal structural damping parameter in the cable library to a MapReal. Check the MAP input file
@@ -119,34 +119,34 @@ typedef enum MAP_ERROR_CODE {
   MAP_FATAL_83  , // Failed to convert Cdn cross-flow drag coefficient parameter in the cable library to a MapReal. Check the MAP input file
   MAP_FATAL_84  , // Failed to convert Cdt tangent-flow drag coefficient parameter in the cable library to a MapReal. Check the MAP input file
   MAP_FATAL_85  , // Error processing 'HELP' flag in the MAP input file
-  MAP_FATAL_86  , // Element out of range. This error was triggered in the initialization. This is likely due to incorrect settings in the MAP input file 
-  MAP_FATAL_87  , // Element linear spring solver failed. 
-  MAP_FATAL_88  , // Element failed
+  MAP_FATAL_86  , // Line out of range. This error was triggered in the initialization. This is likely due to incorrect settings in the MAP input file 
+  MAP_FATAL_87  , // Line linear spring solver failed. 
+  MAP_FATAL_88  , // Line failed
   MAP_FATAL_89  , // Input index array exceeded during UpdateStates. Inputs were not set correctly by the program
-  MAP_ERROR_1   , // Element option 'DAMAGE_TIME' does not trail with a valid value. Ignoring this run-time flag. Chek the MAP input file
+  MAP_ERROR_1   , // Line option 'DAMAGE_TIME' does not trail with a valid value. Ignoring this run-time flag. Chek the MAP input file
   MAP_ERROR_2   , // Value for 'INNER_FTOL' is not a valid numeric value. Using the default value <1e-6>
   MAP_ERROR_3   , // Value for 'OUTER_TOL' is not a valid numeric value. Using the default value <1e-6>
   MAP_ERROR_4   , // Value for 'INNER_MAX_ITS' is not a valid numeric value. Using the default value <500>
   MAP_ERROR_5   , // Value for 'OUTER_MAX_ITS' is not a valid numeric value. Using the default value <500>
   MAP_ERROR_6   , // Failed to write cable library information to the MAP summary file
   MAP_ERROR_7   , // Failed to write node information to the MAP summary file
-  MAP_ERROR_8   , // Failed to write element information to the MAP summary file
+  MAP_ERROR_8   , // Failed to write line information to the MAP summary file
   MAP_ERROR_9   , // Value for 'INNER_GTOL' is not a valid numeric value. Using the default value <1e-6>
   MAP_ERROR_10  , // Value for 'INNER_XTOL' is not a valid numeric value. Using the default value <1e-6>
   MAP_ERROR_11  , // INNER_FTOL is too small. No further reduction in the sum of squares is possible
   MAP_ERROR_12  , // INNER_GTOL is too small. No further reduction in the sum of squares is possible
   MAP_ERROR_13  , // INNER_XTOL is too small. No further reduction in the sum of squares is possible
-  MAP_ERROR_14  , // Element option 'DIAGNOSTIC' does not trail with a valid value. Defaulting is to run diagnostic for the first iteration only
+  MAP_ERROR_14  , // Line option 'DIAGNOSTIC' does not trail with a valid value. Defaulting is to run diagnostic for the first iteration only
   MAP_ERROR_15  , // Value for 'INTEGRATION_DT' is not a valid input. No support for the LM/FEA model at this time.
   MAP_ERROR_16  , // Value for 'KB_DEFAULT' is not a valid numeric value. Using the default value <3.0E6 N/m>
   MAP_ERROR_17  , // Value for 'CB_DEFAULT' is not a valid numeric value. Using the default value <3.0E5 Ns/m>
   MAP_ERROR_18  , // Value for 'SEG_SIZE' is not a valid numeric value. Using the default value <10>
   MAP_WARNING_1 , // Extra characters are present in the cable library portion of the MAP input file
   MAP_WARNING_2 , // Extra characters are present in the node library portion of the MAP input file
-  MAP_WARNING_3 , // Unrecognized element run-time option
+  MAP_WARNING_3 , // Unrecognized line run-time option
   MAP_WARNING_4 , // Unrecognized model option
   MAP_WARNING_5 , // Cable density is approaching the density of seawater
-  MAP_WARNING_6 , // The element's anchor and fairlead point occupy the same point in space. 
+  MAP_WARNING_6 , // The line's anchor and fairlead point occupy the same point in space. 
   MAP_WARNING_7 , // Option outer_tol must be greater than machine epsilon
   MAP_WARNING_8 , // Invalid parameters for PG_COOKED option: using default value of ds = 1.0, d = 0.0
   MAP_WARNING_9 , // Attemping to recover from fatal error by back tracking...

@@ -34,9 +34,9 @@ MAP_ERROR_CODE reset_node_force_to_zero(ModelData* model_data, char* map_msg, MA
   list_iterator_start(&model_data->node);            /* starting an iteration "session" */
   while (list_iterator_hasnext(&model_data->node)) { /* tell whether more values available */
     node_iter = (Node*)list_iterator_next(&model_data->node);
-    *(node_iter->sumForcePtr.fx.value) = 0.0;
-    *(node_iter->sumForcePtr.fy.value) = 0.0;
-    *(node_iter->sumForcePtr.fz.value) = 0.0;    
+    *(node_iter->sum_force_ptr.fx.value) = 0.0;
+    *(node_iter->sum_force_ptr.fy.value) = 0.0;
+    *(node_iter->sum_force_ptr.fz.value) = 0.0;    
   };
   list_iterator_stop(&model_data->node); /* ending the iteration "session" */    
   return MAP_SAFE;
@@ -45,10 +45,10 @@ MAP_ERROR_CODE reset_node_force_to_zero(ModelData* model_data, char* map_msg, MA
 
 MAP_ERROR_CODE calculate_node_sum_force(ModelData* model_data, MAP_ParameterType_t* p_type)
 {
-  Element* element_iter = NULL;
+  Line* line_iter = NULL;
   Node* node_iter = NULL;
   const double g = p_type->g;
-  const double rho = p_type->rhoSea;
+  const double rho = p_type->rho_sea;
   double psi = 0.0;
   double sum_fx = 0.0;
   double sum_fy = 0.0;
@@ -60,43 +60,43 @@ MAP_ERROR_CODE calculate_node_sum_force(ModelData* model_data, MAP_ParameterType
   double fy_a = 0.0;
   double fz_a = 0.0;
 
-  list_iterator_start(&model_data->element);         /* starting an iteration "session" */
-  while (list_iterator_hasnext(&model_data->element)) { /* tell whether more values available */
-    element_iter = (Element*)list_iterator_next(&model_data->element);
-    psi = element_iter->psi.value;
-    fx = *(element_iter->H.value)*cos(psi);
-    fx_a = -(element_iter->HAtAnchor.value)*cos(psi);
+  list_iterator_start(&model_data->line);         /* starting an iteration "session" */
+  while (list_iterator_hasnext(&model_data->line)) { /* tell whether more values available */
+    line_iter = (Line*)list_iterator_next(&model_data->line);
+    psi = line_iter->psi.value;
+    fx = *(line_iter->H.value)*cos(psi);
+    fx_a = -(line_iter->H_at_anchor.value)*cos(psi);
   
-    fy = *(element_iter->H.value)*sin(psi);
-    fy_a = -(element_iter->HAtAnchor.value)*sin(psi);
+    fy = *(line_iter->H.value)*sin(psi);
+    fy_a = -(line_iter->H_at_anchor.value)*sin(psi);
     
-    fz = *(element_iter->V.value);
-    fz_a = -(element_iter->VAtAnchor.value);
+    fz = *(line_iter->V.value);
+    fz_a = -(line_iter->V_at_anchor.value);
   
-    add_to_sum_fx(element_iter->fairlead, fx);
-    add_to_sum_fx(element_iter->anchor, fx_a);
+    add_to_sum_fx(line_iter->fairlead, fx);
+    add_to_sum_fx(line_iter->anchor, fx_a);
   
-    add_to_sum_fy(element_iter->fairlead, fy);
-    add_to_sum_fy(element_iter->anchor, fy_a);
+    add_to_sum_fy(line_iter->fairlead, fy);
+    add_to_sum_fy(line_iter->anchor, fy_a);
   
-    add_to_sum_fz(element_iter->fairlead, fz);
-    add_to_sum_fz(element_iter->anchor, fz_a);
+    add_to_sum_fz(line_iter->fairlead, fz);
+    add_to_sum_fz(line_iter->anchor, fz_a);
   }; 
-  list_iterator_stop(&model_data->element); /* ending the iteration "session" */    
+  list_iterator_stop(&model_data->line); /* ending the iteration "session" */    
 
   /* This is where we include the externally applied forces on the node. Note that
    *     \sum F_x= \left \{ \mathbf{f}_\textup{lines} \right \}_x-\left \{ \mathbf{f}_\textup{ext} \right \}_x \\
    *     \sum F_y= \left \{ \mathbf{f}_\textup{lines} \right \}_y-\left \{ \mathbf{f}_\textup{ext} \right \}_y \ \
    *     \sum F_z= \left \{ \mathbf{f}_\textup{lines} \right \}_z-\left \{ \mathbf{f}_\textup{ext} \right \}_z - gM_{\textup{app}} + \rho gB_{\textup{app}}
-   * The \mathbf{f}_{\textup{lines}} portion is summed in the element iterator above. 
+   * The \mathbf{f}_{\textup{lines}} portion is summed in the line iterator above. 
    */
   list_iterator_start(&model_data->node);  /* starting an iteration "session" */
   while (list_iterator_hasnext(&model_data->node)) { /* tell whether more values available */
     node_iter = (Node*)list_iterator_next(&model_data->node);
     if (node_iter->type==CONNECT) {
-      sum_fx = -(node_iter->externalForce.fx.value);
-      sum_fy = -(node_iter->externalForce.fy.value);
-      sum_fz = -(node_iter->externalForce.fz.value - node_iter->MApplied.value*g + node_iter->BApplied.value*rho*g);
+      sum_fx = -(node_iter->external_force.fx.value);
+      sum_fy = -(node_iter->external_force.fy.value);
+      sum_fz = -(node_iter->external_force.fz.value - node_iter->M_applied.value*g + node_iter->B_applied.value*rho*g);
 
       add_to_sum_fx(node_iter, sum_fx);
       add_to_sum_fy(node_iter, sum_fy);
@@ -110,61 +110,61 @@ MAP_ERROR_CODE calculate_node_sum_force(ModelData* model_data, MAP_ParameterType
 
 void add_to_sum_fx(Node* node, const MapReal fx)
 {
-  *(node->sumForcePtr.fx.value) += fx;
+  *(node->sum_force_ptr.fx.value) += fx;
 };
 
 
 void add_to_sum_fy(Node* node, const MapReal fy)
 {
-  *(node->sumForcePtr.fy.value) += fy;
+  *(node->sum_force_ptr.fy.value) += fy;
 };
 
 
 void add_to_sum_fz(Node* node, const MapReal fz)
 {
-  *(node->sumForcePtr.fz.value) += fz;
+  *(node->sum_force_ptr.fz.value) += fz;
 };
 
 
 MAP_ERROR_CODE set_line_variables_pre_solve(ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_ERROR_CODE success = MAP_SAFE;
-  Element* element_iter = NULL;
+  Line* line_iter = NULL;
   int i = 0;
 
-  list_iterator_start(&model_data->element);            /* starting an iteration "session" */
-  while (list_iterator_hasnext(&model_data->element)) { /* tell whether more values available */ 
-    element_iter = (Element*)list_iterator_next(&model_data->element);    
+  list_iterator_start(&model_data->line);            /* starting an iteration "session" */
+  while (list_iterator_hasnext(&model_data->line)) { /* tell whether more values available */ 
+    line_iter = (Line*)list_iterator_next(&model_data->line);    
         
     /* no fairlead or anchor was not set. End program gracefully. 
      * there is likely an error in the input file 
      */
-    if (!element_iter->fairlead || !element_iter->anchor) {
+    if (!line_iter->fairlead || !line_iter->anchor) {
       *ierr = MAP_FATAL;      
       break;
     };
 
     /* horizontal cable excursion */
-    element_iter->l.value = set_horizontal_excursion(element_iter);
+    line_iter->l.value = set_horizontal_excursion(line_iter);
     
     /* vertical cable excursion */
-    element_iter->h.value = set_vertical_excursion(element_iter);
+    line_iter->h.value = set_vertical_excursion(line_iter);
 
     /* angle of azimuth */
-    success = set_psi(element_iter, map_msg, ierr); 
+    success = set_psi(line_iter, map_msg, ierr); 
     if (success!=MAP_SAFE) {
-      set_universal_error_with_message(map_msg, ierr, MAP_WARNING_6, "Element number %d", i);
+      set_universal_error_with_message(map_msg, ierr, MAP_WARNING_6, "Line number %d", i);
     };
     i++;
   };
-  list_iterator_stop(&model_data->element); /* ending the iteration "session" */    
+  list_iterator_stop(&model_data->line); /* ending the iteration "session" */    
   MAP_RETURN;//return MAP_SAFE;
 };
 
 
 MAP_ERROR_CODE set_line_variables_post_solve(ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr)
 {
-  Element* element_iter = NULL;
+  Line* line_iter = NULL;
   double H = 0.0;
   double V = 0.0;
   double Ha = 0.0;
@@ -175,59 +175,59 @@ MAP_ERROR_CODE set_line_variables_post_solve(ModelData* model_data, char* map_ms
   double cb = 0.0;
   bool contact_flag = false;
    
-  list_iterator_start(&model_data->element); /* starting an iteration "session" */
-  while (list_iterator_hasnext(&model_data->element)) { /* tell whether more values available */ 
-    element_iter = (Element*)list_iterator_next(&model_data->element);
+  list_iterator_start(&model_data->line); /* starting an iteration "session" */
+  while (list_iterator_hasnext(&model_data->line)) { /* tell whether more values available */ 
+    line_iter = (Line*)list_iterator_next(&model_data->line);
     
     /* altitude angle at fairlead */
-    H = *(element_iter->H.value);
-    V = *(element_iter->V.value);
-    element_iter->alpha.value = atan2(V, H);
+    H = *(line_iter->H.value);
+    V = *(line_iter->V.value);
+    line_iter->alpha.value = atan2(V, H);
     
     /* tension at fairlead */
-    element_iter->T.value = sqrt(H*H + V*V);
+    line_iter->T.value = sqrt(H*H + V*V);
 
-    if (element_iter->options.linear_spring) {
+    if (line_iter->options.linear_spring) {
       Ha = H;
       Va = V;
     } else {
       /* line in contact with seabed options */
-      w = element_iter->lineProperty->omega;
-      cb = element_iter->lineProperty->cb;
-      contact_flag = element_iter->options.omitContact;
-      Lu = element_iter->Lu.value;
+      w = line_iter->line_property->omega;
+      cb = line_iter->line_property->cb;
+      contact_flag = line_iter->options.omit_contact;
+      Lu = line_iter->Lu.value;
       if (contact_flag==true || w<0.0 || (V-w*Lu)>0.0) { 
-        element_iter->lb.value = 0.0;
+        line_iter->Lb.value = 0.0;
         Ha = H;
         Va = V - w*Lu;
       } else { /* line is touching the seabed */
         Lb = Lu - (V/w);
-        element_iter->lb.value = Lb;
+        line_iter->Lb.value = Lb;
         ((H-cb*w*Lb)>0.0) ? (Ha = (H-cb*w*Lb)) : (Ha = 0.0);
         Va = 0.0;
       };
     };
     
     /* tension at anchor */
-    element_iter->HAtAnchor.value = Ha;
-    element_iter->VAtAnchor.value = Va;
-    element_iter->TAtAnchor.value = sqrt(Ha*Ha + Va*Va);
-    element_iter->alphaAtAnchor.value = atan2(Va, Ha);    
+    line_iter->H_at_anchor.value = Ha;
+    line_iter->V_at_anchor.value = Va;
+    line_iter->tension_at_anchor.value = sqrt(Ha*Ha + Va*Va);
+    line_iter->alpha_at_anchor.value = atan2(Va, Ha);    
   };
-  list_iterator_stop(&model_data->element); /* ending the iteration "session" */        
+  list_iterator_stop(&model_data->line); /* ending the iteration "session" */        
   return MAP_SAFE;
 };
 
 
-MAP_ERROR_CODE set_psi(Element* element, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE set_psi(Line* line, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   double overlap_value = 0.0;
-  const MapReal x_fair = *(element->fairlead->positionPtr.x.value);
-  const MapReal y_fair = *(element->fairlead->positionPtr.y.value);
-  const MapReal z_fair = *(element->fairlead->positionPtr.z.value);
-  const MapReal x_anch = *(element->anchor->positionPtr.x.value);
-  const MapReal y_anch = *(element->anchor->positionPtr.y.value);
-  const MapReal z_anch = *(element->anchor->positionPtr.z.value);
+  const MapReal x_fair = *(line->fairlead->position_ptr.x.value);
+  const MapReal y_fair = *(line->fairlead->position_ptr.y.value);
+  const MapReal z_fair = *(line->fairlead->position_ptr.z.value);
+  const MapReal x_anch = *(line->anchor->position_ptr.x.value);
+  const MapReal y_anch = *(line->anchor->position_ptr.y.value);
+  const MapReal z_anch = *(line->anchor->position_ptr.z.value);
 
   overlap_value = sqrt(pow((x_fair-x_anch),2) + pow((y_fair-y_anch),2) +  pow((z_fair-z_anch),2));
   
@@ -237,52 +237,52 @@ MAP_ERROR_CODE set_psi(Element* element, char* map_msg, MAP_ERROR_CODE* ierr)
     return MAP_WARNING;
   };
   
-  /* find the angle psi element simply finds the angle psi between the local and global reference frames simply by 
+  /* find the angle psi line simply finds the angle psi between the local and global reference frames simply by 
    * evaluating trig relationships
    */
-  element->psi.value = atan2((y_fair-y_anch), (x_fair-x_anch));
+  line->psi.value = atan2((y_fair-y_anch), (x_fair-x_anch));
   return MAP_SAFE;
 };
 
 
-MapReal set_horizontal_excursion(Element* element)
+MapReal set_horizontal_excursion(Line* line)
 {
-  const MapReal x_fair = *(element->fairlead->positionPtr.x.value);
-  const MapReal y_fair = *(element->fairlead->positionPtr.y.value);
-  const MapReal x_anch = *(element->anchor->positionPtr.x.value);
-  const MapReal y_anch = *(element->anchor->positionPtr.y.value);  
+  const MapReal x_fair = *(line->fairlead->position_ptr.x.value);
+  const MapReal y_fair = *(line->fairlead->position_ptr.y.value);
+  const MapReal x_anch = *(line->anchor->position_ptr.x.value);
+  const MapReal y_anch = *(line->anchor->position_ptr.y.value);  
 
   return sqrt(pow((x_fair-x_anch),2) + pow((y_fair-y_anch),2));
 };
 
 
-MapReal set_vertical_excursion(Element* element)
+MapReal set_vertical_excursion(Line* line)
 {
-  const MapReal z_fair = *(element->fairlead->positionPtr.z.value);
-  const MapReal z_anch = *(element->anchor->positionPtr.z.value);
+  const MapReal z_fair = *(line->fairlead->position_ptr.z.value);
+  const MapReal z_anch = *(line->anchor->position_ptr.z.value);
 
   return fabs(z_fair - z_anch);
 };
 
 
-MAP_ERROR_CODE set_element_initial_guess(ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE set_line_initial_guess(ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr)
 {
-  Element* element_iter = NULL;
+  Line* line_iter = NULL;
   MapReal lambda = 0.0;
   MapReal length = 0.0;
   MapReal height = 0.0;
   MapReal w = 0.0;
   MapReal Lu = 0.0;
 
-  list_iterator_start(&model_data->element);            /* starting an iteration "session" */
-  while (list_iterator_hasnext(&model_data->element)) { /* tell whether more values available */ 
-    element_iter = (Element*)list_iterator_next(&model_data->element);    
-    w = element_iter->lineProperty->omega;
-    length = element_iter->l.value;
-    height = element_iter->h.value;
-    Lu = element_iter->Lu.value;
+  list_iterator_start(&model_data->line);            /* starting an iteration "session" */
+  while (list_iterator_hasnext(&model_data->line)) { /* tell whether more values available */ 
+    line_iter = (Line*)list_iterator_next(&model_data->line);    
+    w = line_iter->line_property->omega;
+    length = line_iter->l.value;
+    height = line_iter->h.value;
+    Lu = line_iter->Lu.value;
     
-    /* note: the element horizontal (l) and vertical (h) excursion are previously initialized in set_line_variables_pre_solve(...) */ 
+    /* note: the line horizontal (l) and vertical (h) excursion are previously initialized in set_line_variables_pre_solve(...) */ 
     if (length<=1e-2) {
       lambda = 1000000;
     } else if (sqrt(length*length+height*height)>=Lu) {
@@ -292,10 +292,10 @@ MAP_ERROR_CODE set_element_initial_guess(ModelData* model_data, char* map_msg, M
     };
 
     /* note: omega is previously initialized in function initialize_cable_library_variables(.. ) in mapinit.c */    
-    *(element_iter->H.value) = fabs(w*length/(2*lambda));
-    *(element_iter->V.value) = (w/2)*((height/tanh(lambda)) + Lu);
+    *(line_iter->H.value) = fabs(w*length/(2*lambda));
+    *(line_iter->V.value) = (w/2)*((height/tanh(lambda)) + Lu);
   };
-  list_iterator_stop(&model_data->element); /* ending the iteration "session" */    
+  list_iterator_stop(&model_data->line); /* ending the iteration "session" */    
   return MAP_SAFE;
 };
 
@@ -335,7 +335,7 @@ MAP_ERROR_CODE node_solve_sequence(ModelData* model_data, MAP_ParameterType_t* p
 {
   OuterSolveAttributes* ns = &model_data->outer_loop;
   MAP_ERROR_CODE success = MAP_SAFE;
-  Element* element_iter = NULL;
+  Line* line_iter = NULL;
   const int THREE = 3;
   const int z_size = z_type->z_Len; //N
   const int m = THREE*(other_type->Fz_connect_Len); /* rows */
@@ -348,7 +348,7 @@ MAP_ERROR_CODE node_solve_sequence(ModelData* model_data, MAP_ParameterType_t* p
   int j = 0;
   int lineCounter = 0;
 
-  ns->iterationCount = 1;
+  ns->iteration_count = 1;
   do {
     error = 0.0;
     success = line_solve_sequence(model_data, p_type, 0.0, map_msg, ierr); CHECKERRQ(MAP_FATAL_79);
@@ -376,8 +376,8 @@ MAP_ERROR_CODE node_solve_sequence(ModelData* model_data, MAP_ParameterType_t* p
       z_type->z[i] -= ns->x[THREE*i+2];
       error += (pow(other_type->Fx_connect[i],2)+ pow(other_type->Fy_connect[i],2) + pow(other_type->Fz_connect[i],2));
     };
-    ns->iterationCount++;
-    if (ns->iterationCount>ns->maxIts) {
+    ns->iteration_count++;
+    if (ns->iteration_count>ns->max_its) {
       set_universal_error(map_msg, ierr, MAP_FATAL_80);
       break;
     };
@@ -402,37 +402,37 @@ MAP_ERROR_CODE node_solve_sequence(ModelData* model_data, MAP_ParameterType_t* p
 MAP_ERROR_CODE solve_line(ModelData* model_data, double time, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_ERROR_CODE success = MAP_SAFE;
-  Element* element_iter = NULL;
+  Line* line_iter = NULL;
   int n = 1; /* line counter */
 
-  list_iterator_start(&model_data->element);            /* starting an iteration "session" */
-  while (list_iterator_hasnext(&model_data->element)) { /* tell whether more values available */ 
-    element_iter = (Element*)list_iterator_next(&model_data->element);
+  list_iterator_start(&model_data->line);            /* starting an iteration "session" */
+  while (list_iterator_hasnext(&model_data->line)) { /* tell whether more values available */ 
+    line_iter = (Line*)list_iterator_next(&model_data->line);
 
-    if (element_iter->l.value<MAP_HORIZONTAL_TOL && element_iter->l.value>=0.0) { /* perfectly vertical */
+    if (line_iter->l.value<MAP_HORIZONTAL_TOL && line_iter->l.value>=0.0) { /* perfectly vertical */
       /* this should be triggered for  perfectly vertical cable */
-      element_iter->l.value = MAP_HORIZONTAL_TOL;
-    } else if (element_iter->l.value<0.0) {
-      set_universal_error_with_message(map_msg, ierr, MAP_FATAL_54, "Line segment %d, l = %d [m].", n, element_iter->l.value);
+      line_iter->l.value = MAP_HORIZONTAL_TOL;
+    } else if (line_iter->l.value<0.0) {
+      set_universal_error_with_message(map_msg, ierr, MAP_FATAL_54, "Line segment %d, l = %d [m].", n, line_iter->l.value);
       break; 
-    } else if (element_iter->h.value<=-MACHINE_EPSILON) {
-      set_universal_error_with_message(map_msg, ierr, MAP_FATAL_55, "Line segment %d, h = %d [m].", n, element_iter->h.value);
+    } else if (line_iter->h.value<=-MACHINE_EPSILON) {
+      set_universal_error_with_message(map_msg, ierr, MAP_FATAL_55, "Line segment %d, h = %d [m].", n, line_iter->h.value);
       break; 
-    } else if (element_iter->lineProperty->omega>0.0) {
-      success = check_maximum_line_length(element_iter, element_iter->options.omitContact, map_msg, ierr);
+    } else if (line_iter->line_property->omega>0.0) {
+      success = check_maximum_line_length(line_iter, line_iter->options.omit_contact, map_msg, ierr);
       if (success) {        
         set_universal_error_with_message(map_msg, ierr, MAP_FATAL_59, "Line segment %d.", n);
         break;
       };
     };    
-    if (element_iter->options.linear_spring) {
-      success = solve_linear_spring_cable(element_iter, map_msg, ierr); CHECKERRQ(MAP_FATAL_87);
+    if (line_iter->options.linear_spring) {
+      success = solve_linear_spring_cable(line_iter, map_msg, ierr); CHECKERRQ(MAP_FATAL_87);
     } else {
-      success = call_minpack_lmder(element_iter, &model_data->inner_loop, &model_data->modelOptions, n, time, map_msg, ierr); CHECKERRQ(MAP_FATAL_79);
+      success = call_minpack_lmder(line_iter, &model_data->inner_loop, &model_data->model_options, n, time, map_msg, ierr); CHECKERRQ(MAP_FATAL_79);
     };
     n++;
   };
-  list_iterator_stop(&model_data->element); /* ending the iteration "session" */    
+  list_iterator_stop(&model_data->line); /* ending the iteration "session" */    
 
   if (*ierr==MAP_SAFE) {
     return MAP_SAFE;
@@ -446,7 +446,7 @@ MAP_ERROR_CODE solve_line(ModelData* model_data, double time, char* map_msg, MAP
 };
 
 
-MAP_ERROR_CODE solve_linear_spring_cable(Element* element, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE solve_linear_spring_cable(Line* line, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_ERROR_CODE success = MAP_SAFE;
   double d_norm = 0.0;
@@ -455,18 +455,18 @@ MAP_ERROR_CODE solve_linear_spring_cable(Element* element, char* map_msg, MAP_ER
   Vector r2; /* fairlead position */
   Vector force;
   Vector d_unit;
-  const double EA = element->lineProperty->ea;
-  const double Lu = element->Lu.value;  
+  const double EA = line->line_property->EA;
+  const double Lu = line->Lu.value;  
 
   /* line anchor position */
-  r1.x = *element->anchor->positionPtr.x.value; 
-  r1.y = *element->anchor->positionPtr.y.value; 
-  r1.z = *element->anchor->positionPtr.z.value; 
+  r1.x = *line->anchor->position_ptr.x.value; 
+  r1.y = *line->anchor->position_ptr.y.value; 
+  r1.z = *line->anchor->position_ptr.z.value; 
 
   /* line fairlead position */
-  r2.x = *element->fairlead->positionPtr.x.value; 
-  r2.y = *element->fairlead->positionPtr.y.value; 
-  r2.z = *element->fairlead->positionPtr.z.value; 
+  r2.x = *line->fairlead->position_ptr.x.value; 
+  r2.y = *line->fairlead->position_ptr.y.value; 
+  r2.z = *line->fairlead->position_ptr.z.value; 
 
   /* difference vector */
   d.x =  r1.x - r2.x;
@@ -495,21 +495,21 @@ MAP_ERROR_CODE solve_linear_spring_cable(Element* element, char* map_msg, MAP_ER
     force.z = EA/Lu*(d_norm - Lu)*d_unit.z;
   };
 
-  *(element->H.value) = sqrt(force.x*force.x + force.y*force.y);
-  *(element->V.value) = fabs(force.z);
+  *(line->H.value) = sqrt(force.x*force.x + force.y*force.y);
+  *(line->V.value) = fabs(force.z);
   return MAP_SAFE;
 };
 
 
-MAP_ERROR_CODE check_maximum_line_length(Element* element, const bool contact_flag, char *map_msg, MAP_ERROR_CODE *ierr)
+MAP_ERROR_CODE check_maximum_line_length(Line* line, const bool contact_flag, char *map_msg, MAP_ERROR_CODE *ierr)
 {
   MAP_ERROR_CODE success = MAP_SAFE;
   MapReal LMax = 0.0;
-  const MapReal l = element->l.value;
-  const MapReal h = element->h.value;
-  const MapReal EA = element->lineProperty->ea;
-  const MapReal W = element->lineProperty->omega;
-  const MapReal Lu = element->Lu.value;
+  const MapReal l = line->l.value;
+  const MapReal h = line->h.value;
+  const MapReal EA = line->line_property->EA;
+  const MapReal W = line->line_property->omega;
+  const MapReal Lu = line->Lu.value;
 
   LMax = l - EA/W + sqrt(pow((EA/W),2) + 2.0*h*EA/W);
   if (Lu>=LMax && contact_flag==false) {
@@ -588,9 +588,9 @@ MAP_ERROR_CODE set_moment_minus(const MAP_OutputType_t* y_type, const Vessel* ve
     /* @todo: this is not consistent with set_moment_minus_2... 
      *        ensure moments are in the global frame
      */
-    rx = (vessel->xi[i] - vessel->refOrigin.x.value);
-    ry = (vessel->yi[i] - vessel->refOrigin.y.value);
-    rz = (vessel->zi[i] - vessel->refOrigin.z.value);    
+    rx = (vessel->xi[i] - vessel->ref_origin.x.value);
+    ry = (vessel->yi[i] - vessel->ref_origin.y.value);
+    rz = (vessel->zi[i] - vessel->ref_origin.z.value);    
 
     /* cross  product: 
      * \mathbf{m}=\mathbf{r} \times \mathbf{F} 
@@ -612,9 +612,9 @@ MAP_ERROR_CODE set_moment_plus(const MAP_OutputType_t* output_type, const Vessel
   double rz = 0.0;
 
   for (i=0 ; i<size ; i++) {    
-    rx = (vessel->xi[i] - vessel->refOrigin.x.value);
-    ry = (vessel->yi[i] - vessel->refOrigin.y.value);
-    rz = (vessel->zi[i] - vessel->refOrigin.z.value);    
+    rx = (vessel->xi[i] - vessel->ref_origin.x.value);
+    ry = (vessel->yi[i] - vessel->ref_origin.y.value);
+    rz = (vessel->zi[i] - vessel->ref_origin.z.value);    
 
     /* cross  product: 
      * \mathbf{m}=\mathbf{r} \times \mathbf{F} 
@@ -983,9 +983,9 @@ MAP_ERROR_CODE set_moment_plus_2(const MAP_InputType_t* u_type, const MAP_Output
      *        reference origin. This need s to be converted to the global frame to be consistent with
      *       uType. 
      */
-    rx = u_type->x[i];// (vessel->xi[i] - vessel->refOrigin.x.value);
-    ry = u_type->y[i];// (vessel->yi[i] - vessel->refOrigin.y.value);
-    rz = u_type->z[i];// (vessel->zi[i] - vessel->refOrigin.z.value);    
+    rx = u_type->x[i];// (vessel->xi[i] - vessel->ref_origin.x.value);
+    ry = u_type->y[i];// (vessel->yi[i] - vessel->ref_origin.y.value);
+    rz = u_type->z[i];// (vessel->zi[i] - vessel->ref_origin.z.value);    
     m1 = ((-y_type->Fz[i]*ry) - (-y_type->Fy[i]*rz));
     m2 = ((-y_type->Fx[i]*rz) - (-y_type->Fz[i]*rx));
     m3 = ((-y_type->Fy[i]*rx) - (-y_type->Fx[i]*ry));
@@ -1013,9 +1013,9 @@ MAP_ERROR_CODE set_moment_minus_2(const MAP_InputType_t* u_type, const MAP_Outpu
 
   double delta = 1e-4;
   for (i=0 ; i<size ; i++) {    
-    rx = u_type->x[i];// (vessel->xi[i] - vessel->refOrigin.x.value);
-    ry = u_type->y[i];// (vessel->yi[i] - vessel->refOrigin.y.value);
-    rz = u_type->z[i];// (vessel->zi[i] - vessel->refOrigin.z.value);    
+    rx = u_type->x[i];// (vessel->xi[i] - vessel->ref_origin.x.value);
+    ry = u_type->y[i];// (vessel->yi[i] - vessel->ref_origin.y.value);
+    rz = u_type->z[i];// (vessel->zi[i] - vessel->ref_origin.z.value);    
     m1 = ((-y_type->Fz[i]*ry) - (-y_type->Fy[i]*rz));
     m2 = ((-y_type->Fx[i]*rz) - (-y_type->Fz[i]*rx));
     m3 = ((-y_type->Fy[i]*rx) - (-y_type->Fx[i]*ry));

@@ -39,27 +39,27 @@ IMPLICIT NONE
   TYPE, BIND(C) :: MAP_InitInputType_C
     TYPE( MAP_InitInput_C ) :: object
     REAL(KIND=C_DOUBLE) :: gravity 
-    REAL(KIND=C_DOUBLE) :: seaDensity 
+    REAL(KIND=C_DOUBLE) :: sea_density 
     REAL(KIND=C_DOUBLE) :: depth 
-    CHARACTER(KIND=C_CHAR,LEN=255) :: fileName 
-    CHARACTER(KIND=C_CHAR,LEN=255) :: summaryFileName 
-    CHARACTER(KIND=C_CHAR,LEN=255) :: libraryInputLine 
-    CHARACTER(KIND=C_CHAR,LEN=255) :: nodeInputLine 
-    CHARACTER(KIND=C_CHAR,LEN=255) :: elementInputLine 
-    CHARACTER(KIND=C_CHAR,LEN=255) :: optionInputLine 
+    CHARACTER(KIND=C_CHAR,LEN=255) :: file_name 
+    CHARACTER(KIND=C_CHAR,LEN=255) :: summary_file_name 
+    CHARACTER(KIND=C_CHAR,LEN=255) :: library_input_str 
+    CHARACTER(KIND=C_CHAR,LEN=255) :: node_input_str 
+    CHARACTER(KIND=C_CHAR,LEN=255) :: line_input_str 
+    CHARACTER(KIND=C_CHAR,LEN=255) :: option_input_str 
   END TYPE MAP_InitInputType_C
   TYPE, PUBLIC :: MAP_InitInputType
     TYPE( c_ptr ) :: MAP_UserData = C_NULL_ptr
     TYPE( MAP_InitInputType_C ) :: C_obj
     REAL(DbKi)  :: gravity = -999.9      ! gravity constant [[m/s^2]]
-    REAL(DbKi)  :: seaDensity = -999.9      ! sea density [[kg/m^3]]
+    REAL(DbKi)  :: sea_density = -999.9      ! sea density [[kg/m^3]]
     REAL(DbKi)  :: depth = -999.9      ! depth of water [[m]]
-    CHARACTER(255)  :: fileName      ! MAP input file [-]
-    CHARACTER(255)  :: summaryFileName      ! MAP summary file name [-]
-    CHARACTER(255)  :: libraryInputLine      ! cable library string information (from input file) [-]
-    CHARACTER(255)  :: nodeInputLine      ! node string information (from input file) [-]
-    CHARACTER(255)  :: elementInputLine      ! element library string information (from input file) [-]
-    CHARACTER(255)  :: optionInputLine      ! solver options library string information (from input file) [-]
+    CHARACTER(255)  :: file_name      ! MAP input file [-]
+    CHARACTER(255)  :: summary_file_name      ! MAP summary file name [-]
+    CHARACTER(255)  :: library_input_str      ! cable library string information (from input file) [-]
+    CHARACTER(255)  :: node_input_str      ! node string information (from input file) [-]
+    CHARACTER(255)  :: line_input_str      ! element library string information (from input file) [-]
+    CHARACTER(255)  :: option_input_str      ! solver options library string information (from input file) [-]
   END TYPE MAP_InitInputType
 ! =======================
 ! =========  MAP_InitOutputType  =======
@@ -192,14 +192,14 @@ IMPLICIT NONE
     TYPE( MAP_Param_C ) :: object
     REAL(KIND=C_DOUBLE) :: g 
     REAL(KIND=C_DOUBLE) :: depth 
-    REAL(KIND=C_DOUBLE) :: rhoSea 
+    REAL(KIND=C_DOUBLE) :: rho_sea 
   END TYPE MAP_ParameterType_C
   TYPE, PUBLIC :: MAP_ParameterType
     TYPE( c_ptr ) :: MAP_UserData = C_NULL_ptr
     TYPE( MAP_ParameterType_C ) :: C_obj
     REAL(DbKi)  :: g      ! gravitational constant [[kg/m^2]]
     REAL(DbKi)  :: depth      ! distance to seabed [[m]]
-    REAL(DbKi)  :: rhoSea      ! density of seawater [[m]]
+    REAL(DbKi)  :: rho_sea      ! density of seawater [[m]]
   END TYPE MAP_ParameterType
 ! =======================
 ! =========  MAP_InputType  =======
@@ -542,7 +542,7 @@ CONTAINS
     ErrStat = ErrID_None
     ErrMsg  = ""
     InitInputData%C_obj%gravity = InitInputData%gravity
-    InitInputData%C_obj%seaDensity = InitInputData%seaDensity
+    InitInputData%C_obj%sea_density = InitInputData%sea_density
     InitInputData%C_obj%depth = InitInputData%depth
  END SUBROUTINE MAP_F2C_CopyInitInput
 
@@ -564,7 +564,7 @@ CONTAINS
     ErrStat = ErrID_None
     ErrMsg  = ""
     InitInputData%gravity = InitInputData%C_obj%gravity
-    InitInputData%seaDensity = InitInputData%C_obj%seaDensity
+    InitInputData%sea_density = InitInputData%C_obj%sea_density
     InitInputData%depth = InitInputData%C_obj%depth
  END SUBROUTINE MAP_C2F_CopyInitInput
 
@@ -582,14 +582,14 @@ CONTAINS
    ErrStat = ErrID_None
    ErrMsg  = ""
    DstInitInputData%gravity = SrcInitInputData%gravity
-   DstInitInputData%seaDensity = SrcInitInputData%seaDensity
+   DstInitInputData%sea_density = SrcInitInputData%sea_density
    DstInitInputData%depth = SrcInitInputData%depth
-   DstInitInputData%fileName = SrcInitInputData%fileName
-   DstInitInputData%summaryFileName = SrcInitInputData%summaryFileName
-   DstInitInputData%libraryInputLine = SrcInitInputData%libraryInputLine
-   DstInitInputData%nodeInputLine = SrcInitInputData%nodeInputLine
-   DstInitInputData%elementInputLine = SrcInitInputData%elementInputLine
-   DstInitInputData%optionInputLine = SrcInitInputData%optionInputLine
+   DstInitInputData%file_name = SrcInitInputData%file_name
+   DstInitInputData%summary_file_name = SrcInitInputData%summary_file_name
+   DstInitInputData%library_input_str = SrcInitInputData%library_input_str
+   DstInitInputData%node_input_str = SrcInitInputData%node_input_str
+   DstInitInputData%line_input_str = SrcInitInputData%line_input_str
+   DstInitInputData%option_input_str = SrcInitInputData%option_input_str
  END SUBROUTINE MAP_CopyInitInput
 
  SUBROUTINE MAP_DestroyInitInput( InitInputData, ErrStat, ErrMsg )
@@ -637,14 +637,14 @@ CONTAINS
   Db_BufSz  = 0
   Int_BufSz  = 0
   Db_BufSz   = Db_BufSz   + 1  ! gravity
-  Db_BufSz   = Db_BufSz   + 1  ! seaDensity
+  Db_BufSz   = Db_BufSz   + 1  ! sea_density
   Db_BufSz   = Db_BufSz   + 1  ! depth
   IF ( Re_BufSz  .GT. 0 ) ALLOCATE( ReKiBuf(  Re_BufSz  ) )
   IF ( Db_BufSz  .GT. 0 ) ALLOCATE( DbKiBuf(  Db_BufSz  ) )
   IF ( Int_BufSz .GT. 0 ) ALLOCATE( IntKiBuf( Int_BufSz ) )
   IF ( .NOT. OnlySize ) DbKiBuf ( Db_Xferred:Db_Xferred+(1)-1 ) =  (InData%gravity )
   Db_Xferred   = Db_Xferred   + 1
-  IF ( .NOT. OnlySize ) DbKiBuf ( Db_Xferred:Db_Xferred+(1)-1 ) =  (InData%seaDensity )
+  IF ( .NOT. OnlySize ) DbKiBuf ( Db_Xferred:Db_Xferred+(1)-1 ) =  (InData%sea_density )
   Db_Xferred   = Db_Xferred   + 1
   IF ( .NOT. OnlySize ) DbKiBuf ( Db_Xferred:Db_Xferred+(1)-1 ) =  (InData%depth )
   Db_Xferred   = Db_Xferred   + 1
@@ -685,7 +685,7 @@ CONTAINS
   Int_BufSz  = 0
   OutData%gravity = DbKiBuf ( Db_Xferred )
   Db_Xferred   = Db_Xferred   + 1
-  OutData%seaDensity = DbKiBuf ( Db_Xferred )
+  OutData%sea_density = DbKiBuf ( Db_Xferred )
   Db_Xferred   = Db_Xferred   + 1
   OutData%depth = DbKiBuf ( Db_Xferred )
   Db_Xferred   = Db_Xferred   + 1
@@ -2385,7 +2385,7 @@ ENDIF
     ErrMsg  = ""
     ParamData%C_obj%g = ParamData%g
     ParamData%C_obj%depth = ParamData%depth
-    ParamData%C_obj%rhoSea = ParamData%rhoSea
+    ParamData%C_obj%rho_sea = ParamData%rho_sea
  END SUBROUTINE MAP_F2C_CopyParam
 
   SUBROUTINE MAP_C2F_CopyParam( ParamData, ErrStat, ErrMsg )
@@ -2407,7 +2407,7 @@ ENDIF
     ErrMsg  = ""
     ParamData%g = ParamData%C_obj%g
     ParamData%depth = ParamData%C_obj%depth
-    ParamData%rhoSea = ParamData%C_obj%rhoSea
+    ParamData%rho_sea = ParamData%C_obj%rho_sea
  END SUBROUTINE MAP_C2F_CopyParam
 
  SUBROUTINE MAP_CopyParam( SrcParamData, DstParamData, CtrlCode, ErrStat, ErrMsg )
@@ -2425,7 +2425,7 @@ ENDIF
    ErrMsg  = ""
    DstParamData%g = SrcParamData%g
    DstParamData%depth = SrcParamData%depth
-   DstParamData%rhoSea = SrcParamData%rhoSea
+   DstParamData%rho_sea = SrcParamData%rho_sea
  END SUBROUTINE MAP_CopyParam
 
  SUBROUTINE MAP_DestroyParam( ParamData, ErrStat, ErrMsg )
@@ -2474,7 +2474,7 @@ ENDIF
   Int_BufSz  = 0
   Db_BufSz   = Db_BufSz   + 1  ! g
   Db_BufSz   = Db_BufSz   + 1  ! depth
-  Db_BufSz   = Db_BufSz   + 1  ! rhoSea
+  Db_BufSz   = Db_BufSz   + 1  ! rho_sea
   IF ( Re_BufSz  .GT. 0 ) ALLOCATE( ReKiBuf(  Re_BufSz  ) )
   IF ( Db_BufSz  .GT. 0 ) ALLOCATE( DbKiBuf(  Db_BufSz  ) )
   IF ( Int_BufSz .GT. 0 ) ALLOCATE( IntKiBuf( Int_BufSz ) )
@@ -2482,7 +2482,7 @@ ENDIF
   Db_Xferred   = Db_Xferred   + 1
   IF ( .NOT. OnlySize ) DbKiBuf ( Db_Xferred:Db_Xferred+(1)-1 ) =  (InData%depth )
   Db_Xferred   = Db_Xferred   + 1
-  IF ( .NOT. OnlySize ) DbKiBuf ( Db_Xferred:Db_Xferred+(1)-1 ) =  (InData%rhoSea )
+  IF ( .NOT. OnlySize ) DbKiBuf ( Db_Xferred:Db_Xferred+(1)-1 ) =  (InData%rho_sea )
   Db_Xferred   = Db_Xferred   + 1
  END SUBROUTINE MAP_PackParam
 
@@ -2523,7 +2523,7 @@ ENDIF
   Db_Xferred   = Db_Xferred   + 1
   OutData%depth = DbKiBuf ( Db_Xferred )
   Db_Xferred   = Db_Xferred   + 1
-  OutData%rhoSea = DbKiBuf ( Db_Xferred )
+  OutData%rho_sea = DbKiBuf ( Db_Xferred )
   Db_Xferred   = Db_Xferred   + 1
   Re_Xferred   = Re_Xferred-1
   Db_Xferred   = Db_Xferred-1

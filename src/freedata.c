@@ -38,7 +38,7 @@ void MAP_OtherState_Delete(ModelData* model_data)
 
 MAP_ERROR_CODE free_outlist(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr)
 {
-  MAPFREE(data->yList);
+  MAPFREE(data->y_list);
   return MAP_SAFE;
 };
 
@@ -72,59 +72,59 @@ MAP_ERROR_CODE free_update_list (list_t* restrict ref_list)
 };
 
 
-MAP_ERROR_CODE free_element(list_t* restrict element) 
+MAP_ERROR_CODE free_line(list_t* restrict line) 
 {
-  Element* element_iter = NULL;
-  list_iterator_start(element); /* starting an iteration "session" */
-  while (list_iterator_hasnext(element)) { /* tell whether more values available */
-    element_iter = (Element*)list_iterator_next(element);
-    bdestroy(element_iter->psi.name); 
-    bdestroy(element_iter->psi.units);
-    bdestroy(element_iter->alpha.name);
-    bdestroy(element_iter->alpha.units);
-    bdestroy(element_iter->alphaAtAnchor.name);
-    bdestroy(element_iter->alphaAtAnchor.units);
-    bdestroy(element_iter->l.name); 
-    bdestroy(element_iter->l.units);
-    bdestroy(element_iter->lb.name); 
-    bdestroy(element_iter->lb.units);
-    bdestroy(element_iter->Lu.name); 
-    bdestroy(element_iter->Lu.units);
-    bdestroy(element_iter->h.name); 
-    bdestroy(element_iter->h.units);
-    bdestroy(element_iter->H.name); 
-    bdestroy(element_iter->H.units);
-    bdestroy(element_iter->V.name); 
-    bdestroy(element_iter->V.units);
-    bdestroy(element_iter->HAtAnchor.name); 
-    bdestroy(element_iter->HAtAnchor.units);
-    bdestroy(element_iter->VAtAnchor.name); 
-    bdestroy(element_iter->VAtAnchor.units);
-    bdestroy(element_iter->forceAtFairlead.fx.name); 
-    bdestroy(element_iter->forceAtFairlead.fx.units);
-    bdestroy(element_iter->forceAtFairlead.fy.name);
-    bdestroy(element_iter->forceAtFairlead.fy.units);
-    bdestroy(element_iter->forceAtFairlead.fz.name); 
-    bdestroy(element_iter->forceAtFairlead.fz.units);
-    bdestroy(element_iter->forceAtAnchor.fx.name);
-    bdestroy(element_iter->forceAtAnchor.fx.units);
-    bdestroy(element_iter->forceAtAnchor.fy.name);
-    bdestroy(element_iter->forceAtAnchor.fy.units);
-    bdestroy(element_iter->forceAtAnchor.fz.name); 
-    bdestroy(element_iter->forceAtAnchor.fz.units);
-    bdestroy(element_iter->T.name);
-    bdestroy(element_iter->T.units);
-    bdestroy(element_iter->TAtAnchor.name);
-    bdestroy(element_iter->TAtAnchor.units);
+  Line* line_iter = NULL;
+  list_iterator_start(line); /* starting an iteration "session" */
+  while (list_iterator_hasnext(line)) { /* tell whether more values available */
+    line_iter = (Line*)list_iterator_next(line);
+    bdestroy(line_iter->psi.name); 
+    bdestroy(line_iter->psi.units);
+    bdestroy(line_iter->alpha.name);
+    bdestroy(line_iter->alpha.units);
+    bdestroy(line_iter->alpha_at_anchor.name);
+    bdestroy(line_iter->alpha_at_anchor.units);
+    bdestroy(line_iter->l.name); 
+    bdestroy(line_iter->l.units);
+    bdestroy(line_iter->Lb.name); 
+    bdestroy(line_iter->Lb.units);
+    bdestroy(line_iter->Lu.name); 
+    bdestroy(line_iter->Lu.units);
+    bdestroy(line_iter->h.name); 
+    bdestroy(line_iter->h.units);
+    bdestroy(line_iter->H.name); 
+    bdestroy(line_iter->H.units);
+    bdestroy(line_iter->V.name); 
+    bdestroy(line_iter->V.units);
+    bdestroy(line_iter->H_at_anchor.name); 
+    bdestroy(line_iter->H_at_anchor.units);
+    bdestroy(line_iter->V_at_anchor.name); 
+    bdestroy(line_iter->V_at_anchor.units);
+    bdestroy(line_iter->force_at_fairlead.fx.name); 
+    bdestroy(line_iter->force_at_fairlead.fx.units);
+    bdestroy(line_iter->force_at_fairlead.fy.name);
+    bdestroy(line_iter->force_at_fairlead.fy.units);
+    bdestroy(line_iter->force_at_fairlead.fz.name); 
+    bdestroy(line_iter->force_at_fairlead.fz.units);
+    bdestroy(line_iter->force_at_anchor.fx.name);
+    bdestroy(line_iter->force_at_anchor.fx.units);
+    bdestroy(line_iter->force_at_anchor.fy.name);
+    bdestroy(line_iter->force_at_anchor.fy.units);
+    bdestroy(line_iter->force_at_anchor.fz.name); 
+    bdestroy(line_iter->force_at_anchor.fz.units);
+    bdestroy(line_iter->T.name);
+    bdestroy(line_iter->T.units);
+    bdestroy(line_iter->tension_at_anchor.name);
+    bdestroy(line_iter->tension_at_anchor.units);
   
     /* don't let any pointers dangle */
-    element_iter->lineProperty = NULL;      
-    element_iter->label = NULL;
-    element_iter->lineTension = NULL;
-    element_iter->anchor = NULL; 
-    element_iter->fairlead = NULL;
+    line_iter->line_property = NULL;      
+    line_iter->label = NULL;
+    line_iter->line_tension = NULL;
+    line_iter->anchor = NULL; 
+    line_iter->fairlead = NULL;
   };
-  list_iterator_stop(element); /* ending the iteration "session" */  
+  list_iterator_stop(line); /* ending the iteration "session" */  
 };
 
 
@@ -136,31 +136,31 @@ MAP_ERROR_CODE free_node(list_t *restrict node)
   while (list_iterator_hasnext(node)) { /* tell whether more values available */ 
     iterNode = (Node*)list_iterator_next(node);
 
-    success = bdestroy(iterNode->MApplied.name); 
-    success = bdestroy(iterNode->MApplied.units);
-    success = bdestroy(iterNode->BApplied.name);
-    success = bdestroy(iterNode->BApplied.units);
+    success = bdestroy(iterNode->M_applied.name); 
+    success = bdestroy(iterNode->M_applied.units);
+    success = bdestroy(iterNode->B_applied.name);
+    success = bdestroy(iterNode->B_applied.units);
 
-    success = bdestroy(iterNode->externalForce.fx.name);
-    success = bdestroy(iterNode->externalForce.fx.units);
-    success = bdestroy(iterNode->externalForce.fy.name);
-    success = bdestroy(iterNode->externalForce.fy.units);
-    success = bdestroy(iterNode->externalForce.fz.name);
-    success = bdestroy(iterNode->externalForce.fz.units);
+    success = bdestroy(iterNode->external_force.fx.name);
+    success = bdestroy(iterNode->external_force.fx.units);
+    success = bdestroy(iterNode->external_force.fy.name);
+    success = bdestroy(iterNode->external_force.fy.units);
+    success = bdestroy(iterNode->external_force.fz.name);
+    success = bdestroy(iterNode->external_force.fz.units);
 
-    success = bdestroy(iterNode->positionPtr.x.name); 
-    success = bdestroy(iterNode->positionPtr.x.units);
-    success = bdestroy(iterNode->positionPtr.y.name); 
-    success = bdestroy(iterNode->positionPtr.y.units);
-    success = bdestroy(iterNode->positionPtr.z.name); 
-    success = bdestroy(iterNode->positionPtr.z.units);
+    success = bdestroy(iterNode->position_ptr.x.name); 
+    success = bdestroy(iterNode->position_ptr.x.units);
+    success = bdestroy(iterNode->position_ptr.y.name); 
+    success = bdestroy(iterNode->position_ptr.y.units);
+    success = bdestroy(iterNode->position_ptr.z.name); 
+    success = bdestroy(iterNode->position_ptr.z.units);
 
-    success = bdestroy(iterNode->sumForcePtr.fx.name); 
-    success = bdestroy(iterNode->sumForcePtr.fx.units);
-    success = bdestroy(iterNode->sumForcePtr.fy.name); 
-    success = bdestroy(iterNode->sumForcePtr.fy.units);
-    success = bdestroy(iterNode->sumForcePtr.fz.name); 
-    success = bdestroy(iterNode->sumForcePtr.fz.units);
+    success = bdestroy(iterNode->sum_force_ptr.fx.name); 
+    success = bdestroy(iterNode->sum_force_ptr.fx.units);
+    success = bdestroy(iterNode->sum_force_ptr.fy.name); 
+    success = bdestroy(iterNode->sum_force_ptr.fy.units);
+    success = bdestroy(iterNode->sum_force_ptr.fz.name); 
+    success = bdestroy(iterNode->sum_force_ptr.fz.units);
   };
   list_iterator_stop(node); /* ending the iteration "session" */  
   return MAP_SAFE;
@@ -181,19 +181,19 @@ MAP_ERROR_CODE free_vessel(Vessel* floater)
   bdestroy(floater->displacement.z.name);
   bdestroy(floater->displacement.z.units);
   
-  bdestroy(floater->refOrigin.x.name);
-  bdestroy(floater->refOrigin.x.units);
-  bdestroy(floater->refOrigin.y.name);
-  bdestroy(floater->refOrigin.y.units);
-  bdestroy(floater->refOrigin.z.name);
-  bdestroy(floater->refOrigin.z.units);
+  bdestroy(floater->ref_origin.x.name);
+  bdestroy(floater->ref_origin.x.units);
+  bdestroy(floater->ref_origin.y.name);
+  bdestroy(floater->ref_origin.y.units);
+  bdestroy(floater->ref_origin.z.name);
+  bdestroy(floater->ref_origin.z.units);
           
-  bdestroy(floater->lineSumForce.fx.name);
-  bdestroy(floater->lineSumForce.fx.units);
-  bdestroy(floater->lineSumForce.fy.name);
-  bdestroy(floater->lineSumForce.fy.units);
-  bdestroy(floater->lineSumForce.fz.name);
-  bdestroy(floater->lineSumForce.fz.units);
+  bdestroy(floater->line_sum_force.fx.name);
+  bdestroy(floater->line_sum_force.fx.units);
+  bdestroy(floater->line_sum_force.fy.name);
+  bdestroy(floater->line_sum_force.fy.units);
+  bdestroy(floater->line_sum_force.fz.name);
+  bdestroy(floater->line_sum_force.fz.units);
 
   bdestroy(floater->orientation.phi.name);
   bdestroy(floater->orientation.phi.units);

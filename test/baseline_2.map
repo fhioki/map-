@@ -13,7 +13,7 @@ Node  Type       X       Y       Z      M     B     FX      FY      FZ
 4     vessel    -25     15       0.0    0     0      #      #       #
 5     Vessel    -25    -15       0.0    0     0      #      #       # 
 ---------------------- LINEP ROPERTIES ---------------------------------------
-Element  LineType  UnstrLen  NodeAnch  NodeFair  Flags
+Line    LineType  UnstrLen  NodeAnch  NodeFair  Flags
 (-)      (-)       (m)       (-)       (-)       (-)
 1        lower     130       1         2        gy_pos  gz_a_pos  H_ANCH seg_size 19  damage_time 12
 2        middle    122       2         3        altitude_a omit_contact linear_spring

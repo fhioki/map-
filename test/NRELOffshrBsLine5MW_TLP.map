@@ -10,7 +10,7 @@ Node Type     X     Y     Z     M     B     FX   FY   FZ
 3    fix      0   -27    depth   0     0      #    #    # 
 4    Vessel   0   -27   -47.89   0     0      #    #    # 
 ---------------------- LINE PROPERTIES ---------------------------------------
-Element  LineType  UnstrLen    NodeAnch  NodeFair  Flags
+Line    LineType  UnstrLen    NodeAnch  NodeFair  Flags
 (-)      (-)       (m)         (-)       (-)       (-)
 1       Material   151.73       1         2         linear_spring
 2       Material   151.73       3         4         gf_po 

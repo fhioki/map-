@@ -60,9 +60,9 @@ int main(int argc, char *argv[])
   MAP_OutputType_t* y_type = (MAP_OutputType_t*)(uintptr_t)map_create_output_type(map_msg, &ierr);            
   MAP_OtherStateType_t* other_type = (MAP_OtherStateType_t*)(uintptr_t)map_create_other_type(map_msg, &ierr); 
 
-  char line_def[3][100];
+  char prop_def[3][100];
   char node_def[5][100];
-  char element_def[4][100];
+  char line_def[4][100];
   char option_def[12][100];
 
   /* The reason why the init_type needs to be set line-by-line for fortran (ISO_C_BINDING) 
@@ -70,18 +70,18 @@ int main(int argc, char *argv[])
    * to C (because 2D arrays between C and fortran do no align in memory). 1D arrays do line 
    * up. A better, more generic, non-text driven way of setting model parameters should be use. 
    */
-  strcpy(line_def[0], "upper     0.07      160        600000000        1.0    1.0E8    0.6 -1.0    0.05 \0");
-  strcpy(line_def[1], "middle    0.08      180        700000000        1.0    1.0E8    0.6 -1.0    0.05 \0");
-  strcpy(line_def[2], "lower     0.085     200        800000000        1.0    1.0E8    0.6 -1.0    0.05 \0");
+  strcpy(prop_def[0], "upper     0.07      160        600000000        1.0    1.0E8    0.6 -1.0    0.05 \0");
+  strcpy(prop_def[1], "middle    0.08      180        700000000        1.0    1.0E8    0.6 -1.0    0.05 \0");
+  strcpy(prop_def[2], "lower     0.085     200        800000000        1.0    1.0E8    0.6 -1.0    0.05 \0");
   strcpy(node_def[0], "1     fix       -300     0      depth   0     0      #      #       # \0");
   strcpy(node_def[1], "2     Connect  #-120    #0     #-70     0     0      0      0       0 \0");
   strcpy(node_def[2], "3     Connect  #-53     #0     #-20     0     0      0      0       0 \0");
   strcpy(node_def[3], "4     vessel    -25     15       0.0    0     0      #      #       # \0");
   strcpy(node_def[4], "5     Vessel    -25    -15       0.0    0     0      #      #       # \0");
-  strcpy(element_def[0], "1        lower     122       1         2 omit_contact gx_dpos \0");
-  strcpy(element_def[1], "2        middle    122       2         3 omit_contact gx_pos \0");
-  strcpy(element_def[2], "3        upper     50        3         4 omit_contact gx_pos \0");
-  strcpy(element_def[3], "4        upper     50        3         5 omit_contact gx_pos \0");
+  strcpy(line_def[0], "1        lower     122       1         2 omit_contact gx_dpos \0");
+  strcpy(line_def[1], "2        middle    122       2         3 omit_contact gx_pos \0");
+  strcpy(line_def[2], "3        upper     50        3         4 omit_contact gx_pos \0");
+  strcpy(line_def[3], "4        upper     50        3         5 omit_contact gx_pos \0");
   strcpy(option_def[0], " help\0");
   strcpy(option_def[1], "inner_xtol 1e-9\0");
   strcpy(option_def[2], "outer_tol 1e-5\0");
@@ -96,32 +96,32 @@ int main(int argc, char *argv[])
   map_set_sea_density(p_type, rho);
   
   /* set cable library data */
-  strcpy(init_type->libraryInputLine, line_def[0]); map_add_cable_library_input_text(init_type); 
-  strcpy(init_type->libraryInputLine, line_def[1]); map_add_cable_library_input_text(init_type); 
-  strcpy(init_type->libraryInputLine, line_def[2]); map_add_cable_library_input_text(init_type); //
+  strcpy(init_type->library_input_str, prop_def[0]); map_add_cable_library_input_text(init_type); 
+  strcpy(init_type->library_input_str, prop_def[1]); map_add_cable_library_input_text(init_type); 
+  strcpy(init_type->library_input_str, prop_def[2]); map_add_cable_library_input_text(init_type); //
    
   /* set node data */
-  strcpy(init_type->nodeInputLine, node_def[0]); map_add_node_input_text(init_type);  
-  strcpy(init_type->nodeInputLine, node_def[1]); map_add_node_input_text(init_type);
-  strcpy(init_type->nodeInputLine, node_def[2]); map_add_node_input_text(init_type);//
-  strcpy(init_type->nodeInputLine, node_def[3]); map_add_node_input_text(init_type);//
-  strcpy(init_type->nodeInputLine, node_def[4]); map_add_node_input_text(init_type);//
+  strcpy(init_type->node_input_str, node_def[0]); map_add_node_input_text(init_type);  
+  strcpy(init_type->node_input_str, node_def[1]); map_add_node_input_text(init_type);
+  strcpy(init_type->node_input_str, node_def[2]); map_add_node_input_text(init_type);//
+  strcpy(init_type->node_input_str, node_def[3]); map_add_node_input_text(init_type);//
+  strcpy(init_type->node_input_str, node_def[4]); map_add_node_input_text(init_type);//
   
   /* set line properties */
-  strcpy(init_type->elementInputLine, element_def[0]); map_add_element_input_text(init_type);  
-  strcpy(init_type->elementInputLine, element_def[1]); map_add_element_input_text(init_type); //
-  strcpy(init_type->elementInputLine, element_def[2]); map_add_element_input_text(init_type);  //
-  strcpy(init_type->elementInputLine, element_def[3]); map_add_element_input_text(init_type);  //
+  strcpy(init_type->line_input_str, line_def[0]); map_add_line_input_text(init_type);  
+  strcpy(init_type->line_input_str, line_def[1]); map_add_line_input_text(init_type); //
+  strcpy(init_type->line_input_str, line_def[2]); map_add_line_input_text(init_type);  //
+  strcpy(init_type->line_input_str, line_def[3]); map_add_line_input_text(init_type);  //
   
   /* set solver options */
-  strcpy(init_type->optionInputLine, option_def[0]); map_add_options_input_text(init_type);  
-  strcpy(init_type->optionInputLine, option_def[1]); map_add_options_input_text(init_type);  
-  strcpy(init_type->optionInputLine, option_def[2]); map_add_options_input_text(init_type);  
-  strcpy(init_type->optionInputLine, option_def[3]); map_add_options_input_text(init_type);  
-  strcpy(init_type->optionInputLine, option_def[4]); map_add_options_input_text(init_type);  
-  strcpy(init_type->optionInputLine, option_def[5]); map_add_options_input_text(init_type);  
-  strcpy(init_type->optionInputLine, option_def[6]); map_add_options_input_text(init_type);  
-  strcpy(init_type->optionInputLine, option_def[7]); map_add_options_input_text(init_type);  
+  strcpy(init_type->option_input_str, option_def[0]); map_add_options_input_text(init_type);  
+  strcpy(init_type->option_input_str, option_def[1]); map_add_options_input_text(init_type);  
+  strcpy(init_type->option_input_str, option_def[2]); map_add_options_input_text(init_type);  
+  strcpy(init_type->option_input_str, option_def[3]); map_add_options_input_text(init_type);  
+  strcpy(init_type->option_input_str, option_def[4]); map_add_options_input_text(init_type);  
+  strcpy(init_type->option_input_str, option_def[5]); map_add_options_input_text(init_type);  
+  strcpy(init_type->option_input_str, option_def[6]); map_add_options_input_text(init_type);  
+  strcpy(init_type->option_input_str, option_def[7]); map_add_options_input_text(init_type);  
 
   /* 1) read input file, set library input string, ect, in the MAP_InitInput_type_t structure 
    * 2) call map_init(). init_type->object is freed in map_init( ) at the end. 
@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
    */
 
 
-  strcpy(init_type->summaryFileName,"baseline.sum.map");  
+  strcpy(init_type->summary_file_name,"baseline.sum.map");  
   map_set_summary_file_name(init_type, map_msg, &ierr);
 
   map_init(init_type, u_type, p_type, x_type, NULL, z_type, other_type, y_type, io_type, &ierr, map_msg);

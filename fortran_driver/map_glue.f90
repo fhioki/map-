@@ -61,53 +61,52 @@ PROGRAM Main
   Allocate(MAP_Input(MAP_interp_order + 1))  
     
   ! set the MAP input file name and other environment terms.
-  MAP_InitInput%fileName = "baseline.map"      
-  MAP_InitInput%summaryFileName = "baseline.sum.map"  
+  MAP_InitInput%file_name = "baseline.map"      
+  MAP_InitInput%summary_file_name = "baseline.sum.map"  
   MAP_InitInput%gravity = 9.81       ! @bonnie : This need to be according to g used in FAST. Positive value
-  MAP_InitInput%seaDensity = 1025    ! @bonnie : This needs to be set according to seawater density in FAST. Positive value
+  MAP_InitInput%sea_density = 1025    ! @bonnie : This needs to be set according to seawater density in FAST. Positive value
   MAP_InitInput%depth = -350         ! @bonnie : This need to be set according to the water depth in FAST. Negative value
   ! MAP_Parameter%dt = dt_global     ! @bonnie : This is for the glue code to set
 
   ! call the initialization routine
-  CALL MAP_Init( MAP_InitInput       , &
-                 MAP_Input(1)        , & 
-                 MAP_Parameter       , &
-                 MAP_ContinuousState , &
-                 MAP_DiscreteState   , &
-                 MAP_ConstraintState , & 
-                 MAP_OtherState      , &
-                 MAP_Output          , &
-                 dt_global           , &
-                 MAP_InitOutput      , &
-                 ErrStat             , &
-                 ErrMsg )
-  IF ( ErrStat .NE. 0 ) THEN
+  CALL MAP_Init(MAP_InitInput       , &
+                MAP_Input(1)        , & 
+                MAP_Parameter       , &
+                MAP_ContinuousState , &
+                MAP_DiscreteState   , &
+                MAP_ConstraintState , & 
+                MAP_OtherState      , &
+                MAP_Output          , &
+                dt_global           , &
+                MAP_InitOutput      , &
+                ErrStat             , &
+                ErrMsg )
+  IF (ErrStat.NE.0) THEN
      CALL WrScr(ErrMsg) 
   END IF  
   
-  CALL DispNVD( MAP_InitOutput%Ver ) 
+  CALL DispNVD(MAP_InitOutput%Ver) 
    
-  ! DO i = 1, MAP_interp_order + 1  
-  !    MAP_InputTimes(i) = t_initial - (i - 1) * dt_global
-  !    MAP_OutputTimes(i) = t_initial - (i - 1) * dt_global
-  ! END DO
-  !  
-  ! DO i = 2, MAP_interp_order + 1  
-  !    CALL MAP_CopyInput( MAP_Input(1), MAP_Input(i), MESH_NEWCOPY, ErrStat, ErrMsg )
-  ! END DO
-  ! 
-  ! 
-  ! ! should probably delete this at the end bc save/retrieve will need it
-  ! !................
-  ! !@marco, some questions:
-  ! ! 1) why will save/retrieve need this? Unless you're using the data type later, I don't know why we'd pack the InitInput/Output data.
-  ! ! 2) I don't want to have to call MAP_InitInput_Destroy in my glue code; I don't want the glue code to act any differently for C or Fortran code.
-  ! !    Can we call MAP_InitInput_Destroy from MAP_DestroyInitInput?
-  ! ! 3) Same as (2) for MAP_InitOutput_Destroy.
-  ! !................
+  DO i = 1, MAP_interp_order + 1  
+     MAP_InputTimes(i) = t_initial - (i - 1) * dt_global
+     MAP_OutputTimes(i) = t_initial - (i - 1) * dt_global
+  END DO
+   
+  DO i=2, MAP_interp_order+1  
+     CALL MAP_CopyInput(MAP_Input(1), MAP_Input(i), MESH_NEWCOPY, ErrStat, ErrMsg)
+  END DO
+
+  ! should probably delete this at the end bc save/retrieve will need it
+  !................
+  !@marco, some questions:
+  ! 1) why will save/retrieve need this? Unless you're using the data type later, I don't know why we'd pack the InitInput/Output data.
+  ! 2) I don't want to have to call MAP_InitInput_Destroy in my glue code; I don't want the glue code to act any differently for C or Fortran code.
+  !    Can we call MAP_InitInput_Destroy from MAP_DestroyInitInput?
+  ! 3) Same as (2) for MAP_InitOutput_Destroy.
+  !................
   
-  CALL MAP_DestroyInitInput  ( MAP_InitInput, ErrStat, ErrMsg )    
-  CALL MAP_DestroyInitOutput ( MAP_InitOutput, ErrStat, ErrMsg )
+  CALL MAP_DestroyInitInput(MAP_InitInput, ErrStat, ErrMsg)    
+  CALL MAP_DestroyInitOutput(MAP_InitOutput, ErrStat, ErrMsg)
   
   ! @bonnie : don't we need to initialize the messhes once?
   IF (MAP_interp_order .EQ. 2) THEN
@@ -146,46 +145,46 @@ PROGRAM Main
      ! @bonnie : I am assuming this MAP_InputTimes{:} and MAP_Input{:} 
      !           will be assigned by the glue code   
      
-     !MAP_InputTimes(1) = t_global + dt_global
-     !MAP_InputTimes(2) = MAP_InputTimes(1) - dt_global 
-     !MAP_InputTimes(3) = MAP_InputTimes(2) - dt_global
+     MAP_InputTimes(1) = t_global + dt_global
+     ! MAP_InputTimes(2) = MAP_InputTimes(1) - dt_global 
+     ! MAP_InputTimes(3) = MAP_InputTimes(2) - dt_global
      
-     !MAP_Input(1)%PtFairleadDisplacement%TranslationDisp(1,1) = .001*n_t_global  
-     !MAP_Input(2)%PtFairleadDisplacement%TranslationDisp(1,1) = .001*n_t_global  
-     !MAP_Input(3)%PtFairleadDisplacement%TranslationDisp(1,1) = .001*n_t_global  
+     MAP_Input(1)%PtFairDisplacement%TranslationDisp(1,1) = 1*n_t_global  
+     ! MAP_Input(2)%PtFairDisplacement%TranslationDisp(1,1) = 1*n_t_global  
+     ! MAP_Input(3)%PtFairDisplacement%TranslationDisp(1,1) = 1*n_t_global  
      !===========================================================================
           
      ! @bonnie & @jason: the FAST glue code will update the new fairlead position 
      !                   based on the new platform position in the global frame.
-     CALL  MAP_UpdateStates( t_global            , &
-                             n_t_global          , &
-                             MAP_Input           , &
-                             MAP_InputTimes      , &
-                             MAP_Parameter       , &
-                             MAP_ContinuousState , &
-                             MAP_DiscreteState   , &
-                             MAP_ConstraintState , &
-                             MAP_OtherState      , &
-                             ErrStat             , &
-                             ErrMsg )    
-     IF ( ErrStat .NE. 0 ) THEN
+     CALL MAP_CalcOutput(t_global            , &
+                         MAP_Input(1)        , &
+                         MAP_Parameter       , &
+                         MAP_ContinuousState , &
+                         MAP_DiscreteState   , &
+                         MAP_ConstraintState , &
+                         MAP_OtherState      , &
+                         MAP_Output          , &
+                         ErrStat             , &
+                         ErrMsg )
+     IF (ErrStat.NE.0) THEN
         CALL WrScr(ErrMsg) 
      END IF
-     
-     CALL MAP_CalcOutput( t_global            , &
-                          MAP_Input(1)        , &
-                          MAP_Parameter       , &
-                          MAP_ContinuousState , &
-                          MAP_DiscreteState   , &
-                          MAP_ConstraintState , &
-                          MAP_OtherState      , &
-                          MAP_Output          , &
-                          ErrStat             , &
-                          ErrMsg )
-     IF ( ErrStat .NE. 0 ) THEN
+
+     CALL  MAP_UpdateStates(t_global            , &
+                            n_t_global          , &
+                            MAP_Input           , &
+                            MAP_InputTimes      , &
+                            MAP_Parameter       , &
+                            MAP_ContinuousState , &
+                            MAP_DiscreteState   , &
+                            MAP_ConstraintState , &
+                            MAP_OtherState      , &
+                            ErrStat             , &
+                            ErrMsg )    
+     IF (ErrStat.NE.0) THEN
         CALL WrScr(ErrMsg) 
      END IF
-  
+       
      ! update the global time step by one delta t
      t_global = ( n_t_global + 1 )* dt_global + t_initial
   END DO
@@ -204,16 +203,16 @@ PROGRAM Main
   !===========================================================================  
   
   ! Destroy all objects
-  CALL MAP_End( MAP_Input(1)        , &
-                MAP_Parameter       , &
-                MAP_ContinuousState , &
-                MAP_DiscreteState   , &
-                MAP_ConstraintState , & 
-                MAP_OtherState      , &
-                MAP_Output          , &
-                ErrStat             , &
-                ErrMsg )  
-  IF ( ErrStat .NE. 0 ) THEN
+  CALL MAP_End(MAP_Input(1)        , &
+               MAP_Parameter       , &
+               MAP_ContinuousState , &
+               MAP_DiscreteState   , &
+               MAP_ConstraintState , & 
+               MAP_OtherState      , &
+               MAP_Output          , &
+               ErrStat             , &
+               ErrMsg )  
+  IF (ErrStat.NE.0) THEN
      WRITE(*,*) ErrMsg 
   END IF  
   

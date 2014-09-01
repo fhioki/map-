@@ -55,7 +55,7 @@ MAP_ERROR_CODE free_cable_library(list_t* restrict library);
 /**
  * Frees internal state data allcoated in the mapcall_msqs_init( ) function
  *
- * @todo: delete additional dependancies in data->z, data->yList, data->u
+ * @todo: delete additional dependancies in data->z, data->y_list, data->u
  * @acceses: none
  * @calledby: mapcall_msqs_end( )
  * @see: allocate_outlist( )
@@ -64,13 +64,13 @@ MAP_ERROR_CODE free_outlist(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr
 
 
 /**
- * @brief     Deallocates all elements. Function loops through the elemenet link list and frees allocated data. Pointers
+ * @brief     Deallocates all lines. Function loops through the elemenet link list and frees allocated data. Pointers
  *            are nullified.  
- * @param     element the element link list
+ * @param     line the line link list
  * @return    MAP_SAFE if it completes successfully
- * @see       {@link Element_t()}
+ * @see       {@link Line_t()}
  */
-MAP_ERROR_CODE free_element(list_t *restrict element);
+MAP_ERROR_CODE free_line(list_t *restrict line);
 
 
 /**
@@ -78,7 +78,7 @@ MAP_ERROR_CODE free_element(list_t *restrict element);
  *            are nullified.  
  * @param     node the node link list
  * @return    MAP_SAFE if it completes successfully
- * @see       {@link Element_t()}
+ * @see       {@link Line_t()}
  */
 MAP_ERROR_CODE free_node(list_t *restrict node);
 

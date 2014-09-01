@@ -28,7 +28,7 @@
 MAP_EXTERNCALL void set_init_to_null(MAP_InitInputType_t* init_type, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_EXTERNCALL void map_add_cable_library_input_text(MAP_InitInputType_t* init_type);
 MAP_EXTERNCALL void map_add_node_input_text(MAP_InitInputType_t* init_type);
-MAP_EXTERNCALL void map_add_element_input_text(MAP_InitInputType_t* init_type);
+MAP_EXTERNCALL void map_add_line_input_text(MAP_InitInputType_t* init_type);
 MAP_EXTERNCALL void map_add_options_input_text(MAP_InitInputType_t* init_type);
 MAP_EXTERNCALL double* map_plot_x_array(MAP_OtherStateType_t* other_type, int i, int num_points, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_EXTERNCALL double* map_plot_y_array(MAP_OtherStateType_t* other_type, int i, int num_points, char* map_msg, MAP_ERROR_CODE* ierr);
@@ -40,7 +40,7 @@ MAP_EXTERNCALL MapReal map_jacobian_dxdh(MAP_OtherStateType_t* other_type, int i
 MAP_EXTERNCALL MapReal map_jacobian_dxdv(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_EXTERNCALL MapReal map_jacobian_dzdh(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_EXTERNCALL MapReal map_jacobian_dzdv(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_EXTERNCALL int map_size_elements(MAP_OtherStateType_t* other_type, MAP_ERROR_CODE* ierr, char* map_msg);
+MAP_EXTERNCALL int map_size_lines(MAP_OtherStateType_t* other_type, MAP_ERROR_CODE* ierr, char* map_msg);
 
 
 /**
@@ -129,12 +129,12 @@ MAP_EXTERNCALL void map_set_gravity(MAP_ParameterType_t* p_type, const MapReal g
 
 
 /**
- * @brief   Returns vertical and horizontal fairlead force along element plane
+ * @brief   Returns vertical and horizontal fairlead force along line plane
  * @details 
  * @param   H, reference to horizontal fairlead force magnitude
  * @param   V, reference to vertical fairlead force magnitude
  * @param   other_type, other state type fortran derived
- * @param   index, element number we are requesting the data for
+ * @param   index, line number we are requesting the data for
  * @param   map_msg, error message
  * @param   ierr, error code
  * @see     
@@ -149,7 +149,7 @@ MAP_EXTERNCALL void map_get_fairlead_force_2d(double* H, double* V, MAP_OtherSta
  * @param   fy, reference to horizontal Y fairlead force in global frame
  * @param   fz, reference to vertical Z fairlead force in global frame
  * @param   other_type, other state type fortran derived
- * @param   index, element number we are requesting the data for
+ * @param   index, line number we are requesting the data for
  * @param   map_msg, error message
  * @param   ierr, error code
  * @see     
@@ -333,7 +333,7 @@ MAP_EXTERNCALL void map_end(MAP_InputType_t* u_type,
  * ! access the function using this subroutine call: 
  * CALL mapextern_map_set_summary_file_name(InitInp%C_obj, ErrMsg, ErrStat)
  * @endcode
- * @todo: need to free summaryFileName. This is done in delete_all_init_data(...), should be called in Fortran routines
+ * @todo: need to free summary_file_name. This is done in delete_all_init_data(...), should be called in Fortran routines
  */
 MAP_EXTERNCALL void map_set_summary_file_name(MAP_InitInputType_t* init_type, char* map_msg, MAP_ERROR_CODE* ierr); 
 
