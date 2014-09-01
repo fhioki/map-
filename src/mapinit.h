@@ -33,7 +33,7 @@ MAP_ERROR_CODE allocate_outlist(ModelData* data, char* map_msg, MAP_ERROR_CODE* 
 size_t cable_library_meter(const void* el);
 size_t node_meter(const void* el);
 size_t cable_element_meter( const void* el);
-
+size_t u_list_meter(const void *el); 
 
 /**
  * @brief   Initializes the Fortran/C iteroperability types

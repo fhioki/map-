@@ -150,6 +150,26 @@ size_t node_meter(const void *el)
 };
 
 
+size_t u_list_meter(const void *el) 
+{
+  return sizeof(ReferencePoint);
+};
+
+
+size_t vartype_meter(const void* el) 
+{
+  /* every element has the constant size of a rectangle structure */
+  return sizeof(VarType);
+};
+
+
+size_t vartype_ptr_meter(const void* el) 
+{
+  /* every element has the constant size of a rectangle structure */
+  return sizeof(VarTypePtr);
+};
+
+
 MAP_ERROR_CODE allocate_outlist(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr)
 { 
   data->yList = malloc(sizeof(OutputList)); 
@@ -1669,6 +1689,7 @@ MAP_ERROR_CODE set_node_list(const MAP_ParameterType_t* p_type,  MAP_InputType_t
   bstring alias = NULL;
   bstring value_string = NULL;
   const double depth = p_type->depth;
+  ReferencePoint u_reference_point;
 
   cstr2tbstr(tokens," \t\n\r"); /* token for splitting line into indivdual words is a tab and space */   
 
@@ -1709,12 +1730,19 @@ MAP_ERROR_CODE set_node_list(const MAP_ParameterType_t* p_type,  MAP_InputType_t
             } else if (biseqcstrcaseless(parsed->entry[i_parsed],"VESSEL")) {
               node_iter->type = VESSEL;
               vessel_num++;
+              u_reference_point.x = NULL;
+              u_reference_point.y = NULL;
+              u_reference_point.z = NULL;
               success = associate_vartype_ptr(&node_iter->positionPtr.x, u_type->x, vessel_num);
               success = associate_vartype_ptr(&node_iter->positionPtr.y, u_type->y, vessel_num);
-              success = associate_vartype_ptr(&node_iter->positionPtr.z, u_type->z, vessel_num);
+              success = associate_vartype_ptr(&node_iter->positionPtr.z, u_type->z, vessel_num);                           
               success = associate_vartype_ptr(&node_iter->sumForcePtr.fx, y_type->Fx, vessel_num);
               success = associate_vartype_ptr(&node_iter->sumForcePtr.fy, y_type->Fy, vessel_num);
               success = associate_vartype_ptr(&node_iter->sumForcePtr.fz, y_type->Fz, vessel_num);
+              u_reference_point.x = &node_iter->positionPtr.x; /* create reference to input type; this is the convenient update point when u is interpolated in FAST */
+              u_reference_point.y = &node_iter->positionPtr.y; /* create reference to input type; this is the convenient update point when u is interpolated in FAST */
+              u_reference_point.z = &node_iter->positionPtr.z; /* create reference to input type; this is the convenient update point when u is interpolated in FAST */
+              list_append(&model_data->u_update_list, &u_reference_point); /* push onto the update list */
             } else {
               set_universal_error_with_message(map_msg, ierr, MAP_FATAL_25, "Value: <%s>", parsed->entry[i_parsed]->data);
             };
@@ -2236,26 +2264,6 @@ MAP_ERROR_CODE set_output_list(ModelData* model_data, MAP_InitOutputType_t* io_t
   list_iterator_stop(&model_data->element); /* ending the iteration session */  
 
   return MAP_SAFE;
-};
-
-
-/**
- * this function returns the size of elements 
- */
-size_t vartype_meter(const void* el) 
-{
-  /* every element has the constant size of a rectangle structure */
-  return sizeof(VarType);
-};
-
-
-/**
- * this function returns the size of elements 
- */
-size_t vartype_ptr_meter(const void* el) 
-{
-  /* every element has the constant size of a rectangle structure */
-  return sizeof(VarTypePtr);
 };
 
 

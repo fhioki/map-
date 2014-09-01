@@ -224,8 +224,16 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
 
 
 /**
- * @brief     Solves the statics problem for the MSQS system and should be called at each time step, or after updating the vessel displacement. 
- *            Can be called multiple times, but must be called between {@link map_init()} and {@link map_end()}            
+ * @brief     Solves the statics problem for the MSQS system and should be called at each time step or vessel displacement. 
+ * @details   Can be called multiple times, but must be called between {@link map_init()} and {@link map_end()} 
+ *            If the reference to u_type changes, then we have to update the location MAP internal states are pointing 
+ *            to. This is accomplished in the following code. The issue here is when this is called in Fortran:
+ * 
+ *                CALL MAP_CopyInput(u(1), u_interp, MESH_NEWCOPY, ErrStat, ErrMsg)      
+ *
+ *            u_interp is passed into into the argument for map_update_states(); however, the internal states are not
+ *            pointing to data in u_interp. We address this below. Note that the initial reference for point_iter is set
+ *            in {@link set_node_list()}    
  * @param     t current (global) time
  * @param     interval coupling interval
  * @param     u_type input type, F2C FAST-native derived type. 

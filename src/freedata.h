@@ -34,6 +34,24 @@ void MAP_OtherState_Delete(ModelData* model_data);
 MAP_ERROR_CODE free_outer_solve_data(OuterSolveAttributes* ns, const int size, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE free_vessel(Vessel* floater);
 
+
+/**
+ * @brief   Set the reference in ReferencePoint to NULL
+ * @details Accessed in {@link map_end()}. The ref_list points to nodes associated
+ *          with u_types, i.e., input types that are interpolated by FAST.
+ * @param   ref_list, reference to 'connect' node positions
+ */
+MAP_ERROR_CODE free_update_list (list_t* restrict ref_list);
+
+
+/**
+ * @brief   Deallocate the 'label' parameter in the CableLibrary
+ * @details Accessed in {@link map_end()}
+ * @param   library, library link list
+ */
+MAP_ERROR_CODE free_cable_library(list_t* restrict library);
+
+
 /**
  * Frees internal state data allcoated in the mapcall_msqs_init( ) function
  *

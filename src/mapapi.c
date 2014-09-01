@@ -59,8 +59,7 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
   ModelData* model_data = other_type->object;
   MAP_ERROR_CODE success = MAP_SAFE;
 
-  size_t len = strlen(map_msg);
-  
+  model_data->HEAD_U_TYPE = u_type;  
   map_reset_universal_error(map_msg, ierr);
   do { 
     /*  initialize types; set doubles to -999.9, int=0, pointers=NULL 
@@ -79,9 +78,11 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
     list_init(&model_data->cableLibrary); 
     list_init(&model_data->node); 
     list_init(&model_data->element);  
+    list_init(&model_data->u_update_list);  
     list_attributes_copy(&model_data->cableLibrary, cable_library_meter, 1); 
     list_attributes_copy(&model_data->node, node_meter, 1); 
     list_attributes_copy(&model_data->element, cable_element_meter, 1);    
+    list_attributes_copy(&model_data->u_update_list, u_list_meter, 1);    
 
     success = allocate_outlist(model_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_47);
     list_init(&model_data->yList->out_list); /* simclist routine */
@@ -152,9 +153,48 @@ MAP_EXTERNCALL void map_update_states(double t,
                                       char* map_msg ) {
    ModelData* model_data = other_type->object;
    MAP_ERROR_CODE success = MAP_SAFE;
+   ReferencePoint* point_iter = NULL;
+   Node* node_iter = NULL;
+   int i = 0;
+   int j = 0;
    
    map_reset_universal_error(map_msg, ierr);
    do {
+     /* If the reference to u_type changes, then we have to update the location MAP internal states are pointing 
+      * to. This is accomplished in the following code. The issue here is when this is called in Fortran:
+      *
+      *    CALL MAP_CopyInput(u(1), u_interp, MESH_NEWCOPY, ErrStat, ErrMsg)      
+      *
+      * u_interp is passed into into the argument for map_update_states(); however, the internal states are not
+      * pointing to data in u_interp. We address this below. Note that the initial reference for point_iter is set
+      * in set_node_list(...)
+      */
+     if (u_type!=model_data->HEAD_U_TYPE) { /* this is intended to be triggered when couled to FAST */
+       checkpoint();
+       list_iterator_start(&model_data->u_update_list);  
+       while (list_iterator_hasnext(&model_data->u_update_list)) { 
+         point_iter = (ReferencePoint*)list_iterator_next(&model_data->u_update_list);               
+         point_iter->x->value = &(u_type->x[i]);
+         point_iter->y->value = &(u_type->y[i]);
+         point_iter->z->value = &(u_type->z[i]);                 
+         i++;
+       };
+       list_iterator_stop(&model_data->u_update_list);
+
+       /* This proves the node position is updated with the Fortran interpolated input */
+       list_iterator_start(&model_data->node);  
+       while (list_iterator_hasnext(&model_data->node)) { 
+         node_iter = (Node*)list_iterator_next(&model_data->node);               
+         printf("After update>  %1.2f  %1.2f  %1.2f\n", *node_iter->positionPtr.x.value, *node_iter->positionPtr.y.value, *node_iter->positionPtr.z.value);
+       };
+       list_iterator_stop(&model_data->node);
+       
+       if (i!=u_type->x_Len) { /* raise error if the input array are exceeded */
+         set_universal_error_with_message(map_msg, ierr, MAP_FATAL_89, "u_type range: <%d>. Updated array range: <%d>", u_type->x_Len, i);
+         break;
+       };
+     };
+     
      if (model_data->MAP_SOLVE_TYPE==MONOLITHIC) {
        success = line_solve_sequence(model_data, p_type, 0.0, map_msg, ierr);
      } else {
@@ -205,18 +245,13 @@ MAP_EXTERNCALL void map_end(MAP_InputType_t* u_type,
     success = free_element(&model_data->element);
     success = free_node(&model_data->node);
     success = free_vessel(&model_data->vessel);
-   
-   
-    list_iterator_start(&model_data->cableLibrary);          /* starting an iteration "session" */
-    while ( list_iterator_hasnext(&model_data->cableLibrary)) { /* tell whether more values available */
-      iterCableLibrary = (CableLibrary*)list_iterator_next(&model_data->cableLibrary);
-      bdestroy(iterCableLibrary->label);
-    };
-    list_iterator_stop(&model_data->cableLibrary);             /* ending the iteration "session" */  
+    success = free_cable_library(&model_data->cableLibrary);
+    success = free_update_list(&model_data->u_update_list);
      
     list_destroy(&model_data->element);
     list_destroy(&model_data->node);
     list_destroy(&model_data->cableLibrary);
+    list_destroy(&model_data->u_update_list);  
     MAPFREE(model_data->modelOptions.repeat_angle);
     MAP_OtherState_Delete(model_data);
   } while (0);

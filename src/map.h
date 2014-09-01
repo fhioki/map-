@@ -171,6 +171,13 @@ struct ForcePtr_t {
 }; typedef struct ForcePtr_t ForcePtr;
 
 
+struct ReferencePoint_t {
+  VarTypePtr* x;
+  VarTypePtr* y;
+  VarTypePtr* z;
+}; typedef struct ReferencePoint_t ReferencePoint;
+
+
 /**
  * @brief Central point where all 'VESSEL' nodes can be displaced. Instead of displacing all nodes individually, the vessel can be displaced,
  *        then helper functions can be called to displacement the nodes. The vessel only reference 'input' nodes.
@@ -380,6 +387,8 @@ struct ModelData_t {
   int sizeOfCableLibrary;          /**< Number of cable types defined in the cable library section of the input file */ 
   int sizeOfElements;              /**< Number of lines */
   int sizeOfNodes;                 /**< Number of nodes */
+  MAP_InputType_t* HEAD_U_TYPE;    /**< Checks if the reference to MAP_InputType_t changes */
+  list_t u_update_list;            /**< List to update the references in VarType-associated u_type's in UpdateStates. Used when coupled to FAST */
 }; typedef struct ModelData_t ModelData;
 
 

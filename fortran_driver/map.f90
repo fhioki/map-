@@ -585,14 +585,16 @@ CONTAINS
     !         if you need the absolute position, add them: u_interp%PtFairleadDisplacement(1)%TranslationDisp(1,i) + u_interp%PtFairleadDisplacement(1)%Pos
     ! Copy the mesh input to the MAP C types
     DO i = 1,u_interp%PtFairDisplacement%NNodes
-       u_interp%X(i) = u_interp%PtFairDisplacement%Position(1,i) + u_interp%PtFairDisplacement%TranslationDisp(1,i)
-       u_interp%Y(i) = u_interp%PtFairDisplacement%Position(2,i) + u_interp%PtFairDisplacement%TranslationDisp(2,i)
-       u_interp%Z(i) = u_interp%PtFairDisplacement%Position(3,i) + u_interp%PtFairDisplacement%TranslationDisp(3,i)
+       u_interp%X(i) = -999.9! u_interp%PtFairDisplacement%Position(1,i) + u_interp%PtFairDisplacement%TranslationDisp(1,i)
+       u_interp%Y(i) = -888.8! u_interp%PtFairDisplacement%Position(2,i) + u_interp%PtFairDisplacement%TranslationDisp(2,i)
+       u_interp%Z(i) = -777.7! u_interp%PtFairDisplacement%Position(3,i) + u_interp%PtFairDisplacement%TranslationDisp(3,i)
     END DO
     
     ! @bonnie: remove. This is just to test MAP by using fake fairlead displacements
     u_interp%X(3) = u_interp%X(3)+time
     write (*,*) u_interp%X(3)!u(1)%x(1)
+
+    CALL copy_inputs_for_c(u_interp, ErrStat, ErrMsg)
 
     ! @bonnie: If we pass in u(1) as an argument into MSQS_UpdateStates, then the program behaves as expected. It does not seem 
     !          that u_interp is setup in a way to be handled by the C code -> this is why the states are not updated when 
@@ -602,7 +604,6 @@ CONTAINS
     
     CALL MSQS_UpdateStates( time            , &
                             interval        , & 
-                            ! u(1)%C_obj      , &  
                             u_interp%C_obj  , &
                             p%C_obj         , &
                             x%C_obj         , &
@@ -622,13 +623,15 @@ CONTAINS
           ErrMsg = message_from_MAP
           ErrStat = ErrID_Fatal
           ! make sure this is destroyed on early return
+          CALL deallocate_primitives_for_c(u_interp, ErrStat, ErrMsg)
           CALL MAP_DestroyInput( u_interp, ErrStat, ErrMsg )      
           RETURN
        END IF
     END IF
   
     ! delete the temporary input arrays/meshes 
-    CALL MAP_DestroyInput( u_interp, ErrStat, ErrMsg )        
+    CALL deallocate_primitives_for_c(u_interp, ErrStat, ErrMsg)
+    CALL MAP_DestroyInput(u_interp, ErrStat, ErrMsg)        
   END SUBROUTINE MAP_UpdateStates                                                                !   -------+
   !==========================================================================================================
   

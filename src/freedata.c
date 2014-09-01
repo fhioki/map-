@@ -43,6 +43,35 @@ MAP_ERROR_CODE free_outlist(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr
 };
 
 
+MAP_ERROR_CODE free_cable_library(list_t* restrict library)
+{
+  CableLibrary* iter_library = NULL;
+  list_iterator_start(library);          /* starting an iteration "session" */
+  while (list_iterator_hasnext(library)) { /* tell whether more values available */
+    iter_library = (CableLibrary*)list_iterator_next(library);
+    bdestroy(iter_library->label);
+  };
+  list_iterator_stop(library);
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE free_update_list (list_t* restrict ref_list)
+{
+  ReferencePoint* point_iter = NULL;
+  list_iterator_start(ref_list); /* starting an iteration "session" */
+  while (list_iterator_hasnext(ref_list)) { /* tell whether more values available */
+    point_iter = (ReferencePoint*)list_iterator_next(ref_list);
+    point_iter->x = NULL;
+    point_iter->y = NULL;
+    point_iter->z = NULL;
+  };
+  list_iterator_stop(ref_list); 
+
+  return MAP_SAFE;
+};
+
+
 MAP_ERROR_CODE free_element(list_t* restrict element) 
 {
   Element* element_iter = NULL;

@@ -81,12 +81,12 @@ PROGRAM Main
                  MAP_InitOutput      , &
                  ErrStat             , &
                  ErrMsg )
-  ! IF ( ErrStat .NE. 0 ) THEN
-  !    CALL WrScr(ErrMsg) 
-  ! END IF  
-  ! 
-  ! CALL DispNVD( MAP_InitOutput%Ver ) 
-  ! 
+  IF ( ErrStat .NE. 0 ) THEN
+     CALL WrScr(ErrMsg) 
+  END IF  
+  
+  CALL DispNVD( MAP_InitOutput%Ver ) 
+   
   ! DO i = 1, MAP_interp_order + 1  
   !    MAP_InputTimes(i) = t_initial - (i - 1) * dt_global
   !    MAP_OutputTimes(i) = t_initial - (i - 1) * dt_global
@@ -110,100 +110,98 @@ PROGRAM Main
   CALL MAP_DestroyInitOutput ( MAP_InitOutput, ErrStat, ErrMsg )
   
   ! @bonnie : don't we need to initialize the messhes once?
-  ! IF (MAP_interp_order .EQ. 2) THEN
-  !    DO i = 1,MAP_Input(3)%PtFairDisplacement%NNodes
-  !       MAP_Input(3)%PtFairDisplacement%TranslationDisp(1,i) = 0.0  
-  !       MAP_Input(3)%PtFairDisplacement%TranslationDisp(2,i) = 0.0
-  !       MAP_Input(3)%PtFairDisplacement%TranslationDisp(3,i) = 0.0
-  !    END DO
-  !    DO i = 1,MAP_Input(2)%PtFairDisplacement%NNodes
-  !       MAP_Input(2)%PtFairDisplacement%TranslationDisp(1,i) = 0.0  
-  !       MAP_Input(2)%PtFairDisplacement%TranslationDisp(2,i) = 0.0
-  !       MAP_Input(2)%PtFairDisplacement%TranslationDisp(3,i) = 0.0
-  !    END DO
-  ! ELSE IF (MAP_interp_order .EQ. 1) THEN
-  !    DO i = 1,MAP_Input(2)%PtFairDisplacement%NNodes
-  !       MAP_Input(2)%PtFairDisplacement%TranslationDisp(1,i) = 0.0  
-  !       MAP_Input(2)%PtFairDisplacement%TranslationDisp(2,i) = 0.0
-  !       MAP_Input(2)%PtFairDisplacement%TranslationDisp(3,i) = 0.0
-  !    END DO
-  ! END IF
-  ! DO i = 1,MAP_Input(1)%PtFairDisplacement%NNodes
-  !    MAP_Input(1)%PtFairDisplacement%TranslationDisp(1,i) = 0.0  
-  !    MAP_Input(1)%PtFairDisplacement%TranslationDisp(2,i) = 0.0
-  !    MAP_Input(1)%PtFairDisplacement%TranslationDisp(3,i) = 0.0
-  ! END DO
-  ! 
-  ! 
-  ! ! -------------------------------------------------------------------------
-  ! ! BEGIN time marching
-  ! ! -------------------------------------------------------------------------
-  ! DO n_t_global = 0, n_t_final
-  ! 
-  !    t_global =  t_initial + dt_global*n_t_global
-  ! 
-  !    !==========   NOTE   ======     <-----------------------------------------+
-  !    ! @bonnie : I am assuming this MAP_InputTimes{:} and MAP_Input{:} 
-  !    !           will be assigned by the glue code   
-  !    
-  !    !MAP_InputTimes(1) = t_global + dt_global
-  !    !MAP_InputTimes(2) = MAP_InputTimes(1) - dt_global 
-  !    !MAP_InputTimes(3) = MAP_InputTimes(2) - dt_global
-  !    
-  !    !MAP_Input(1)%PtFairleadDisplacement%TranslationDisp(1,1) = .001*n_t_global  
-  !    !MAP_Input(2)%PtFairleadDisplacement%TranslationDisp(1,1) = .001*n_t_global  
-  !    !MAP_Input(3)%PtFairleadDisplacement%TranslationDisp(1,1) = .001*n_t_global  
-  !    !===========================================================================
-  !         
-  !    ! @bonnie & @jason: the FAST glue code will update the new fairlead position 
-  !    !                   based on the new platform position in the global frame.
-  !    CALL  MAP_UpdateStates( t_global            , &
-  !                            n_t_global          , &
-  !                            MAP_Input           , &
-  !                            MAP_InputTimes      , &
-  !                            MAP_Parameter       , &
-  !                            MAP_ContinuousState , &
-  !                            MAP_DiscreteState   , &
-  !                            MAP_ConstraintState , &
-  !                            MAP_OtherState      , &
-  !                            ErrStat             , &
-  !                            ErrMsg )    
-  !    IF ( ErrStat .NE. 0 ) THEN
-  !       CALL WrScr(ErrMsg) 
-  !    END IF
-  !    
-  !    CALL MAP_CalcOutput( t_global            , &
-  !                         MAP_Input(1)        , &
-  !                         MAP_Parameter       , &
-  !                         MAP_ContinuousState , &
-  !                         MAP_DiscreteState   , &
-  !                         MAP_ConstraintState , &
-  !                         MAP_OtherState      , &
-  !                         MAP_Output          , &
-  !                         ErrStat             , &
-  !                         ErrMsg )
-  !    IF ( ErrStat .NE. 0 ) THEN
-  !       CALL WrScr(ErrMsg) 
-  !    END IF
-  ! 
-  !    ! update the global time step by one delta t
-  !    t_global = ( n_t_global + 1 )* dt_global + t_initial
-  ! END DO
-  ! ! -------------------------------------------------------------------------
-  ! ! END time marching
-  ! ! -------------------------------------------------------------------------
-  ! 
-  ! 
-  ! !==========   NOTE   ======     <-----------------------------------------+
-  ! ! @bonnie : I am assuming the glue code will do this
-  ! IF (MAP_interp_order .EQ. 1) THEN  
-  !    CALL MeshDestroy(MAP_Input(2)%PtFairDisplacement, ErrStat,ErrMsg)
-  ! ELSE IF (MAP_interp_order .EQ. 2) THEN
-  !    CALL MeshDestroy(MAP_Input(2)%PtFairDisplacement, ErrStat,ErrMsg)
-  !    CALL MeshDestroy(MAP_Input(3)%PtFairDisplacement, ErrStat,ErrMsg)
-  ! END IF
-  ! !===========================================================================
+  IF (MAP_interp_order .EQ. 2) THEN
+     DO i = 1,MAP_Input(3)%PtFairDisplacement%NNodes
+        MAP_Input(3)%PtFairDisplacement%TranslationDisp(1,i) = 0.0  
+        MAP_Input(3)%PtFairDisplacement%TranslationDisp(2,i) = 0.0
+        MAP_Input(3)%PtFairDisplacement%TranslationDisp(3,i) = 0.0
+     END DO
+     DO i = 1,MAP_Input(2)%PtFairDisplacement%NNodes
+        MAP_Input(2)%PtFairDisplacement%TranslationDisp(1,i) = 0.0  
+        MAP_Input(2)%PtFairDisplacement%TranslationDisp(2,i) = 0.0
+        MAP_Input(2)%PtFairDisplacement%TranslationDisp(3,i) = 0.0
+     END DO
+  ELSE IF (MAP_interp_order .EQ. 1) THEN
+     DO i = 1,MAP_Input(2)%PtFairDisplacement%NNodes
+        MAP_Input(2)%PtFairDisplacement%TranslationDisp(1,i) = 0.0  
+        MAP_Input(2)%PtFairDisplacement%TranslationDisp(2,i) = 0.0
+        MAP_Input(2)%PtFairDisplacement%TranslationDisp(3,i) = 0.0
+     END DO
+  END IF
+  DO i = 1,MAP_Input(1)%PtFairDisplacement%NNodes
+     MAP_Input(1)%PtFairDisplacement%TranslationDisp(1,i) = 0.0  
+     MAP_Input(1)%PtFairDisplacement%TranslationDisp(2,i) = 0.0
+     MAP_Input(1)%PtFairDisplacement%TranslationDisp(3,i) = 0.0
+  END DO
   
+  
+  ! -------------------------------------------------------------------------
+  ! BEGIN time marching
+  ! -------------------------------------------------------------------------
+  DO n_t_global = 0, n_t_final
+  
+     t_global =  t_initial + dt_global*n_t_global
+  
+     !==========   NOTE   ======     <-----------------------------------------+
+     ! @bonnie : I am assuming this MAP_InputTimes{:} and MAP_Input{:} 
+     !           will be assigned by the glue code   
+     
+     !MAP_InputTimes(1) = t_global + dt_global
+     !MAP_InputTimes(2) = MAP_InputTimes(1) - dt_global 
+     !MAP_InputTimes(3) = MAP_InputTimes(2) - dt_global
+     
+     !MAP_Input(1)%PtFairleadDisplacement%TranslationDisp(1,1) = .001*n_t_global  
+     !MAP_Input(2)%PtFairleadDisplacement%TranslationDisp(1,1) = .001*n_t_global  
+     !MAP_Input(3)%PtFairleadDisplacement%TranslationDisp(1,1) = .001*n_t_global  
+     !===========================================================================
+          
+     ! @bonnie & @jason: the FAST glue code will update the new fairlead position 
+     !                   based on the new platform position in the global frame.
+     CALL  MAP_UpdateStates( t_global            , &
+                             n_t_global          , &
+                             MAP_Input           , &
+                             MAP_InputTimes      , &
+                             MAP_Parameter       , &
+                             MAP_ContinuousState , &
+                             MAP_DiscreteState   , &
+                             MAP_ConstraintState , &
+                             MAP_OtherState      , &
+                             ErrStat             , &
+                             ErrMsg )    
+     IF ( ErrStat .NE. 0 ) THEN
+        CALL WrScr(ErrMsg) 
+     END IF
+     
+     ! CALL MAP_CalcOutput( t_global            , &
+     !                      MAP_Input(1)        , &
+     !                      MAP_Parameter       , &
+     !                      MAP_ContinuousState , &
+     !                      MAP_DiscreteState   , &
+     !                      MAP_ConstraintState , &
+     !                      MAP_OtherState      , &
+     !                      MAP_Output          , &
+     !                      ErrStat             , &
+     !                      ErrMsg )
+     ! IF ( ErrStat .NE. 0 ) THEN
+     !    CALL WrScr(ErrMsg) 
+     ! END IF
+  
+     ! update the global time step by one delta t
+     t_global = ( n_t_global + 1 )* dt_global + t_initial
+  END DO
+  ! -------------------------------------------------------------------------
+  ! END time marching
+  ! -------------------------------------------------------------------------
+  
+  !==========   NOTE   ======     <-----------------------------------------+
+  ! @bonnie : I am assuming the glue code will do this
+  IF (MAP_interp_order .EQ. 1) THEN  
+     CALL MeshDestroy(MAP_Input(2)%PtFairDisplacement, ErrStat,ErrMsg)
+  ELSE IF (MAP_interp_order .EQ. 2) THEN
+     CALL MeshDestroy(MAP_Input(2)%PtFairDisplacement, ErrStat,ErrMsg)
+     CALL MeshDestroy(MAP_Input(3)%PtFairDisplacement, ErrStat,ErrMsg)
+  END IF
+  !===========================================================================  
   
   ! Destroy all objects
   CALL MAP_End( MAP_Input(1)        , &

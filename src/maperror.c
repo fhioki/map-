@@ -115,6 +115,7 @@ const char MAP_ERROR_STRING[][256] = {
   /* MAP_FATAL_86   */  "Element out of range. This error was triggered in the initialization. This is likely due to incorrect settings in the MAP input file",
   /* MAP_FATAL_87   */  "Element linear spring solver failed",
   /* MAP_FATAL_88   */  "Element failed",
+  /* MAP_FATAL_89   */  "Input index array exceeded during UpdateStates. Inputs were not set correctly by the program",
   /* MAP_ERROR_1    */  "Element option 'DAMGE_TIME' does not trail with a valid value. Ignoring this run-time flag. Chek the MAP input file",
   /* MAP_ERROR_2    */  "Value for 'INNER_FTOL' is not a valid numeric value. Using the default value <1e-6>",
   /* MAP_ERROR_3    */  "Value for 'OUTER_TOL' is not a valid numeric value. Using the default value <1e-6>",

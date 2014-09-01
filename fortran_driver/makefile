@@ -89,7 +89,7 @@ map.o : map.f90
 
 
 clean:		
-	rm -f *.o map_driver *.*~ *.*# Makefile~ *.mod *.valgrind
+	rm -f *.o map_driver *.*~ *.*# Makefile~ *.mod *.valgrind baseline.sum*
 
 memcheck:
 	valgrind  --leak-check=yes --show-reachable=yes --track-origins=yes ./f_driver
