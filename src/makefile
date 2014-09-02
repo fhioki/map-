@@ -62,7 +62,8 @@ OBJ       = lmder.o \
 	lineroutines.o \
 	numeric.o \
 	outputstream.o \
-	mapapi.o
+	mapapi.o \
+	lmroutines.o
 
 all : $(OBJ)
 	$(CC_TOOLS) $(LDFLAGS) -o libmap-1.00.01.so $(DEBUG) $(OBJ) -lm

@@ -37,7 +37,7 @@
 
 #include "MAP_Types.h"
 #include "maperror.h"
-
+#include "lmroutines.hpp"
 
 /**
  * @brief Associates the node with a particular type. Fix nodes are anchor points
@@ -106,8 +106,8 @@ struct Fd_t {
  */
 struct VarType_t {
   MapReal value;    /**< the value */
-  bstring units;    /*< units for printing information to a summary file or output buffer */
-  bstring name;     /*< name of the variable. This is used for identifying it in the output buffer */
+  bstring units;    /**< units for printing information to a summary file or output buffer */
+  bstring name;     /**< name of the variable. This is used for identifying it in the output buffer */
   bool is_fixed;    /**< if is_fixed = true, then we are not solving for this variable */
   int ref_counter;  /**< for ensuring the variable is assigned to one of: input, param, or constraint */
   int id;           /**< node or line this value is attached to */
@@ -120,12 +120,12 @@ struct VarType_t {
  *        to a variable allocated in Fortran. This feature is also preserved with Python binding. 
  */
 struct VarTypePtr_t {
-  MapReal* value;        /**< the value */
-  bstring units;           /*< units for printing information to a summary file or output buffer */
-  bstring name;            /*< name of the variable. This is used for identifying it in the output buffer */
-  bool is_fixed;          /**< If is_fixed = true, then we are not solving for this variable */
+  MapReal* value;   /**< the value */
+  bstring units;    /**< units for printing information to a summary file or output buffer */
+  bstring name;     /**< name of the variable. This is used for identifying it in the output buffer */
+  bool is_fixed;    /**< If is_fixed = true, then we are not solving for this variable */
   int ref_counter;  /**< For ensuring the variable is assigned to one of: input, param, or constraint */
-  int id;                /**< node or line this value is attached to */
+  int id;           /**< node or line this value is attached to */
 }; typedef struct VarTypePtr_t VarTypePtr;
 
 
@@ -148,6 +148,29 @@ struct PointPtr_t {
   VarTypePtr y;
   VarTypePtr z;  
 }; typedef struct PointPtr_t PointPtr;
+
+
+/**
+ * @brief Veloctiy VarTtype that points to a FAST-native (fortran) derivived type. This is the node velocity
+ *        associated with a continuous state. This is integrated to provide node displacement at the subsequent 
+ *        time step
+ */
+struct VelocityPtr_t {
+  VarTypePtr xd;
+  VarTypePtr yd;
+  VarTypePtr zd;  
+}; typedef struct VelocityPtr_t VelocityPtr;
+
+
+/**
+ * @brief Acceleration VarTtype that points to a FAST-native (fortran) derivived type. This is the node acceleration
+ *        associated with a continuous state. This is integrated to provide node velocity at the subsequent time step
+ */
+struct AccelerationPtr_t {
+  VarTypePtr xdd;
+  VarTypePtr ydd;
+  VarTypePtr zdd;  
+}; typedef struct AccelerationPtr_t AccelerationPtr;
 
 
 struct EulerAngle_t {
@@ -262,14 +285,63 @@ struct Node_t {
   NodeType type;
   VarType M_applied;
   VarType B_applied;
-  PointPtr position_ptr; /* this is a Ptr because it points to a fortran type */
-  ForcePtr sum_force_ptr; /* this is a Ptr because it points to a fortran type */ 
+  PointPtr position_ptr;        /* this is a Ptr because it points to a fortran type */
+  VelocityPtr velocity;         /**< Node velocity [m/s]; used for LM model */
+  AccelerationPtr acceleration; /**< Node accelration; integrated quantity [m/s^2]; used for LM model */
+  ForcePtr sum_force_ptr;       /* this is a Ptr because it points to a fortran type */ 
   Force external_force;    
 }; typedef struct Node_t Node;
 
 
+struct Element_t {
+  Node* r1;  /**< upper node */
+  Node* r2;  /**< lower node */
+  double l;  /**< \left \| \mathbf{r}_{1}-\mathbf{r}_{2} \right \| */
+}; typedef struct Element_t Element;
+
+
+struct LMAttributes {
+  void* lm_container; /**< container struct in lmroutines.hpp */
+  double* FlineS;     /**< retains last solution for when this is called with dT = 0 */   // 
+  double** rFairtS;   /**< fairlead locations ON TURBINE */                               // <--------- will be mapped to a Node_t list 
+  double** rFairRel;  /**< fairlead locations relative to platform center */              // <--------- will be mapped to a Node_t list 
+  double** rFairi;    /**< inertial Fairlead Locations  */                                // <--------- will be mapped to a Node_t list    
+  double** rdFairi;   /**< inertial Fairlead Velocities */                                // <--------- will be mapped to a Node_t list  
+
+  // static vectors to hold line and connection objects!
+  // vector< LineProps > LinePropList; // to hold line library types   <--------- Moved to the Line_t struct
+  // vector< Line > LineList;          //  global and persistent?      <--------- Moved to a container struct in lmroutines.hpp to isolate c++ and c
+  // vector< Connection > ConnectList;                                 <--------- Moved to a container struct in lmroutines.hpp to isolate c++ and c
+  int nConnects; 
+  int nLines;
+  
+  // EnvCond env; // struct of general environmental parameters        <--------- Should be a parameter type
+
+  // state vector and stuff
+  double* states; /**< pointer to array comprising global state vector */
+  double* newstates;
+  int Nx; /**< size of state vector array */
+
+  // more state vector things for rk4 integration 
+  double* f0;
+  double* f1;
+  double* f2;
+  double* f3;
+  double* xt; 
+
+  int* lineStateIs; /** vector of line starting indices in "states" array */ // vector< int > LineStateIs;  
+  // vector< shared_ptr< ofstream > > outfiles; // a vector to hold ofstreams for each line
+
+  int closed; // initialize to 0
+  double dt;  // FAST time step, @rm
+  double dts; /**< mooring line time step */
+}; typedef struct LMAttributes_t LMAttributes;
+
+
 struct Line_t {
   CableLibrary* line_property; /**< line properties */
+  list_t elements;             /**< LM model elements */
+  LMAttributes* lm_attributes; /**< Preserves information of the LM model from previous time steps */
   LineOptions options;         /**< run-time options flag */
   VarTypePtr H;                /**< Horizontal fairlead force in the local cable elemenet frame */
   VarTypePtr V;                /**< Vertical fairlead force in the local cable elemenet frame */  
@@ -293,7 +365,7 @@ struct Line_t {
   Node* anchor;                /**< Anchor node */
   Node* fairlead;              /**< Fairlead node */
   int segment_size;
-  int diagnostic_type;          /**< none=0, first iteration only=2, all iterations otherwise */
+  int diagnostic_type;         /**< none=0, first iteration only=2, all iterations otherwise */
   int evals;                   /**< number of function evaluations */ 
   int njac_evals;              /**< number of function evaluations */      
   int converge_reason;         /*   - info=0 : improper input parameters.

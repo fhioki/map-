@@ -42,8 +42,6 @@ extern const char MAP_ERROR_STRING[][1024];
  */
 
 
-
-
 MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type, 
                              MAP_InputType_t* u_type,
                              MAP_ParameterType_t* p_type,
@@ -303,7 +301,6 @@ MAP_EXTERNCALL void map_offset_vessel(MAP_OtherStateType_t* other_type, MAP_Inpu
     u_type->z[i] = z + rx*R[2][0] + ry*R[2][1] + rz*R[2][2];
   };
 };
-
 
 
 MAP_EXTERNCALL double** map_linearize_matrix(MAP_InputType_t* u_type, MAP_ParameterType_t* p_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type, MAP_ConstraintStateType_t* z_type, double epsilon, MAP_ERROR_CODE* ierr, char* map_msg)
