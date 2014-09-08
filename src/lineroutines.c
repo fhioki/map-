@@ -27,23 +27,23 @@
 extern const char MAP_ERROR_STRING[][1024];
 
 
-MAP_ERROR_CODE reset_node_force_to_zero(ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE reset_node_force_to_zero(Domain* domain, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   Node* node_iter = NULL;
 
-  list_iterator_start(&model_data->node);            /* starting an iteration "session" */
-  while (list_iterator_hasnext(&model_data->node)) { /* tell whether more values available */
-    node_iter = (Node*)list_iterator_next(&model_data->node);
+  list_iterator_start(&domain->node);            /* starting an iteration "session" */
+  while (list_iterator_hasnext(&domain->node)) { /* tell whether more values available */
+    node_iter = (Node*)list_iterator_next(&domain->node);
     *(node_iter->sum_force_ptr.fx.value) = 0.0;
     *(node_iter->sum_force_ptr.fy.value) = 0.0;
     *(node_iter->sum_force_ptr.fz.value) = 0.0;    
   };
-  list_iterator_stop(&model_data->node); /* ending the iteration "session" */    
+  list_iterator_stop(&domain->node); /* ending the iteration "session" */    
   return MAP_SAFE;
 };
 
 
-MAP_ERROR_CODE calculate_node_sum_force(ModelData* model_data, MAP_ParameterType_t* p_type)
+MAP_ERROR_CODE calculate_node_sum_force(Domain* domain, MAP_ParameterType_t* p_type)
 {
   Line* line_iter = NULL;
   Node* node_iter = NULL;
@@ -60,9 +60,9 @@ MAP_ERROR_CODE calculate_node_sum_force(ModelData* model_data, MAP_ParameterType
   double fy_a = 0.0;
   double fz_a = 0.0;
 
-  list_iterator_start(&model_data->line);         /* starting an iteration "session" */
-  while (list_iterator_hasnext(&model_data->line)) { /* tell whether more values available */
-    line_iter = (Line*)list_iterator_next(&model_data->line);
+  list_iterator_start(&domain->line);         /* starting an iteration "session" */
+  while (list_iterator_hasnext(&domain->line)) { /* tell whether more values available */
+    line_iter = (Line*)list_iterator_next(&domain->line);
     psi = line_iter->psi.value;
     fx = *(line_iter->H.value)*cos(psi);
     fx_a = -(line_iter->H_at_anchor.value)*cos(psi);
@@ -82,7 +82,7 @@ MAP_ERROR_CODE calculate_node_sum_force(ModelData* model_data, MAP_ParameterType
     add_to_sum_fz(line_iter->fairlead, fz);
     add_to_sum_fz(line_iter->anchor, fz_a);
   }; 
-  list_iterator_stop(&model_data->line); /* ending the iteration "session" */    
+  list_iterator_stop(&domain->line); /* ending the iteration "session" */    
 
   /* This is where we include the externally applied forces on the node. Note that
    *     \sum F_x= \left \{ \mathbf{f}_\textup{lines} \right \}_x-\left \{ \mathbf{f}_\textup{ext} \right \}_x \\
@@ -90,9 +90,9 @@ MAP_ERROR_CODE calculate_node_sum_force(ModelData* model_data, MAP_ParameterType
    *     \sum F_z= \left \{ \mathbf{f}_\textup{lines} \right \}_z-\left \{ \mathbf{f}_\textup{ext} \right \}_z - gM_{\textup{app}} + \rho gB_{\textup{app}}
    * The \mathbf{f}_{\textup{lines}} portion is summed in the line iterator above. 
    */
-  list_iterator_start(&model_data->node);  /* starting an iteration "session" */
-  while (list_iterator_hasnext(&model_data->node)) { /* tell whether more values available */
-    node_iter = (Node*)list_iterator_next(&model_data->node);
+  list_iterator_start(&domain->node);  /* starting an iteration "session" */
+  while (list_iterator_hasnext(&domain->node)) { /* tell whether more values available */
+    node_iter = (Node*)list_iterator_next(&domain->node);
     if (node_iter->type==CONNECT) {
       sum_fx = -(node_iter->external_force.fx.value);
       sum_fy = -(node_iter->external_force.fy.value);
@@ -103,38 +103,38 @@ MAP_ERROR_CODE calculate_node_sum_force(ModelData* model_data, MAP_ParameterType
       add_to_sum_fz(node_iter, sum_fz);
      };
   }; 
-  list_iterator_stop(&model_data->node); /* ending the iteration "session" */    
+  list_iterator_stop(&domain->node); /* ending the iteration "session" */    
   return MAP_SAFE;
 }
 
 
-void add_to_sum_fx(Node* node, const MapReal fx)
+void add_to_sum_fx(Node* node, const double fx)
 {
   *(node->sum_force_ptr.fx.value) += fx;
 };
 
 
-void add_to_sum_fy(Node* node, const MapReal fy)
+void add_to_sum_fy(Node* node, const double fy)
 {
   *(node->sum_force_ptr.fy.value) += fy;
 };
 
 
-void add_to_sum_fz(Node* node, const MapReal fz)
+void add_to_sum_fz(Node* node, const double fz)
 {
   *(node->sum_force_ptr.fz.value) += fz;
 };
 
 
-MAP_ERROR_CODE set_line_variables_pre_solve(ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE set_line_variables_pre_solve(Domain* domain, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_ERROR_CODE success = MAP_SAFE;
   Line* line_iter = NULL;
   int i = 0;
 
-  list_iterator_start(&model_data->line);            /* starting an iteration "session" */
-  while (list_iterator_hasnext(&model_data->line)) { /* tell whether more values available */ 
-    line_iter = (Line*)list_iterator_next(&model_data->line);    
+  list_iterator_start(&domain->line);            /* starting an iteration "session" */
+  while (list_iterator_hasnext(&domain->line)) { /* tell whether more values available */ 
+    line_iter = (Line*)list_iterator_next(&domain->line);    
         
     /* no fairlead or anchor was not set. End program gracefully. 
      * there is likely an error in the input file 
@@ -157,12 +157,12 @@ MAP_ERROR_CODE set_line_variables_pre_solve(ModelData* model_data, char* map_msg
     };
     i++;
   };
-  list_iterator_stop(&model_data->line); /* ending the iteration "session" */    
+  list_iterator_stop(&domain->line); /* ending the iteration "session" */    
   MAP_RETURN;//return MAP_SAFE;
 };
 
 
-MAP_ERROR_CODE set_line_variables_post_solve(ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE set_line_variables_post_solve(Domain* domain, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   Line* line_iter = NULL;
   double H = 0.0;
@@ -175,9 +175,9 @@ MAP_ERROR_CODE set_line_variables_post_solve(ModelData* model_data, char* map_ms
   double cb = 0.0;
   bool contact_flag = false;
    
-  list_iterator_start(&model_data->line); /* starting an iteration "session" */
-  while (list_iterator_hasnext(&model_data->line)) { /* tell whether more values available */ 
-    line_iter = (Line*)list_iterator_next(&model_data->line);
+  list_iterator_start(&domain->line); /* starting an iteration "session" */
+  while (list_iterator_hasnext(&domain->line)) { /* tell whether more values available */ 
+    line_iter = (Line*)list_iterator_next(&domain->line);
     
     /* altitude angle at fairlead */
     H = *(line_iter->H.value);
@@ -213,8 +213,17 @@ MAP_ERROR_CODE set_line_variables_post_solve(ModelData* model_data, char* map_ms
     line_iter->V_at_anchor.value = Va;
     line_iter->tension_at_anchor.value = sqrt(Ha*Ha + Va*Va);
     line_iter->alpha_at_anchor.value = atan2(Va, Ha);    
+
+    /* set global x,y,z force at fairlead and achor */
+    line_iter->force_at_fairlead.fx.value = -10.0;
+    line_iter->force_at_fairlead.fz.value = -20.0;
+    line_iter->force_at_fairlead.fy.value = -30.0;
+
+    line_iter->force_at_anchor.fx.value = -10.0;
+    line_iter->force_at_anchor.fz.value = -20.0;
+    line_iter->force_at_anchor.fy.value = -30.0;
   };
-  list_iterator_stop(&model_data->line); /* ending the iteration "session" */        
+  list_iterator_stop(&domain->line); /* ending the iteration "session" */        
   return MAP_SAFE;
 };
 
@@ -222,12 +231,12 @@ MAP_ERROR_CODE set_line_variables_post_solve(ModelData* model_data, char* map_ms
 MAP_ERROR_CODE set_psi(Line* line, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   double overlap_value = 0.0;
-  const MapReal x_fair = *(line->fairlead->position_ptr.x.value);
-  const MapReal y_fair = *(line->fairlead->position_ptr.y.value);
-  const MapReal z_fair = *(line->fairlead->position_ptr.z.value);
-  const MapReal x_anch = *(line->anchor->position_ptr.x.value);
-  const MapReal y_anch = *(line->anchor->position_ptr.y.value);
-  const MapReal z_anch = *(line->anchor->position_ptr.z.value);
+  const double x_fair = *(line->fairlead->position_ptr.x.value);
+  const double y_fair = *(line->fairlead->position_ptr.y.value);
+  const double z_fair = *(line->fairlead->position_ptr.z.value);
+  const double x_anch = *(line->anchor->position_ptr.x.value);
+  const double y_anch = *(line->anchor->position_ptr.y.value);
+  const double z_anch = *(line->anchor->position_ptr.z.value);
 
   overlap_value = sqrt(pow((x_fair-x_anch),2) + pow((y_fair-y_anch),2) +  pow((z_fair-z_anch),2));
   
@@ -245,38 +254,38 @@ MAP_ERROR_CODE set_psi(Line* line, char* map_msg, MAP_ERROR_CODE* ierr)
 };
 
 
-MapReal set_horizontal_excursion(Line* line)
+double set_horizontal_excursion(Line* line)
 {
-  const MapReal x_fair = *(line->fairlead->position_ptr.x.value);
-  const MapReal y_fair = *(line->fairlead->position_ptr.y.value);
-  const MapReal x_anch = *(line->anchor->position_ptr.x.value);
-  const MapReal y_anch = *(line->anchor->position_ptr.y.value);  
+  const double x_fair = *(line->fairlead->position_ptr.x.value);
+  const double y_fair = *(line->fairlead->position_ptr.y.value);
+  const double x_anch = *(line->anchor->position_ptr.x.value);
+  const double y_anch = *(line->anchor->position_ptr.y.value);  
 
   return sqrt(pow((x_fair-x_anch),2) + pow((y_fair-y_anch),2));
 };
 
 
-MapReal set_vertical_excursion(Line* line)
+double set_vertical_excursion(Line* line)
 {
-  const MapReal z_fair = *(line->fairlead->position_ptr.z.value);
-  const MapReal z_anch = *(line->anchor->position_ptr.z.value);
+  const double z_fair = *(line->fairlead->position_ptr.z.value);
+  const double z_anch = *(line->anchor->position_ptr.z.value);
 
   return fabs(z_fair - z_anch);
 };
 
 
-MAP_ERROR_CODE set_line_initial_guess(ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE set_line_initial_guess(Domain* domain, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   Line* line_iter = NULL;
-  MapReal lambda = 0.0;
-  MapReal length = 0.0;
-  MapReal height = 0.0;
-  MapReal w = 0.0;
-  MapReal Lu = 0.0;
+  double lambda = 0.0;
+  double length = 0.0;
+  double height = 0.0;
+  double w = 0.0;
+  double Lu = 0.0;
 
-  list_iterator_start(&model_data->line);            /* starting an iteration "session" */
-  while (list_iterator_hasnext(&model_data->line)) { /* tell whether more values available */ 
-    line_iter = (Line*)list_iterator_next(&model_data->line);    
+  list_iterator_start(&domain->line);            /* starting an iteration "session" */
+  while (list_iterator_hasnext(&domain->line)) { /* tell whether more values available */ 
+    line_iter = (Line*)list_iterator_next(&domain->line);    
     w = line_iter->line_property->omega;
     length = line_iter->l.value;
     height = line_iter->h.value;
@@ -295,20 +304,20 @@ MAP_ERROR_CODE set_line_initial_guess(ModelData* model_data, char* map_msg, MAP_
     *(line_iter->H.value) = fabs(w*length/(2*lambda));
     *(line_iter->V.value) = (w/2)*((height/tanh(lambda)) + Lu);
   };
-  list_iterator_stop(&model_data->line); /* ending the iteration "session" */    
+  list_iterator_stop(&domain->line); /* ending the iteration "session" */    
   return MAP_SAFE;
 };
 
 
 
-MAP_ERROR_CODE line_solve_sequence(ModelData* model_data, MAP_ParameterType_t* p_type, double t, char* map_msg, MAP_ERROR_CODE* ierr) 
+MAP_ERROR_CODE line_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type, double t, char* map_msg, MAP_ERROR_CODE* ierr) 
 {
   MAP_ERROR_CODE success = MAP_SAFE;
 
   do { 
-    success = set_line_variables_pre_solve(model_data, map_msg, ierr);
-    success = reset_node_force_to_zero(model_data, map_msg, ierr);    
-    success = solve_line(model_data, t, map_msg, ierr); CHECKERRQ(MAP_FATAL_88);
+    success = set_line_variables_pre_solve(domain, map_msg, ierr);
+    success = reset_node_force_to_zero(domain, map_msg, ierr);    
+    success = solve_line(domain, t, map_msg, ierr); CHECKERRQ(MAP_FATAL_88);
     // /* prematurely terminating the the line solve routine to return back to the
     //    caller function. Do a back tracking on the solution and attempt recovery */
     // if (success==MAP_FATAL) {
@@ -317,8 +326,8 @@ MAP_ERROR_CODE line_solve_sequence(ModelData* model_data, MAP_ParameterType_t* p
     // CHECKERRQ(MAP_FATAL_39); /* @todo: this should be called elsewhere to notifiy 
     //                             users ofpremature termination. This won't be caught
     //                             when solve_line fails. */    
-    success = set_line_variables_post_solve(model_data, map_msg, ierr);
-    success = calculate_node_sum_force(model_data, p_type);
+    success = set_line_variables_post_solve(domain, map_msg, ierr);
+    success = calculate_node_sum_force(domain, p_type);
   } while (0);
 
   if (success==MAP_SAFE) {
@@ -331,9 +340,9 @@ MAP_ERROR_CODE line_solve_sequence(ModelData* model_data, MAP_ParameterType_t* p
 };    
 
 
-MAP_ERROR_CODE node_solve_sequence(ModelData* model_data, MAP_ParameterType_t* p_type, MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE node_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type, MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, char* map_msg, MAP_ERROR_CODE* ierr)
 {
-  OuterSolveAttributes* ns = &model_data->outer_loop;
+  OuterSolveAttributes* ns = &domain->outer_loop;
   MAP_ERROR_CODE success = MAP_SAFE;
   Line* line_iter = NULL;
   const int THREE = 3;
@@ -351,19 +360,19 @@ MAP_ERROR_CODE node_solve_sequence(ModelData* model_data, MAP_ParameterType_t* p
   ns->iteration_count = 1;
   do {
     error = 0.0;
-    success = line_solve_sequence(model_data, p_type, 0.0, map_msg, ierr); CHECKERRQ(MAP_FATAL_79);
+    success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr); CHECKERRQ(MAP_FATAL_79);
     switch (ns->fd) {
     case BACKWARD_DIFFERENCE :
-      success = backward_difference_jacobian(other_type, p_type, z_type, model_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_75);
+      success = backward_difference_jacobian(other_type, p_type, z_type, domain, map_msg, ierr); CHECKERRQ(MAP_FATAL_75);
       break;
     case CENTRAL_DIFFERENCE :
-      success = central_difference_jacobian(other_type, p_type, z_type, model_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_76);
+      success = central_difference_jacobian(other_type, p_type, z_type, domain, map_msg, ierr); CHECKERRQ(MAP_FATAL_76);
       break;
     case FORWARD_DIFFERENCE :
-      success = forward_difference_jacobian(other_type, p_type, z_type, model_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_77);
+      success = forward_difference_jacobian(other_type, p_type, z_type, domain, map_msg, ierr); CHECKERRQ(MAP_FATAL_77);
       break;
     };
-    success = line_solve_sequence(model_data, p_type, 0.0, map_msg, ierr); CHECKERRQ(MAP_FATAL_78);
+    success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr); CHECKERRQ(MAP_FATAL_78);
     success = lu(ns, SIZE, map_msg, ierr); CHECKERRQ(MAP_FATAL_74);
     success = lu_back_substitution(ns, SIZE, map_msg, ierr); CHECKERRQ(MAP_FATAL_74);
     
@@ -399,15 +408,15 @@ MAP_ERROR_CODE node_solve_sequence(ModelData* model_data, MAP_ParameterType_t* p
 };
 
 
-MAP_ERROR_CODE solve_line(ModelData* model_data, double time, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE solve_line(Domain* domain, double time, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_ERROR_CODE success = MAP_SAFE;
   Line* line_iter = NULL;
   int n = 1; /* line counter */
 
-  list_iterator_start(&model_data->line);            /* starting an iteration "session" */
-  while (list_iterator_hasnext(&model_data->line)) { /* tell whether more values available */ 
-    line_iter = (Line*)list_iterator_next(&model_data->line);
+  list_iterator_start(&domain->line);            /* starting an iteration "session" */
+  while (list_iterator_hasnext(&domain->line)) { /* tell whether more values available */ 
+    line_iter = (Line*)list_iterator_next(&domain->line);
 
     if (line_iter->l.value<MAP_HORIZONTAL_TOL && line_iter->l.value>=0.0) { /* perfectly vertical */
       /* this should be triggered for  perfectly vertical cable */
@@ -428,11 +437,11 @@ MAP_ERROR_CODE solve_line(ModelData* model_data, double time, char* map_msg, MAP
     if (line_iter->options.linear_spring) {
       success = solve_linear_spring_cable(line_iter, map_msg, ierr); CHECKERRQ(MAP_FATAL_87);
     } else {
-      success = call_minpack_lmder(line_iter, &model_data->inner_loop, &model_data->model_options, n, time, map_msg, ierr); CHECKERRQ(MAP_FATAL_79);
+      success = call_minpack_lmder(line_iter, &domain->inner_loop, &domain->model_options, n, time, map_msg, ierr); CHECKERRQ(MAP_FATAL_79);
     };
     n++;
   };
-  list_iterator_stop(&model_data->line); /* ending the iteration "session" */    
+  list_iterator_stop(&domain->line); /* ending the iteration "session" */    
 
   if (*ierr==MAP_SAFE) {
     return MAP_SAFE;
@@ -504,12 +513,12 @@ MAP_ERROR_CODE solve_linear_spring_cable(Line* line, char* map_msg, MAP_ERROR_CO
 MAP_ERROR_CODE check_maximum_line_length(Line* line, const bool contact_flag, char *map_msg, MAP_ERROR_CODE *ierr)
 {
   MAP_ERROR_CODE success = MAP_SAFE;
-  MapReal LMax = 0.0;
-  const MapReal l = line->l.value;
-  const MapReal h = line->h.value;
-  const MapReal EA = line->line_property->EA;
-  const MapReal W = line->line_property->omega;
-  const MapReal Lu = line->Lu.value;
+  double LMax = 0.0;
+  const double l = line->l.value;
+  const double h = line->h.value;
+  const double EA = line->line_property->EA;
+  const double W = line->line_property->omega;
+  const double Lu = line->Lu.value;
 
   LMax = l - EA/W + sqrt(pow((EA/W),2) + 2.0*h*EA/W);
   if (Lu>=LMax && contact_flag==false) {
@@ -520,7 +529,7 @@ MAP_ERROR_CODE check_maximum_line_length(Line* line, const bool contact_flag, ch
 };
 
 
-MAP_ERROR_CODE increment_dof_by_delta(double* u_type, const MapReal delta, const int size)
+MAP_ERROR_CODE increment_dof_by_delta(double* u_type, const double delta, const int size)
 {
   int i = 0;
   for (i=0 ; i<size ; i++) {
@@ -715,16 +724,16 @@ MAP_ERROR_CODE increment_psi_dof_by_delta(MAP_InputType_t* u_type, const Vessel*
 MAP_ERROR_CODE fd_x_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterType_t* p_type, MAP_InputType_t* u_type, MAP_OutputType_t* y_type, MAP_ConstraintStateType_t* z_type, Fd* force, const double epsilon, const int size, const double* original_pos, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_ERROR_CODE success = MAP_SAFE;
-  ModelData* model_data = other_type->object;
-  Vessel* vessel = &model_data->vessel;
+  Domain* domain = other_type->object;
+  Vessel* vessel = &domain->vessel;
 
   do {
     /* minus epsilon sequence */
     success = increment_dof_by_delta(u_type->x, -epsilon, size); CHECKERRQ(MAP_FATAL_61);
-    if (model_data->MAP_SOLVE_TYPE==MONOLITHIC) {
-      success = line_solve_sequence(model_data, p_type, 0.0, map_msg, ierr);
+    if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
+      success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
     } else {
-      success = node_solve_sequence(model_data, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+      success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
     };    
     success = set_force_plus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
     success = set_force_plus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
@@ -734,10 +743,10 @@ MAP_ERROR_CODE fd_x_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterType
   
     /* plus epsilon sequence */
     success = increment_dof_by_delta(u_type->x, epsilon, size); CHECKERRQ(MAP_FATAL_61);
-    if (model_data->MAP_SOLVE_TYPE==MONOLITHIC) {
-      success = line_solve_sequence(model_data, p_type, 0.0, map_msg, ierr);
+    if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
+      success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
     } else {
-      success = node_solve_sequence(model_data, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+      success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
     };    
     success = set_force_minus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
     success = set_force_minus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
@@ -752,16 +761,16 @@ MAP_ERROR_CODE fd_x_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterType
 MAP_ERROR_CODE fd_y_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterType_t* p_type, MAP_InputType_t* u_type, MAP_OutputType_t* y_type, MAP_ConstraintStateType_t* z_type, Fd* force, const double epsilon, const int size, const double* original_pos, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_ERROR_CODE success = MAP_SAFE;
-  ModelData* model_data = other_type->object;
-  Vessel* vessel = &model_data->vessel;
+  Domain* domain = other_type->object;
+  Vessel* vessel = &domain->vessel;
 
   do {
     /* minus epsilon sequence */
     success = increment_dof_by_delta(u_type->y, -epsilon, size); CHECKERRQ(MAP_FATAL_61);
-    if (model_data->MAP_SOLVE_TYPE==MONOLITHIC) {
-      success = line_solve_sequence(model_data, p_type, 0.0, map_msg, ierr);
+    if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
+      success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
     } else {
-      success = node_solve_sequence(model_data, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+      success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
     };    
     success = set_force_plus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
     success = set_force_plus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
@@ -771,10 +780,10 @@ MAP_ERROR_CODE fd_y_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterType
         
     /* plus epsilon sequence */
     success = increment_dof_by_delta(u_type->y, epsilon, size); CHECKERRQ(MAP_FATAL_61);
-    if (model_data->MAP_SOLVE_TYPE==MONOLITHIC) {
-      success = line_solve_sequence(model_data, p_type, 0.0, map_msg, ierr);
+    if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
+      success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
     } else {
-      success = node_solve_sequence(model_data, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+      success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
     };    
     success = set_force_minus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
     success = set_force_minus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
@@ -790,16 +799,16 @@ MAP_ERROR_CODE fd_y_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterType
 MAP_ERROR_CODE fd_z_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterType_t* p_type, MAP_InputType_t* u_type, MAP_OutputType_t* y_type, MAP_ConstraintStateType_t* z_type, Fd* force, const double epsilon, const int size, const double* original_pos, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_ERROR_CODE success = MAP_SAFE;
-  ModelData* model_data = other_type->object;
-  Vessel* vessel = &model_data->vessel;
+  Domain* domain = other_type->object;
+  Vessel* vessel = &domain->vessel;
 
   do {
     /* minus epsilon sequence */
     success = increment_dof_by_delta(u_type->z, -epsilon, size); CHECKERRQ(MAP_FATAL_61);
-    if (model_data->MAP_SOLVE_TYPE==MONOLITHIC) {
-      success = line_solve_sequence(model_data, p_type, 0.0, map_msg, ierr);
+    if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
+      success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
     } else {
-      success = node_solve_sequence(model_data, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+      success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
     };    
     success = set_force_plus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
     success = set_force_plus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
@@ -809,10 +818,10 @@ MAP_ERROR_CODE fd_z_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterType
         
     /* plus epsilon sequence */
     success = increment_dof_by_delta(u_type->z, epsilon, size); CHECKERRQ(MAP_FATAL_61);
-    if (model_data->MAP_SOLVE_TYPE==MONOLITHIC) {
-      success = line_solve_sequence(model_data, p_type, 0.0, map_msg, ierr);
+    if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
+      success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
     } else {
-      success = node_solve_sequence(model_data, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+      success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
     };    
     success = set_force_minus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
     success = set_force_minus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
@@ -828,16 +837,16 @@ MAP_ERROR_CODE fd_z_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterType
 MAP_ERROR_CODE fd_phi_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterType_t* p_type, MAP_InputType_t* u_type, MAP_OutputType_t* y_type, MAP_ConstraintStateType_t* z_type, Fd* force, const double epsilon, const int size, const double* original_x, const double* original_y, const double* original_z, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_ERROR_CODE success = MAP_SAFE;
-  ModelData* model_data = other_type->object;
-  Vessel* vessel = &model_data->vessel;
+  Domain* domain = other_type->object;
+  Vessel* vessel = &domain->vessel;
 
   do {
     /* minus epsilon sequence */
     success = increment_phi_dof_by_delta(u_type, vessel, -epsilon, size); CHECKERRQ(MAP_FATAL_61);        
-    if (model_data->MAP_SOLVE_TYPE==MONOLITHIC) {
-       success = line_solve_sequence(model_data, p_type, 0.0, map_msg, ierr);
+    if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
+       success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
     } else {
-      success = node_solve_sequence(model_data, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+      success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
     };    
     success = set_force_plus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
     success = set_force_plus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
@@ -849,10 +858,10 @@ MAP_ERROR_CODE fd_phi_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterTy
     
     /* plus epsilon sequence */
     success = increment_phi_dof_by_delta(u_type, vessel, epsilon, size); CHECKERRQ(MAP_FATAL_61);        
-    if (model_data->MAP_SOLVE_TYPE==MONOLITHIC) {
-      success = line_solve_sequence(model_data, p_type, 0.0, map_msg, ierr);
+    if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
+      success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
     } else {
-      success = node_solve_sequence(model_data, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+      success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
     };    
     success = set_force_minus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
     success = set_force_minus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
@@ -870,16 +879,16 @@ MAP_ERROR_CODE fd_phi_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterTy
 MAP_ERROR_CODE fd_the_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterType_t* p_type, MAP_InputType_t* u_type, MAP_OutputType_t* y_type, MAP_ConstraintStateType_t* z_type, Fd* force, const double epsilon, const int size, const double* original_x, const double* original_y, const double* original_z, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_ERROR_CODE success = MAP_SAFE;
-  ModelData* model_data = other_type->object;
-  Vessel* vessel = &model_data->vessel;
+  Domain* domain = other_type->object;
+  Vessel* vessel = &domain->vessel;
 
   do {
     /* minus epsilon sequence */
     success = increment_the_dof_by_delta(u_type, vessel, -epsilon, size); CHECKERRQ(MAP_FATAL_61);
-    if (model_data->MAP_SOLVE_TYPE==MONOLITHIC) {
-      success = line_solve_sequence(model_data, p_type, 0.0, map_msg, ierr);
+    if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
+      success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
     } else {
-      success = node_solve_sequence(model_data, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+      success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
     };    
     success = set_force_plus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
     success = set_force_plus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
@@ -891,10 +900,10 @@ MAP_ERROR_CODE fd_the_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterTy
     
     /* plut epsilon sequence */
     success = increment_the_dof_by_delta(u_type, vessel, epsilon, size); CHECKERRQ(MAP_FATAL_61);        
-    if (model_data->MAP_SOLVE_TYPE==MONOLITHIC) {
-      success = line_solve_sequence(model_data, p_type, 0.0, map_msg, ierr);
+    if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
+      success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
     } else {
-      success = node_solve_sequence(model_data, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+      success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
     };    
     success = set_force_minus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
     success = set_force_minus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
@@ -912,15 +921,15 @@ MAP_ERROR_CODE fd_the_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterTy
 MAP_ERROR_CODE fd_psi_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterType_t* p_type, MAP_InputType_t* u_type, MAP_OutputType_t* y_type, MAP_ConstraintStateType_t* z_type, Fd* force, const double epsilon, const int size, const double* original_x, const double* original_y, const double* original_z, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_ERROR_CODE success = MAP_SAFE;
-  ModelData* model_data = other_type->object;
-  Vessel* vessel = &model_data->vessel;
+  Domain* domain = other_type->object;
+  Vessel* vessel = &domain->vessel;
   do {
     /* minus epsilon sequence */
     success = increment_psi_dof_by_delta(u_type, vessel, -epsilon, size); CHECKERRQ(MAP_FATAL_61);
-    if (model_data->MAP_SOLVE_TYPE==MONOLITHIC) {
-      success = line_solve_sequence(model_data, p_type, 0.0, map_msg, ierr);
+    if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
+      success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
     } else {
-      success = node_solve_sequence(model_data, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+      success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
     };    
     success = set_force_plus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
     success = set_force_plus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
@@ -932,10 +941,10 @@ MAP_ERROR_CODE fd_psi_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterTy
         
     /* plut epsilon sequence */
     success = increment_psi_dof_by_delta(u_type, vessel, epsilon, size); CHECKERRQ(MAP_FATAL_61);
-    if (model_data->MAP_SOLVE_TYPE==MONOLITHIC) {
-      success = line_solve_sequence(model_data, p_type, 0.0, map_msg, ierr);
+    if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
+      success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
     } else {
-      success = node_solve_sequence(model_data, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+      success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
     };    
     success = set_force_minus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
     success = set_force_minus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);

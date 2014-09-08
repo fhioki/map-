@@ -30,7 +30,7 @@
 
 MAP_ERROR_CODE map_free_types(MAP_InputType_t* u_type, MAP_ParameterType_t* p_type, MAP_ContinuousStateType_t* x_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type);
 void MAP_InitInput_Delete(InitializationData* init_data);
-void MAP_OtherState_Delete(ModelData* model_data);
+void MAP_OtherState_Delete(Domain* domain);
 MAP_ERROR_CODE free_outer_solve_data(OuterSolveAttributes* ns, const int size, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE free_vessel(Vessel* floater);
 
@@ -60,7 +60,7 @@ MAP_ERROR_CODE free_cable_library(list_t* restrict library);
  * @calledby: mapcall_msqs_end( )
  * @see: allocate_outlist( )
  */
-MAP_ERROR_CODE free_outlist(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE free_outlist(Domain* data, char* map_msg, MAP_ERROR_CODE* ierr);
 
 
 /**

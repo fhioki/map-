@@ -31,7 +31,7 @@
 /**
  * success = incremenet_x_dof_by_delta(uType, -epsilon);
  */
-MAP_ERROR_CODE increment_dof_by_delta(double* u_type, const MapReal delta, const int size);
+MAP_ERROR_CODE increment_dof_by_delta(double* u_type, const double delta, const int size);
 
 
 /**
@@ -89,16 +89,16 @@ MAP_ERROR_CODE set_moment_minus_2(const MAP_InputType_t* u_type, const MAP_Outpu
 /**
  * sets cable excursions (l and h) and reference frame psi rotation
  */
-MAP_ERROR_CODE set_line_variables_pre_solve(ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE set_line_variables_pre_solve(Domain* domain, char* map_msg, MAP_ERROR_CODE* ierr);
 
 
 /**
  * set: alpha, alpha at anchor, H, V and T at anchor, T at fairlead
  */
-MAP_ERROR_CODE set_line_variables_post_solve(ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE set_line_variables_post_solve(Domain* domain, char* map_msg, MAP_ERROR_CODE* ierr);
 
-MapReal set_vertical_excursion(Line* line);
-MapReal set_horizontal_excursion(Line* line);
+double set_vertical_excursion(Line* line);
+double set_horizontal_excursion(Line* line);
 
 
 /**
@@ -118,7 +118,7 @@ MapReal set_horizontal_excursion(Line* line);
 MAP_ERROR_CODE set_psi(Line* line, char* map_msg, MAP_ERROR_CODE* ierr);
 
 
-MAP_ERROR_CODE reset_node_force_to_zero(ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE reset_node_force_to_zero(Domain* domain, char* map_msg, MAP_ERROR_CODE* ierr);
 
 
 /**
@@ -130,7 +130,7 @@ MAP_ERROR_CODE reset_node_force_to_zero(ModelData* model_data, char* map_msg, MA
  * @acceses: none
  * @calledby: mapcall_msqs_init( )
  */                                                   
-MAP_ERROR_CODE set_line_initial_guess(ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE set_line_initial_guess(Domain* domain, char* map_msg, MAP_ERROR_CODE* ierr);
 
 
 MAP_ERROR_CODE solve_linear_spring_cable(Line* line, char* map_msg, MAP_ERROR_CODE* ierr);
@@ -141,9 +141,9 @@ MAP_ERROR_CODE solve_linear_spring_cable(Line* line, char* map_msg, MAP_ERROR_CO
  * MAP_OtherStateType_t* otherType,
  * MAP_OutputType_t* yType,
  */
-MAP_ERROR_CODE node_solve_sequence(ModelData* model_data, MAP_ParameterType_t* p_type, MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE line_solve_sequence(ModelData* model_data, MAP_ParameterType_t* p_type, double t, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE solve_line(ModelData* model_data, double time, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE node_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type, MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE line_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type, double t, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE solve_line(Domain* domain, double time, char* map_msg, MAP_ERROR_CODE* ierr);
 
 
 /**
@@ -165,26 +165,26 @@ MAP_ERROR_CODE check_maximum_line_length(Line* line, const bool contact_flag, ch
 /**
  * call immediately after set_line_variables_post_solve(); this added H and V
  */
-MAP_ERROR_CODE calculate_node_sum_force(ModelData* model_data, MAP_ParameterType_t* p_type);
+MAP_ERROR_CODE calculate_node_sum_force(Domain* domain, MAP_ParameterType_t* p_type);
 
 
 
 /**
  * increment sum force value by (f) if node is fairlead; (-f) is node is anchor. 
  */
-void add_to_sum_fx(Node* node, const MapReal fx);
+void add_to_sum_fx(Node* node, const double fx);
 
 
 /**
  * increment sum force value by (f) if node is fairlead; (-f) is node is anchor. 
  */
-void add_to_sum_fy(Node* node, const MapReal fy);
+void add_to_sum_fy(Node* node, const double fy);
 
 
 /**
  * increment sum force value by (f) if node is fairlead; (-f) is node is anchor. 
  */
-void add_to_sum_fz(Node* node, const MapReal fz);
+void add_to_sum_fz(Node* node, const double fz);
 
 
 #endif /* _LINEROUTINES_H */

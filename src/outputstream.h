@@ -45,11 +45,11 @@ MAP_ERROR_CODE get_iteration_output_stream(MAP_OutputType_t *y_type, MAP_OtherSt
  * @brief
  * @param init_data MAP internal initialization data structure
  * @param param_type parmeter type, native C struct {@link MAP_ParameterType_t}
- * @param model_data internal state data {@link ModelData}
+ * @param domain internal state data {@link Domain}
  * @param map_msg error message
  * @param ierr error code
  */
-MAP_ERROR_CODE write_summary_file(InitializationData* init_data, MAP_ParameterType_t* param_type, ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE write_summary_file(InitializationData* init_data, MAP_ParameterType_t* param_type, Domain* domain, char* map_msg, MAP_ERROR_CODE* ierr);
 
 
 /**
@@ -63,10 +63,10 @@ MAP_ERROR_CODE write_summary_file(InitializationData* init_data, MAP_ParameterTy
  *        CB                  : {value}
  *        </pre>
  * @param file file where string is being dumped to
- * @param model_data internal state data {@link ModelData}
+ * @param domain internal state data {@link Domain}
  * @todo  include new properties for the LM model
  */
-MAP_ERROR_CODE write_cable_library_information_to_summary_file(FILE* file, ModelData* model_data);
+MAP_ERROR_CODE write_cable_library_information_to_summary_file(FILE* file, Domain* domain);
 
 
 /**
@@ -214,11 +214,11 @@ MAP_ERROR_CODE write_node_z_sum_force_to_summary_file(const int num_col, const i
  *        FZ [N]    |   0.000                  0.000                  0.000                  0.000
  *        </pre>
  * @param file file where string is being dumped to
- * @param model_data internal state data {@link ModelData}
+ * @param domain internal state data {@link Domain}
  * @param map_msg error message
  * @param ierr error code
  */
-MAP_ERROR_CODE write_node_information_to_summary_file(FILE* file, ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE write_node_information_to_summary_file(FILE* file, Domain* domain, char* map_msg, MAP_ERROR_CODE* ierr);
 
 /**
  * @brief write the complete line block to the summary file
@@ -242,9 +242,9 @@ MAP_ERROR_CODE write_node_information_to_summary_file(FILE* file, ModelData* mod
  *        Term. criteria  |  0
  *        </pre>
  * @param file file where string is being dumped to
- * @param model_data internal state data {@link ModelData}
+ * @param domain internal state data {@link Domain}
  */
-MAP_ERROR_CODE write_line_information_to_summary_file(FILE* file, ModelData* model_data);
+MAP_ERROR_CODE write_line_information_to_summary_file(FILE* file, Domain* domain);
 
 /**
  * @brief prints the expanded MAP input file. This can be used as a check to make sure the repeat flags 

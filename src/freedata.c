@@ -30,13 +30,13 @@
 
 
 
-void MAP_OtherState_Delete(ModelData* model_data)
+void MAP_OtherState_Delete(Domain* domain)
 {
-  MAPFREE(model_data);
+  MAPFREE(domain);
 };
 
 
-MAP_ERROR_CODE free_outlist(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE free_outlist(Domain* data, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAPFREE(data->y_list);
   return MAP_SAFE;
