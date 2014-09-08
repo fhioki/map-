@@ -1,6 +1,6 @@
 Outputs were generated using MAP++ 0af4-dirty.
 
-    Sunday September 07-2014 at 16:44:12 PM
+    Monday September 08-2014 at 10:45:59 AM
 
     Gravity constant          [m/s^2]  : 9.81
     Sea density               [kg/m^3] : 1025.00
@@ -95,8 +95,8 @@ Node  Type       X       Y       Z      M     B     FX    FY    FZ
 ---------------------- LINE PROPERTIES ---------------------------------------
 Line  LineType  UnstrLen  NodeAnch  NodeFair  Flags
 [-]      [-]       [m]       [-]       [-]       [-]
-1        chainup   680        1         2        plot gx_pos h_fair damage_time 99 omit_contact                                                                                                                                                                
-2        chainup   680        3         4        plot gx_pos omit_contact gx_force                                                                                                                                                                             
+1        chainup   680        1         2        plot h_fair  damage_time 99 omit_contact                                                                                                                                                                      
+2        chainup   680        3         4        plot omit_contact h_anch                                                                                                                                                                                      
 ---------------------- SOLVER OPTIONS-----------------------------------------
 Option 
 [-] 
