@@ -282,18 +282,24 @@ MAP_ERROR_CODE set_line_initial_guess(ModelData* model_data, char* map_msg, MAP_
     length = line_iter->l.value;
     height = line_iter->h.value;
     Lu = line_iter->Lu.value;
-    
-    /* note: the line horizontal (l) and vertical (h) excursion are previously initialized in set_line_variables_pre_solve(...) */ 
-    if (length<=1e-2) {
-      lambda = 1000000;
-    } else if (sqrt(length*length+height*height)>=Lu) {
-      lambda = 0.2;
-    } else {
-      lambda = sqrt(3*((Lu*Lu - height*height)/(length*length) - 1));
-    };
 
-    /* note: omega is previously initialized in function initialize_cable_library_variables(.. ) in mapinit.c */    
-    *(line_iter->H.value) = fabs(w*length/(2*lambda));
+    /* set initial guess to user defined value in the MAP input file */
+    if (line_iter->fairlead->external_force.fx.user_initial_guess && line_iter->fairlead->external_force.fy.user_initial_guess) {      
+      *(line_iter->H.value) = sqrt(pow(line_iter->fairlead->external_force.fx.value,2) +       
+                                   pow(line_iter->fairlead->external_force.fy.value,2));
+    } else {    
+      /* note: the line horizontal (l) and vertical (h) excursion are previously initialized in set_line_variables_pre_solve(...) */ 
+      if (length<=1e-2) {
+        lambda = 1000000;
+      } else if (sqrt(length*length+height*height)>=Lu) {
+        lambda = 0.2;
+      } else {
+        lambda = sqrt(3*((Lu*Lu - height*height)/(length*length) - 1));
+      };
+
+      /* note: omega is previously initialized in function initialize_cable_library_variables(.. ) in mapinit.c */    
+      *(line_iter->H.value) = fabs(w*length/(2*lambda));
+    };
 
     /* set initial guess to user defined value in the MAP input file */
     if (line_iter->fairlead->external_force.fz.user_initial_guess) {

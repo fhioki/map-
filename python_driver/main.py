@@ -83,22 +83,22 @@ if __name__ == '__main__':
     # print mooring_1.dzdh(1)
     # print mooring_1.dzdv(1)
 
-    # fig = plt.figure()
-    # ax = Axes3D(fig)
-    # for i in range(0,mooring_1.size_lines()):
-    #     x = mooring_1.plot_x( i, 50 )
-    #     y = mooring_1.plot_y( i, 50 )
-    #     z = mooring_1.plot_z( i, 50 )    
-    #     ax.plot(x,y,z,'b-')
-    #  
-    # ax.set_xlabel('X [m]')
-    # ax.set_ylabel('Y [m]')
-    # ax.set_zlabel('Z [m]')        
-    # # ax.set_xlim([-50.0,50])        
-    # # ax.set_ylim([-50.0,50])        
-    # # ax.set_zlim([-30.0,-12])        
-    #  
-    # plt.show()
+    fig = plt.figure()
+    ax = Axes3D(fig)
+    for i in range(0,mooring_1.size_lines()):
+        x = mooring_1.plot_x( i, 50 )
+        y = mooring_1.plot_y( i, 50 )
+        z = mooring_1.plot_z( i, 50 )    
+        ax.plot(x,y,z,'b-')
+     
+    ax.set_xlabel('X [m]')
+    ax.set_ylabel('Y [m]')
+    ax.set_zlabel('Z [m]')        
+    # ax.set_xlim([-50.0,50])        
+    # ax.set_ylim([-50.0,50])        
+    # ax.set_zlim([-30.0,-12])        
+     
+    plt.show()
     
     mooring_1.end( )
     
