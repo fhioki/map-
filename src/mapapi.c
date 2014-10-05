@@ -917,6 +917,7 @@ MAP_EXTERNCALL void map_get_fairlead_force_3d(double* fx, double* fy, double* fz
 MAP_EXTERNCALL int map_size_lines(MAP_OtherStateType_t* other_type, MAP_ERROR_CODE* ierr, char* map_msg)
 {
   ModelData* model_data = other_type->object;
+  map_reset_universal_error(map_msg, ierr);  
   return list_size(&model_data->line);
 }
 

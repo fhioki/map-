@@ -116,6 +116,7 @@ const char MAP_ERROR_STRING[][256] = {
   /* MAP_FATAL_87   */  "Line linear spring solver failed",
   /* MAP_FATAL_88   */  "Line failed",
   /* MAP_FATAL_89   */  "Input index array exceeded during UpdateStates. Inputs were not set correctly by the program",
+  /* MAP_FATAL_90   */  "L^2 norm is too large. MAP may not have converged",
   /* MAP_ERROR_1    */  "Line option 'DAMGE_TIME' does not trail with a valid value. Ignoring this run-time flag. Chek the MAP input file",
   /* MAP_ERROR_2    */  "Value for 'INNER_FTOL' is not a valid numeric value. Using the default value <1e-6>",
   /* MAP_ERROR_3    */  "Value for 'OUTER_TOL' is not a valid numeric value. Using the default value <1e-6>",
@@ -144,7 +145,6 @@ const char MAP_ERROR_STRING[][256] = {
   /* MAP_WARNING_8  */  "Invalid parameters for PG_COOKED option: using default value of ds = 1.0, d = 0.0",
   /* MAP_WARNING_9  */  "Attemping to recover from fatal error...",
   /* MAP_WARNING_10 */  "Ignoring wave kinematic hydrodynamics. This feature is not available",
-  /* MAP_WARNING_11 */  "L^2 norm is too large. MAP may not have converged",
 };
 
 
@@ -158,12 +158,19 @@ void set_universal_error(char* map_msg, MAP_ERROR_CODE* ierr, const MAP_ERROR_CO
   if (new_error_code>=MAP_WARNING_1) { /* MAP did not quite fail. Let users know what the error is */    
     error_number = new_error_code-MAP_WARNING_1 + 1;
     out_string = bformat("MAP_WARNING[%d] : %s.\n", error_number, MAP_ERROR_STRING[new_error_code]);
+    if (*ierr<=MAP_WARNING) {
+      *ierr = MAP_WARNING;
+    };
   } else if (new_error_code>=MAP_ERROR_1 ) { /* MAP failed but recovered */    
     error_number = new_error_code-MAP_ERROR_1+1;    
     out_string = bformat("MAP_ERROR[%d] : %s.\n", error_number, MAP_ERROR_STRING[new_error_code]);
+    if (*ierr<=MAP_ERROR) {
+      *ierr = MAP_ERROR;
+    };
   } else { /* MAP failed and program must end prematurely */    
     error_number = new_error_code;
     out_string = bformat("MAP_FATAL[%d] : %s.\n", error_number, MAP_ERROR_STRING[new_error_code]);
+    *ierr = MAP_FATAL;
   };
 
   ret = bconcat(message, out_string);
@@ -171,13 +178,6 @@ void set_universal_error(char* map_msg, MAP_ERROR_CODE* ierr, const MAP_ERROR_CO
   copy_target_string(map_msg, message->data);
   ret = bdestroy(out_string);
   ret = bdestroy(message);
-  if (*ierr<=MAP_WARNING) {
-    *ierr = MAP_WARNING;
-  } else if (*ierr<=MAP_ERROR) {
-    *ierr = MAP_ERROR;
-  } else {
-    *ierr = MAP_FATAL;
-  };
 };
 
 
@@ -193,7 +193,7 @@ void set_universal_error_with_message(char* map_msg, MAP_ERROR_CODE* ierr, const
   va_list arglist;
   bstring out_string = NULL;
   bstring user_msg = NULL;
-  bstring message = bformat("%s", map_msg); /* first format map_msg to contain previously raised errors */
+  bstring message = bformat("%s", map_msg); /* first format map_msg to contain previously raised errors */ 
   const int START_VSNBUFF = 16;    
   int error_number = 0;
   int ret = 0;
@@ -243,14 +243,21 @@ void set_universal_error_with_message(char* map_msg, MAP_ERROR_CODE* ierr, const
     /* MAP did not quite fail. Let users know what the error is */    
     error_number = new_error_code - MAP_WARNING_1 + 1;
     out_string = bformat("MAP_WARNING[%d] : %s. %s\n", error_number, MAP_ERROR_STRING[new_error_code], user_msg->data);
+    if (*ierr<=MAP_WARNING) {
+      *ierr = MAP_WARNING;
+    };
   } else if (new_error_code>=MAP_ERROR_1 ) { 
     /* MAP failed but recovered */    
     error_number = new_error_code - MAP_ERROR_1+1;    
     out_string = bformat("MAP_ERROR[%d] : %s. %s\n", error_number, MAP_ERROR_STRING[new_error_code], user_msg->data);
+    if (*ierr<=MAP_ERROR) {
+      *ierr = MAP_ERROR;
+    };
   } else { 
     /* MAP failed and program must end prematurely */    
     error_number = new_error_code;
     out_string = bformat("MAP_FATAL[%d] : %s. %s\n", error_number, MAP_ERROR_STRING[new_error_code], user_msg->data);
+    *ierr = MAP_FATAL;
   };
 
   ret = bconcat(message, out_string);
@@ -259,11 +266,4 @@ void set_universal_error_with_message(char* map_msg, MAP_ERROR_CODE* ierr, const
   ret = bdestroy(out_string);
   ret = bdestroy(message);
   ret = bdestroy(user_msg);
-  if (*ierr<=MAP_WARNING) {
-    *ierr = MAP_WARNING;
-  } else if (*ierr<=MAP_ERROR) {
-    *ierr = MAP_ERROR;
-  } else {
-    *ierr = MAP_FATAL;
-  };
 };

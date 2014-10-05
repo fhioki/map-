@@ -1244,7 +1244,7 @@ MAP_ERROR_CODE expand_node_force_x(double* fx, const char* word)
     if (is_numeric(remove_first_character(word))) { 
       *fx = (double)atof(remove_first_character(word));
     } else { /* in this case, it is presumed the force is just '#' */
-      *fx = 0.0;                  
+      *fx = -999.9;                  
     };
   } else {
     return MAP_FATAL;
@@ -1260,7 +1260,7 @@ MAP_ERROR_CODE expand_node_force_y(double* fy, const char* word)
     if (is_numeric(remove_first_character(word))) { 
       *fy = (double)atof(remove_first_character(word));
     } else { /* in this case, it is presumed the force is just '#' */
-      *fy = 0.0;                  
+      *fy = -999.9;                  
     };
   } else {
     return MAP_FATAL;
@@ -1275,20 +1275,26 @@ MAP_ERROR_CODE expand_node_force_z(Vector* force, const double angle, const doub
 
   force->x =  fx*cos(angle) + fy*sin(angle);
   force->y = -fx*sin(angle) + fy*cos(angle);                    
+
   if (is_numeric(word)) { /* if number is numeric */
     force->z = (double)atof(word);                
   } else if (word[0]=='#') { /* if the nuymber is iterated */
     if (is_numeric(remove_first_character(word))) { 
       force->z = (double)atof(remove_first_character(word));
     } else { /* in this case, it is presumed the force is just '#' */
-      force->z = 0.0;                  
+      force->z = -999.9;                  
     };
   } else {
     return MAP_FATAL;
   };
+
   if (word[0]=='#') { 
-    force->z = (MapReal)atof(remove_first_character(word));
-    current_entry = bformat("#%1.4f   #%1.4f   #%1.4f\n",force->x, force->y, force->z);              
+    if (!is_numeric(remove_first_character(word))) { 
+       current_entry = bformat("#         #        #\n",force->x, force->y, force->z);              
+     } else {
+       force->z = (MapReal)atof(remove_first_character(word));
+       current_entry = bformat("#%1.4f   #%1.4f   #%1.4f\n",force->x, force->y, force->z);              
+     };
   } else {
     force->z = (MapReal)atof(word);
     current_entry = bformat("%1.4f   %1.4f   %1.4f\n",force->x, force->y, force->z);              
@@ -1724,6 +1730,7 @@ MAP_ERROR_CODE set_node_list(const MAP_ParameterType_t* p_type,  MAP_InputType_t
               success = associate_vartype_ptr(&node_iter->position_ptr.x, z_type->x, connect_num);
               success = associate_vartype_ptr(&node_iter->position_ptr.y, z_type->y, connect_num);
               success = associate_vartype_ptr(&node_iter->position_ptr.z, z_type->z, connect_num);
+              printf("connect z position: %f\n", *node_iter->position_ptr.z.value);
               success = associate_vartype_ptr(&node_iter->sum_force_ptr.fx, other_type->Fx_connect, connect_num);
               success = associate_vartype_ptr(&node_iter->sum_force_ptr.fy, other_type->Fy_connect, connect_num);
               success = associate_vartype_ptr(&node_iter->sum_force_ptr.fz, other_type->Fz_connect, connect_num);
@@ -1880,7 +1887,7 @@ MAP_ERROR_CODE set_vartype(const char* unit, bstring alias, const int num, VarTy
       type->is_fixed = false;
       if (property->slen==1) { /* implies that property->data = "#" */
         type->value = -999.9;
-      } else if (is_numeric(remove_first_character(property->data))) { 
+      } else if (is_numeric(remove_first_character(property->data))) {
         type->value = (double)atof(remove_first_character(property->data));
         type->user_initial_guess = true;
       } else {

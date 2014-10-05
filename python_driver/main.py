@@ -31,14 +31,15 @@ if __name__ == '__main__':
 
     mooring_1 = Map( )
     
-    mooring_1.map_set_sea_depth(120)
+    mooring_1.map_set_sea_depth(300)
     mooring_1.map_set_gravity(9.81)
     mooring_1.map_set_sea_density(1020.0)
     
     # mooring_1.read_file("../test/baseline_1.map") # 100 m depth    
     # mooring_1.read_file("../test/baseline_2.map") # 100 m depth
-    mooring_1.read_file("../test/baseline_3.map") # 120 m depth
+    # mooring_1.read_file("../test/baseline_3.map") # 120 m depth
     # mooring_1.read_file("../test/baseline_4.map") # 100 m depth
+    mooring_1.read_file("../test/baseline_5.map") # 100 m depth
     # mooring_1.read_file("../test/NRELOffshrBsline5MW_Platform_OC3Hywind_segmented.map") # 320 m depth
     # mooring_1.read_file("../test/NRELOffshrBsLine5MW_TLP.map") # 200 m depth
 

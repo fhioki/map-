@@ -123,6 +123,7 @@ typedef enum MAP_ERROR_CODE {
   MAP_FATAL_87  , // Line linear spring solver failed. 
   MAP_FATAL_88  , // Line failed
   MAP_FATAL_89  , // Input index array exceeded during UpdateStates. Inputs were not set correctly by the program
+  MAP_FATAL_90  , // L^2 norm is too large. MAP may not have converged
   MAP_ERROR_1   , // Line option 'DAMAGE_TIME' does not trail with a valid value. Ignoring this run-time flag. Chek the MAP input file
   MAP_ERROR_2   , // Value for 'INNER_FTOL' is not a valid numeric value. Using the default value <1e-6>
   MAP_ERROR_3   , // Value for 'OUTER_TOL' is not a valid numeric value. Using the default value <1e-6>
@@ -151,7 +152,6 @@ typedef enum MAP_ERROR_CODE {
   MAP_WARNING_8 , // Invalid parameters for PG_COOKED option: using default value of ds = 1.0, d = 0.0
   MAP_WARNING_9 , // Attemping to recover from fatal error by back tracking...
   MAP_WARNING_10, // Ignoring wave kinematic hydrodynamics. This feature is not available
-  MAP_WARNING_11  // L^2 norm is too large. MAP may not have converged
 } MAP_ERROR_CODE ;
 
 

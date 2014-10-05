@@ -282,8 +282,10 @@ MAP_ERROR_CODE set_line_initial_guess(ModelData* model_data, char* map_msg, MAP_
     length = line_iter->l.value;
     height = line_iter->h.value;
     Lu = line_iter->Lu.value;
-
-    /* set initial guess to user defined value in the MAP input file */
+    
+    /* set initial guess to user defined value (horizontal fairlead force) 
+       in the MAP input file 
+    */
     if (line_iter->fairlead->external_force.fx.user_initial_guess && line_iter->fairlead->external_force.fy.user_initial_guess) {      
       *(line_iter->H.value) = sqrt(pow(line_iter->fairlead->external_force.fx.value,2) +       
                                    pow(line_iter->fairlead->external_force.fy.value,2));
@@ -301,7 +303,9 @@ MAP_ERROR_CODE set_line_initial_guess(ModelData* model_data, char* map_msg, MAP_
       *(line_iter->H.value) = fabs(w*length/(2*lambda));
     };
 
-    /* set initial guess to user defined value in the MAP input file */
+    /* set initial guess to user defined value (vertical fairlead force) 
+       in the MAP input file 
+    */
     if (line_iter->fairlead->external_force.fz.user_initial_guess) {
       *(line_iter->V.value) = line_iter->fairlead->external_force.fz.value;      
     } else {
@@ -322,7 +326,7 @@ MAP_ERROR_CODE line_solve_sequence(ModelData* model_data, MAP_ParameterType_t* p
   do { 
     success = set_line_variables_pre_solve(model_data, map_msg, ierr);
     success = reset_node_force_to_zero(model_data, map_msg, ierr);    
-    success = solve_line(model_data, t, map_msg, ierr); CHECKERRQ(MAP_FATAL_88);
+    success = solve_line(model_data, t, map_msg, ierr); CHECKERRQ(MAP_FATAL_88);   
     // /* prematurely terminating the the line solve routine to return back to the
     //    caller function. Do a back tracking on the solution and attempt recovery */
     // if (success==MAP_FATAL) {
@@ -378,6 +382,19 @@ MAP_ERROR_CODE node_solve_sequence(ModelData* model_data, MAP_ParameterType_t* p
       break;
     };
     success = line_solve_sequence(model_data, p_type, 0.0, map_msg, ierr); CHECKERRQ(MAP_FATAL_78);
+
+    // /* check if the line actually solved */
+    // list_iterator_start(&model_data->line);            /* starting an iteration "session" */
+    // while (list_iterator_hasnext(&model_data->line)) { /* tell whether more values available */ 
+    //   line_iter = (Line*)list_iterator_next(&model_data->line);
+    //   if (line_iter->residual_norm>1e-3) {
+    //     success = MAP_WARNING;
+    //     set_universal_error_with_message(map_msg, ierr, MAP_WARNING_11, "Line segment %d.", n);
+    //   };
+    //   n++;
+    // };
+    // list_iterator_stop(&model_data->line); /* ending the iteration "session" */    
+
     success = lu(ns, SIZE, map_msg, ierr); CHECKERRQ(MAP_FATAL_74);
     success = lu_back_substitution(ns, SIZE, map_msg, ierr); CHECKERRQ(MAP_FATAL_74);
     
@@ -443,6 +460,12 @@ MAP_ERROR_CODE solve_line(ModelData* model_data, double time, char* map_msg, MAP
       success = solve_linear_spring_cable(line_iter, map_msg, ierr); CHECKERRQ(MAP_FATAL_87);
     } else {
       success = call_minpack_lmder(line_iter, &model_data->inner_loop, &model_data->model_options, n, time, map_msg, ierr); CHECKERRQ(MAP_FATAL_79);
+    };
+
+    /* check if L^2 norm is small. If not, MAP converged prematurely */
+    if (line_iter->residual_norm>1e-3) {
+      set_universal_error_with_message(map_msg, ierr, MAP_FATAL_90, "Line segment %d.", n);
+      break;      
     };
     n++;
   };

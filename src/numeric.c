@@ -585,11 +585,6 @@ MAP_ERROR_CODE call_minpack_lmder(Line* line, InnerSolveAttributes* inner_opt, M
   
   line->residual_norm = (MapReal)__minpack_func__(enorm)(&inner_opt->m, inner_opt->fvec);
 
-  if (line->residual_norm>1e-3) {
-    success = MAP_WARNING;
-    set_universal_error_with_message(map_msg, ierr, MAP_WARNING_11, "Line segment %d.", line_num);
-  };
-
   if (line->options.diagnostics_flag && (double)line->diagnostic_type>time ) { 
     printf("\n      %4.3f [sec]  Line %d\n",time, line_num+1);
     printf("      ----------------------------------------------------\n");
