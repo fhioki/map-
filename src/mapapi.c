@@ -133,9 +133,17 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
     success = set_line_initial_guess(model_data, map_msg, ierr);
     success = first_solve(model_data, p_type, u_type, z_type, other_type, y_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_39);
     success = set_line_variables_post_solve(model_data, map_msg, ierr);    // @rm, not needed. This is called in line_solve_sequence
-    success = write_summary_file(init_data, p_type, model_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_37);           
-    success = get_iteration_output_stream(y_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
   } while (0);  
+
+  /* the next functions are called in a seperate do-loop to log information to the 
+   * summary file even if a fatal error is encountered. This guarantees the summary 
+   * file is written even if garbage is recorded.
+   */
+  do {
+    success = write_summary_file(init_data, p_type, model_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_37);           
+    success = get_iteration_output_stream(y_type, other_type, map_msg, ierr); // @todo CHECKERRQ()    
+  } while (0);
+
   free_init_data(init_data, map_msg, ierr); 
   MAP_InitInput_Delete(init_data);
 };
@@ -627,11 +635,28 @@ MAP_EXTERNCALL double* map_plot_z_array(MAP_OtherStateType_t* other_type, int i,
      * @ref : J. Jonkman, November 2007. "Dynamic Modeling and Loads Analysis of an 
      *        Offshore Floating Wind Turbine." NREL Technical Report NREL/TP-500-41958.
      */        
-    if (line->options.omit_contact==true || w<0.0 || (V-w*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
+    if (line->options.omit_contact==true || w<0.0 || (V-w*Lu)>0.0) { /* true when no portion of the line rests on the seabed */      
+      if (fairlead_z<anchor_z) {
+        V = fabs(V - Lu*w);
+      };
       for (s=0 ; s<num_points ; s++) {
         array_z[s] =  fairlead_z - ((H/w)*(sqrt(1+pow(V/H,2)) - sqrt(1+pow((V-w*S)/H,2))) + (1/EA)*(V*S+w*S*S/2)); /* Z position of line in global coordinates */
         S += dS;
       };
+    
+      // // printf("%f    %f\n",fairlead_z,anchor_z);
+      // if (fairlead_z>anchor_z) {
+      //   for (s=0 ; s<num_points ; s++) {
+      //     array_z[s] =  fairlead_z - ((H/w)*(sqrt(1+pow(V/H,2)) - sqrt(1+pow((V-w*S)/H,2))) + (1/EA)*(V*S+w*S*S/2)); /* Z position of line in global coordinates */
+      //     S += dS;
+      //   };
+      // } else {
+      //   V = fabs(V - Lu*w);
+      //   for (s=0 ; s<num_points ; s++) {          
+      //     array_z[s] =  fairlead_z - ((H/w)*(sqrt(1+pow(V/H,2)) - sqrt(1+pow((V-w*S)/H,2))) + (1/EA)*(V*S+w*S*S/2)); /* Z position of line in global coordinates */
+      //     S += dS;
+      //   };
+      // };    
     } else {
       Lb = Lu - (V/w);      
       for (s=0 ; s<num_points ; s++) {        

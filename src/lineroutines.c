@@ -382,19 +382,6 @@ MAP_ERROR_CODE node_solve_sequence(ModelData* model_data, MAP_ParameterType_t* p
       break;
     };
     success = line_solve_sequence(model_data, p_type, 0.0, map_msg, ierr); CHECKERRQ(MAP_FATAL_78);
-
-    // /* check if the line actually solved */
-    // list_iterator_start(&model_data->line);            /* starting an iteration "session" */
-    // while (list_iterator_hasnext(&model_data->line)) { /* tell whether more values available */ 
-    //   line_iter = (Line*)list_iterator_next(&model_data->line);
-    //   if (line_iter->residual_norm>1e-3) {
-    //     success = MAP_WARNING;
-    //     set_universal_error_with_message(map_msg, ierr, MAP_WARNING_11, "Line segment %d.", n);
-    //   };
-    //   n++;
-    // };
-    // list_iterator_stop(&model_data->line); /* ending the iteration "session" */    
-
     success = lu(ns, SIZE, map_msg, ierr); CHECKERRQ(MAP_FATAL_74);
     success = lu_back_substitution(ns, SIZE, map_msg, ierr); CHECKERRQ(MAP_FATAL_74);
     
@@ -412,8 +399,6 @@ MAP_ERROR_CODE node_solve_sequence(ModelData* model_data, MAP_ParameterType_t* p
       set_universal_error(map_msg, ierr, MAP_FATAL_80);
       break;
     };
-    
-    // printf("Error: %f, tol=%f\n",sqrt(error),ns->tol);
     
     /* @todo: end when iterations is exceeded. need some way to indicate that simulation did not suuficiently 
      * meet termination criteria

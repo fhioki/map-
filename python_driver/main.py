@@ -31,7 +31,7 @@ if __name__ == '__main__':
 
     mooring_1 = Map( )
     
-    mooring_1.map_set_sea_depth(300)
+    mooring_1.map_set_sea_depth(100)
     mooring_1.map_set_gravity(9.81)
     mooring_1.map_set_sea_density(1020.0)
     
@@ -87,9 +87,10 @@ if __name__ == '__main__':
     fig = plt.figure()
     ax = Axes3D(fig)
     for i in range(0,mooring_1.size_lines()):
-        x = mooring_1.plot_x( i, 50 )
-        y = mooring_1.plot_y( i, 50 )
-        z = mooring_1.plot_z( i, 50 )    
+        x = mooring_1.plot_x( i, 10 )
+        y = mooring_1.plot_y( i, 10 )
+        z = mooring_1.plot_z( i, 10 )    
+        print z
         ax.plot(x,y,z,'b-')
      
     ax.set_xlabel('X [m]')
