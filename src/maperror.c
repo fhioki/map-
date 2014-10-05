@@ -144,6 +144,7 @@ const char MAP_ERROR_STRING[][256] = {
   /* MAP_WARNING_8  */  "Invalid parameters for PG_COOKED option: using default value of ds = 1.0, d = 0.0",
   /* MAP_WARNING_9  */  "Attemping to recover from fatal error...",
   /* MAP_WARNING_10 */  "Ignoring wave kinematic hydrodynamics. This feature is not available",
+  /* MAP_WARNING_11 */  "Could not enable the lumped-mass model during initialization",
 };
 
 

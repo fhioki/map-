@@ -60,7 +60,7 @@ MAP_ERROR_CODE free_cable_library(list_t* restrict library);
  * @calledby: mapcall_msqs_end( )
  * @see: allocate_outlist( )
  */
-MAP_ERROR_CODE free_outlist(Domain* data, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE free_outlist(Domain* domain, char* map_msg, MAP_ERROR_CODE* ierr);
 
 
 /**

@@ -36,9 +36,22 @@ void MAP_OtherState_Delete(Domain* domain)
 };
 
 
-MAP_ERROR_CODE free_outlist(Domain* data, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE free_outlist(Domain* domain, char* map_msg, MAP_ERROR_CODE* ierr)
 {
-  MAPFREE(data->y_list);
+  VarTypePtr* vartype_ptr = NULL;
+  list_iterator_start(&domain->y_list->out_list_ptr);
+  while (list_iterator_hasnext(&domain->y_list->out_list_ptr)) { 
+    vartype_ptr = (VarTypePtr*)list_iterator_next(&domain->y_list->out_list_ptr);
+    bdestroy(vartype_ptr->name);
+    bdestroy(vartype_ptr->units);
+  };
+  list_iterator_stop(&domain->y_list->out_list_ptr);     
+
+  // @rm y_list->out_list no longer exists/is useful 
+  list_destroy(&domain->y_list->out_list);    /* destroy output lists for writting information to output file */
+  list_destroy(&domain->y_list->out_list_ptr); /* destroy output lists for writting information to output file */
+  
+  MAPFREE(domain->y_list);
   return MAP_SAFE;
 };
 
@@ -78,44 +91,44 @@ MAP_ERROR_CODE free_line(list_t* restrict line)
   list_iterator_start(line); /* starting an iteration "session" */
   while (list_iterator_hasnext(line)) { /* tell whether more values available */
     line_iter = (Line*)list_iterator_next(line);
-    bdestroy(line_iter->psi.name); 
-    bdestroy(line_iter->psi.units);
-    bdestroy(line_iter->alpha.name);
-    bdestroy(line_iter->alpha.units);
-    bdestroy(line_iter->alpha_at_anchor.name);
-    bdestroy(line_iter->alpha_at_anchor.units);
-    bdestroy(line_iter->l.name); 
-    bdestroy(line_iter->l.units);
-    bdestroy(line_iter->Lb.name); 
-    bdestroy(line_iter->Lb.units);
+    // @rm  bdestroy(line_iter->psi.name); 
+    // @rm  bdestroy(line_iter->psi.units);
+    // @rm  bdestroy(line_iter->alpha.name);
+    // @rm  bdestroy(line_iter->alpha.units);
+    // @rm  bdestroy(line_iter->alpha_at_anchor.name);
+    // @rm  bdestroy(line_iter->alpha_at_anchor.units);
+    // @rm  bdestroy(line_iter->l.name); 
+    // @rm  bdestroy(line_iter->l.units);
+    // @rm  bdestroy(line_iter->Lb.name); 
+    // @rm  bdestroy(line_iter->Lb.units);
     bdestroy(line_iter->Lu.name); 
     bdestroy(line_iter->Lu.units);
-    bdestroy(line_iter->h.name); 
-    bdestroy(line_iter->h.units);
+    // @rm  bdestroy(line_iter->h.name); 
+    // @rm  bdestroy(line_iter->h.units);
     bdestroy(line_iter->H.name); 
     bdestroy(line_iter->H.units);
     bdestroy(line_iter->V.name); 
     bdestroy(line_iter->V.units);
-    bdestroy(line_iter->H_at_anchor.name); 
-    bdestroy(line_iter->H_at_anchor.units);
-    bdestroy(line_iter->V_at_anchor.name); 
-    bdestroy(line_iter->V_at_anchor.units);
-    bdestroy(line_iter->force_at_fairlead.fx.name); 
-    bdestroy(line_iter->force_at_fairlead.fx.units);
-    bdestroy(line_iter->force_at_fairlead.fy.name);
-    bdestroy(line_iter->force_at_fairlead.fy.units);
-    bdestroy(line_iter->force_at_fairlead.fz.name); 
-    bdestroy(line_iter->force_at_fairlead.fz.units);
-    bdestroy(line_iter->force_at_anchor.fx.name);
-    bdestroy(line_iter->force_at_anchor.fx.units);
-    bdestroy(line_iter->force_at_anchor.fy.name);
-    bdestroy(line_iter->force_at_anchor.fy.units);
-    bdestroy(line_iter->force_at_anchor.fz.name); 
-    bdestroy(line_iter->force_at_anchor.fz.units);
-    bdestroy(line_iter->T.name);
-    bdestroy(line_iter->T.units);
-    bdestroy(line_iter->tension_at_anchor.name);
-    bdestroy(line_iter->tension_at_anchor.units);
+    // @rm  bdestroy(line_iter->H_at_anchor.name); 
+    // @rm  bdestroy(line_iter->H_at_anchor.units);
+    // @rm  bdestroy(line_iter->V_at_anchor.name); 
+    // @rm  bdestroy(line_iter->V_at_anchor.units);
+    // @rm  bdestroy(line_iter->force_at_fairlead.fx.name); 
+    // @rm  bdestroy(line_iter->force_at_fairlead.fx.units);
+    // @rm  bdestroy(line_iter->force_at_fairlead.fy.name);
+    // @rm  bdestroy(line_iter->force_at_fairlead.fy.units);
+    // @rm  bdestroy(line_iter->force_at_fairlead.fz.name); 
+    // @rm  bdestroy(line_iter->force_at_fairlead.fz.units);
+    // @rm  bdestroy(line_iter->force_at_anchor.fx.name);
+    // @rm  bdestroy(line_iter->force_at_anchor.fx.units);
+    // @rm  bdestroy(line_iter->force_at_anchor.fy.name);
+    // @rm  bdestroy(line_iter->force_at_anchor.fy.units);
+    // @rm  bdestroy(line_iter->force_at_anchor.fz.name); 
+    // @rm  bdestroy(line_iter->force_at_anchor.fz.units);
+    // @rm  bdestroy(line_iter->T.name);
+    // @rm  bdestroy(line_iter->T.units);
+    // @rm  bdestroy(line_iter->tension_at_anchor.name);
+    // @rm  bdestroy(line_iter->tension_at_anchor.units);
   
     /* don't let any pointers dangle */
     line_iter->line_property = NULL;      

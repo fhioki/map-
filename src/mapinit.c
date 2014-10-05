@@ -203,6 +203,7 @@ void initialize_model_option_defaults(DomainOptions* options)
   options->kb_lm = 3.0E6;
   options->cb_lm = 3.0E5;
   options->wave_kinematics = false;
+  options->lm_model = false;
 }; 
 
 
@@ -719,6 +720,19 @@ MAP_ERROR_CODE check_wave_kinematics_flag(struct bstrList* list, bool* wave)
 };
 
 
+MAP_ERROR_CODE check_lm_model_flag(struct bstrList* list, bool* lm)
+{
+  int success = 0;
+
+  success = biseqcstrcaseless(list->entry[0],"LM_MODEL"); /* string compare */
+  if (success) {
+    *lm = true;
+    return MAP_SAFE;
+  };
+  return MAP_SAFE;
+};
+
+
 MAP_ERROR_CODE check_pg_cooked_flag(struct bstrList* list, OuterSolveAttributes* solver)
 {
   int n = 0;
@@ -868,6 +882,8 @@ MAP_ERROR_CODE check_uncaught_flag(struct bstrList* list)
     return MAP_SAFE;
   } else if (biseqcstrcaseless(list->entry[0],"WAVE_KINEMATICS")) {
     return MAP_SAFE;
+  } else if (biseqcstrcaseless(list->entry[0],"LM_MODEL")) {
+    return MAP_SAFE;
   } else if (biseqcstrcaseless(list->entry[0],"PG_COOKED")) {
     return MAP_SAFE;
   } else if (biseqcstrcaseless(list->entry[0],"REPEAT")) {
@@ -995,6 +1011,7 @@ MAP_ERROR_CODE set_model_options_list(Domain* domain, InitializationData* init_d
       success = check_outer_cd_flag(parsed, &domain->outer_loop.fd);
       success = check_outer_fd_flag(parsed, &domain->outer_loop.fd);      
       success = check_wave_kinematics_flag(parsed, &domain->model_options.wave_kinematics); CHECKERRK(MAP_WARNING_10);
+      success = check_lm_model_flag(parsed, &domain->model_options.lm_model); CHECKERRK(MAP_WARNING_11);
       success = check_pg_cooked_flag(parsed, &domain->outer_loop); CHECKERRK(MAP_WARNING_8);
       success = check_repeat_flag(parsed, &domain->model_options); CHECKERRQ(MAP_FATAL_34);
       success = check_ref_position_flag(parsed, &domain->vessel.ref_origin); CHECKERRQ(MAP_FATAL_36);
@@ -1088,8 +1105,6 @@ MAP_ERROR_CODE set_cable_library_list(Domain* domain, InitializationData* init_d
         n++;
       };
     } while (0);   
-    // list_append(&domain->library, &new_cable_library);
-    // success = reset_cable_library(&new_cable_library);
     success = bstrListDestroy(parsed);
   };
   MAP_RETURN;
@@ -1552,10 +1567,6 @@ MAP_ERROR_CODE repeat_lines(Domain* domain, InitializationData* init_data, char*
     };
   };
   success = bdestroy(line);               
-  
-  // for(i=0 ; i<init_data->expanded_line_input_string->qty ; i++) {
-  //   printf("%s\n",init_data->expanded_line_input_string->entry[i]->data);
-  // };
 
   MAP_RETURN;
 };
@@ -1827,20 +1838,11 @@ MAP_ERROR_CODE set_node_list(const MAP_ParameterType_t* p_type,  MAP_InputType_t
         };
         i_parsed++;
       };
-      // printf("Node is fixed: %d\n", new_node.type);
-      // printf("Name: %s\n", new_node.position_ptr.z.name->data);
-      // printf("Name: %f\n", *new_node.position_ptr.z.value);
-      // printf("units: %f\n\n", new_node.external_force.fz.value);
-        
-      // init_data->expanded_node_input_string->qty++;
-      // init_data->expanded_node_input_string->entry[n_line] = bstrcpy(line);
-      //success = bassigncstr(line, "");
     } while (0);   
     success = bstrListDestroy(parsed);
     /* @todo: need to make sure next==9; otherwise not enough inputs and an error should
      *        be thrown
      */
-    // list_append(&domain->node, &new_node);    
   };  
 
   /* check to make sure the number of allocated array spaces for fortran derived types matches 
@@ -1991,7 +1993,7 @@ MAP_ERROR_CODE set_line_option_flags(struct bstrList* words, int* i_parsed, Line
     line_ptr->options.azimuth_flag = true;
   } else if (biseqcstrcaseless(words->entry[index], "ALTITUDE")) {
     line_ptr->options.altitude_flag = true;
-  } else if (biseqcstrcaseless(words->entry[index], "ALTITUDE_A")) {
+  } else if (biseqcstrcaseless(words->entry[index], "ALTITUDE_ANCH")) {
     line_ptr->options.altitude_anchor_flag = true;
   } else if (biseqcstrcaseless(words->entry[index], "LINE_TENSION")) {
     line_ptr->options.line_tension_flag = true;
@@ -2079,7 +2081,7 @@ MAP_ERROR_CODE set_line_list(MAP_ConstraintStateType_t* z_type, Domain* domain, 
   for(i=0 ; i<num_lines ; i++) {         
     list_append(&domain->line, &new_line);
     line_iter = (Line*)list_get_at(&domain->line, i);
-    success = set_line_vartype(line_iter, i); /* @todo: check error */
+    // success = set_line_vartype(line_iter, i); /* @todo: check error */ @rm
 
     i_parsed = 0;
     next = 0;
@@ -2122,14 +2124,6 @@ MAP_ERROR_CODE set_line_list(MAP_ConstraintStateType_t* z_type, Domain* domain, 
         };
         i_parsed++;
       };
-      // printf("Node is fixed: %d\n", new_node.type);
-      // printf("Name: %s\n", new_node.position_ptr.z.name->data);
-      // printf("Name: %f\n", *new_node.position_ptr.z.value);
-      // printf("units: %f\n\n", new_node.external_force.fz.value);
-        
-      // init_data->expanded_node_input_string->qty++;
-      // init_data->expanded_node_input_string->entry[n_line] = bstrcpy(line);
-      //success = bassigncstr(line, "");
     } while (0);   
     success = bstrListDestroy(parsed);
   };  
@@ -2137,12 +2131,33 @@ MAP_ERROR_CODE set_line_list(MAP_ConstraintStateType_t* z_type, Domain* domain, 
 };
 
 
+MAP_ERROR_CODE push_variable_to_output_list(OutputList* y_list, const int i, double* variable_ref, const char* alias, const char* units) {
+  int size = 0;
+
+  VarTypePtr vartype_ptr;
+  VarTypePtr* iter_vartype = NULL;
+
+  list_append(&y_list->out_list_ptr, &vartype_ptr); /* @todo: this is not correct. Should point to fairlead->sumForce.fy */
+  size = list_size(&y_list->out_list_ptr);
+  iter_vartype = (VarTypePtr*)list_get_at(&y_list->out_list_ptr, size-1);
+  iter_vartype->value = variable_ref;
+  iter_vartype->name = bformat("%s[%d]", alias, i);
+  iter_vartype->units = bformat("%s", units);      
+
+  return MAP_SAFE;
+};
+
 
 MAP_ERROR_CODE set_output_list(Domain* domain, MAP_InitOutputType_t* io_type, char* map_msg, MAP_ERROR_CODE* ierr)
 {
+  MAP_ERROR_CODE  success = MAP_SAFE;
   Line* line_iter = NULL;
   OutputList* y_list = domain->y_list;
-  
+  int size = 0;
+  int line_num = 1;
+  VarTypePtr vartype_ptr;
+  VarTypePtr* iter_vartype = NULL;
+
   list_iterator_start(&domain->line); /* starting an iteration "session" */
   while (list_iterator_hasnext(&domain->line)) { /* tell whether more values available */ 
     line_iter = (Line*)list_iterator_next(&domain->line);    
@@ -2196,98 +2211,84 @@ MAP_ERROR_CODE set_output_list(Domain* domain, MAP_InitOutputType_t* io_type, ch
     };
     
     if (line_iter->options.H_anchor_flag) {
-      list_append(&y_list->out_list, &line_iter->H_at_anchor);
+      success = push_variable_to_output_list(y_list, line_num, &line_iter->H_at_anchor, "H_a", "[N]");
       io_type->writeOutputHdr_Len++;
       io_type->writeOutputUnt_Len++;
     };
 
     if (line_iter->options.V_anchor_flag) {
-      list_append(&y_list->out_list, &line_iter->V_at_anchor);
-      io_type->writeOutputHdr_Len++;
-      io_type->writeOutputUnt_Len++;
-    };
-
-    if (line_iter->options.anchor_tension_flag) {
-      list_append(&y_list->out_list, &line_iter->tension_at_anchor);
-      io_type->writeOutputHdr_Len++;
-      io_type->writeOutputUnt_Len++;
-    };
-
-    if (line_iter->options.altitude_anchor_flag) {
-      list_append(&y_list->out_list, &line_iter->alpha_at_anchor);
+      success = push_variable_to_output_list(y_list, line_num, &line_iter->V_at_anchor, "V_a", "[N]");
       io_type->writeOutputHdr_Len++;
       io_type->writeOutputUnt_Len++;
     };
 
     if (line_iter->options.gx_force_flag) {      
-      printf("in mapinit: %p\n", &line_iter->force_at_fairlead.fx.value);
-      printf("     value: %f\n", line_iter->force_at_fairlead.fx.value);
-      list_append(&y_list->out_list, &line_iter->force_at_fairlead.fx); /* @todo: this is not correct. Should point to fairlead->sumForce.fy */
-      // @rm
-      //list_append(&y_list->out_list_ptr, &line_iter->fairlead->sum_force_ptr.fx); 
+      success = push_variable_to_output_list(y_list, line_num, &line_iter->fx_fairlead, "Fx", "[N]");
       io_type->writeOutputHdr_Len++;
       io_type->writeOutputUnt_Len++;
     };
 
     if (line_iter->options.gy_force_flag) {
-      // @rm
-      // list_append(&y_list->out_list_ptr, &line_iter->fairlead->sum_force_ptr.fy); 
-      list_append(&y_list->out_list, &line_iter->force_at_fairlead.fy); /* @todo: this is not correct. Should point to fairlead->sumForce.fy */
+      success = push_variable_to_output_list(y_list, line_num, &line_iter->fy_fairlead, "Fy", "[N]");
       io_type->writeOutputHdr_Len++;
       io_type->writeOutputUnt_Len++;
     };
 
     if (line_iter->options.gz_force_flag) {
-      // @rm
-      // list_append(&y_list->out_list_ptr, &line_iter->fairlead->sum_force_ptr.fz); 
-      list_append(&y_list->out_list, &line_iter->force_at_fairlead.fz); /* @todo: this is not correct. Should point to fairlead->sumForce.fz */
-      io_type->writeOutputHdr_Len++;
-      io_type->writeOutputUnt_Len++;
-    };
-
-    if (line_iter->options.V_flag) {
-      // @rm
-      // list_append(&y_list->out_list_ptr, &line_iter->fairlead->sum_force_ptr.fz);       
-      list_append(&y_list->out_list, &line_iter->force_at_fairlead.fz); /* @todo: this is not correct. Doubled up with above */
+      success = push_variable_to_output_list(y_list, line_num, &line_iter->fz_fairlead, "Fz", "[N]");
       io_type->writeOutputHdr_Len++;
       io_type->writeOutputUnt_Len++;
     };
 
     if (line_iter->options.fairlead_tension_flag) {
-      list_append(&y_list->out_list, &line_iter->T);
+      success = push_variable_to_output_list(y_list, line_num, &line_iter->T, "T", "[N]");
       io_type->writeOutputHdr_Len++;
       io_type->writeOutputUnt_Len++;
     };
 
-    if (line_iter->options.horizontal_excursion_flag) {
-      list_append(&y_list->out_list, &line_iter->l);
-      io_type->writeOutputHdr_Len++;
-      io_type->writeOutputUnt_Len++;
-    };
-
-    if (line_iter->options.vertical_excursion_flag) {
-      list_append(&y_list->out_list, &line_iter->h);
+    if (line_iter->options.anchor_tension_flag) {
+      success = push_variable_to_output_list(y_list, line_num, &line_iter->T_at_anchor, "T_a", "[N]");
       io_type->writeOutputHdr_Len++;
       io_type->writeOutputUnt_Len++;
     };
 
     if (line_iter->options.lay_length_flag) {
-      list_append(&y_list->out_list, &line_iter->Lb);
+      success = push_variable_to_output_list(y_list, line_num, &line_iter->Lb, "Lb", "[m]");
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (line_iter->options.horizontal_excursion_flag) {
+      success = push_variable_to_output_list(y_list, line_num, &line_iter->l, "l", "[m]");
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    if (line_iter->options.vertical_excursion_flag) {
+      success = push_variable_to_output_list(y_list, line_num, &line_iter->h, "h", "[m]");
       io_type->writeOutputHdr_Len++;
       io_type->writeOutputUnt_Len++;
     };
 
     if (line_iter->options.azimuth_flag) {
-      list_append(&y_list->out_list, &line_iter->psi);
+      success = push_variable_to_output_list(y_list, line_num, &line_iter->psi, "psi", "[m]");
       io_type->writeOutputHdr_Len++;
       io_type->writeOutputUnt_Len++;
     };
 
     if (line_iter->options.altitude_flag) {
-      list_append(&y_list->out_list, &line_iter->alpha);
+      success = push_variable_to_output_list(y_list, line_num, &line_iter->alpha, "alpha", "[m]");
       io_type->writeOutputHdr_Len++;
       io_type->writeOutputUnt_Len++;
     };
+
+    if (line_iter->options.altitude_anchor_flag) {
+      success = push_variable_to_output_list(y_list, line_num, &line_iter->alpha_at_anchor, "alpha_a", "[m]");
+      io_type->writeOutputHdr_Len++;
+      io_type->writeOutputUnt_Len++;
+    };
+
+    line_num++;
   };
   list_iterator_stop(&domain->line); /* ending the iteration session */  
 
@@ -2331,60 +2332,61 @@ MAP_ERROR_CODE reset_line(Line* line_ptr)
   line_ptr->anchor = NULL;             /* Anchor node */
   line_ptr->fairlead = NULL;           /* Fairlead node */
   
-  line_ptr->psi.name = NULL;
-  line_ptr->psi.units = NULL;
-  line_ptr->alpha.name = NULL;
-  line_ptr->alpha.units = NULL;
-  line_ptr->alpha_at_anchor.name = NULL;
-  line_ptr->alpha_at_anchor.units = NULL;
-  line_ptr->l.name = NULL;
-  line_ptr->l.units = NULL;
-  line_ptr->Lb.name = NULL;
-  line_ptr->Lb.units = NULL;
-  line_ptr->h.name = NULL;
-  line_ptr->h.units = NULL;
+  // @rm  line_ptr->psi.name = NULL;
+  // @rm  line_ptr->psi.units = NULL;
+  // @rm  line_ptr->alpha.name = NULL;
+  // @rm  line_ptr->alpha.units = NULL;
+  // @rm  line_ptr->alpha_at_anchor.name = NULL;
+  // @rm  line_ptr->alpha_at_anchor.units = NULL;
+  // @rm  line_ptr->l.name = NULL;
+  // @rm  line_ptr->l.units = NULL;
+  // @rm  line_ptr->Lb.name = NULL;
+  // @rm  line_ptr->Lb.units = NULL;
+  // @rm  line_ptr->h.name = NULL;
+  // @rm  line_ptr->h.units = NULL;
   line_ptr->H.name = NULL;
   line_ptr->H.units = NULL;
   line_ptr->V.name = NULL;
   line_ptr->V.units = NULL;
-  line_ptr->H_at_anchor.name = NULL;
-  line_ptr->H_at_anchor.units = NULL;
-  line_ptr->V_at_anchor.name = NULL;
-  line_ptr->V_at_anchor.units = NULL;
-  line_ptr->force_at_fairlead.fx.name = NULL;  // @rm
-  line_ptr->force_at_fairlead.fx.units = NULL; // @rm
-  line_ptr->force_at_fairlead.fy.name = NULL;  // @rm
-  line_ptr->force_at_fairlead.fy.units = NULL; // @rm
-  line_ptr->force_at_fairlead.fz.name = NULL;  // @rm
-  line_ptr->force_at_fairlead.fz.units = NULL; // @rm
-  line_ptr->force_at_anchor.fx.name = NULL;
-  line_ptr->force_at_anchor.fx.units = NULL;
-  line_ptr->force_at_anchor.fy.name = NULL;
-  line_ptr->force_at_anchor.fy.units = NULL;
-  line_ptr->force_at_anchor.fz.name = NULL;
-  line_ptr->force_at_anchor.fz.units = NULL;
-  line_ptr->T.name = NULL;
-  line_ptr->T.units = NULL;
-  line_ptr->tension_at_anchor.name = NULL;
-  line_ptr->tension_at_anchor.units = NULL;
+  // @rm  line_ptr->H_at_anchor.name = NULL;
+  // @rm  line_ptr->H_at_anchor.units = NULL;
+  // @rm  line_ptr->V_at_anchor.name = NULL;
+  // @rm  line_ptr->V_at_anchor.units = NULL;
+  // @rm  line_ptr->force_at_fairlead.fx.name = NULL;  
+  // @rm  line_ptr->force_at_fairlead.fx.units = NULL; 
+  // @rm  line_ptr->force_at_fairlead.fy.name = NULL;  
+  // @rm  line_ptr->force_at_fairlead.fy.units = NULL; 
+  // @rm  line_ptr->force_at_fairlead.fz.name = NULL;  
+  // @rm  line_ptr->force_at_fairlead.fz.units = NULL; 
+  // @rm  line_ptr->force_at_anchor.fx.name = NULL;
+  // @rm  line_ptr->force_at_anchor.fx.units = NULL;
+  // @rm  line_ptr->force_at_anchor.fy.name = NULL;
+  // @rm  line_ptr->force_at_anchor.fy.units = NULL;
+  // @rm  line_ptr->force_at_anchor.fz.name = NULL;
+  // @rm  line_ptr->force_at_anchor.fz.units = NULL;
+  // @rm  line_ptr->T.name = NULL;
+  // @rm  line_ptr->T.units = NULL;
+  // @rm  line_ptr->tension_at_anchor.name = NULL;
+  // @rm  line_ptr->tension_at_anchor.units = NULL;
 
-  line_ptr->psi.value = -999.9;
-  line_ptr->alpha.value = -999.9;
-  line_ptr->alpha_at_anchor.value = -999.9;
-  line_ptr->l.value = -999.9;
-  line_ptr->Lb.value = -999.9;
-  line_ptr->h.value = -999.9;
+  line_ptr->psi = -999.9;
+  line_ptr->alpha = -999.9;
+  line_ptr->alpha_at_anchor = -999.9;
+  line_ptr->l = -999.9;
+  line_ptr->Lb = -999.9;
+  line_ptr->h = -999.9;
   line_ptr->H.value = NULL;
   line_ptr->V.value = NULL;
-  line_ptr->H_at_anchor.value = -999.9;
-  line_ptr->V_at_anchor.value = -999.9;
-  line_ptr->force_at_fairlead.fx.value = -88.9;// @rm
-  line_ptr->force_at_fairlead.fy.value = -77.9;// @rm
-  line_ptr->force_at_fairlead.fz.value = -4.9;// @rm
-  line_ptr->force_at_anchor.fx.value = -12.9;
-  line_ptr->force_at_anchor.fy.value = -23.9;
-  line_ptr->force_at_anchor.fz.value = -32.9;
-  line_ptr->T.value = -999.9;
+  line_ptr->H_at_anchor = -999.9;
+  line_ptr->V_at_anchor = -999.9;
+  line_ptr->fx_fairlead = -999.9;
+  line_ptr->fy_fairlead = -999.9;
+  line_ptr->fz_fairlead = -999.9;
+  line_ptr->fx_anchor = -999.9;
+  line_ptr->fy_anchor = -999.9;
+  line_ptr->fz_anchor = -999.9;
+  line_ptr->T = -999.9;
+  line_ptr->T_at_anchor = -999.9;
 
   line_ptr->residual_norm = 999.9;
   line_ptr->damage_time = -999.9;
@@ -2394,77 +2396,78 @@ MAP_ERROR_CODE reset_line(Line* line_ptr)
 };
 
 
-MAP_ERROR_CODE set_line_vartype(Line* line_ptr, const int i)
-{
-  MAP_ERROR_CODE success = MAP_SAFE;
-  bstring alias = NULL;
-
-  alias = bformat("psi[%d]", i+1);
-  success = set_vartype("[deg]", alias, 0, &line_ptr->psi, NULL); /* @todo: check error */
-  bdestroy(alias);
-
-  alias = bformat("alpha[%d]", i+1);                  
-  success = set_vartype("[deg]", alias, 0, &line_ptr->alpha, NULL); /* @todo: check error */
-  bdestroy(alias);
-
-  alias = bformat("alpha_a[%d]", i+1);                      
-  success = set_vartype("[deg]", alias, 0, &line_ptr->alpha_at_anchor, NULL); /* @todo: check error */
-  bdestroy(alias);
-
-  alias = bformat("l[%d]", i+1);           
-  success = set_vartype("[m]", alias, 0, &line_ptr->l, NULL); /* @todo: check error */
-  bdestroy(alias);
-
-  alias = bformat("Lb[%d]", i+1);                  
-  success = set_vartype("[m]", alias, 0, &line_ptr->Lb, NULL); /* @todo: check error */
-  bdestroy(alias);
-
-  alias = bformat("h[%d]", i+1);                
-  success = set_vartype("[m]", alias, 0, &line_ptr->h, NULL); /* @todo: check error */
-  bdestroy(alias);
-
-  alias = bformat("H_a[%d]", i+1);                   
-  success = set_vartype("[N]", alias, 0, &line_ptr->H_at_anchor, NULL); /* @todo: check error */
-  bdestroy(alias);
-
-  alias = bformat("Fx[%d]", i+1);                
-  success = set_vartype("[N]", alias, 0, &line_ptr->force_at_fairlead.fx, NULL); /* @todo: check error */
-  bdestroy(alias);
-
-  alias = bformat("Fy[%d]", i+1);                 
-  success = set_vartype("[N]", alias, 0, &line_ptr->force_at_fairlead.fy, NULL); /* @todo: check error */
-  bdestroy(alias);
-
-  alias = bformat("Fz[%d]", i+1);                 
-  success = set_vartype("[N]", alias, 0, &line_ptr->force_at_fairlead.fz, NULL); /* @todo: check error */
-  bdestroy(alias);
-
-  alias = bformat("Fx_a[%d]", i+1);                   
-  success = set_vartype("[N]", alias, 0, &line_ptr->force_at_anchor.fx, NULL); /* @todo: check error */
-  bdestroy(alias);
-
-  alias = bformat("Fy_a[%d]", i+1);                 
-  success = set_vartype("[N]", alias, 0, &line_ptr->force_at_anchor.fy, NULL); /* @todo: check error */
-  bdestroy(alias);
-
-  alias = bformat("Fz_a[%d]", i+1);                 
-  success = set_vartype("[N]", alias, 0, &line_ptr->force_at_anchor.fz, NULL); /* @todo: check error */
-  bdestroy(alias);
-
-  alias = bformat("V_a[%d]", i+1);                
-  success = set_vartype("[N]", alias, 0, &line_ptr->V_at_anchor, NULL); /* @todo: check error */
-  bdestroy(alias);
-
-  alias = bformat("T[%d]", i+1);               
-  success = set_vartype("[N]", alias, 0, &line_ptr->T, NULL); /* @todo: check error */
-  bdestroy(alias);
-
-  alias = bformat("T_a[%d]", i+1);                   
-  success = set_vartype("[N]", alias, 0, &line_ptr->tension_at_anchor, NULL); /* @todo: check error */
-  bdestroy(alias);
-
-  return MAP_SAFE;
-};
+// @rm
+// MAP_ERROR_CODE set_line_vartype(Line* line_ptr, const int i)
+// {
+//   MAP_ERROR_CODE success = MAP_SAFE;
+//   bstring alias = NULL;
+// 
+//   // alias = bformat("psi[%d]", i+1);
+//   // success = set_vartype("[deg]", alias, 0, &line_ptr->psi, NULL); /* @todo: check error */
+//   // bdestroy(alias);
+//   // 
+//   // alias = bformat("alpha[%d]", i+1);                  
+//   // success = set_vartype("[deg]", alias, 0, &line_ptr->alpha, NULL); /* @todo: check error */
+//   // bdestroy(alias);
+//   // 
+//   // alias = bformat("alpha_a[%d]", i+1);                      
+//   // success = set_vartype("[deg]", alias, 0, &line_ptr->alpha_at_anchor, NULL); /* @todo: check error */
+//   // bdestroy(alias);
+// 
+//   // alias = bformat("l[%d]", i+1);           
+//   // success = set_vartype("[m]", alias, 0, &line_ptr->l, NULL); /* @todo: check error */
+//   // bdestroy(alias);
+// 
+//   // alias = bformat("Lb[%d]", i+1);                  
+//   // success = set_vartype("[m]", alias, 0, &line_ptr->Lb, NULL); /* @todo: check error */
+//   // bdestroy(alias);
+// 
+//   // alias = bformat("h[%d]", i+1);                
+//   // success = set_vartype("[m]", alias, 0, &line_ptr->h, NULL); /* @todo: check error */
+//   // bdestroy(alias);
+// 
+//   // alias = bformat("H_a[%d]", i+1);                   
+//   // success = set_vartype("[N]", alias, 0, &line_ptr->H_at_anchor, NULL); /* @todo: check error */
+//   // bdestroy(alias);
+// 
+//   // alias = bformat("Fx[%d]", i+1);                
+//   // success = set_vartype("[N]", alias, 0, &line_ptr->force_at_fairlead.fx, NULL); /* @todo: check error */
+//   // bdestroy(alias);
+//   // 
+//   // alias = bformat("Fy[%d]", i+1);                 
+//   // success = set_vartype("[N]", alias, 0, &line_ptr->force_at_fairlead.fy, NULL); /* @todo: check error */
+//   // bdestroy(alias);
+//   // 
+//   // alias = bformat("Fz[%d]", i+1);                 
+//   // success = set_vartype("[N]", alias, 0, &line_ptr->force_at_fairlead.fz, NULL); /* @todo: check error */
+//   // bdestroy(alias);
+// 
+//   // alias = bformat("Fx_a[%d]", i+1);                   
+//   // success = set_vartype("[N]", alias, 0, &line_ptr->force_at_anchor.fx, NULL); /* @todo: check error */
+//   // bdestroy(alias);
+//   // 
+//   // alias = bformat("Fy_a[%d]", i+1);                 
+//   // success = set_vartype("[N]", alias, 0, &line_ptr->force_at_anchor.fy, NULL); /* @todo: check error */
+//   // bdestroy(alias);
+//   // 
+//   // alias = bformat("Fz_a[%d]", i+1);                 
+//   // success = set_vartype("[N]", alias, 0, &line_ptr->force_at_anchor.fz, NULL); /* @todo: check error */
+//   // bdestroy(alias);
+// 
+//   // alias = bformat("V_a[%d]", i+1);                
+//   // success = set_vartype("[N]", alias, 0, &line_ptr->V_at_anchor, NULL); /* @todo: check error */
+//   // bdestroy(alias);
+// 
+//   // alias = bformat("T[%d]", i+1);               
+//   // success = set_vartype("[N]", alias, 0, &line_ptr->T, NULL); /* @todo: check error */
+//   // bdestroy(alias);
+//   // 
+//   // alias = bformat("T_a[%d]", i+1);                   
+//   // success = set_vartype("[N]", alias, 0, &line_ptr->tension_at_anchor, NULL); /* @todo: check error */
+//   // bdestroy(alias);
+// 
+//   return MAP_SAFE;
+// };
 
 
 // MAP_ERROR_CODE initialize_external_applied_force(char* unit, char* alias, const int num, VarType* type, char const* property)
@@ -2821,6 +2824,7 @@ MAP_ERROR_CODE print_help_to_screen()
   printf("      -kb_default      --Seabed stiffness parameter\n");
   printf("      -cb_default      --Seabed damping parameter\n");
   printf("      -wave_kinematics --Enables wave kinematics to drag interaction from surface waves\n");
+  printf("      -lm_model        --Enable the lumped-mass model\n");
   printf( "\nMAP++ Copyright (C) 2014 and GNU GPL by Marco Masciola and others\n" );
   printf( "SimCList Copyright (C) 2010 by Mij <http://mij.oltrelinux.com/devel/simclist/>\n" );
   printf( "MinPack Copyright (C) 1999 by the University of Chicago\n" );

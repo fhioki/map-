@@ -63,15 +63,15 @@ MAP_ERROR_CODE calculate_node_sum_force(Domain* domain, MAP_ParameterType_t* p_t
   list_iterator_start(&domain->line);         /* starting an iteration "session" */
   while (list_iterator_hasnext(&domain->line)) { /* tell whether more values available */
     line_iter = (Line*)list_iterator_next(&domain->line);
-    psi = line_iter->psi.value;
+    psi = line_iter->psi;
     fx = *(line_iter->H.value)*cos(psi);
-    fx_a = -(line_iter->H_at_anchor.value)*cos(psi);
+    fx_a = -(line_iter->H_at_anchor)*cos(psi);
   
     fy = *(line_iter->H.value)*sin(psi);
-    fy_a = -(line_iter->H_at_anchor.value)*sin(psi);
+    fy_a = -(line_iter->H_at_anchor)*sin(psi);
     
     fz = *(line_iter->V.value);
-    fz_a = -(line_iter->V_at_anchor.value);
+    fz_a = -(line_iter->V_at_anchor);
   
     add_to_sum_fx(line_iter->fairlead, fx);
     add_to_sum_fx(line_iter->anchor, fx_a);
@@ -145,10 +145,10 @@ MAP_ERROR_CODE set_line_variables_pre_solve(Domain* domain, char* map_msg, MAP_E
     };
 
     /* horizontal cable excursion */
-    line_iter->l.value = set_horizontal_excursion(line_iter);
+    line_iter->l = set_horizontal_excursion(line_iter);
     
     /* vertical cable excursion */
-    line_iter->h.value = set_vertical_excursion(line_iter);
+    line_iter->h = set_vertical_excursion(line_iter);
 
     /* angle of azimuth */
     success = set_psi(line_iter, map_msg, ierr); 
@@ -182,10 +182,10 @@ MAP_ERROR_CODE set_line_variables_post_solve(Domain* domain, char* map_msg, MAP_
     /* altitude angle at fairlead */
     H = *(line_iter->H.value);
     V = *(line_iter->V.value);
-    line_iter->alpha.value = atan2(V, H);
+    line_iter->alpha = atan2(V, H);
     
     /* tension at fairlead */
-    line_iter->T.value = sqrt(H*H + V*V);
+    line_iter->T = sqrt(H*H + V*V);
 
     if (line_iter->options.linear_spring) {
       Ha = H;
@@ -197,31 +197,31 @@ MAP_ERROR_CODE set_line_variables_post_solve(Domain* domain, char* map_msg, MAP_
       contact_flag = line_iter->options.omit_contact;
       Lu = line_iter->Lu.value;
       if (contact_flag==true || w<0.0 || (V-w*Lu)>0.0) { 
-        line_iter->Lb.value = 0.0;
+        line_iter->Lb = 0.0;
         Ha = H;
         Va = V - w*Lu;
       } else { /* line is touching the seabed */
         Lb = Lu - (V/w);
-        line_iter->Lb.value = Lb;
+        line_iter->Lb = Lb;
         ((H-cb*w*Lb)>0.0) ? (Ha = (H-cb*w*Lb)) : (Ha = 0.0);
         Va = 0.0;
       };
     };
     
     /* tension at anchor */
-    line_iter->H_at_anchor.value = Ha;
-    line_iter->V_at_anchor.value = Va;
-    line_iter->tension_at_anchor.value = sqrt(Ha*Ha + Va*Va);
-    line_iter->alpha_at_anchor.value = atan2(Va, Ha);    
+    line_iter->H_at_anchor = Ha;
+    line_iter->V_at_anchor = Va;
+    line_iter->T_at_anchor = sqrt(Ha*Ha + Va*Va);
+    line_iter->alpha_at_anchor = atan2(Va, Ha);    
 
     /* set global x,y,z force at fairlead and achor */
-    line_iter->force_at_fairlead.fx.value = -10.0;
-    line_iter->force_at_fairlead.fz.value = -20.0;
-    line_iter->force_at_fairlead.fy.value = -30.0;
+    line_iter->fx_fairlead = H*cos(line_iter->psi);
+    line_iter->fy_fairlead = H*sin(line_iter->psi);
+    line_iter->fz_fairlead = V;
 
-    line_iter->force_at_anchor.fx.value = -10.0;
-    line_iter->force_at_anchor.fz.value = -20.0;
-    line_iter->force_at_anchor.fy.value = -30.0;
+    line_iter->fx_anchor = Ha*cos(line_iter->psi);
+    line_iter->fy_anchor = Ha*cos(line_iter->psi);
+    line_iter->fz_anchor = Va;
   };
   list_iterator_stop(&domain->line); /* ending the iteration "session" */        
   return MAP_SAFE;
@@ -249,7 +249,7 @@ MAP_ERROR_CODE set_psi(Line* line, char* map_msg, MAP_ERROR_CODE* ierr)
   /* find the angle psi line simply finds the angle psi between the local and global reference frames simply by 
    * evaluating trig relationships
    */
-  line->psi.value = atan2((y_fair-y_anch), (x_fair-x_anch));
+  line->psi = atan2((y_fair-y_anch), (x_fair-x_anch));
   return MAP_SAFE;
 };
 
@@ -287,8 +287,8 @@ MAP_ERROR_CODE set_line_initial_guess(Domain* domain, char* map_msg, MAP_ERROR_C
   while (list_iterator_hasnext(&domain->line)) { /* tell whether more values available */ 
     line_iter = (Line*)list_iterator_next(&domain->line);    
     w = line_iter->line_property->omega;
-    length = line_iter->l.value;
-    height = line_iter->h.value;
+    length = line_iter->l;
+    height = line_iter->h;
     Lu = line_iter->Lu.value;
     
     /* note: the line horizontal (l) and vertical (h) excursion are previously initialized in set_line_variables_pre_solve(...) */ 
@@ -418,14 +418,14 @@ MAP_ERROR_CODE solve_line(Domain* domain, double time, char* map_msg, MAP_ERROR_
   while (list_iterator_hasnext(&domain->line)) { /* tell whether more values available */ 
     line_iter = (Line*)list_iterator_next(&domain->line);
 
-    if (line_iter->l.value<MAP_HORIZONTAL_TOL && line_iter->l.value>=0.0) { /* perfectly vertical */
+    if (line_iter->l<MAP_HORIZONTAL_TOL && line_iter->l>=0.0) { /* perfectly vertical */
       /* this should be triggered for  perfectly vertical cable */
-      line_iter->l.value = MAP_HORIZONTAL_TOL;
-    } else if (line_iter->l.value<0.0) {
-      set_universal_error_with_message(map_msg, ierr, MAP_FATAL_54, "Line segment %d, l = %d [m].", n, line_iter->l.value);
+      line_iter->l = MAP_HORIZONTAL_TOL;
+    } else if (line_iter->l<0.0) {
+      set_universal_error_with_message(map_msg, ierr, MAP_FATAL_54, "Line segment %d, l = %d [m].", n, line_iter->l);
       break; 
-    } else if (line_iter->h.value<=-MACHINE_EPSILON) {
-      set_universal_error_with_message(map_msg, ierr, MAP_FATAL_55, "Line segment %d, h = %d [m].", n, line_iter->h.value);
+    } else if (line_iter->h<=-MACHINE_EPSILON) {
+      set_universal_error_with_message(map_msg, ierr, MAP_FATAL_55, "Line segment %d, h = %d [m].", n, line_iter->h);
       break; 
     } else if (line_iter->line_property->omega>0.0) {
       success = check_maximum_line_length(line_iter, line_iter->options.omit_contact, map_msg, ierr);
@@ -514,8 +514,8 @@ MAP_ERROR_CODE check_maximum_line_length(Line* line, const bool contact_flag, ch
 {
   MAP_ERROR_CODE success = MAP_SAFE;
   double LMax = 0.0;
-  const double l = line->l.value;
-  const double h = line->h.value;
+  const double l = line->l;
+  const double h = line->h;
   const double EA = line->line_property->EA;
   const double W = line->line_property->omega;
   const double Lu = line->Lu.value;

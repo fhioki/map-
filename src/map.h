@@ -81,6 +81,7 @@ typedef enum FdType_enum {
 typedef enum SolveType_enum {  
   MONOLITHIC,   /**< for MSQS, lines only (no connect nodes) */
   PARTITIONED,  /**< for MSQS system with connect nodes */
+  LUMPED_MASS   /**< for lumped-mass model */
 } SolveType;
 
 
@@ -148,29 +149,6 @@ struct PointPtr_t {
   VarTypePtr y;
   VarTypePtr z;  
 }; typedef struct PointPtr_t PointPtr;
-
-
-/**
- * @brief Veloctiy VarTtype that points to a FAST-native (fortran) derivived type. This is the node velocity
- *        associated with a continuous state. This is integrated to provide node displacement at the subsequent 
- *        time step
- */
-struct VelocityPtr_t {
-  VarTypePtr xd;
-  VarTypePtr yd;
-  VarTypePtr zd;  
-}; typedef struct VelocityPtr_t VelocityPtr;
-
-
-/**
- * @brief Acceleration VarTtype that points to a FAST-native (fortran) derivived type. This is the node acceleration
- *        associated with a continuous state. This is integrated to provide node velocity at the subsequent time step
- */
-struct AccelerationPtr_t {
-  VarTypePtr xdd;
-  VarTypePtr ydd;
-  VarTypePtr zdd;  
-}; typedef struct AccelerationPtr_t AccelerationPtr;
 
 
 struct EulerAngle_t {
@@ -258,8 +236,8 @@ typedef struct {
   bool lay_length_flag;
   bool damage_time_flag;
   bool diagnostics_flag;
-  bool linear_spring;
-} LineOptions;
+  bool linear_spring;                  /**< treat the elastic catenary as a uncompressible linear springs when true */         
+} LineOptions; 
 
 
 /**
@@ -281,10 +259,10 @@ struct CableLibrary_t {
 
 
 struct Node_t {
-  AccelerationPtr acceleration; /**< Node accelration; integrated quantity [m/s^2]; used for LM model */
-  VelocityPtr velocity;         /**< Node velocity [m/s]; used for LM model */
-  NodeType type;
+  PointPtr acceleration;        /**< Node accelration; integrated quantity [m/s^2]; used for LM model. Associated with continuous type */
+  PointPtr velocity;            /**< Node velocity [m/s]; used for LM model. Associated with continuous type */
   PointPtr position_ptr;        /**< this is a Ptr because it points to a fortran type */
+  NodeType type;
   ForcePtr sum_force_ptr;       /**< this is a Ptr because it points to a fortran type */ 
   VarType M_applied;
   VarType B_applied;
@@ -292,71 +270,68 @@ struct Node_t {
 }; typedef struct Node_t Node;
 
 
-struct Element_t {
-  double l;  /**< \left \| \mathbf{r}_{1}-\mathbf{r}_{2} \right \| */
-  Node* r1;  /**< upper node */
-  Node* r2;  /**< lower node */
-}; typedef struct Element_t Element;
-
-
-struct LMAttributes {
-  void* lm_container; /**< container struct in lmroutines.hpp */
-  double* FlineS;     /**< retains last solution for when this is called with dT = 0 */   // 
-  double** rFairtS;   /**< fairlead locations ON TURBINE */                               // <--------- will be mapped to a Node_t list 
-  double** rFairRel;  /**< fairlead locations relative to platform center */              // <--------- will be mapped to a Node_t list 
-  double** rFairi;    /**< inertial Fairlead Locations  */                                // <--------- will be mapped to a Node_t list    
-  double** rdFairi;   /**< inertial Fairlead Velocities */                                // <--------- will be mapped to a Node_t list  
-
-  // static vectors to hold line and connection objects!
-  // vector< LineProps > LinePropList; // to hold line library types   <--------- Moved to the Line_t struct
-  // vector< Line > LineList;          //  global and persistent?      <--------- Moved to a container struct in lmroutines.hpp to isolate c++ and c
-  // vector< Connection > ConnectList;                                 <--------- Moved to a container struct in lmroutines.hpp to isolate c++ and c
-  int nConnects; 
-  int nLines;
-  
-  // state vector and stuff
-  double* states;     /**< pointer to array comprising global state vector */
-  double* newstates;
-  int Nx;             /**< size of state vector array */
-
-  // more state vector things for rk4 integration 
-  double* f0;
-  double* f1;
-  double* f2;
-  double* f3;
-  double* xt; 
-
-  int* lineStateIs; /** vector of line starting indices in "states" array */ // vector< int > LineStateIs;  
-  int closed; // initialize to 0
-  double dt;  // FAST time step, @rm
-  double dts; /**< mooring line time step */
-}; typedef struct LMAttributes_t LMAttributes;
+// struct LMAttributes {
+//   void* lm_container; /**< container struct in lmroutines.hpp */
+//   double* FlineS;     /**< retains last solution for when this is called with dT = 0 */   // 
+//   double** rFairtS;   /**< fairlead locations ON TURBINE */                               // <--------- will be mapped to a Node_t list 
+//   double** rFairRel;  /**< fairlead locations relative to platform center */              // <--------- will be mapped to a Node_t list 
+//   double** rFairi;    /**< inertial Fairlead Locations  */                                // <--------- will be mapped to a Node_t list    
+//   double** rdFairi;   /**< inertial Fairlead Velocities */                                // <--------- will be mapped to a Node_t list  
+// 
+//   // static vectors to hold line and connection objects!
+//   // vector< LineProps > LinePropList; // to hold line library types   <--------- Moved to the Line_t struct
+//   // vector< Line > LineList;          //  global and persistent?      <--------- Moved to a container struct in lmroutines.hpp to isolate c++ and c
+//   // vector< Connection > ConnectList;                                 <--------- Moved to a container struct in lmroutines.hpp to isolate c++ and c
+//   int nConnects; 
+//   int nLines;
+//   
+//   // state vector and stuff
+//   double* states;     /**< pointer to array comprising global state vector */
+//   double* newstates;
+//   int Nx;             /**< size of state vector array */
+// 
+//   // more state vector things for rk4 integration 
+//   double* f0;
+//   double* f1;
+//   double* f2;
+//   double* f3;
+//   double* xt; 
+// 
+//   int* lineStateIs; /** vector of line starting indices in "states" array */ // vector< int > LineStateIs;  
+//   int closed; // initialize to 0
+//   double dt;  // FAST time step, @rm
+//   double dts; /**< mooring line time step */
+// }; typedef struct LMAttributes_t LMAttributes;
 
 
 struct Line_t {
   CableLibrary* line_property; /**< line properties */
-  LMAttributes* lm_attributes; /**< Preserves information of the LM model from previous time steps */
+  // LMAttributes* lm_attributes; /**< Preserves information of the LM model from previous time steps */
   LineOptions options;         /**< run-time options flag */
   VarTypePtr H;                /**< Horizontal fairlead force in the local cable elemenet frame */
   VarTypePtr V;                /**< Vertical fairlead force in the local cable elemenet frame */  
-  VarType psi;                 /**< angle of roation between global X and local x axis [deg] */
-  VarType alpha;               /**< angle of inclication [deg] */
-  VarType alpha_at_anchor;     /**< angle of inclication at anchor [deg] */
-  VarType l;                   /**< horizontal cable excursion [m] */
-  VarType Lb;                  /**< length of line touching the seabed [m] */
   VarType Lu;                  /**< unstretched cable length [m] */
-  VarType h;                   /**< vertical cable excursion [m] */
-  VarType H_at_anchor;         /**< Horizontal anchor force in the local cable elemenet frame */
-  VarType V_at_anchor;         /**< Vertical anchor force in the local cable elemenet frame */
-  VarType T;                   /**< Tension magnitude [N] */
-  VarType tension_at_anchor;   /**< Tension magnitude at anchor [N] */
   bstring label;               /**< reference a pre-defined property in the line dictionary */
   double* line_tension;        /**< array of line tension along 's' [N] */ 
+  double psi;                  /**< angle of roation between global X and local x axis [deg] */
+  double alpha;                /**< angle of inclication [deg] */
+  double alpha_at_anchor;      /**< angle of inclication at anchor [deg] */
+  double l;                    /**< horizontal cable excursion [m] */
+  double Lb;                   /**< length of line touching the seabed [m] */
+  double h;                    /**< vertical cable excursion [m] */
+  double H_at_anchor;          /**< Horizontal anchor force in the local cable elemenet frame */
+  double V_at_anchor;          /**< Vertical anchor force in the local cable elemenet frame */
+  double T;                    /**< Tension magnitude [N] */
+  double T_at_anchor;          /**< Tension magnitude at anchor [N] */
   double damage_time;          /**< time to damage this line and return zero force to the glue code */
   double residual_norm;       
+  double fx_fairlead;
+  double fy_fairlead;
+  double fz_fairlead;
+  double fx_anchor;
+  double fy_anchor;
+  double fz_anchor;
   list_t elements;             /**< LM model elements */
-  Force force_at_fairlead;     /**< @rm is this even necessary? I don't think so. Line should not store node forces. They only can contribute force in sumForcePrt */
-  Force force_at_anchor;       /**< @rm is this even necessary? I don't think so. Line should not store node forces. They only can contribute force in sumForcePrt */
   Node* anchor;                /**< Anchor node */
   Node* fairlead;              /**< Fairlead node */
   int segment_size;
@@ -374,6 +349,13 @@ struct Line_t {
                                 *   - info=8 : gtol is too small. fvec is orthogonal to the columns of the Jacobian to machine precision.
                                 */ 
 }; typedef struct Line_t Line;
+
+
+struct Element_t {
+  double l;  /**< \left \| \mathbf{r}_{1}-\mathbf{r}_{2} \right \| */
+  Node* r1;  /**< upper node */
+  Node* r2;  /**< lower node */
+}; typedef struct Element_t Element;
 
 
 struct InnerSolveAttributes_t {
@@ -424,10 +406,11 @@ struct OuterSolveAttributes_t {
 
 struct DomainOptions_t {
   double* repeat_angle;
-  double integration_dt; /**< Integration time step [sec]. LM model specific */
-  double kb_lm;          /**< Seabed stiffeness coefficient [N/m]. LM model specific */
-  double cb_lm;          /**< Seabed damping parameter [N-s/m]. LM model specific */
+  double integration_dt;  /**< Integration time step [sec]. LM model specific */
+  double kb_lm;           /**< Seabed stiffeness coefficient [N/m]. LM model specific */
+  double cb_lm;           /**< Seabed damping parameter [N-s/m]. LM model specific */
   bool wave_kinematics;   /**< Enable wave kinematics o calculated relative flui velcity. LM model specific */
+  bool lm_model;          /**< use the lumped-mass model when true */         
   int repeat_angle_size;
 }; typedef struct DomainOptions_t DomainOptions;
 

@@ -32,8 +32,8 @@ int inner_function_evals(void* line_ptr, int m, int n, const __cminpack_real__* 
   const double Fv = x[1];  
   const double EA = line->line_property->EA;
   const double Lu = line->Lu.value;
-  const double height = line->h.value;
-  const double length = line->l.value;
+  const double height = line->h;
+  const double length = line->l;
   const double omega = line->line_property->omega;
   const double cb = line->line_property->cb;
   const bool contactFlag = line->options.omit_contact;
@@ -180,8 +180,8 @@ double jacobian_dzdv_contact(const double V, const double H, const double w, con
 
 double get_maximum_line_length(Line* line)
 {
-  const double l = line->l.value;
-  const double h = line->h.value;
+  const double l = line->l;
+  const double h = line->h;
   const double EA = line->line_property->EA;
   const double w = line->line_property->omega;
   const double Lu = line->Lu.value;

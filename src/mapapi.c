@@ -106,8 +106,10 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
     success = set_output_list(domain, io_type, map_msg, ierr); 
     success = set_vessel(&domain->vessel, u_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_69);
     
-    /* @todo: possible include hook for LM model here eventually place MAP_SOVE = LM */
-    if (z_type->x_Len!=0) { /* this means there are no connect nodes. This does NOT mean z_type->H_len==0 */
+    if (domain->model_options.lm_model) {
+      /* @todo: need to allocate LM-specific data */
+      domain->MAP_SOLVE_TYPE = LUMPED_MASS;            
+    } else if (z_type->x_Len!=0) { /* this means there are no connect nodes. This does NOT mean z_type->H_len==0 */
       success = allocate_outer_solve_data(&domain->outer_loop, z_type->x_Len, map_msg, ierr); CHECKERRQ(MAP_FATAL_72);
       domain->MAP_SOLVE_TYPE = PARTITIONED;      
     } else {
@@ -236,8 +238,6 @@ MAP_EXTERNCALL void map_end(MAP_InputType_t* u_type,
   do {
     success = free_outer_solve_data(&domain->outer_loop, z_type->x_Len, map_msg, ierr); CHECKERRQ(MAP_FATAL_73);
     success = map_free_types(u_type, p_type, x_type, z_type, other_type, y_type); 
-    list_destroy(&domain->y_list->out_list);    /* destroy output lists for writting information to output file */
-    list_destroy(&domain->y_list->out_list_ptr); /* destroy output lists for writting information to output file */
     success = free_outlist(domain,map_msg,ierr); CHECKERRQ(MAP_FATAL_47);//@rm, should be replaced with a MAPFREE(data->y_list)   
     success = free_line(&domain->line);
     success = free_node(&domain->node);
@@ -472,7 +472,7 @@ MAP_EXTERNCALL double* map_plot_x_array(MAP_OtherStateType_t* other_type, int i,
      */        
     if (line->options.omit_contact==true || w<0.0 || (V-w*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
       for (s=0 ; s<num_points ; s++) {
-        array_x[s] = fairlead_x - ( (H/w)*ARCSINH( V/H ) - (H/w)*ARCSINH( (V-S*w)/H ) + (H*S)/(EA) )*cos(line->psi.value);
+        array_x[s] = fairlead_x - ( (H/w)*ARCSINH( V/H ) - (H/w)*ARCSINH( (V-S*w)/H ) + (H*S)/(EA) )*cos(line->psi);
         S += dS;
       };
     } else {
@@ -480,12 +480,12 @@ MAP_EXTERNCALL double* map_plot_x_array(MAP_OtherStateType_t* other_type, int i,
       lambda = (Lb-H/(cb*w))>0 ? (Lb-H/(cb*w)) : 0; 
       for (s=0 ; s<num_points ; s++) {
         if (0<=S && S<=(Lb-H/(cb*w))) { /* for 0 <= s <= Lb - H/(Cb*w) */
-          array_x[s] = S*cos(line->psi.value) + anchor_x; 
+          array_x[s] = S*cos(line->psi) + anchor_x; 
         } else if ((Lb-H/(cb/w))<S && S<=Lb) { /* for Lb - H/(Cb*w) < s <= Lb */
-          array_x[s] = (S + ((cb*w)/(2*EA)) * (S*S - 2*(Lb-H/(cb*w))*S + (Lb- H/(cb*w))*lambda))*cos(line->psi.value) + anchor_x; 
+          array_x[s] = (S + ((cb*w)/(2*EA)) * (S*S - 2*(Lb-H/(cb*w))*S + (Lb- H/(cb*w))*lambda))*cos(line->psi) + anchor_x; 
         } else { /* for Lb < s <= L */
-          array_x[s] = (Lb + (H/w)*ARCSINH((w*(S-Lb))/H))*cos(line->psi.value)    
-            - ( ((H*S)/(EA)) + ((cb*w)/(2*EA))*(-Lb*Lb + (Lb-H/(cb*w))*lambda))*cos(line->psi.value) + anchor_x; 
+          array_x[s] = (Lb + (H/w)*ARCSINH((w*(S-Lb))/H))*cos(line->psi)    
+            - ( ((H*S)/(EA)) + ((cb*w)/(2*EA))*(-Lb*Lb + (Lb-H/(cb*w))*lambda))*cos(line->psi) + anchor_x; 
         };
         S += dS;
       };
@@ -550,7 +550,7 @@ MAP_EXTERNCALL double* map_plot_y_array(MAP_OtherStateType_t* other_type, int i,
      */        
     if (line->options.omit_contact==true || w<0.0 || (V-w*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
       for (s=0 ; s<num_points ; s++) {
-        array_y[s] = fairlead_y - ( (H/w)*ARCSINH( V/H ) - (H/w)*ARCSINH( (V-S*w)/H ) + (H*S)/(EA) )*sin(line->psi.value);
+        array_y[s] = fairlead_y - ( (H/w)*ARCSINH( V/H ) - (H/w)*ARCSINH( (V-S*w)/H ) + (H*S)/(EA) )*sin(line->psi);
         S += dS; 
       };
     } else {
@@ -558,12 +558,12 @@ MAP_EXTERNCALL double* map_plot_y_array(MAP_OtherStateType_t* other_type, int i,
       lambda = (Lb-H/(cb*w))>0 ? (Lb-H/(cb*w)) : 0; 
       for (s=0 ; s<num_points ; s++) {
         if (0<=S && S<=(Lb-H/(cb*w))) { /* for 0 <= s <= Lb - H/(Cb*w) */
-          array_y[s] = S*sin(line->psi.value) + anchor_y; 
+          array_y[s] = S*sin(line->psi) + anchor_y; 
         } else if ((Lb-H/(cb/w))<S && S<=Lb) { /* for Lb - H/(Cb*w) < s <= Lb */
-          array_y[s] = (S + ((cb*w)/(2*EA))*(S*S - 2*(Lb-H/(cb*w))*S + (Lb- H/(cb*w))*lambda))*sin(line->psi.value) + anchor_y; 
+          array_y[s] = (S + ((cb*w)/(2*EA))*(S*S - 2*(Lb-H/(cb*w))*S + (Lb- H/(cb*w))*lambda))*sin(line->psi) + anchor_y; 
         } else { /* for Lb < s <= L */
-          array_y[s] = (Lb + (H/w)*ARCSINH((w*(S-Lb))/H))*sin(line->psi.value)    
-            - (((H*S)/(EA)) + ((cb*w)/(2*EA))*(-Lb*Lb + (Lb-H/(cb*w))*lambda))*sin(line->psi.value) + anchor_y; 
+          array_y[s] = (Lb + (H/w)*ARCSINH((w*(S-Lb))/H))*sin(line->psi)    
+            - (((H*S)/(EA)) + ((cb*w)/(2*EA))*(-Lb*Lb + (Lb-H/(cb*w))*lambda))*sin(line->psi) + anchor_y; 
         };
         S += dS;
       };
@@ -636,7 +636,9 @@ MAP_EXTERNCALL double* map_plot_z_array(MAP_OtherStateType_t* other_type, int i,
           array_z[s] = anchor_z; 
         } else {        
           /* @todo: verify this equation before someone uses this program to  design something that matters */           
-          array_z[s] = ((H/w)*(sqrt(1 + pow((w*(S-Lb)/H),2)) - 1) + ((w*pow((S-Lb),2))/(2*EA))) + anchor_z; 
+          array_z[s] = - ((H/w)*(sqrt(1 + pow((w*(S-Lb)/H),2)) - 1) + ((w*pow((S-Lb),2))/(2*EA))) + anchor_z; 
+          printf("%f\n",array_z[s]);
+          // array_z[s] = ((H/w)*(sqrt(1 + pow((w*(S-Lb)/H),2)) - 1) + ((w*pow((S-Lb),2))/(2*EA))) + anchor_z; 
         };
         S += dS;
       };      
@@ -677,7 +679,7 @@ MAP_EXTERNCALL double map_residual_function_length(MAP_OtherStateType_t* other_t
   Fv = *(line->V.value);  
   EA = line->line_property->EA;
   Lu = line->Lu.value;
-  length = line->l.value;
+  length = line->l;
   omega = line->line_property->omega;
   contact_flag = line->options.omit_contact;
   cb = line->line_property->cb;
@@ -716,7 +718,7 @@ MAP_EXTERNCALL double map_residual_function_height(MAP_OtherStateType_t* other_t
   Fv = *(line->V.value);  
   EA = line->line_property->EA;
   Lu = line->Lu.value;
-  height = line->h.value;
+  height = line->h;
   omega = line->line_property->omega;
   contact_flag = line->options.omit_contact;
   cb = line->line_property->cb;
@@ -899,7 +901,7 @@ MAP_EXTERNCALL void map_get_fairlead_force_3d(double* fx, double* fy, double* fz
 
   if (index<=list_size(&domain->line)-1) {
     iter_line = (Line*)list_get_at(&domain->line, index);
-    psi = iter_line->psi.value;
+    psi = iter_line->psi;
     *fx = *(iter_line->H.value)*cos(psi);
     *fy = *(iter_line->H.value)*sin(psi);
     *fz = *(iter_line->V.value);
@@ -913,6 +915,7 @@ MAP_EXTERNCALL void map_get_fairlead_force_3d(double* fx, double* fy, double* fz
 MAP_EXTERNCALL int map_size_lines(MAP_OtherStateType_t* other_type, MAP_ERROR_CODE* ierr, char* map_msg)
 {
   Domain* domain = other_type->object;
+  map_reset_universal_error(map_msg, ierr);  
   return list_size(&domain->line);
 }
 
@@ -938,7 +941,7 @@ MAP_EXTERNCALL void map_get_header_string(int* n, char** str_array, MAP_OtherSta
     count++;
   };
   list_iterator_stop(&domain->y_list->out_list_ptr);     
-  
+
   list_iterator_start(&domain->y_list->out_list);
   while (list_iterator_hasnext(&domain->y_list->out_list)) { 
     vartype = (VarType*)list_iterator_next(&domain->y_list->out_list);

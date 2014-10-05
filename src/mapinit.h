@@ -469,6 +469,21 @@ MAP_ERROR_CODE check_wave_kinematics_flag(struct bstrList* list, bool* wave);
 
 
 /**
+ * @brief   Use the LM model. 
+ * @details Called by {@link set_model_option_list} to set the mooring model to 
+ *          the lumped-mass formulation. The MAP input file syntax:
+ *          <pre>
+ *          lm_model
+ *          </pre>
+ * @param   list, a character array structure
+ * @param   lm, true if wave kinematics are computed in MAP
+ * @see     set_model_options_list(), map_init()
+ * @return  MAP error code
+ */
+MAP_ERROR_CODE check_lm_model_flag(struct bstrList* list, bool* lm);
+
+
+/**
  * @brief   Initializes "REPEAT" flag model options
  * @details Called by {@link set_model_option_list} to set the number of line and node 
  *          repeats. Prefixing the line with a space (" ") treats the line as a comment.
@@ -660,7 +675,7 @@ MAP_ERROR_CODE expand_line_flag(const char* word, bstring line);
 MAP_ERROR_CODE set_vartype_ptr(const char* unit, bstring alias, const int num, VarTypePtr* type, bstring property);
 MAP_ERROR_CODE set_vartype(const char* unit, bstring alias, const int num, VarType* type, bstring property );
 MAP_ERROR_CODE compare_length(int a, int b);
-MAP_ERROR_CODE set_line_vartype(Line* line_ptr, const int i);
+// MAP_ERROR_CODE set_line_vartype(Line* line_ptr, const int i); @rm
 MAP_ERROR_CODE associate_line_with_cable_property(Line* line_ptr, Domain* domain, const char* word, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE associate_line_with_anchor_node(Line* line_ptr, Domain* domain, const int line_num, const char* word, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE associate_line_with_fairlead_node(Line* line_ptr, Domain* domain, const int line_num, const char* word, char* map_msg, MAP_ERROR_CODE* ierr);
