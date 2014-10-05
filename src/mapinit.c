@@ -1882,6 +1882,7 @@ MAP_ERROR_CODE set_vartype(const char* unit, bstring alias, const int num, VarTy
         type->value = -999.9;
       } else if (is_numeric(remove_first_character(property->data))) { 
         type->value = (double)atof(remove_first_character(property->data));
+        type->user_initial_guess = true;
       } else {
         return MAP_FATAL;
       };
@@ -2524,6 +2525,9 @@ MAP_ERROR_CODE reset_node(Node* node_ptr)
   node_ptr->external_force.fx.value = -999.9;
   node_ptr->external_force.fy.value = -999.9;
   node_ptr->external_force.fz.value = -999.9;
+  node_ptr->external_force.fx.user_initial_guess = false;
+  node_ptr->external_force.fy.user_initial_guess = false;
+  node_ptr->external_force.fz.user_initial_guess = false;
 
   node_ptr->sum_force_ptr.fx.is_fixed = false;
   node_ptr->sum_force_ptr.fy.is_fixed = false;

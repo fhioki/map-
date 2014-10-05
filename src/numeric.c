@@ -114,8 +114,9 @@ MapReal jacobian_dzdv_no_contact(const MapReal V, const MapReal H, const MapReal
 
 MapReal residual_function_length_contact(const MapReal V, const MapReal H, const MapReal w, const MapReal Lu, const MapReal EA, const MapReal l, const MapReal cb)
 {  
+  /* Note that Lb = Lu - V/w */
   if (-cb*(V-w*Lu)<H) { /* true when a portion of the line rests on the seabed and the anchor tension is nonzero */
-    return log( (V/H) + sqrt(1.0 + pow(V/H,2)))*(H/w) - 0.5*(cb/EA)*w*(Lu-V/w)*(Lu-V/w) + (Lu/EA)*H + (Lu-V/w) - l;
+    return log((V/H) + sqrt(1.0 + pow(V/H,2)))*(H/w) - 0.5*(cb/EA)*w*(Lu-V/w)*(Lu-V/w) + (Lu/EA)*H + (Lu-V/w) - l;
   } else { /* 0.0<H<=-CB*(V-w*Lu), A  portion of the line must rest on the seabed and the anchor tension is zero */
     return log((V/H) + sqrt(1.0 + pow(V/H,2)))*(H/w) - 0.5*(cb/EA)*w*((Lu-V/w)*(Lu-V/w) - ((Lu-V/w) - (H/w)/cb)*((Lu-V/w) - (H/w)/cb)) + (Lu/EA)*H + (Lu-V/w) - l;
   };
@@ -583,7 +584,12 @@ MAP_ERROR_CODE call_minpack_lmder(Line* line, InnerSolveAttributes* inner_opt, M
                                       inner_opt->wa4);
   
   line->residual_norm = (MapReal)__minpack_func__(enorm)(&inner_opt->m, inner_opt->fvec);
-  
+
+  if (line->residual_norm>1e-3) {
+    success = MAP_WARNING;
+    set_universal_error_with_message(map_msg, ierr, MAP_WARNING_11, "Line segment %d.", line_num);
+  };
+
   if (line->options.diagnostics_flag && (double)line->diagnostic_type>time ) { 
     printf("\n      %4.3f [sec]  Line %d\n",time, line_num+1);
     printf("      ----------------------------------------------------\n");

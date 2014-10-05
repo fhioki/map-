@@ -1,224 +1,93 @@
-Outputs were generated using MAP++ c364-dirty.
+Outputs were generated using MAP++ 9336-dirty.
 
-    Monday September 01-2014 at 12:46:17 PM
+    Saturday October 04-2014 at 23:55:13 PM
 
     Gravity constant          [m/s^2]  : 9.81
     Sea density               [kg/m^3] : 1020.00
-    Water depth               [m]      : 320.00
+    Water depth               [m]      : 120.00
     Vessel reference position [m]      : 0.00 , 0.00 , 0.00
 
-    Cable Type          : Material
-    Diameter     [m]    : 0.0900
-    Mass Density [kg/m] : 77.71
-    EA           [N]    : 384243000.00
-    omega        [N/m]  : 698.65
-    CB                  : 1.00
-
-    Cable Type          : Material2
-    Diameter     [m]    : 0.0900
-    Mass Density [kg/m] : 100.71
-    EA           [N]    : 394243000.00
-    omega        [N/m]  : 924.28
-    CB                  : 1.00
-
-    Cable Type          : Material3
-    Diameter     [m]    : 0.0900
-    Mass Density [kg/m] : 120.71
-    EA           [N]    : 424243000.00
-    omega        [N/m]  : 1120.48
+    Cable Type          : chainup
+    Diameter     [m]    : 0.0649
+    Mass Density [kg/m] : 138.73
+    EA           [N]    : 545000000.00
+    omega        [N/m]  : 1327.81
     CB                  : 1.00
 
           | Node 1 Data            Node 2 Data            Node 3 Data            Node 4 Data
           | -------------------------------------------------------------------------------------------
-Type      |  FIX                    CONNECT                VESSEL                 FIX
-X  [m]    |   853.870                453.697                5.200                 -426.935
-Y  [m]    |  0.000                   0.000                  0.000                 -739.473
-Z  [m]    |  -320.000               -286.563               -70.000                -320.000
+Type      |  FIX                    VESSEL                 FIX                    VESSEL
+X  [m]    |  0.000                   0.000                 -520.000               -20.000
+Y  [m]    |  -520.000               -20.000                 0.000                  0.000
+Z  [m]    |  -120.000                40.000                -120.000                40.000
 M  [kg]   |  0.000                   0.000                  0.000                  0.000
 B  [m^3]  |  0.000                   0.000                  0.000                  0.000
-FX [N]    | ( 643879.861)          (-0.000)               (-737918.413)          (-321940.237)
-FY [N]    | ( 0.000)               (-0.000)               ( 0.000)               (-557616.863)
-FZ [N]    | ( 0.000)               (-0.000)               ( 536279.014)          ( 0.000)
-
-
-          | Node 5 Data            Node 6 Data            Node 7 Data            Node 8 Data
-          | -------------------------------------------------------------------------------------------
-Type      |  CONNECT                VESSEL                 FIX                    CONNECT
-X  [m]    |  -226.849               -2.600                 -426.935               -226.849
-Y  [m]    |  -392.913               -4.503                  739.473                392.913
-Z  [m]    |  -286.563               -70.000                -320.000               -286.563
-M  [kg]   |  0.000                   0.000                  0.000                  0.000
-B  [m^3]  |  0.000                   0.000                  0.000                  0.000
-FX [N]    | ( 0.000)               ( 368959.435)          (-321940.237)          ( 0.000)
-FY [N]    | ( 0.000)               ( 639056.506)          ( 557616.863)          (-0.000)
-FZ [N]    | (-0.000)               ( 536279.167)          ( 0.000)               (-0.000)
-
-
-          | Node 9 Data
-          | -------------------------------------------------------------------------------------------
-Type      |  VESSEL
-X  [m]    |  -2.600
-Y  [m]    |   4.503
-Z  [m]    |  -70.000
-M  [kg]   |  0.000
-B  [m^3]  |  0.000
-FX [N]    | ( 368959.435)
-FY [N]    | (-639056.506)
-FZ [N]    | ( 536279.167)
+FX [N]    | ( 0.000)               (-0.000)               (-298060.662)          ( 298060.662)
+FY [N]    | ( 0.000)               (-17430.485)           ( 0.000)               ( 0.000)
+FZ [N]    | ( 0.000)               ( 199368.884)          ( 286445.846)          ( 550074.550)
 
 
                 | Line 1
                 | ---------------------------------------
-Material        |  Material
-Lu        [m]   |  402.200
-Lb        [m]   |  134.601
-H         [N]   |  737918.413
-V         [N]   |  186956.488
-T         [N]   |  761233.416
-Alpha     [deg] |  14.217
-HAnch     [N]   |  643879.861
+Material        |  chainup
+Lu        [m]   |  630.000
+Lb        [m]   |  479.851
+H         [N]   | -17430.485
+V         [N]   |  199368.884
+T         [N]   |  200129.393
+Alpha     [deg] |  94.997
+HAnch     [N]   | 0.000
 VAnch     [N]   | 0.000
-TAnch     [N]   |  643879.861
+TAnch     [N]   | 0.000
 AlphaAnch [deg] | 0.000
-L^2-Norm        |  5.859286e-14
-Function Evals  |  2
-Jacobian Evals  |  1
+L^2-Norm        |  22.41598
+Function Evals  |  51
+Jacobian Evals  |  45
 Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
 
 
                 | Line 2
                 | ---------------------------------------
-Material        |  Material
-Lu        [m]   |  500.000
+Material        |  chainup
+Lu        [m]   |  630.000
 Lb        [m]   | 0.000
-H         [N]   |  737918.413
-V         [N]   |  536279.014
-T         [N]   |  912205.440
-Alpha     [deg] |  36.008
-HAnch     [N]   |  737918.413
-VAnch     [N]   |  186956.488
-TAnch     [N]   |  761233.416
-AlphaAnch [deg] |  14.217
-L^2-Norm        |  1.024759e-13
-Function Evals  |  2
-Jacobian Evals  |  1
-Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
-
-
-                | Line 3
-                | ---------------------------------------
-Material        |  Material
-Lu        [m]   |  402.200
-Lb        [m]   |  134.601
-H         [N]   |  737918.886
-V         [N]   |  186956.641
-T         [N]   |  761233.912
-Alpha     [deg] |  14.217
-HAnch     [N]   |  643880.487
-VAnch     [N]   | 0.000
-TAnch     [N]   |  643880.487
-AlphaAnch [deg] | 0.000
-L^2-Norm        |  2.361953e-13
-Function Evals  |  2
-Jacobian Evals  |  1
-Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
-
-
-                | Line 4
-                | ---------------------------------------
-Material        |  Material
-Lu        [m]   |  500.000
-Lb        [m]   | 0.000
-H         [N]   |  737918.886
-V         [N]   |  536279.167
-T         [N]   |  912205.913
-Alpha     [deg] |  36.008
-HAnch     [N]   |  737918.886
-VAnch     [N]   |  186956.641
-TAnch     [N]   |  761233.912
-AlphaAnch [deg] |  14.217
+H         [N]   |  298060.662
+V         [N]   |  550074.550
+T         [N]   |  625637.410
+Alpha     [deg] |  61.549
+HAnch     [N]   |  298060.662
+VAnch     [N]   | -286445.846
+TAnch     [N]   |  413390.107
+AlphaAnch [deg] | -43.862
 L^2-Norm        |  5.684342e-14
-Function Evals  |  2
-Jacobian Evals  |  1
-Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
-
-
-                | Line 5
-                | ---------------------------------------
-Material        |  Material
-Lu        [m]   |  402.200
-Lb        [m]   |  134.601
-H         [N]   |  737918.886
-V         [N]   |  186956.641
-T         [N]   |  761233.912
-Alpha     [deg] |  14.217
-HAnch     [N]   |  643880.487
-VAnch     [N]   | 0.000
-TAnch     [N]   |  643880.487
-AlphaAnch [deg] | 0.000
-L^2-Norm        |  3.351623e-13
-Function Evals  |  7
-Jacobian Evals  |  6
-Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
-
-
-                | Line 6
-                | ---------------------------------------
-Material        |  Material
-Lu        [m]   |  500.000
-Lb        [m]   | 0.000
-H         [N]   |  737918.886
-V         [N]   |  536279.167
-T         [N]   |  912205.913
-Alpha     [deg] |  36.008
-HAnch     [N]   |  737918.886
-VAnch     [N]   |  186956.641
-TAnch     [N]   |  761233.912
-AlphaAnch [deg] |  14.217
-L^2-Norm        |  1.797547e-13
-Function Evals  |  4
-Jacobian Evals  |  3
+Function Evals  |  10
+Jacobian Evals  |  7
 Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
 
 
 ---------------------- LINE DICTIONARY ---------------------------------------
 LineType  Diam      MassDenInAir   EA            CB
 [-]       [m]       [kg/m]         [N]           [-]
-Material     0.09      77.7066      384.243E6   1.0   1.0E8    0.6 -1.0    0.05
-Material2    0.09      100.7066     394.243E6   1.0   1.0E8    0.6 -1.0    0.05
-Material3    0.09      120.7066     424.243E6   1.0   1.0E8    0.6 -1.0    0.05
+chainup   0.064929  138.73        545E6   1.0    1.0E8    0.6 -1.0    0.05
 ---------------------- NODE PROPERTIES ---------------------------------------
 Node  Type       X       Y       Z      M     B     FX    FY    FZ
 [-]   [-]       [m]     [m]     [m]    [kg]  [mˆ3]  [N]   [N]   [N]
-1    fix     853.87   0    depth   0     0     #     #     #
-2    connect   500    0    -200    0     0     0     0     0
-3    Vessel    5.2    0    -70.0   0     0     #     #     #
-4   fix   -426.9350   -739.4731   depth   0   0   #0.0000   #-0.0000   #0.0000
-5   connect   -250.0000   -433.0127   -200.0000   0   0   0.0000   -0.0000   0.0000
-6   Vessel   -2.6000   -4.5033   -70.0000   0   0   #0.0000   #-0.0000   #0.0000
-7   fix   -426.9350   739.4731   depth   0   0   #-0.0000   #0.0000   #0.0000
-8   connect   -250.0000   433.0127   -200.0000   0   0   -0.0000   0.0000   0.0000
-9   Vessel   -2.6000   4.5033   -70.0000   0   0   #-0.0000   #0.0000   #0.0000
+1     fix        0    -520      -120    0     0      #     #     #
+2     Vessel     0     -20       40     0     0      #     #     #1200.0
+3     fix       -520     0      -120    0     0      #     #     #
+4     Vessel    -20      0       40     0     0      #     #     #1000.0
 ---------------------- LINE PROPERTIES ---------------------------------------
 Line  LineType  UnstrLen  NodeAnch  NodeFair  Flags
 [-]      [-]       [m]       [-]       [-]       [-]
-1       Material   402.2        1         2        
-2       material   500.0        2         3         x_excursion  z_excursion  azimuth  tension_fair omit_contact
-3   Material   402.2   4   5   
-4   material   500.0   5   6   x_excursion   z_excursion   azimuth   tension_fair   omit_contact   
-5   Material   402.2   7   8   
-6   material   500.0   8   9   x_excursion   z_excursion   azimuth   tension_fair   omit_contact   
+1        chainup   630        1         2        plot gx_pos gy_pos gz_a_pos h_fair H_ANCH damage_time 99 diagnostic 9
+2        chainup   630        3         4        plot gx_pos gy_pos gz_a_pos H_ANCH damage_time 99 omit_contact
 ---------------------- SOLVER OPTIONS-----------------------------------------
 Option 
 [-] 
- help
+ help 
 inner_ftol 1e-12
-inner_gtol 1e-12 
-inner_xtol 1e-12 
-pg_cooked 2 3
-repeat    120 240
-inner_max_its  400 
- wave_kinematics
- integration_dt 0.2
- outer_epsilon 7
-outer_max_its   100
+inner_gtol 1e-12
+inner_xtol 1e-12
+outer_tol 1e-4
+inner_max_its 400
+outer_max_its 400

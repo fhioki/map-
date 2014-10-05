@@ -109,6 +109,7 @@ struct VarType_t {
   bstring units;    /*< units for printing information to a summary file or output buffer */
   bstring name;     /*< name of the variable. This is used for identifying it in the output buffer */
   bool is_fixed;    /**< if is_fixed = true, then we are not solving for this variable */
+  bool user_initial_guess; /**< if user_initial_guess = true, the user has supplied an initial guess */
   int ref_counter;  /**< for ensuring the variable is assigned to one of: input, param, or constraint */
   int id;           /**< node or line this value is attached to */
 }; typedef struct VarType_t VarType;

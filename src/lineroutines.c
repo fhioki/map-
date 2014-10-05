@@ -273,6 +273,7 @@ MAP_ERROR_CODE set_line_initial_guess(ModelData* model_data, char* map_msg, MAP_
   MapReal height = 0.0;
   MapReal w = 0.0;
   MapReal Lu = 0.0;
+  const double epsilon = 0.01;
 
   list_iterator_start(&model_data->line);            /* starting an iteration "session" */
   while (list_iterator_hasnext(&model_data->line)) { /* tell whether more values available */ 
@@ -293,7 +294,14 @@ MAP_ERROR_CODE set_line_initial_guess(ModelData* model_data, char* map_msg, MAP_
 
     /* note: omega is previously initialized in function initialize_cable_library_variables(.. ) in mapinit.c */    
     *(line_iter->H.value) = fabs(w*length/(2*lambda));
-    *(line_iter->V.value) = (w/2)*((height/tanh(lambda)) + Lu);
+
+    /* set initial guess to user defined value in the MAP input file */
+    if (line_iter->fairlead->external_force.fz.user_initial_guess) {
+      *(line_iter->V.value) = line_iter->fairlead->external_force.fz.value;      
+    } else {
+      *(line_iter->V.value) = (w/2)*((height/tanh(lambda)) + Lu);
+    };
+    
   };
   list_iterator_stop(&model_data->line); /* ending the iteration "session" */    
   return MAP_SAFE;
