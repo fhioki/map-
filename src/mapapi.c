@@ -165,9 +165,9 @@ MAP_EXTERNCALL void map_update_states(double t,
    Node* node_iter = NULL;
    int i = 0;
    int j = 0;
-   checkpoint();   
+
+   
    map_reset_universal_error(map_msg, ierr);
-   checkpoint();   
    do {
      /* If the reference to u_type changes, then we have to update the location MAP internal states are pointing 
       * to. This is accomplished in the following code. The issue here is when this is called in Fortran:
