@@ -1730,7 +1730,6 @@ MAP_ERROR_CODE set_node_list(const MAP_ParameterType_t* p_type,  MAP_InputType_t
               success = associate_vartype_ptr(&node_iter->position_ptr.x, z_type->x, connect_num);
               success = associate_vartype_ptr(&node_iter->position_ptr.y, z_type->y, connect_num);
               success = associate_vartype_ptr(&node_iter->position_ptr.z, z_type->z, connect_num);
-              printf("connect z position: %f\n", *node_iter->position_ptr.z.value);
               success = associate_vartype_ptr(&node_iter->sum_force_ptr.fx, other_type->Fx_connect, connect_num);
               success = associate_vartype_ptr(&node_iter->sum_force_ptr.fy, other_type->Fy_connect, connect_num);
               success = associate_vartype_ptr(&node_iter->sum_force_ptr.fz, other_type->Fz_connect, connect_num);

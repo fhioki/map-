@@ -617,7 +617,7 @@ CONTAINS
        u%Y(i) = u%PtFairDisplacement%Position(2,i) + u%PtFairDisplacement%TranslationDisp(2,i)
        u%Z(i) = u%PtFairDisplacement%Position(3,i) + u%PtFairDisplacement%TranslationDisp(3,i)
     END DO
-  
+
     CALL MSQS_CalcOutput(time            , & 
                          u%C_obj         , &
                          p%C_obj         , &

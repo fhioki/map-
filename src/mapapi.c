@@ -165,8 +165,9 @@ MAP_EXTERNCALL void map_update_states(double t,
    Node* node_iter = NULL;
    int i = 0;
    int j = 0;
-   
+   checkpoint();   
    map_reset_universal_error(map_msg, ierr);
+   checkpoint();   
    do {
      /* If the reference to u_type changes, then we have to update the location MAP internal states are pointing 
       * to. This is accomplished in the following code. The issue here is when this is called in Fortran:
@@ -643,20 +644,6 @@ MAP_EXTERNCALL double* map_plot_z_array(MAP_OtherStateType_t* other_type, int i,
         array_z[s] =  fairlead_z - ((H/w)*(sqrt(1+pow(V/H,2)) - sqrt(1+pow((V-w*S)/H,2))) + (1/EA)*(V*S+w*S*S/2)); /* Z position of line in global coordinates */
         S += dS;
       };
-    
-      // // printf("%f    %f\n",fairlead_z,anchor_z);
-      // if (fairlead_z>anchor_z) {
-      //   for (s=0 ; s<num_points ; s++) {
-      //     array_z[s] =  fairlead_z - ((H/w)*(sqrt(1+pow(V/H,2)) - sqrt(1+pow((V-w*S)/H,2))) + (1/EA)*(V*S+w*S*S/2)); /* Z position of line in global coordinates */
-      //     S += dS;
-      //   };
-      // } else {
-      //   V = fabs(V - Lu*w);
-      //   for (s=0 ; s<num_points ; s++) {          
-      //     array_z[s] =  fairlead_z - ((H/w)*(sqrt(1+pow(V/H,2)) - sqrt(1+pow((V-w*S)/H,2))) + (1/EA)*(V*S+w*S*S/2)); /* Z position of line in global coordinates */
-      //     S += dS;
-      //   };
-      // };    
     } else {
       Lb = Lu - (V/w);      
       for (s=0 ; s<num_points ; s++) {        

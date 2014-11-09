@@ -138,9 +138,8 @@ PROGRAM Main
   ! BEGIN time marching
   ! -------------------------------------------------------------------------
   DO n_t_global = 0, n_t_final
-  
      t_global =  t_initial + dt_global*n_t_global
-  
+
      !==========   NOTE   ======     <-----------------------------------------+
      ! @bonnie : I am assuming this MAP_InputTimes{:} and MAP_Input{:} 
      !           will be assigned by the glue code   
