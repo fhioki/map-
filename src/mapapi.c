@@ -650,9 +650,8 @@ MAP_EXTERNCALL double* map_plot_z_array(MAP_OtherStateType_t* other_type, int i,
         if (0<=S && S<=Lb) {           
           array_z[s] = anchor_z; 
         } else {        
-          /* @todo: verify this equation before someone uses this program to  design something that matters */           
+          /* @todo: verify this equation before someone uses this program to design something that matters */           
           array_z[s] = ((H/w)*(sqrt(1 + pow((w*(S-Lb)/H),2)) - 1) + ((w*pow((S-Lb),2))/(2*EA))) + anchor_z; 
-          // printf("%f\n",array_z[s]);
         };
         S += dS;
       };      

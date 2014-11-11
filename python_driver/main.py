@@ -31,16 +31,16 @@ if __name__ == '__main__':
 
     mooring_1 = Map( )
     
-    mooring_1.map_set_sea_depth(100)
+    mooring_1.map_set_sea_depth(120)
     mooring_1.map_set_gravity(9.81)
     mooring_1.map_set_sea_density(1020.0)
     
     # mooring_1.read_file("../test/baseline_1.map") # 100 m depth    
     # mooring_1.read_file("../test/baseline_2.map") # 100 m depth
-    # mooring_1.read_file("../test/baseline_3.map") # 120 m depth
+    mooring_1.read_file("../test/baseline_3.map") # 120 m depth
     # mooring_1.read_file("../test/baseline_4.map") # 100 m depth
     # mooring_1.read_file("../test/baseline_5.map") # 100 m depth
-    mooring_1.read_file("../test/OMAERB_Mooring.dat") # 100 m depth
+    # mooring_1.read_file("../test/OMAERB_Mooring.dat") # 100 m depth
     # mooring_1.read_file("../test/NRELOffshrBsline5MW_Platform_OC3Hywind_segmented.map") # 320 m depth
     # mooring_1.read_file("../test/NRELOffshrBsLine5MW_TLP.map") # 200 m depth
 
@@ -54,10 +54,10 @@ if __name__ == '__main__':
     # mooring_1.displace_vessel(15.0, 0.0, 0.0, 0.0, 0.0, 10.0)
     # mooring_1.update_states(0.0, 0)
 
-    epsilon = 1e-5
-    K = mooring_1.linear(epsilon)    
-    print "\nHere is the linearized stiffness matrix with zero vessel displacement:"
-    print np.array(K)
+    # epsilon = 1e-5
+    # K = mooring_1.linear(epsilon)    
+    # print "\nHere is the linearized stiffness matrix with zero vessel displacement:"
+    # print np.array(K)
     # 
     # H,V = mooring_1.get_fairlead_force_2d(0)    
     # print H, "  ", V
@@ -96,9 +96,9 @@ if __name__ == '__main__':
     ax.set_xlabel('X [m]')
     ax.set_ylabel('Y [m]')
     ax.set_zlabel('Z [m]')        
-    ax.set_xlim([-3.0,3])        
-    ax.set_ylim([-3.0,3])        
-    ax.set_zlim([-3.0,0])        
+    #ax.set_xlim([-3.0,3])        
+    #ax.set_ylim([-3.0,3])        
+    #ax.set_zlim([-3.0,0])        
      
     plt.show()
     
