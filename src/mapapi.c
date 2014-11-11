@@ -142,7 +142,7 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
    * file is written even if garbage is recorded.
    */
   do {
-    success = write_summary_file(init_data, p_type, model_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_37);           
+    success = write_summary_file(init_data, p_type, domain, map_msg, ierr); CHECKERRQ(MAP_FATAL_37);           
     success = get_iteration_output_stream(y_type, other_type, map_msg, ierr); // @todo CHECKERRQ()    
   } while (0);
 
@@ -650,9 +650,8 @@ MAP_EXTERNCALL double* map_plot_z_array(MAP_OtherStateType_t* other_type, int i,
           array_z[s] = anchor_z; 
         } else {        
           /* @todo: verify this equation before someone uses this program to  design something that matters */           
-          array_z[s] = - ((H/w)*(sqrt(1 + pow((w*(S-Lb)/H),2)) - 1) + ((w*pow((S-Lb),2))/(2*EA))) + anchor_z; 
-          printf("%f\n",array_z[s]);
-          // array_z[s] = ((H/w)*(sqrt(1 + pow((w*(S-Lb)/H),2)) - 1) + ((w*pow((S-Lb),2))/(2*EA))) + anchor_z; 
+          array_z[s] = ((H/w)*(sqrt(1 + pow((w*(S-Lb)/H),2)) - 1) + ((w*pow((S-Lb),2))/(2*EA))) + anchor_z; 
+          //array_z[s] = - ((H/w)*(sqrt(1 + pow((w*(S-Lb)/H),2)) - 1) + ((w*pow((S-Lb),2))/(2*EA))) + anchor_z; 
         };
         S += dS;
       };      
