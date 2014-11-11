@@ -47,14 +47,14 @@ if __name__ == '__main__':
     # mooring_1.summary_file('name_me.txt')
     mooring_1.init( )
     
-    # mooring_1.displace_vessel(5.0, 0.0, 0.0, 0.0, 0.0, 0.0) 
+    # mooring_1.displace_vessel(5.0, 0.0, 0.0, 0.0, 0.0, 0.0)
     # mooring_1.update_states(0.0, 0)
     # mooring_1.displace_vessel(5.0, 0.0, 0.0, 0.0, 0.0, 10.0)
     # mooring_1.update_states(0.0, 0)
     # mooring_1.displace_vessel(15.0, 0.0, 0.0, 0.0, 0.0, 10.0)
     # mooring_1.update_states(0.0, 0)
 
-    # epsilon = 1e-5
+    # epsilon = 1e-3
     # K = mooring_1.linear(epsilon)    
     # print "\nHere is the linearized stiffness matrix with zero vessel displacement:"
     # print np.array(K)
@@ -103,4 +103,3 @@ if __name__ == '__main__':
     plt.show()
     
     mooring_1.end( )
-    

@@ -24,7 +24,6 @@
 #ifndef _MAPAPI_H
 #define _MAPAPI_H
 
-
 MAP_EXTERNCALL void set_init_to_null(MAP_InitInputType_t* init_type, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_EXTERNCALL void map_add_cable_library_input_text(MAP_InitInputType_t* init_type);
 MAP_EXTERNCALL void map_add_node_input_text(MAP_InitInputType_t* init_type);
@@ -33,13 +32,13 @@ MAP_EXTERNCALL void map_add_options_input_text(MAP_InitInputType_t* init_type);
 MAP_EXTERNCALL double* map_plot_x_array(MAP_OtherStateType_t* other_type, int i, int num_points, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_EXTERNCALL double* map_plot_y_array(MAP_OtherStateType_t* other_type, int i, int num_points, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_EXTERNCALL double* map_plot_z_array(MAP_OtherStateType_t* other_type, int i, int num_points, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_EXTERNCALL void map_plot_array_free(MapReal * array) ;
-MAP_EXTERNCALL MapReal map_residual_function_length(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_EXTERNCALL MapReal map_residual_function_height(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_EXTERNCALL MapReal map_jacobian_dxdh(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_EXTERNCALL MapReal map_jacobian_dxdv(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_EXTERNCALL MapReal map_jacobian_dzdh(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_EXTERNCALL MapReal map_jacobian_dzdv(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_EXTERNCALL void map_plot_array_free(double * array) ;
+MAP_EXTERNCALL double map_residual_function_length(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_EXTERNCALL double map_residual_function_height(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_EXTERNCALL double map_jacobian_dxdh(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_EXTERNCALL double map_jacobian_dxdv(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_EXTERNCALL double map_jacobian_dzdh(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_EXTERNCALL double map_jacobian_dzdv(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_EXTERNCALL int map_size_lines(MAP_OtherStateType_t* other_type, MAP_ERROR_CODE* ierr, char* map_msg);
 
 
@@ -75,7 +74,7 @@ MAP_EXTERNCALL int free_init_data (InitializationData* init, char* map_msg, MAP_
  * CALL mapextern_set_depth(p%C_obj, depth)
  * @endcode
  */
-MAP_EXTERNCALL void map_set_sea_depth(MAP_ParameterType_t* p_type, const MapReal depth);
+MAP_EXTERNCALL void map_set_sea_depth(MAP_ParameterType_t* p_type, const double depth);
 
 
 /**
@@ -100,7 +99,7 @@ MAP_EXTERNCALL void map_set_sea_depth(MAP_ParameterType_t* p_type, const MapReal
  * CALL mapextern_set_density(p%C_obj, rho)
  * @endcode
  */
-MAP_EXTERNCALL void map_set_sea_density(MAP_ParameterType_t* p_type, const MapReal rho);
+MAP_EXTERNCALL void map_set_sea_density(MAP_ParameterType_t* p_type, const double rho);
 
 
 /**
@@ -125,7 +124,7 @@ MAP_EXTERNCALL void map_set_sea_density(MAP_ParameterType_t* p_type, const MapRe
  * CALL mapextern_map_set_gravity(p%C_obj, g)
  * @endcode
  */
-MAP_EXTERNCALL void map_set_gravity(MAP_ParameterType_t* p_type, const MapReal gravity);
+MAP_EXTERNCALL void map_set_gravity(MAP_ParameterType_t* p_type, const double gravity);
 
 
 /**
@@ -418,7 +417,7 @@ MAP_EXTERNCALL MAP_InitInputType_t* map_create_init_type(char* map_msg, MAP_ERRO
 
 
 /**
- * @brief   Allocate MAP_OtherStateType_t and ModelData
+ * @brief   Allocate MAP_OtherStateType_t and Domain
  * @details Called to allocate memory for the other states for both the Fortran
  *          derived data and internal state data. This is a necessary function for
  *          interaction with python and C based programs. The 

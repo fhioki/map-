@@ -1,6 +1,6 @@
-Outputs were generated using MAP++ 92f2-dirty.
+Outputs were generated using MAP++ 48a8-dirty.
 
-    Monday November 10-2014 at 21:24:18 PM
+    Saturday October 04-2014 at 21:24:22 PM
 
     Gravity constant          [m/s^2]  : 9.81
     Sea density               [kg/m^3] : 1020.00
@@ -22,27 +22,27 @@ Y  [m]    |  -520.000               -20.000                 0.000               
 Z  [m]    |  -120.000                40.000                -120.000                40.000
 M  [kg]   |  0.000                   0.000                  0.000                  0.000
 B  [m^3]  |  0.000                   0.000                  0.000                  0.000
-FX [N]    | ( 0.000)               ( 0.000)               (-298060.662)          ( 298060.662)
-FY [N]    | ( 0.000)               ( 17104.193)           ( 0.000)               ( 0.000)
-FZ [N]    | ( 0.000)               ( 228867.519)          ( 286445.846)          ( 550074.550)
+FX [N]    | (-0.000)               ( 0.000)               ( 0.000)               (-192227.653)
+FY [N]    | (-249185.921)          ( 249185.921)          ( 0.000)               ( 0.000)
+FZ [N]    | ( 329414.058)          ( 573496.845)          ( 0.000)               ( 199567.389)
 
 
                 | Line 1
                 | ---------------------------------------
 Material        |  chainup
-Lu        [m]   |  630.000
-Lb        [m]   |  457.635
-H         [N]   |  17104.193
-V         [N]   |  228867.519
-T         [N]   |  229505.762
-Alpha     [deg] |  85.726
-HAnch     [N]   | 0.000
-VAnch     [N]   | 0.000
-TAnch     [N]   | 0.000
-AlphaAnch [deg] | 0.000
-L^2-Norm        |  2.842171e-14
-Function Evals  |  3
-Jacobian Evals  |  2
+Lu        [m]   |  680.000
+Lb        [m]   | 0.000
+H         [N]   |  249185.921
+V         [N]   |  573496.845
+T         [N]   |  625293.735
+Alpha     [deg] |  66.515
+HAnch     [N]   |  249185.921
+VAnch     [N]   | -329414.058
+TAnch     [N]   |  413046.298
+AlphaAnch [deg] | -52.894
+L^2-Norm        |  8.038873e-14
+Function Evals  |  5
+Jacobian Evals  |  4
 Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
 
 
@@ -50,44 +50,44 @@ Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
                 | ---------------------------------------
 Material        |  chainup
 Lu        [m]   |  630.000
-Lb        [m]   | 0.000
-H         [N]   |  298060.662
-V         [N]   |  550074.550
-T         [N]   |  625637.410
-Alpha     [deg] |  61.549
-HAnch     [N]   |  298060.662
-VAnch     [N]   | -286445.846
-TAnch     [N]   |  413390.107
-AlphaAnch [deg] | -43.862
-L^2-Norm        |  5.684342e-14
-Function Evals  |  10
-Jacobian Evals  |  7
+Lb        [m]   |  479.702
+H         [N]   | -192227.653
+V         [N]   |  199567.389
+T         [N]   |  277089.541
+Alpha     [deg] |  133.927
+HAnch     [N]   | 0.000
+VAnch     [N]   | 0.000
+TAnch     [N]   | 0.000
+AlphaAnch [deg] | 0.000
+L^2-Norm        |  22.4857
+Function Evals  |  21
+Jacobian Evals  |  18
 Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
 
 
 ---------------------- LINE DICTIONARY ---------------------------------------
 LineType  Diam      MassDenInAir   EA            CB
 [-]       [m]       [kg/m]         [N]           [-]
-chainup   0.064929  138.73        545E6   1.0    1.0E8    0.6 -1.0    0.05
+chainup   0.064929  138.73        545.0E6       1.0    1.0E8    0.6 -1.0    0.05
 ---------------------- NODE PROPERTIES ---------------------------------------
 Node  Type       X       Y       Z      M     B     FX    FY    FZ
 [-]   [-]       [m]     [m]     [m]    [kg]  [mˆ3]  [N]   [N]   [N]
 1     fix        0    -520      -120    0     0      #     #     #
-2     Vessel     0     -20       40     0     0      #0.0  #17104.193     #228867.519
+2     Vessel     0     -20       40     0     0      #     #     #
 3     fix       -520     0      -120    0     0      #     #     #
-4     Vessel    -20      0       40     0     0      #     #     #1000.0
+4     Vessel    -20      0       40     0     0      #     #     # 
 ---------------------- LINE PROPERTIES ---------------------------------------
 Line  LineType  UnstrLen  NodeAnch  NodeFair  Flags
 [-]      [-]       [m]       [-]       [-]       [-]
-1        chainup   630        1         2        plot gx_pos gy_pos gz_a_pos h_fair H_ANCH damage_time 99 diagnostic 9
-2        chainup   630        3         4        plot gx_pos gy_pos gz_a_pos H_ANCH damage_time 99 omit_contact
+1        chainup   680        1         2        plot gx_pos gy_pos gz_a_pos h_fair H_ANCH damage_time 99 omit_contact diagnostic 9
+2        chainup   630        3         4        plot gx_pos gy_pos gz_a_pos H_ANCH damage_time 99 
 ---------------------- SOLVER OPTIONS-----------------------------------------
 Option 
 [-] 
- help 
-inner_ftol 1e-12
+ help
+inner_ftol 1e-6
 inner_gtol 1e-12
-inner_xtol 1e-12
+inner_xtol 1e-6
 outer_tol 1e-4
 inner_max_its 400
 outer_max_its 400

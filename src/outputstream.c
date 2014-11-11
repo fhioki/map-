@@ -32,40 +32,40 @@
 MAP_ERROR_CODE get_iteration_output_stream(MAP_OutputType_t *y_type, MAP_OtherStateType_t* other_type, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   int count = 0;
-  ModelData* model_data = other_type->object;
+  Domain* domain = other_type->object;
   VarTypePtr* vartype_ptr = NULL;
   VarType* vartype = NULL;
   
   /* this should only be run once at initialization */
   if (!y_type->wrtOutput) { /* if NULL, then wrtOutput is not initialized */
     /* first set size of out list */
-    y_type->wrtOutput_Len = (int)list_size(&model_data->y_list->out_list_ptr);
-    y_type->wrtOutput_Len += (int)list_size(&model_data->y_list->out_list);
+    y_type->wrtOutput_Len = (int)list_size(&domain->y_list->out_list_ptr);
+    y_type->wrtOutput_Len += (int)list_size(&domain->y_list->out_list);
     
     /* allocation of the array */
     y_type->wrtOutput = malloc(sizeof(double)*y_type->wrtOutput_Len);
   };
 
-  list_iterator_start(&model_data->y_list->out_list_ptr);
-  while (list_iterator_hasnext(&model_data->y_list->out_list_ptr)) { 
-    vartype_ptr = (VarTypePtr*)list_iterator_next(&model_data->y_list->out_list_ptr);
+  list_iterator_start(&domain->y_list->out_list_ptr);
+  while (list_iterator_hasnext(&domain->y_list->out_list_ptr)) { 
+    vartype_ptr = (VarTypePtr*)list_iterator_next(&domain->y_list->out_list_ptr);
     y_type->wrtOutput[count] = *vartype_ptr->value;
     count++;
   };
-  list_iterator_stop(&model_data->y_list->out_list_ptr);     
+  list_iterator_stop(&domain->y_list->out_list_ptr);     
 
-  list_iterator_start(&model_data->y_list->out_list);
-  while (list_iterator_hasnext(&model_data->y_list->out_list)) { 
-    vartype = (VarType*)list_iterator_next(&model_data->y_list->out_list);
+  list_iterator_start(&domain->y_list->out_list);
+  while (list_iterator_hasnext(&domain->y_list->out_list)) { 
+    vartype = (VarType*)list_iterator_next(&domain->y_list->out_list);
     y_type->wrtOutput[count] = vartype->value;
-    count++;
+    count++;    
   };
-  list_iterator_stop(&model_data->y_list->out_list);     
+  list_iterator_stop(&domain->y_list->out_list);     
   return MAP_SAFE;
 };
 
 
-MAP_ERROR_CODE write_summary_file(InitializationData* init, MAP_ParameterType_t* paramType, ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE write_summary_file(InitializationData* init, MAP_ParameterType_t* paramType, Domain* data, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_ERROR_CODE success = MAP_SAFE;
   struct tm* tm_info;
@@ -113,13 +113,13 @@ MAP_ERROR_CODE write_summary_file(InitializationData* init, MAP_ParameterType_t*
 };
 
 
-MAP_ERROR_CODE write_cable_library_information_to_summary_file(FILE* file, ModelData* model_data)
+MAP_ERROR_CODE write_cable_library_information_to_summary_file(FILE* file, Domain* domain)
 {
   CableLibrary* library_iter = NULL;  
 
-  list_iterator_start(&model_data->library);    
-  while (list_iterator_hasnext(&model_data->library)) { 
-    library_iter = (CableLibrary*)list_iterator_next(&model_data->library);    
+  list_iterator_start(&domain->library);    
+  while (list_iterator_hasnext(&domain->library)) { 
+    library_iter = (CableLibrary*)list_iterator_next(&domain->library);    
     fprintf(file, "    Cable Type          : %s\n", library_iter->label->data);
     fprintf(file, "    Diameter     [m]    : %1.4f\n", library_iter->diam);
     fprintf(file, "    Mass Density [kg/m] : %1.2f\n", library_iter->mass_density);
@@ -127,7 +127,7 @@ MAP_ERROR_CODE write_cable_library_information_to_summary_file(FILE* file, Model
     fprintf(file, "    omega        [N/m]  : %1.2f\n", library_iter->omega);
     fprintf(file, "    CB                  : %1.2f\n\n", library_iter->cb);
   };
-  list_iterator_stop(&model_data->library);  
+  list_iterator_stop(&domain->library);  
   return MAP_SAFE;
 };
 
@@ -565,7 +565,7 @@ MAP_ERROR_CODE write_node_z_sum_force_to_summary_file(const int num_col, const i
 };
 
 
-MAP_ERROR_CODE write_node_information_to_summary_file(FILE* file, ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE write_node_information_to_summary_file(FILE* file, Domain* domain, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   int num = 0;
   int i = 0;
@@ -583,7 +583,7 @@ MAP_ERROR_CODE write_node_information_to_summary_file(FILE* file, ModelData* mod
   bstring line9 = NULL;
   Node* node_iter = NULL;  
   const int FOUR = 4;
-  const unsigned int num_nodes = list_size(&model_data->node);  
+  const unsigned int num_nodes = list_size(&domain->node);  
   unsigned int col = 0;
   MAP_ERROR_CODE success = MAP_SAFE;
 
@@ -607,7 +607,7 @@ MAP_ERROR_CODE write_node_information_to_summary_file(FILE* file, ModelData* mod
       line9 = bformat("");
 
       for (col=i ; col<i+num ; col++) {
-        node_iter = (Node*)list_get_at(&model_data->node, col);      
+        node_iter = (Node*)list_get_at(&domain->node, col);      
         success = write_node_header_to_summary_file(col-i, col_cnt, col+1, line0); CHECKERRQ(MAP_FATAL_70);
         success = write_node_type_to_summary_file(col-i, col_cnt, node_iter->type, line1); CHECKERRQ(MAP_FATAL_70);
         success = write_node_x_position_to_summary_file(col-i, col_cnt, &node_iter->position_ptr.x, line2); CHECKERRQ(MAP_FATAL_70);
@@ -650,9 +650,9 @@ MAP_ERROR_CODE write_node_information_to_summary_file(FILE* file, ModelData* mod
 };
 
 
-MAP_ERROR_CODE write_line_information_to_summary_file(FILE* file, ModelData* model_data)
+MAP_ERROR_CODE write_line_information_to_summary_file(FILE* file, Domain* domain)
 {
-  const unsigned int num_lines = list_size(&model_data->line);
+  const unsigned int num_lines = list_size(&domain->line);
   Line* line_iter = NULL;  
   bstring line0 = NULL;
   bstring line1 = NULL;
@@ -668,7 +668,7 @@ MAP_ERROR_CODE write_line_information_to_summary_file(FILE* file, ModelData* mod
   int i = 0;  
 
   for (i=0 ; i<num_lines ; i++) {
-    line_iter = (Line*)list_get_at(&model_data->line, i);
+    line_iter = (Line*)list_get_at(&domain->line, i);
 
     line0 = bformat("");
     line1 = bformat("");
@@ -684,7 +684,7 @@ MAP_ERROR_CODE write_line_information_to_summary_file(FILE* file, ModelData* mod
     if (line_iter->Lu.value>0.0) {
       bconchar(line0,' ');      
     };
-    if (line_iter->Lb.value>0.0) {
+    if (line_iter->Lb>0.0) {
       bconchar(line1,' ');      
     };
     if (*(line_iter->H.value)>0.0) {
@@ -693,22 +693,22 @@ MAP_ERROR_CODE write_line_information_to_summary_file(FILE* file, ModelData* mod
     if (*(line_iter->V.value)>0.0) {
       bconchar(line3,' ');      
     };
-    if (line_iter->T.value>0.0) {
+    if (line_iter->T>0.0) {
       bconchar(line4,' ');      
     };
-    if (line_iter->alpha.value>0.0) {
+    if (line_iter->alpha>0.0) {
       bconchar(line5,' ');      
     };
-    if (line_iter->H_at_anchor.value>0.0) {
+    if (line_iter->H_at_anchor>0.0) {
       bconchar(line6,' ');      
     };
-    if (line_iter->V_at_anchor.value>0.0) {
+    if (line_iter->V_at_anchor>0.0) {
       bconchar(line7,' ');      
     };
-    if (line_iter->tension_at_anchor.value>0.0) {
+    if (line_iter->T_at_anchor>0.0) {
       bconchar(line8,' ');      
     };
-    if (line_iter->alpha_at_anchor.value>0.0) {
+    if (line_iter->alpha_at_anchor>0.0) {
       bconchar(line9,' ');      
     };
         
@@ -749,15 +749,15 @@ MAP_ERROR_CODE write_line_information_to_summary_file(FILE* file, ModelData* mod
     fprintf(file, "                | ---------------------------------------\n");    
     fprintf(file, "Material        |  %s\n", line_iter->line_property->label->data);
     fprintf(file, "Lu        [m]   | %s%1.3f\n", line0->data, line_iter->Lu.value);
-    fprintf(file, "Lb        [m]   | %s%1.3f\n", line1->data, line_iter->Lb.value); 
+    fprintf(file, "Lb        [m]   | %s%1.3f\n", line1->data, line_iter->Lb); 
     fprintf(file, "H         [N]   | %s%1.3f\n", line2->data, *(line_iter->H.value));
     fprintf(file, "V         [N]   | %s%1.3f\n", line3->data, *(line_iter->V.value));
-    fprintf(file, "T         [N]   | %s%1.3f\n", line4->data, line_iter->T.value);
-    fprintf(file, "Alpha     [deg] | %s%1.3f\n", line5->data, line_iter->alpha.value*RAD2DEG); 
-    fprintf(file, "HAnch     [N]   | %s%1.3f\n", line6->data, line_iter->H_at_anchor.value);
-    fprintf(file, "VAnch     [N]   | %s%1.3f\n", line7->data, line_iter->V_at_anchor.value);
-    fprintf(file, "TAnch     [N]   | %s%1.3f\n", line8->data, line_iter->tension_at_anchor.value);
-    fprintf(file, "AlphaAnch [deg] | %s%1.3f\n", line9->data, line_iter->alpha_at_anchor.value*RAD2DEG);
+    fprintf(file, "T         [N]   | %s%1.3f\n", line4->data, line_iter->T);
+    fprintf(file, "Alpha     [deg] | %s%1.3f\n", line5->data, line_iter->alpha*RAD2DEG); 
+    fprintf(file, "HAnch     [N]   | %s%1.3f\n", line6->data, line_iter->H_at_anchor);
+    fprintf(file, "VAnch     [N]   | %s%1.3f\n", line7->data, line_iter->V_at_anchor);
+    fprintf(file, "TAnch     [N]   | %s%1.3f\n", line8->data, line_iter->T_at_anchor);
+    fprintf(file, "AlphaAnch [deg] | %s%1.3f\n", line9->data, line_iter->alpha_at_anchor*RAD2DEG);
     fprintf(file, "L^2-Norm        |  %1.7g\n", line_iter->residual_norm);
     fprintf(file, "Function Evals  |  %d\n", line_iter->evals);
     fprintf(file, "Jacobian Evals  |  %d\n", line_iter->njac_evals);

@@ -29,7 +29,7 @@
 
 
 MAP_ERROR_CODE initialize_fortran_types(MAP_InputType_t* u_type, MAP_ParameterType_t* p_type, MAP_ContinuousStateType_t* x_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type, MAP_InitOutputType_t* initout_type);
-MAP_ERROR_CODE allocate_outlist(ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE allocate_outlist(Domain* data, char* map_msg, MAP_ERROR_CODE* ierr);
 size_t cable_library_meter(const void* el);
 size_t node_meter(const void* el);
 size_t cable_line_meter( const void* el);
@@ -62,7 +62,7 @@ void initialize_init_data_to_null(InitializationData* init_data);
  * @param   floater, the vessel strcture
  * @see     map_create_other_type()
  */
-void initialize_model_data_to_null(ModelData* model_data);
+void initialize_domain_to_null(Domain* domain);
 
 
 /**
@@ -73,7 +73,7 @@ void initialize_model_data_to_null(ModelData* model_data);
  * @param   options, model variables not related to solver items/options
  * @see     map_create_init_type()
  */
-void initialize_model_option_defaults(ModelOptions* options);
+void initialize_model_option_defaults(DomainOptions* options);
 
 
 /**
@@ -112,7 +112,7 @@ void initialize_outer_solve_data_defaults(OuterSolveAttributes* outer);
 
 
 /**
- * @brief   Allocate ModelData
+ * @brief   Allocate Domain
  * @details Called by {@link  map_create_other_type} to allocate memory for the internal 
  *          state (model) data type. 'Other States', as FAST calls them, are states not 
  *          fitting a regular role as a parameter, constraint, input, ect. Other states
@@ -125,7 +125,7 @@ void initialize_outer_solve_data_defaults(OuterSolveAttributes* outer);
  * @see     map_create_other_type()
  * @return  instance of the interal model struct (different from the FAST-required derived types)  
  */
-ModelData* MAP_OtherState_Create(char* map_msg, MAP_ERROR_CODE* ierr);
+Domain* MAP_OtherState_Create(char* map_msg, MAP_ERROR_CODE* ierr);
 
 
 /**
@@ -172,14 +172,14 @@ InitializationData* MAP_InitInput_Create(char* map_msg, MAP_ERROR_CODE* ierr);
  *          repeat
  *          ref_position
  *          </pre>
- * @param   model_data, MAP interal data construct
+ * @param   domain, MAP interal data construct
  * @param   init_data, initialization input strings
  * @param   map_msg, error message
  * @param   ierr, error code
  * @see     map_init()
  * @return  MAP error code
  */
-MAP_ERROR_CODE set_model_options_list(ModelData* data, InitializationData* init, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE set_model_options_list(Domain* data, InitializationData* init, char* map_msg, MAP_ERROR_CODE* ierr);
 
 
 /**
@@ -469,6 +469,21 @@ MAP_ERROR_CODE check_wave_kinematics_flag(struct bstrList* list, bool* wave);
 
 
 /**
+ * @brief   Use the LM model. 
+ * @details Called by {@link set_model_option_list} to set the mooring model to 
+ *          the lumped-mass formulation. The MAP input file syntax:
+ *          <pre>
+ *          lm_model
+ *          </pre>
+ * @param   list, a character array structure
+ * @param   lm, true if wave kinematics are computed in MAP
+ * @see     set_model_options_list(), map_init()
+ * @return  MAP error code
+ */
+MAP_ERROR_CODE check_lm_model_flag(struct bstrList* list, bool* lm);
+
+
+/**
  * @brief   Initializes "REPEAT" flag model options
  * @details Called by {@link set_model_option_list} to set the number of line and node 
  *          repeats. Prefixing the line with a space (" ") treats the line as a comment.
@@ -481,7 +496,7 @@ MAP_ERROR_CODE check_wave_kinematics_flag(struct bstrList* list, bool* wave);
  * @see     set_model_options_list(), map_init()
  * @return  MAP error code
  */
-MAP_ERROR_CODE check_repeat_flag(struct bstrList* list, ModelOptions* options);
+MAP_ERROR_CODE check_repeat_flag(struct bstrList* list, DomainOptions* options);
 
 
 /**
@@ -525,14 +540,14 @@ MAP_ERROR_CODE check_uncaught_flag(struct bstrList* list);
  *          cross-float damping coefficient (unsupported LM option)
  *          tangen drag coefficient (unsupported LM option)
  *          </pre>
- * @param   model_data, MAP interal data construct
+ * @param   domain, MAP interal data construct
  * @param   init_data, initialization input strings
  * @param   map_msg, error message
  * @param   ierr, error code
  * @see     map_init()
  * @return  MAP error code
  */
-MAP_ERROR_CODE set_cable_library_list( ModelData* model_data, InitializationData* init_data, char* map_msg, MAP_ERROR_CODE* ierr );
+MAP_ERROR_CODE set_cable_library_list( Domain* domain, InitializationData* init_data, char* map_msg, MAP_ERROR_CODE* ierr );
 
 
 /**
@@ -630,9 +645,9 @@ MAP_ERROR_CODE set_library_tangent_drag_coefficient(bstring word, CableLibrary* 
 MAP_ERROR_CODE reset_cable_library(CableLibrary* new_cable_library);
 
 
-MAP_ERROR_CODE repeat_nodes(ModelData* model_data, InitializationData* init_data, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE set_node_list(const MAP_ParameterType_t* p_type,  MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type, ModelData* model_data, struct bstrList* node_input_string, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE allocate_types_for_nodes(MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type, ModelData* model_data, struct bstrList* node_input_string, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE repeat_nodes(Domain* domain, InitializationData* init_data, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE set_node_list(const MAP_ParameterType_t* p_type,  MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type, Domain* domain, struct bstrList* node_input_string, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE allocate_types_for_nodes(MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type, Domain* domain, struct bstrList* node_input_string, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE reset_node(Node* node_ptr);
 MAP_ERROR_CODE expand_node_number(const int n_line, bstring line); 
 MAP_ERROR_CODE expand_node_type(const char* word, bstring line); 
@@ -646,8 +661,8 @@ MAP_ERROR_CODE expand_node_force_y(double* fy, const char* word);
 MAP_ERROR_CODE expand_node_force_z(Vector* force, const double angle, const double fx, const double fy, const char* word, bstring line);
 
 
-MAP_ERROR_CODE repeat_lines(ModelData* model_data, InitializationData* init, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE set_line_list(MAP_ConstraintStateType_t* z_type, ModelData* model_data, struct bstrList* line_input_string, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE repeat_lines(Domain* domain, InitializationData* init, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE set_line_list(MAP_ConstraintStateType_t* z_type, Domain* domain, struct bstrList* line_input_string, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE reset_line(Line* line_ptr);
 MAP_ERROR_CODE expand_line_number(const int n_line, bstring line); 
 MAP_ERROR_CODE expand_line_property_name(const char* word, bstring line); 
@@ -660,20 +675,29 @@ MAP_ERROR_CODE expand_line_flag(const char* word, bstring line);
 MAP_ERROR_CODE set_vartype_ptr(const char* unit, bstring alias, const int num, VarTypePtr* type, bstring property);
 MAP_ERROR_CODE set_vartype(const char* unit, bstring alias, const int num, VarType* type, bstring property );
 MAP_ERROR_CODE compare_length(int a, int b);
-MAP_ERROR_CODE set_line_vartype(Line* line_ptr);
-MAP_ERROR_CODE associate_line_with_cable_property(Line* line_ptr, ModelData* model_data, const char* word, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE associate_line_with_anchor_node(Line* line_ptr, ModelData* model_data, const int line_num, const char* word, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE associate_line_with_fairlead_node(Line* line_ptr, ModelData* model_data, const int line_num, const char* word, char* map_msg, MAP_ERROR_CODE* ierr);
+// MAP_ERROR_CODE set_line_vartype(Line* line_ptr, const int i); @rm
+MAP_ERROR_CODE associate_line_with_cable_property(Line* line_ptr, Domain* domain, const char* word, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE associate_line_with_anchor_node(Line* line_ptr, Domain* domain, const int line_num, const char* word, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE associate_line_with_fairlead_node(Line* line_ptr, Domain* domain, const int line_num, const char* word, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE set_line_option_flags(struct bstrList* word, int* index, Line* line_ptr, char* map_msg, MAP_ERROR_CODE* ierr);
+
+
+/**
+ * @brief   set the 'unit' and 'name' attributes for the node vartype's
+ * @details Used in the initialization routine, part of {@link set_node_list()}
+ * @param   node_ptr pointer to a newly allocated node data struct
+ */
+MAP_ERROR_CODE set_node_vartype(Node* node_ptr);
+
 
 /**
  * @brief
- * @param model_data internal state data {@link ModelData}
+ * @param domain internal state data {@link Domain}
  * @param io_type initialization output type, native C struct {@link MAP_InitOutputType_t}
  * @param map_msg error message
  * @param ierr error code
  */
-MAP_ERROR_CODE set_output_list(ModelData* model_data, MAP_InitOutputType_t* io_type, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE set_output_list(Domain* domain, MAP_InitOutputType_t* io_type, char* map_msg, MAP_ERROR_CODE* ierr);
 
 
 /**
@@ -713,7 +737,7 @@ MAP_ERROR_CODE allocate_outer_solve_data(OuterSolveAttributes* ns, const int siz
  * @acceses: none
  * @calledby: mapcall_msqs_init( )
  */
-MAP_ERROR_CODE initialize_cable_library_variables(ModelData* model_data, MAP_ParameterType_t* p_type, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE initialize_cable_library_variables(Domain* domain, MAP_ParameterType_t* p_type, char* map_msg, MAP_ERROR_CODE* ierr);
 
 
 /**
@@ -752,7 +776,7 @@ MAP_ERROR_CODE initialize_cable_library_variables(ModelData* model_data, MAP_Par
  *      - wa1, wa2, wa3 : are work arrays of length n.
  *      - wa4           : a work array of length m.  
  */
-MAP_ERROR_CODE first_solve(ModelData* model_data, MAP_ParameterType_t* p_type, MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE first_solve(Domain* domain, MAP_ParameterType_t* p_type, MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type, char* map_msg, MAP_ERROR_CODE* ierr);
 
 
 /**

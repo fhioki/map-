@@ -101,7 +101,6 @@
 #define CHECKERRQ(code) if(success!=MAP_SAFE) {set_universal_error(map_msg, ierr, code); break;} 
 #define CHECKERRK(code) if(success!=MAP_SAFE) {set_universal_error(map_msg, ierr, code);} 
 #define MAPFREE(obj) if(obj!=NULL) {free(obj); obj=NULL;} 
-#define MapReal double /* this can be set to double, long double, ect as necessary */
 #define DEG2RAD 0.01745329251 /*  pi/180  */
 #define RAD2DEG 57.2957795131 /*  180/pi  */
 #define ARCSINH(x) log(x+sqrt(1+x*x))

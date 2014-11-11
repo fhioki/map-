@@ -37,7 +37,7 @@
 
 #include "MAP_Types.h"
 #include "maperror.h"
-
+#include "lmroutines.hpp"
 
 /**
  * @brief Associates the node with a particular type. Fix nodes are anchor points
@@ -81,6 +81,7 @@ typedef enum FdType_enum {
 typedef enum SolveType_enum {  
   MONOLITHIC,   /**< for MSQS, lines only (no connect nodes) */
   PARTITIONED,  /**< for MSQS system with connect nodes */
+  LUMPED_MASS   /**< for lumped-mass model */
 } SolveType;
 
 
@@ -105,9 +106,9 @@ struct Fd_t {
  *        output file), and counting references.
  */
 struct VarType_t {
-  MapReal value;    /**< the value */
-  bstring units;    /*< units for printing information to a summary file or output buffer */
-  bstring name;     /*< name of the variable. This is used for identifying it in the output buffer */
+  bstring units;    /**< units for printing information to a summary file or output buffer */
+  bstring name;     /**< name of the variable. This is used for identifying it in the output buffer */
+  double value;     /**< the value */
   bool is_fixed;    /**< if is_fixed = true, then we are not solving for this variable */
   bool user_initial_guess; /**< if user_initial_guess = true, the user has supplied an initial guess */
   int ref_counter;  /**< for ensuring the variable is assigned to one of: input, param, or constraint */
@@ -121,19 +122,19 @@ struct VarType_t {
  *        to a variable allocated in Fortran. This feature is also preserved with Python binding. 
  */
 struct VarTypePtr_t {
-  MapReal* value;        /**< the value */
-  bstring units;           /*< units for printing information to a summary file or output buffer */
-  bstring name;            /*< name of the variable. This is used for identifying it in the output buffer */
-  bool is_fixed;          /**< If is_fixed = true, then we are not solving for this variable */
+  bstring units;    /**< units for printing information to a summary file or output buffer */
+  bstring name;     /**< name of the variable. This is used for identifying it in the output buffer */
+  double* value;   /**< the value */
+  bool is_fixed;    /**< If is_fixed = true, then we are not solving for this variable */
   int ref_counter;  /**< For ensuring the variable is assigned to one of: input, param, or constraint */
-  int id;                /**< node or line this value is attached to */
+  int id;           /**< node or line this value is attached to */
 }; typedef struct VarTypePtr_t VarTypePtr;
 
 
 struct Vector_t {
-  MapReal x;
-  MapReal y;
-  MapReal z;
+  double x;
+  double y;
+  double z;
 }; typedef struct Vector_t Vector;
   
 
@@ -184,14 +185,14 @@ struct ReferencePoint_t {
  *        then helper functions can be called to displacement the nodes. The vessel only reference 'input' nodes.
  */
 struct Vessel_t {
+  EulerAngle orientation; /**< Vessel orientation [deg]*/
+  double* xi;             /**< initial node connection point in body frame.This is equal to uType->x at initialization [m] */
+  double* yi;             /**< initial node connection point in body frame This is equal to uType->y at initialization [m] */
+  double* zi;             /**< initial node connection point in body frame This is equal to uType->z at initialization [m] */
   Point displacement;     /**< User-specified vessel displacement. This is the [m]*/
   Point ref_origin;       /**< Center of rotation origin. The moments are taken about this is point. The reference point is with respect to the FAST reference origin (equal to the
                            * SWL at zero vessel dispalcements) [m]*/
-  EulerAngle orientation; /**< Vessel orientation [deg]*/
   Force line_sum_force;   /**< Sum force of all nodes connecting to the vessel [N] */
-  MapReal* xi;            /**< initial node connection point in body frame.This is equal to uType->x at initialization [m] */
-  MapReal* yi;            /**< initial node connection point in body frame This is equal to uType->y at initialization [m] */
-  MapReal* zi;            /**< initial node connection point in body frame This is equal to uType->z at initialization [m] */
 }; typedef struct Vessel_t Vessel;
 
 
@@ -211,7 +212,6 @@ struct OutputList_t{
 
 
 typedef struct {
-  bool plotFlag;  // @rm
   bool gx_pos_flag;
   bool gy_pos_flag;
   bool gz_pos_flag;
@@ -237,64 +237,106 @@ typedef struct {
   bool lay_length_flag;
   bool damage_time_flag;
   bool diagnostics_flag;
-  bool linear_spring;
-} LineOptions;
+  bool linear_spring;                  /**< treat the elastic catenary as a uncompressible linear springs when true */         
+} LineOptions; 
 
 
 /**
  * @brief Defines cable properties for a line. These values are fixed with time and connot change.
  */
 struct CableLibrary_t {
-  MapReal diam;         /**< Cable diameter, [m] */
-  MapReal mass_density; /**< Cable density in air [kg/m] */
-  MapReal EA;           /**< Line stiffness [N] */
-  MapReal omega;        /**< cable weight per length in seawater [N/m] */
-  MapReal a;            /**< cross-sectional area [m^2] */
-  MapReal cb;           /**< Cable/seabed friction coefficient [non-dimensional] */
-  MapReal cd_i;         /**< Internal (structural) damping coefficient [non-dimensional] */
-  MapReal ca;           /**< Added mass coefficient [non-dimensional] */
-  MapReal cd_n;         /**< Quadtradice drag coefficient in the cable cross-flow direction [non-dimensional] */
-  MapReal cd_t;         /**< Tangential drag oefficient [non-dimensional] */
+  double diam;         /**< Cable diameter, [m] */
+  double mass_density; /**< Cable density in air [kg/m] */
+  double EA;           /**< Line stiffness [N] */
+  double omega;        /**< cable weight per length in seawater [N/m] */
+  double a;            /**< cross-sectional area [m^2] */
+  double cb;           /**< Cable/seabed friction coefficient [non-dimensional] */
+  double cd_i;         /**< Internal (structural) damping coefficient [non-dimensional] */
+  double ca;           /**< Added mass coefficient [non-dimensional] */
+  double cd_n;         /**< Quadtradice drag coefficient in the cable cross-flow direction [non-dimensional] */
+  double cd_t;         /**< Tangential drag oefficient [non-dimensional] */
   bstring label;        /**< Provides the string a recognizable name (such as 'nylon' or 'steel') */
 }; typedef struct CableLibrary_t CableLibrary;
 
 
 struct Node_t {
+  PointPtr acceleration;        /**< Node accelration; integrated quantity [m/s^2]; used for LM model. Associated with continuous type */
+  PointPtr velocity;            /**< Node velocity [m/s]; used for LM model. Associated with continuous type */
+  PointPtr position_ptr;        /**< this is a Ptr because it points to a fortran type */
   NodeType type;
+  ForcePtr sum_force_ptr;       /**< this is a Ptr because it points to a fortran type */ 
   VarType M_applied;
   VarType B_applied;
-  PointPtr position_ptr; /* this is a Ptr because it points to a fortran type */
-  ForcePtr sum_force_ptr; /* this is a Ptr because it points to a fortran type */ 
   Force external_force;    
 }; typedef struct Node_t Node;
 
 
+// struct LMAttributes {
+//   void* lm_container; /**< container struct in lmroutines.hpp */
+//   double* FlineS;     /**< retains last solution for when this is called with dT = 0 */   // 
+//   double** rFairtS;   /**< fairlead locations ON TURBINE */                               // <--------- will be mapped to a Node_t list 
+//   double** rFairRel;  /**< fairlead locations relative to platform center */              // <--------- will be mapped to a Node_t list 
+//   double** rFairi;    /**< inertial Fairlead Locations  */                                // <--------- will be mapped to a Node_t list    
+//   double** rdFairi;   /**< inertial Fairlead Velocities */                                // <--------- will be mapped to a Node_t list  
+// 
+//   // static vectors to hold line and connection objects!
+//   // vector< LineProps > LinePropList; // to hold line library types   <--------- Moved to the Line_t struct
+//   // vector< Line > LineList;          //  global and persistent?      <--------- Moved to a container struct in lmroutines.hpp to isolate c++ and c
+//   // vector< Connection > ConnectList;                                 <--------- Moved to a container struct in lmroutines.hpp to isolate c++ and c
+//   int nConnects; 
+//   int nLines;
+//   
+//   // state vector and stuff
+//   double* states;     /**< pointer to array comprising global state vector */
+//   double* newstates;
+//   int Nx;             /**< size of state vector array */
+// 
+//   // more state vector things for rk4 integration 
+//   double* f0;
+//   double* f1;
+//   double* f2;
+//   double* f3;
+//   double* xt; 
+// 
+//   int* lineStateIs; /** vector of line starting indices in "states" array */ // vector< int > LineStateIs;  
+//   int closed; // initialize to 0
+//   double dt;  // FAST time step, @rm
+//   double dts; /**< mooring line time step */
+// }; typedef struct LMAttributes_t LMAttributes;
+
+
 struct Line_t {
   CableLibrary* line_property; /**< line properties */
+  // LMAttributes* lm_attributes; /**< Preserves information of the LM model from previous time steps */
   LineOptions options;         /**< run-time options flag */
   VarTypePtr H;                /**< Horizontal fairlead force in the local cable elemenet frame */
   VarTypePtr V;                /**< Vertical fairlead force in the local cable elemenet frame */  
-  MapReal* line_tension;       /**< array of line tension along 's' [N] */ 
-  MapReal damage_time;         /**< time to damage this line and return zero force to the glue code */
-  MapReal residual_norm;       
-  VarType psi;                 /**< angle of roation between global X and local x axis [deg] */
-  VarType alpha;               /**< angle of inclication [deg] */
-  VarType alpha_at_anchor;     /**< angle of inclication at anchor [deg] */
-  VarType l;                   /**< horizontal cable excursion [m] */
-  VarType Lb;                  /**< length of line touching the seabed [m] */
   VarType Lu;                  /**< unstretched cable length [m] */
-  VarType h;                   /**< vertical cable excursion [m] */
-  VarType H_at_anchor;         /**< Horizontal anchor force in the local cable elemenet frame */
-  VarType V_at_anchor;         /**< Vertical anchor force in the local cable elemenet frame */
-  VarType T;                   /**< Tension magnitude [N] */
-  VarType tension_at_anchor;   /**< Tension magnitude at anchor [N] */
-  Force force_at_fairlead;     /**< @rm is this even necessary? I don't think so. Line should not store node forces. They only can contribute force in sumForcePrt */
-  Force force_at_anchor;       /**< @rm is this even necessary? I don't think so. Line should not store node forces. They only can contribute force in sumForcePrt */
   bstring label;               /**< reference a pre-defined property in the line dictionary */
+  double* line_tension;        /**< array of line tension along 's' [N] */ 
+  double psi;                  /**< angle of roation between global X and local x axis [deg] */
+  double alpha;                /**< angle of inclication [deg] */
+  double alpha_at_anchor;      /**< angle of inclication at anchor [deg] */
+  double l;                    /**< horizontal cable excursion [m] */
+  double Lb;                   /**< length of line touching the seabed [m] */
+  double h;                    /**< vertical cable excursion [m] */
+  double H_at_anchor;          /**< Horizontal anchor force in the local cable elemenet frame */
+  double V_at_anchor;          /**< Vertical anchor force in the local cable elemenet frame */
+  double T;                    /**< Tension magnitude [N] */
+  double T_at_anchor;          /**< Tension magnitude at anchor [N] */
+  double damage_time;          /**< time to damage this line and return zero force to the glue code */
+  double residual_norm;       
+  double fx_fairlead;
+  double fy_fairlead;
+  double fz_fairlead;
+  double fx_anchor;
+  double fy_anchor;
+  double fz_anchor;
+  list_t elements;             /**< LM model elements */
   Node* anchor;                /**< Anchor node */
   Node* fairlead;              /**< Fairlead node */
   int segment_size;
-  int diagnostic_type;          /**< none=0, first iteration only=2, all iterations otherwise */
+  int diagnostic_type;         /**< none=0, first iteration only=2, all iterations otherwise */
   int evals;                   /**< number of function evaluations */ 
   int njac_evals;              /**< number of function evaluations */      
   int converge_reason;         /*   - info=0 : improper input parameters.
@@ -310,32 +352,29 @@ struct Line_t {
 }; typedef struct Line_t Line;
 
 
-struct ModelOptions_t {
-  MapReal* repeat_angle;
-  MapReal integration_dt; /**< Integration time step [sec]. LM model specific */
-  MapReal kb_lm;          /**< Seabed stiffeness coefficient [N/m]. LM model specific */
-  MapReal cb_lm;          /**< Seabed damping parameter [N-s/m]. LM model specific */
-  bool wave_kinematics;   /**< Enable wave kinematics o calculated relative flui velcity. LM model specific */
-  int repeat_angle_size;
-}; typedef struct ModelOptions_t ModelOptions;
+struct Element_t {
+  double l;  /**< \left \| \mathbf{r}_{1}-\mathbf{r}_{2} \right \| */
+  Node* r1;  /**< upper node */
+  Node* r2;  /**< lower node */
+}; typedef struct Element_t Element;
 
 
 struct InnerSolveAttributes_t {
-  MapReal f_tol; 
-  MapReal g_tol; 
-  MapReal x_tol; 
-  int max_its;   
-  MapReal** node_jac;
-  MapReal x[2];               /**< array of variables the length of n */
-  MapReal fvec[2];            /**< function evaluations (residual) */
-  MapReal fjac[4];            /**< jacobian. This is a little convoluted because the jacobian is not an array */
-  MapReal wa1[2];             /**< work array of length n */
-  MapReal wa2[2];             /**< work array of length n */
-  MapReal wa3[2];             /**< work array of length n */
-  MapReal wa4[2];             /**< work array of length m */  
+  double** node_jac;
+  double f_tol; 
+  double g_tol; 
+  double x_tol; 
+  double x[2];               /**< array of variables the length of n */
+  double fvec[2];            /**< function evaluations (residual) */
+  double fjac[4];            /**< jacobian. This is a little convoluted because the jacobian is not an array */
+  double wa1[2];             /**< work array of length n */
+  double wa2[2];             /**< work array of length n */
+  double wa3[2];             /**< work array of length n */
+  double wa4[2];             /**< work array of length m */  
   double diag[2];            
   double qtf[2];             
   double factor;             
+  int max_its;   
   int ldfjac;                 /**< number of columns in fjac */
   int mode;             
   int nprint;           
@@ -348,46 +387,55 @@ struct InnerSolveAttributes_t {
 
 struct OuterSolveAttributes_t {
   FdType fd;
-  MapReal** jac;
-  MapReal** l;
-  MapReal** u;
-  MapReal* b;
-  MapReal* x;
-  MapReal* y;
-  MapReal ds;
-  MapReal d;
-  MapReal epsilon;
-  MapReal norm_error;
-  MapReal tol;
-  MapReal coef;
+  double** jac;
+  double** l;
+  double** u;
+  double* b;
+  double* x;
+  double* y;
+  double ds;
+  double d;
+  double epsilon;
+  double norm_error;
+  double tol;
+  double coef;
   bool pg;
   int max_its;
   int iteration_count;
 }; typedef struct OuterSolveAttributes_t OuterSolveAttributes;
 
 
-struct ModelData_t {
-  SolveType MAP_SOLVE_TYPE;        /**< Identifies the solver type: single line, partitioned (multisegmented), and lumped-mass/FEA. Initialized in {@link initialize_model_data_to_null} */
-  ModelOptions model_options;      /**< Contains global model options. Default setting in {@link initialize_model_options_to_defaults} */
+struct DomainOptions_t {
+  double* repeat_angle;
+  double integration_dt;  /**< Integration time step [sec]. LM model specific */
+  double kb_lm;           /**< Seabed stiffeness coefficient [N/m]. LM model specific */
+  double cb_lm;           /**< Seabed damping parameter [N-s/m]. LM model specific */
+  bool wave_kinematics;   /**< Enable wave kinematics o calculated relative flui velcity. LM model specific */
+  bool lm_model;          /**< use the lumped-mass model when true */         
+  int repeat_angle_size;
+}; typedef struct DomainOptions_t DomainOptions;
+
+
+struct Domain_t {
   InnerSolveAttributes inner_loop; /**< Inner-loop (line level) solver options. Default settings in {@link initialize_solver_data_to_null} */
-  OuterSolveAttributes outer_loop; /**< Outer-loop (node level) solver options. Default settings in {@link initialize_model_options_to_defaults} */
+  OuterSolveAttributes outer_loop; /**< Outer-loop (node level) solver options. Default settings in {@link initialize_model_options_to_defaults} */  
+  DomainOptions model_options;     /**< Contains global model options. Default setting in {@link initialize_model_options_to_defaults} */
   OutputList* y_list;              /**< Output stream. Set to null at initialization */
+  SolveType MAP_SOLVE_TYPE;        /**< Identifies the solver type: single line, partitioned (multisegmented), and lumped-mass/FEA. Initialized in {@link initialize_domain_to_null}
+                                    * */
   Vessel vessel;                   /**< Vessel for the mooring instance. Initialized in {@link initialize_vessel_to_null}. Associated VarType's are set in {@link set_vessel} */
   list_t library;                  /**< Cable library link list; stores cable properties, e.g., @see CableLibrary_t */
-  list_t line;                  /**< Line link list */
+  list_t line;                     /**< Line link list */
   list_t node;                     /**< Node link list */
-  int library_size;                /**< Number of cable types defined in the cable library section of the input file */ 
-  int line_size;                /**< Number of lines */
-  int node_size;                   /**< Number of nodes */
-  MAP_InputType_t* HEAD_U_TYPE;    /**< Checks if the reference to MAP_InputType_t changes */
   list_t u_update_list;            /**< List to update the references in VarType-associated u_type's in UpdateStates. Used when coupled to FAST */
-}; typedef struct ModelData_t ModelData;
+  void* HEAD_U_TYPE;               /**< Checks if the reference to MAP_InputType_t changes */
+}; typedef struct Domain_t Domain;
 
 
 /**
  * @details MAP options from parsed input file. Note that MAP does not readon the input file. This is done by the calling program.
  *          The calling program simply sets library_input_string, node_input_string, line_input_string, and solver_options_string.
- *          MAP then parses this string and expands them if necessary depending on the '{@link ModelOptions_t}' repeat_angle flag.
+ *          MAP then parses this string and expands them if necessary depending on the '{@link DomainOptions_t}' repeat_angle flag.
  */
 struct InitializationData_t {
   struct bstrList* library_input_string;          /**< library property string from input file. MAP does not read contents from input string; must be done by calling program */
