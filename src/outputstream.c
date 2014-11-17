@@ -36,7 +36,7 @@ MAP_EXTERNCALL void set_summary_file_name(MAP_InitInputType_t* init_type, char *
   int length = 0;
   char *temp = NULL;
   InitializationData* init = init_type->object; 
-
+  
   if (init->summaryFileName!=NULL) {
     MAPFREE(init->summaryFileName);
   };  
