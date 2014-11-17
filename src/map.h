@@ -385,6 +385,15 @@ struct InnerSolveAttributes_t {
 }; typedef struct InnerSolveAttributes_t InnerSolveAttributes;
 
 
+struct KrylovAcceleration_t {
+  double** AV;
+  double* U;
+  double* R;
+  double* r;
+  int m;
+}; typedef struct KrylovAcceleration_t KrylovAcceleration;
+
+
 struct OuterSolveAttributes_t {
   FdType fd;
   double** jac;

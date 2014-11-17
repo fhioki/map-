@@ -27,14 +27,14 @@ Option
  kb_default 3.0e6
  cb_default 3.0e5
  wave_kinematics 
-inner_xtol 1e-9
-outer_tol 1e-5
-pg_cooked 30000 1
+ inner_xtol 1e-5
+ outer_tol 1e-9
+pg_cooked 10000 1
  outer_fd_epsilon 1e-3
-outer_fd 
+ outer_fd 
  outer_bd 
- outer_cd
+outer_cd
  inner_max_its 20
  outer_max_its 5000
-repeat 120 240
+ repeat 120 240
 ! ref_position 0.0 0.0 -6.0
