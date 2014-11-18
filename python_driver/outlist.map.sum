@@ -1,93 +1,71 @@
-Outputs were generated using MAP++ 9e1b-dirty.
+Outputs were generated using MAP++ fb23.
 
-    Monday November 10-2014 at 22:02:09 PM
+    Monday November 17-2014 at 18:03:26 PM
 
     Gravity constant          [m/s^2]  : 9.81
     Sea density               [kg/m^3] : 1020.00
-    Water depth               [m]      : 120.00
+    Water depth               [m]      : -320.00
     Vessel reference position [m]      : 0.00 , 0.00 , 0.00
 
-    Cable Type          : chainup
-    Diameter     [m]    : 0.0649
-    Mass Density [kg/m] : 138.73
-    EA           [N]    : 545000000.00
-    omega        [N/m]  : 1327.81
+    Cable Type          : Material
+    Diameter     [m]    : 0.0900
+    Mass Density [kg/m] : 77.71
+    EA           [N]    : 384242999999999983372218005852989133679410435706360929127995335423592826937417660724062027736154112.00
+    omega        [N/m]  : 698.65
     CB                  : 1.00
 
-          | Node 1 Data            Node 2 Data            Node 3 Data            Node 4 Data
+          | Node 1 Data            Node 2 Data
           | -------------------------------------------------------------------------------------------
-Type      |  FIX                    VESSEL                 FIX                    VESSEL
-X  [m]    |  0.000                   0.000                 -520.000               -20.000
-Y  [m]    |  -520.000               -20.000                 0.000                  0.000
-Z  [m]    |  -120.000                40.000                -120.000                40.000
-M  [kg]   |  0.000                   0.000                  0.000                  0.000
-B  [m^3]  |  0.000                   0.000                  0.000                  0.000
-FX [N]    | ( 0.000)               ( 0.000)               (-298060.662)          ( 298060.662)
-FY [N]    | ( 0.000)               ( 17104.193)           ( 0.000)               ( 0.000)
-FZ [N]    | ( 0.000)               ( 228867.519)          ( 286445.846)          ( 550074.550)
+Type      |  FIX                    VESSEL
+X  [m]    |   853.870                5.200
+Y  [m]    |  0.000                   0.000
+Z  [m]    |  -320.000               -70.000
+M  [kg]   |  0.000                   0.000
+B  [m^3]  |  0.000                   0.000
+FX [N]    | ( 0.000)               ( 0.000)
+FY [N]    | ( 0.000)               ( 0.000)
+FZ [N]    | ( 0.000)               ( 0.000)
 
 
                 | Line 1
                 | ---------------------------------------
-Material        |  chainup
-Lu        [m]   |  630.000
-Lb        [m]   |  457.635
-H         [N]   |  17104.193
-V         [N]   |  228867.519
-T         [N]   |  229505.762
-Alpha     [deg] |  85.726
-HAnch     [N]   | 0.000
-VAnch     [N]   | 0.000
-TAnch     [N]   | 0.000
-AlphaAnch [deg] | 0.000
-L^2-Norm        |  2.842171e-14
-Function Evals  |  3
-Jacobian Evals  |  2
-Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
-
-
-                | Line 2
-                | ---------------------------------------
-Material        |  chainup
-Lu        [m]   |  630.000
-Lb        [m]   | 0.000
-H         [N]   |  298060.662
-V         [N]   |  550074.550
-T         [N]   |  625637.410
-Alpha     [deg] |  61.549
-HAnch     [N]   |  298060.662
-VAnch     [N]   | -286445.846
-TAnch     [N]   |  413390.107
-AlphaAnch [deg] | -43.862
-L^2-Norm        |  5.684342e-14
-Function Evals  |  10
-Jacobian Evals  |  7
-Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
+Material        |  Material
+Lu        [m]   |  902.200
+Lb        [m]   | -999.900
+H         [N]   |  822051.265
+V         [N]   |  567725.692
+T         [N]   | -999.900
+Alpha     [deg] | -57290.050
+HAnch     [N]   | -999.900
+VAnch     [N]   | -999.900
+TAnch     [N]   | -999.900
+AlphaAnch [deg] | -57290.050
+L^2-Norm        |  999.9
+Function Evals  |  -65281
+Jacobian Evals  |  4
+Term. criteria  |  8 : INNER_GTOL is too small. The iterated variable vector [H, V] is orthogonal to the Jacobian columns.
 
 
 ---------------------- LINE DICTIONARY ---------------------------------------
 LineType  Diam      MassDenInAir   EA            CB
 [-]       [m]       [kg/m]         [N]           [-]
-chainup   0.064929  138.73        545.0E6       1.0    1.0E8    0.6 -1.0    0.05
+Material     0.09      77.7066      384.243E96   1.0   1.0E8    0.6 -1.0    0.05
 ---------------------- NODE PROPERTIES ---------------------------------------
 Node  Type       X       Y       Z      M     B     FX    FY    FZ
 [-]   [-]       [m]     [m]     [m]    [kg]  [mˆ3]  [N]   [N]   [N]
-1     fix        0    -520      -120    0     0      #     #     #
-2     Vessel     0     -20       40     0     0      #0.0  #17104.193     #228867.519
-3     fix       -520     0      -120    0     0      #     #     #
-4     Vessel    -20      0       40     0     0      #     #     #1000.0
+1    fix     853.87   0    -320    0     0     #     #     #
+2    Vessel    5.2    0    -70.0   0     0     #     #     #
 ---------------------- LINE PROPERTIES ---------------------------------------
 Line  LineType  UnstrLen  NodeAnch  NodeFair  Flags
 [-]      [-]       [m]       [-]       [-]       [-]
-1        chainup   630        1         2        plot gx_pos gy_pos gz_a_pos h_fair H_ANCH damage_time 99 diagnostic 9
-2        chainup   630        3         4        plot gx_pos gy_pos gz_a_pos H_ANCH damage_time 99 omit_contact
+1       Material   902.2        1         2        
 ---------------------- SOLVER OPTIONS-----------------------------------------
 Option 
 [-] 
- help
-inner_ftol 1e-6
-inner_gtol 1e-12
-inner_xtol 1e-12
-outer_tol 1e-4
-inner_max_its 400
-outer_max_its 400
+ inner_ftol 1e-6
+ inner_gtol 1e-12
+ inner_xtol 1e-6
+ outer_tol 1e-4
+ inner_max_its 400
+ outer_max_its 400
+ repeat 120 240
