@@ -105,7 +105,7 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
     list_attributes_copy(&domain->y_list->out_list_ptr, vartype_ptr_meter, 1);  
     success = set_output_list(domain, io_type, map_msg, ierr); 
     success = set_vessel(&domain->vessel, u_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_69);
-    
+
     if (domain->model_options.lm_model) {
       /* @todo: need to allocate LM-specific data */
       domain->MAP_SOLVE_TYPE = LUMPED_MASS;            

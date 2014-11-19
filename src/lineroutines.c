@@ -330,7 +330,7 @@ MAP_ERROR_CODE set_line_initial_guess(Domain* domain, char* map_msg, MAP_ERROR_C
 MAP_ERROR_CODE line_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type, double t, char* map_msg, MAP_ERROR_CODE* ierr) 
 {
   MAP_ERROR_CODE success = MAP_SAFE;
-
+  
   do { 
     success = set_line_variables_pre_solve(domain, map_msg, ierr);
     success = reset_node_force_to_zero(domain, map_msg, ierr);    
@@ -376,6 +376,10 @@ MAP_ERROR_CODE node_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type, 
 
   ns->iteration_count = 1;
   do {
+    // if (domain->outer_loop.krylov_accelerator) {
+    //   succuss = checkpoint();
+    // } else {
+
     error = 0.0;
     success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr); CHECKERRQ(MAP_FATAL_79);
     switch (ns->fd) {
@@ -389,6 +393,7 @@ MAP_ERROR_CODE node_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type, 
       success = forward_difference_jacobian(other_type, p_type, z_type, domain, map_msg, ierr); CHECKERRQ(MAP_FATAL_77);
       break;
     };
+
     success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr); CHECKERRQ(MAP_FATAL_78);
     success = lu(ns, SIZE, map_msg, ierr); CHECKERRQ(MAP_FATAL_74);
     success = lu_back_substitution(ns, SIZE, map_msg, ierr); CHECKERRQ(MAP_FATAL_74);
@@ -455,11 +460,14 @@ MAP_ERROR_CODE solve_line(Domain* domain, double time, char* map_msg, MAP_ERROR_
       success = call_minpack_lmder(line_iter, &domain->inner_loop, &domain->model_options, n, time, map_msg, ierr); CHECKERRQ(MAP_FATAL_79);
     };
 
-    /* check if L^2 norm is small. If not, MAP converged prematurely */
-    if (line_iter->residual_norm>1e-3) {
-      set_universal_error_with_message(map_msg, ierr, MAP_FATAL_90, "Line segment %d.", n);
-      break;      
-    };
+    /* 
+       @todo: this should be moved to outside the loop 
+    */
+    // /* check if L^2 norm is small. If not, MAP converged prematurely */
+    // if (line_iter->residual_norm>1e-3) {
+    //   set_universal_error_with_message(map_msg, ierr, MAP_FATAL_90, "Line segment %d.", n);
+    //   break;      
+    // };
     n++;
   };
   list_iterator_stop(&domain->line); /* ending the iteration "session" */    
@@ -865,7 +873,7 @@ MAP_ERROR_CODE fd_phi_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterTy
     /* minus epsilon sequence */
     success = increment_phi_dof_by_delta(u_type, vessel, -epsilon, size); CHECKERRQ(MAP_FATAL_61);        
     if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
-       success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
+      success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
     } else {
       success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
     };    

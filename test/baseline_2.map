@@ -6,7 +6,7 @@ middle    0.08      180        700000000        1.0    1.0E8    0.6 -1.0    0.05
 lower     0.085     200        800000000        1.0    1.0E8    0.6 -1.0    0.05 
 ---------------------- NODE PROPERTIES ---------------------------------------
 Node  Type       X       Y       Z      M     B     FX      FY      FZ
-(-)   (-)       (m)     (m)     (m)    (kg)  (mˆ3) (kN)    (kN)    (kN)
+(-)   (-)       (m)     (m)     (m)    (kg)  (mˆ3)  (N)     (N)     (N)
 1     fix       -300     0      depth   0     0      #      #       #
 2     Connect  #-120    #0     #-70     0     0      0      0       0 
 3     Connect  #-53     #0     #-20     0     0      0      0       0 
@@ -27,14 +27,16 @@ Option
  kb_default 3.0e6
  cb_default 3.0e5
  wave_kinematics 
- inner_xtol 1e-5
- outer_tol 1e-9
+inner_ftol 1e-6
+inner_gtol 1e-6
+inner_xtol 1e-6
+outer_tol 1e-4
 pg_cooked 10000 1
- outer_fd_epsilon 1e-3
  outer_fd 
  outer_bd 
-outer_cd
+ outer_cd
  inner_max_its 20
  outer_max_its 5000
- repeat 120 240
-! ref_position 0.0 0.0 -6.0
+repeat 120 240
+ krylov_accelerator 2
+ ref_position 0.0 0.0 -6.0

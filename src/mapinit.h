@@ -168,7 +168,8 @@ InitializationData* MAP_InitInput_Create(char* map_msg, MAP_ERROR_CODE* ierr);
  *          outer_bd
  *          outer_cd
  *          outer_fd
- *          pg_cooked
+ *          pg_cooked (not compatible with krylov_accelerator option)
+ *          krylov_accelerator (not compatible ith pg_cooked option)
  *          repeat
  *          ref_position
  *          </pre>
@@ -434,6 +435,23 @@ MAP_ERROR_CODE check_integration_dt_flag(struct bstrList* list, double* dt);
  * @return  MAP error code
  */
 MAP_ERROR_CODE check_kb_default_flag(struct bstrList* list, double* kb);
+
+
+/**
+ * @brief   Sets the boolean and maximum iterations for kyrlov accelerator
+ * @details Called by {@link set_model_option_list} to choose the krylov
+ *          accelerator option as the MSQS outer-loop option. Not compatible
+ *          with pg_cooked option.
+ *          MAP input file syntax:
+ *          <pre>
+ *          krylov_accelerator <float>
+ *          </pre>
+ * @param   list, a character array structure
+ * @param   max_its, maximum numnber of krylov iterations 
+ * @see     set_model_options_list(), map_init()
+ * @return  MAP error code
+ */
+MAP_ERROR_CODE check_krylov_accelerator_flag(struct bstrList* list, OuterSolveAttributes* solver);
 
 
 /**

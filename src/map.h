@@ -390,7 +390,7 @@ struct KrylovAcceleration_t {
   double* U;
   double* R;
   double* r;
-  int m;
+  int m;       /**< maximum Krylov iterations */  
 }; typedef struct KrylovAcceleration_t KrylovAcceleration;
 
 
@@ -409,6 +409,8 @@ struct OuterSolveAttributes_t {
   double tol;
   double coef;
   bool pg;
+  bool krylov_accelerator;
+  int max_krylov_its;
   int max_its;
   int iteration_count;
 }; typedef struct OuterSolveAttributes_t OuterSolveAttributes;

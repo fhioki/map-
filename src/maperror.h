@@ -153,7 +153,8 @@ typedef enum MAP_ERROR_CODE {
   MAP_WARNING_9 , // Attemping to recover from fatal error by back tracking...
   MAP_WARNING_10, // Ignoring wave kinematic hydrodynamics. This feature is not available
   MAP_WARNING_11, // Could not enable the lumped-mass model during initialization
-  MAP_WARNING_12 ,
+  MAP_WARNING_12, // Line option 'KRYLOV_ACCELERATOR' does not trail with a valid integer. Defaulting to initialized MMAX value
+  MAP_WARNING_13, // Line options 'KRYLOV_ACCELERATOR' and 'PG_COOKED' are not compatible together. Disabling Krylov acceleration
 } MAP_ERROR_CODE ;
 
 
