@@ -385,21 +385,19 @@ struct InnerSolveAttributes_t {
 }; typedef struct InnerSolveAttributes_t InnerSolveAttributes;
 
 
-struct KrylovAcceleration_t {
-  double** AV;
-  double* U;
-  double* R;
-  double* r;
-  int m;       /**< maximum Krylov iterations */  
-}; typedef struct KrylovAcceleration_t KrylovAcceleration;
-
 
 struct OuterSolveAttributes_t {
   FdType fd;
+  double** AV;        /**< for the Krylov accelerator */
+  double** V;         /**< for the Krylov accelerator */
+  double* U_previous; /**< for the Krylov accelerator */
   double** jac;
   double** l;
   double** u;
   double* b;
+  double* C;          /**< for the Krylov accelerator */
+  double* w;          /**< for the Krylov accelerator */
+  double* q;          /**< for the Krylov accelerator */
   double* x;
   double* y;
   double ds;

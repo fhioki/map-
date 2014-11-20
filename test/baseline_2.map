@@ -15,10 +15,10 @@ Node  Type       X       Y       Z      M     B     FX      FY      FZ
 ---------------------- LINEP ROPERTIES ---------------------------------------
 Line    LineType  UnstrLen  NodeAnch  NodeFair  Flags
 (-)      (-)       (m)       (-)       (-)       (-)
-1        lower     130       1         2        gy_pos  gz_a_pos  H_ANCH seg_size 19  damage_time 12
-2        middle    122       2         3        altitude_a omit_contact linear_spring
-3        upper     50        3         4        x_excursion  z_excursion  azimuth  tension_fair omit_contact 
-4        upper     50        3         5        tension_anch omit_contact
+1        lower     130       1         2        omit_contact gy_pos  gz_a_pos  H_ANCH seg_size 19  damage_time 12
+2        middle    122       2         3        omit_contact linear_spring
+3        upper     50        3         4        omit_contact x_excursion  z_excursion  azimuth  tension_fair omit_contact 
+4        upper     50        3         5        omit_contact tension_anch omit_contact
 ---------------------- SOLVER OPTIONS-----------------------------------------
 Option 
 (-) 
@@ -31,12 +31,18 @@ inner_ftol 1e-6
 inner_gtol 1e-6
 inner_xtol 1e-6
 outer_tol 1e-4
-pg_cooked 10000 1
+ pg_cooked 10000 1
  outer_fd 
  outer_bd 
  outer_cd
- inner_max_its 20
- outer_max_its 5000
-repeat 120 240
- krylov_accelerator 2
+ inner_max_its 100
+ outer_max_its 500
+ repeat 120 240
+krylov_accelerator 0
  ref_position 0.0 0.0 -6.0
+ -172.772029
+    0.000000
+  -82.007818
+  -63.224371
+    0.000000
+  -28.179102

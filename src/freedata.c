@@ -39,13 +39,13 @@ void MAP_OtherState_Delete(Domain* domain)
 MAP_ERROR_CODE free_outlist(Domain* domain, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   VarTypePtr* vartype_ptr = NULL;
-  list_iterator_start(&domain->y_list->out_list_ptr);
-  while (list_iterator_hasnext(&domain->y_list->out_list_ptr)) { 
-    vartype_ptr = (VarTypePtr*)list_iterator_next(&domain->y_list->out_list_ptr);
-    bdestroy(vartype_ptr->name);
-    bdestroy(vartype_ptr->units);
-  };
-  list_iterator_stop(&domain->y_list->out_list_ptr);     
+  // list_iterator_start(&domain->y_list->out_list_ptr);
+  // while (list_iterator_hasnext(&domain->y_list->out_list_ptr)) { 
+  //   vartype_ptr = (VarTypePtr*)list_iterator_next(&domain->y_list->out_list_ptr);
+  //   // bdestroy(vartype_ptr->name);
+  //   // bdestroy(vartype_ptr->units);
+  // };
+  // list_iterator_stop(&domain->y_list->out_list_ptr);     
 
   // @rm y_list->out_list no longer exists/is useful 
   list_destroy(&domain->y_list->out_list);    /* destroy output lists for writting information to output file */
@@ -266,6 +266,7 @@ MAP_ERROR_CODE map_free_types(MAP_InputType_t* u_type, MAP_ParameterType_t* p_ty
 
 MAP_ERROR_CODE free_outer_solve_data(OuterSolveAttributes* ns, const int size, char* map_msg, MAP_ERROR_CODE* ierr)
 {
+  const int N = ns->max_krylov_its + 1;
   const int SIZE = 3*size;
   int i = 0;
 
@@ -287,12 +288,31 @@ MAP_ERROR_CODE free_outer_solve_data(OuterSolveAttributes* ns, const int size, c
    };  
   };
 
+  if (ns->V) { /* is it allocated? */
+    for(i=0 ; i<SIZE ; i++) {
+      MAPFREE(ns->V[i]);
+   };  
+  };
+
+  if (ns->AV) { /* is it allocated? */
+    for(i=0 ; i<SIZE ; i++) {
+      MAPFREE(ns->AV[i]);
+   };  
+  };
+
+
   MAPFREE(ns->jac);
+  MAPFREE(ns->AV);
+  MAPFREE(ns->V);
+  MAPFREE(ns->U_previous);
   MAPFREE(ns->l);
   MAPFREE(ns->u);
   MAPFREE(ns->b);
+  MAPFREE(ns->w);
+  MAPFREE(ns->q);
   MAPFREE(ns->x);  
   MAPFREE(ns->y);
+  MAPFREE(ns->C);
   return MAP_SAFE;
 };
 

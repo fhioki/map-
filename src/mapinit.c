@@ -215,7 +215,6 @@ void initialize_outer_solve_data_defaults(OuterSolveAttributes* outer)
   outer->krylov_accelerator = false;
   outer->tol = 1e-6;
   outer->epsilon = 1e-3;
-  outer->max_krylov_its = 3;
   outer->max_its = 500;
   outer->jac = NULL;
   outer->x = NULL;
@@ -223,6 +222,14 @@ void initialize_outer_solve_data_defaults(OuterSolveAttributes* outer)
   outer->l = NULL;
   outer->u = NULL;
   outer->y = NULL;
+
+  outer->max_krylov_its = 3;
+  outer->AV = NULL;
+  outer->V = NULL;
+  outer->U_previous = NULL;
+  outer->C = NULL;
+  outer->q = NULL;
+  outer->w = NULL;
 };
 
 
@@ -331,6 +338,7 @@ MAP_ERROR_CODE allocate_outer_solve_data(OuterSolveAttributes* ns, const int siz
 {
   int ret = 0;
   const int THREE = 3;  
+  const int N = ns->max_krylov_its + 1;
   const int SIZE = THREE*size;
   int i = 0;
 
@@ -375,6 +383,33 @@ MAP_ERROR_CODE allocate_outer_solve_data(OuterSolveAttributes* ns, const int siz
     ns->jac[i] = malloc(SIZE*sizeof(double));    
     ns->l[i] = malloc(SIZE*sizeof(double));    
     ns->u[i] = malloc(SIZE*sizeof(double));    
+  };
+  
+  if (ns->krylov_accelerator) { /* only allocated if  Krylov accelerator algorimth is invoked */    
+    ns->AV = malloc(SIZE*sizeof(double*));
+    ns->V = malloc(SIZE*sizeof(double*));
+    ns->U_previous = malloc(SIZE*sizeof(double));
+    ns->C = malloc(SIZE*sizeof(double));  
+    ns->q = malloc(SIZE*sizeof(double));  
+    ns->w = malloc(SIZE*sizeof(double));  
+
+    if (ns->AV==NULL) {
+      set_universal_error(map_msg, ierr, MAP_FATAL_8);        
+      return MAP_FATAL;
+    };
+
+    for(i=0 ; i<SIZE ; i++) {
+      ns->AV[i] = malloc(N*sizeof(double));    
+    };
+
+    if (ns->V==NULL) {
+      set_universal_error(map_msg, ierr, MAP_FATAL_8);        
+      return MAP_FATAL;
+    };
+
+    for(i=0 ; i<SIZE ; i++) {
+      ns->V[i] = malloc(N*sizeof(double));    
+    };
   };
 
   return MAP_SAFE;
