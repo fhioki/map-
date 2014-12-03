@@ -392,8 +392,8 @@ struct OuterSolveAttributes_t {
   double** V;         /**< for the Krylov accelerator */
   double* U_previous; /**< for the Krylov accelerator */
   double** jac;
-  double** l;
-  double** u;
+  double** l;         /**< lower triangle matrix in LU */
+  double** u;         /**< upper triangle matrix in LU */
   double* b;
   double* C;          /**< for the Krylov accelerator */
   double* w;          /**< for the Krylov accelerator */

@@ -23,6 +23,8 @@
 
 #include "lineroutines.h"
 #include "numeric.h"
+#include "jacobian.h"
+
 
 extern const char MAP_ERROR_STRING[][1024];
 
@@ -420,14 +422,14 @@ MAP_ERROR_CODE krylov_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type
           sum += ns->AV[i][j]/ns->x[i];
         };
         ns->C[j] = sum;        
-        // printf("C: %f\n",sum);
+        printf("C: %f\n",sum);
       };
       
       /* set V[][m] */
       for (i=0 ; i<z_size ; i++) { 
         ns->V[THREE*i][m-1] = (z_type->x[i] - ns->U_previous[THREE*i]);
         ns->V[THREE*i+1][m-1] = (z_type->y[i] - ns->U_previous[THREE*i+1]);
-        ns->V[THREE*i+2][m-1] = z_type->z[i] - ns->U_previous[THREE*i+2];
+        ns->V[THREE*i+2][m-1] = (z_type->z[i] - ns->U_previous[THREE*i+2]);
       };
 
 
@@ -607,7 +609,7 @@ MAP_ERROR_CODE solve_line(Domain* domain, double time, char* map_msg, MAP_ERROR_
     if (line_iter->options.linear_spring) {
       success = solve_linear_spring_cable(line_iter, map_msg, ierr); CHECKERRQ(MAP_FATAL_87);
     } else {
-      success = call_minpack_lmder(line_iter, &domain->inner_loop, &domain->model_options, n, time, map_msg, ierr); CHECKERRQ(MAP_FATAL_79);
+      success = call_minpack_lmder(line_iter, &domain->inner_loop, n, time, map_msg, ierr); CHECKERRQ(MAP_FATAL_79);
     };
 
     /* 

@@ -30,6 +30,8 @@
 #include "mapinit.h"
 #include "outputstream.h"
 #include "numeric.h"
+#include "jacobian.h"
+#include "residual.h"
 
 
 extern const char MAP_ERROR_STRING[][1024];

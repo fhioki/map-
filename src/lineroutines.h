@@ -148,17 +148,30 @@ MAP_ERROR_CODE solve_line(Domain* domain, double time, char* map_msg, MAP_ERROR_
 
 
 /**
- * check to see if the line is double backing
- ELSEIF ( W  >  0.0_DbKi )  THEN   ! .TRUE. when the line will sink in fluid
-
-         LMax      = XF - EA/W + SQRT( (EA/W)*(EA/W) + 2.0_DbKi*ZF*EA/W )  ! Compute the maximum stretched length of the line with seabed interaction beyond which the line would have to double-back on itself; here the line forms an "L" between the anchor and fairlead (i.e. it is horizontal along the seabed from the anchor, then vertical to the fairlead)
-
-         IF ( ( L  >=  LMax   ) .AND. ( CB >= 0.0_DbKi ) )  &  ! .TRUE. if the line is as long or longer than its maximum possible value with seabed interaction
-            CALL ProgAbort ( ' Unstretched mooring line length too large. '// &
-                         ' Routine Catenary() cannot solve quasi-static mooring line solution.' )
-
-
-      ENDIF
+ * @brief   Determine maximum line length before double-backing occurs
+ * @details Called by {@link solve_line} to make sure the line is not double-
+ *          backing on itself. In the extreme case, the cable resembles an 
+ *          'L' shape. When the rule is violated, the upper tipe of the 'L'
+ *          bends to the left. A violation of the algebrais equations happens. 
+ *          You can disregard double-backing error checking by raising the 
+ *          'omit_contact' element flag.
+ *          Double backing is present when:
+ *          $L_{u} >= l - \frac{EA}{\omega} + \sqrt{(\frac{EA}{W}^2) + 2*h*\frac{EA}{W}};
+ *          This is an adaptation from the following Fortran code:
+ *          <pre>
+ *          ELSEIF ( W  >  0.0_DbKi )  THEN   ! .TRUE. when the line will sink in fluid
+ *             LMax      = XF - EA/W + SQRT( (EA/W)*(EA/W) + 2.0_DbKi*ZF*EA/W )  ! Compute the maximum stretched length of the line with seabed interaction beyond which the line would have to double-back on itself; here the line forms an "L" between the anchor and fairlead (i.e. it is horizontal along the seabed from the anchor, then vertical to the fairlead)
+ *             IF ( ( L  >=  LMax   ) .AND. ( CB >= 0.0_DbKi ) )  &  ! .TRUE. if the line is as long or longer than its maximum possible value with seabed interaction
+ *                CALL ProgAbort ( ' Unstretched mooring line length too large. '// &
+ *                                 ' Routine Catenary() cannot solve quasi-static mooring line solution.' )
+ *          ENDIF
+ *          </pre>
+ * @param   line, the line structure to be checked
+ * @param   contact_flag, flag to ignore the double-backing check
+ * @param   map_msg, error message
+ * @param   ierr, error code
+ * @see     solve_line()
+ * @return  MAP error code
  */
 MAP_ERROR_CODE check_maximum_line_length(Line* line, const bool contact_flag, char* map_msg, MAP_ERROR_CODE* ierr);
 

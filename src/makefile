@@ -29,15 +29,15 @@ VPATH = cminpack:simclist:bstring
 
 
 ifeq ($(PLATFORM),Darwin)
-CC_TOOLS  = clang
-CFLAGS    = -g -O1 -fsanitize=address -fno-omit-frame-pointer -fPIC -D DEBUG -Icminpack -Isimclist
-LDFLAGS   = -g -fsanitize=address -fno-omit-frame-pointer -dynamiclib
+  CC_TOOLS  = clang
+  CFLAGS    = -g -O1 -fsanitize=address -fno-omit-frame-pointer -fPIC -D DEBUG -Icminpack -Isimclist
+  LDFLAGS   = -g -fsanitize=address -fno-omit-frame-pointer -dynamiclib
 else ifeq ($(PLATFORM),Linux)
-CC_TOOLS  = gcc
-#CFLAGS    = -g -O1 -fsanitize=address -fno-omit-frame-pointer -fPIC -D DEBUG -DGITVERSION=\"$(GIT_VERSION)\" -Icminpack -Isimclist
-#CFLAGS    = -g -fPIC -std=c99 -Wuninitialized -Wall -D DEBUG -DGITVERSION=\"$(GIT_VERSION)\" 
-CFLAGS    = $(BITS) -g -fPIC -std=c99 -D DEBUG -DGITVERSION=\"$(GIT_VERSION)\" 
-LDFLAGS   = $(BITS) -g -shared 
+  CC_TOOLS  = gcc
+  #CFLAGS    = -g -O1 -fsanitize=address -fno-omit-frame-pointer -fPIC -D DEBUG -DGITVERSION=\"$(GIT_VERSION)\" -Icminpack -Isimclist
+  #CFLAGS    = -g -fPIC -std=c99 -Wuninitialized -Wall -D DEBUG -DGITVERSION=\"$(GIT_VERSION)\" 
+  CFLAGS    = $(BITS) -g -fPIC -std=c99 -D DEBUG -DGITVERSION=\"$(GIT_VERSION)\" 
+  LDFLAGS   = $(BITS) -g -shared 
 endif
 
 
@@ -64,7 +64,9 @@ OBJ       = lmder.o \
 	numeric.o \
 	outputstream.o \
 	mapapi.o \
-	lmroutines.o
+	lmroutines.o \
+	jacobian.o \
+	residual.o \
 
 all : $(OBJ)
 	$(CC_TOOLS) $(LDFLAGS) -o libmap-1.00.01.so $(DEBUG) $(OBJ) -lm

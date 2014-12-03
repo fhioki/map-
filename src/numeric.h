@@ -27,32 +27,86 @@
 #include "map.h"
 
 
-MAP_ERROR_CODE call_minpack_lmder(Line* line, InnerSolveAttributes* inner_opt, DomainOptions* opt, const int line_num, const double time, char* map_msg, MAP_ERROR_CODE* ierr);
-double get_maximum_line_length(Line* line);
+/**
+ * @brief   Wrapper for cminpack's lmder function
+ * @details Called by {@link solve_line} to solve the catenary
+ *          equations. The minpack documentation describes the 
+ *          the lmder function as: 
+ *          <pre>
+ *          The purpose of LMDER is to minimize the sum of the 
+ *          squares of M nonlinear functions in N variables by 
+ *          a modification of the Levenberg-Marquardt algorithm.  
+ *          The user must provide a subroutine which calculates 
+ *          the functions and the Jacobian.
+ *          </pre>
+ * @param   line, the line structure to be checked
+ * @param   inner_opt,
+ * @param   line_num, line number for error logging 
+ * @param   time, current time
+ * @param   map_msg, error message
+ * @param   ierr, error code
+ * @see     solve_line()
+ * @return  MAP error code
+ */
+MAP_ERROR_CODE call_minpack_lmder(Line* line, InnerSolveAttributes* inner_opt, const int line_num, const double time, char* map_msg, MAP_ERROR_CODE* ierr);
 
 int inner_function_evals(void* line_ptr, int m, int n, const __cminpack_real__* x, __cminpack_real__* fvec, __cminpack_real__* fjac, int ldfjac, int iflag);
 
-double residual_function_length_no_contact(const double V, const double H, const double w, const double Lu, const double EA, const double l);
-double residual_function_height_no_contact(const double V, const double H, const double w, const double Lu, const double EA, const double h);
-double residual_function_length_contact(const double V, const double H, const double w, const double Lu, const double EA, const double l, const double cb);
-double residual_function_height_contact(const double V, const double H, const double w, const double Lu, const double EA, const double h, const double cb);
-double jacobian_dxdh_no_contact(const double V, const double H, const double w, const double Lu, const double EA);
-double jacobian_dxdv_no_contact(const double V, const double H, const double w, const double Lu, const double EA);
-double jacobian_dzdh_no_contact(const double V, const double H, const double w, const double Lu, const double EA);
-double jacobian_dzdv_no_contact(const double V, const double H, const double w, const double Lu, const double EA);
-double jacobian_dxdh_contact(const double V, const double H, const double w, const double Lu, const double EA, const double cb);
-double jacobian_dxdv_contact(const double V, const double H, const double w, const double Lu, const double EA, const double cb);
-double jacobian_dzdh_contact(const double V, const double H, const double w, const double Lu, const double EA, const double cb);
-double jacobian_dzdv_contact(const double V, const double H, const double w, const double Lu, const double EA, const double cb);
 
-MAP_ERROR_CODE forward_difference_jacobian(MAP_OtherStateType_t* other_type, MAP_ParameterType_t* p_type, MAP_ConstraintStateType_t* z_type, Domain* domain, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE backward_difference_jacobian(MAP_OtherStateType_t* other_type, MAP_ParameterType_t* p_type, MAP_ConstraintStateType_t* z_type, Domain* domain, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE central_difference_jacobian(MAP_OtherStateType_t* other_type, MAP_ParameterType_t* p_type, MAP_ConstraintStateType_t* z_type, Domain* domain, char* map_msg, MAP_ERROR_CODE* ierr);
+/**
+ * @brief   Forms the LU matrix for inverting the Jacobian - step 1
+ * @details Called by {@link node_solve_sequence} to form the 
+ *          lower (L) and upper (U) triangular matrices to solve
+ *          the system of equations. This is called in the outer
+ *          (node) solve sequence. Back substitution through the
+ *          function {@link lu_back_substitution} follows this 
+ *          function call to complete the newton iteration.
+ *          $\mathbf{A}=\mathbf{LU}$
+ *          with 
+ *          $\begin{bmatrix}
+ *             a_{11} & a_{12} & a_{13} \\
+ *             a_{21} & a_{22} & a_{23} \\
+ *             a_{31} & a_{32} & a_{33} \\
+ *           \end{bmatrix} =
+ *           \begin{bmatrix}
+ *             l_{11} & 0      & 0 \\
+ *             l_{21} & l_{22} & 0 \\
+ *             l_{31} & l_{32} & l_{33} \\
+ *           \end{bmatrix}
+ *           \begin{bmatrix}
+ *             u_{11} & u_{12} & u_{13} \\
+ *             0      & u_{22} & u_{23} \\
+ *             0      & 0      & u_{33} \\
+ *           \end{bmatrix}
+ *           $
+ * @param   ns, outer solve attributes; preserves l, jac, and u
+ * @param   n, matrix size, nxn
+ * @param   map_msg, error message
+ * @param   ierr, error code
+ * @see     node_solve_sequence()
+ * @return  MAP error code
+ */
 MAP_ERROR_CODE lu(OuterSolveAttributes* ns, const int n, char* map_msg, MAP_ERROR_CODE* ierr);
 
 
 /**
  * Ax = b -> LUx = b. Then y is defined to be Ux
+ */
+/**
+ * @brief   Solves $\mathbf{Ax}=\mathbf{b}$ through forward and backward substitution
+ * @details Called by {@link node_solve_sequence} to solve: 
+ *          $\mathbf{Ly}=\mathbf{b}$
+ *          then:
+ *          $\mathbf{Ux}=\mathbf{y}$
+ *          The vector \mathbf{x} is used to increment the Newton step.
+ *          Note that $\mathbf{x} = \mathbf{J}^{-1} (\textup{residual})$ with
+ *          $\mathbf{x}=$ns->x
+ * @param   ns, outer solve attributes; preserves l, u, x, and y
+ * @param   n, matrix size, nxn
+ * @param   map_msg, error message
+ * @param   ierr, error code
+ * @see     node_solve_sequence()
+ * @return  MAP error code
  */
 MAP_ERROR_CODE lu_back_substitution(OuterSolveAttributes* ns, const int n, char* map_msg, MAP_ERROR_CODE* ierr);
 
