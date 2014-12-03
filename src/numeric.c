@@ -27,6 +27,34 @@
 #include "residual.h"
 
 
+MAP_ERROR_CODE root_finding_step(OuterSolveAttributes* ns, const int n, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, double* error, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  MAP_ERROR_CODE success = MAP_SAFE;
+  const int z_size = z_type->z_Len; 
+  const int THREE = 3;
+  int i = 0;
+
+  MAP_BEGIN_ERROR_LOG;
+
+  success = lu(ns, n, map_msg, ierr); CHECKERRQ(MAP_FATAL_74);
+  success = lu_back_substitution(ns, n, map_msg, ierr); CHECKERRQ(MAP_FATAL_74);
+      
+  /* Note that: ns->x = J^(-1) * F
+   *  [x,y,z]_i+1 =  [x,y,z]_i - J^(-1) * F        
+   */   
+  for (i=0 ; i<z_size ; i++) { 
+    z_type->x[i] -= ns->x[THREE*i];
+    z_type->y[i] -= ns->x[THREE*i+1];
+    z_type->z[i] -= ns->x[THREE*i+2];
+    *error += (pow(other_type->Fx_connect[i],2)+ pow(other_type->Fy_connect[i],2) + pow(other_type->Fz_connect[i],2));
+  };
+
+  MAP_END_ERROR_LOG;
+
+  return MAP_SAFE;
+};
+
+
 int inner_function_evals(void* line_ptr, int m, int n, const __cminpack_real__* x, __cminpack_real__* fvec, __cminpack_real__* fjac, int ldfjac, int iflag) 
 {
   Line* line = (Line*)line_ptr;

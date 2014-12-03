@@ -739,21 +739,33 @@ MAP_ERROR_CODE set_vartype_float(const char* unit, const char* alias, const int 
 
 
 /**
- * @see mapcall_msqs_init( )
- * @see mapcall_msqs_end( )
- * @see free_outer_solve_data( ) for where this data is deallocated
+ * @breif   Allocate outer solve data
+ * @param   ns, outer solve attributes; preserves l, jac, and u
+ * @param   size, matrix size
+ * @param   map_msg, error message
+ * @param   ierr, error code
+ * @see mapcall_msqs_init()
+ * @see mapcall_msqs_end()
+ * @see free_outer_solve_data() for data deallocation
+ * @return  MAP error code
  */
 MAP_ERROR_CODE allocate_outer_solve_data(OuterSolveAttributes* ns, const int size, char* map_msg, MAP_ERROR_CODE* ierr);
 
 
 /**
- * Initialized omega (weight per unit length) and cross-section area of a cable. The formula is 
- *
- *   A=\pi*\frac{radius^{2}}{4}
- *   \omega=g*(\mu-A*\rho_{seawater})
- *
- * @acceses: none
- * @calledby: mapcall_msqs_init( )
+ * @breif   Initialized omega (weight per unit length) and cross-section area of a cable. 
+ * @details Called by {@link map_init} to assign:
+ *          $A=\pi*\frac{radius^{2}}{4}$
+ *          and
+ *          $\omega=g*(\mu-A*\rho_{seawater})$ 
+ * @param   domain, mooring domain
+ * @param   p_type, parameter type
+ * @param   map_msg, error message
+ * @param   ierr, error code
+ * @see mapcall_msqs_init()
+ * @see mapcall_msqs_end()
+ * @see free_outer_solve_data() for data deallocation
+ * @return  MAP error code
  */
 MAP_ERROR_CODE initialize_cable_library_variables(Domain* domain, MAP_ParameterType_t* p_type, char* map_msg, MAP_ERROR_CODE* ierr);
 
@@ -808,6 +820,23 @@ MAP_ERROR_CODE first_solve(Domain* domain, MAP_ParameterType_t* p_type, MAP_Inpu
  * @see MAP_ERROR_CODE
  */
 MAP_ERROR_CODE is_numeric(const char* string);
+
+
+/**
+ * @breif   Write the map summary file
+ * @details Is called once in {@link map_init} to create the summary file post-solve.
+ *          Even if the solution is not solved, the summary file will be written. 
+ * @param   init_type, initialization type
+ * @param   p_type, parameter type
+ * @param   y_type, output type
+ * @param   other_type, oter state type
+ * @param   domain, mooring domain
+ * @param   map_msg, error message
+ * @param   ierr, error code
+ * @see mapcall_msqs_init()
+ */
+void log_initialization_information(MAP_InitInputType_t* init_type, MAP_ParameterType_t* p_type, MAP_OutputType_t* y_type, MAP_OtherStateType_t* other_type, Domain* domain, char* map_msg, MAP_ERROR_CODE* ierr);
+
 
 MAP_ERROR_CODE associate_vartype_ptr(VarTypePtr* type, double* arr, int index);
 void copy_target_string(char* target, unsigned char* source);

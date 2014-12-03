@@ -118,6 +118,7 @@ const char MAP_ERROR_STRING[][256] = {
   /* MAP_FATAL_89   */  "Input index array exceeded during UpdateStates. Inputs were not set correctly by the program",
   /* MAP_FATAL_90   */  "L^2 norm is too large. MAP may not have converged",
   /* MAP_FATAL_91   */  "Krylov acceleration routine failure",
+  /* MAP_FATAL_92   */  "Failed inside Newton foot-finding iteration",
   /* MAP_ERROR_1    */  "Line option 'DAMGE_TIME' does not trail with a valid value. Ignoring this run-time flag. Chek the MAP input file",
   /* MAP_ERROR_2    */  "Value for 'INNER_FTOL' is not a valid numeric value. Using the default value <1e-6>",
   /* MAP_ERROR_3    */  "Value for 'OUTER_TOL' is not a valid numeric value. Using the default value <1e-6>",

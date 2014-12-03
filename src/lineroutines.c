@@ -545,20 +545,10 @@ MAP_ERROR_CODE node_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type, 
         success = forward_difference_jacobian(other_type, p_type, z_type, domain, map_msg, ierr); CHECKERRQ(MAP_FATAL_77);
         break;
       };
-      
+
       success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr); CHECKERRQ(MAP_FATAL_78);
-      success = lu(ns, SIZE, map_msg, ierr); CHECKERRQ(MAP_FATAL_74);
-      success = lu_back_substitution(ns, SIZE, map_msg, ierr); CHECKERRQ(MAP_FATAL_74);
-      
-      /* Note that: ns->x = J^(-1) * F
-       *  [x,y,z]_i+1 =  [x,y,z]_i - J^(-1) * F        
-       */   
-      for (i=0 ; i<z_size ; i++) { 
-        z_type->x[i] -= ns->x[THREE*i];
-        z_type->y[i] -= ns->x[THREE*i+1];
-        z_type->z[i] -= ns->x[THREE*i+2];
-        error += (pow(other_type->Fx_connect[i],2)+ pow(other_type->Fy_connect[i],2) + pow(other_type->Fz_connect[i],2));
-      };
+      success = root_finding_step(ns, SIZE, z_type, other_type, &error, map_msg, ierr); CHECKERRQ(MAP_FATAL_92);
+
       ns->iteration_count++;
       if (ns->iteration_count>ns->max_its) {
         set_universal_error(map_msg, ierr, MAP_FATAL_80);
@@ -570,13 +560,7 @@ MAP_ERROR_CODE node_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type, 
     } while (sqrt(error)>ns->tol);
   };    
 
-  if (success==MAP_SAFE) {
-    return MAP_SAFE;
-  } else if (success==MAP_ERROR) {
-    return MAP_ERROR;
-  } else {
-    return MAP_FATAL;
-  };
+  MAP_RETURN_STATUS(success);
 };
 
 

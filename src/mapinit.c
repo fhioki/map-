@@ -23,6 +23,7 @@
 
 #include "mapinit.h"
 #include "lineroutines.h"
+#include "outputstream.h"
 
 
 extern const char MAP_ERROR_STRING[][1024];
@@ -1758,34 +1759,6 @@ MAP_ERROR_CODE compare_length(int a, int b)
 };
 
 
-// MAP_ERROR_CODE set_node_vartype(Node* node_ptr)
-// {
-//   MAP_ERROR_CODE success = MAP_SAFE;
-//   // bstring alias = NULL;
-// 
-//   node_ptr->sum_force_ptr.fx.name = bformat("Fx");                          
-//   node_ptr->sum_force_ptr.fx.units = bformat("[N]");                          
-// 
-//   node_ptr->sum_force_ptr.fy.name = bformat("Fy");                          
-//   node_ptr->sum_force_ptr.fy.units = bformat("[N]");                          
-// 
-//   node_ptr->sum_force_ptr.fz.name = bformat("Fz");                          
-//   node_ptr->sum_force_ptr.fz.units = bformat("[N]");                          
-//   //success = set_vartype_ptr("[N]", alias, 0, &node_ptr->sum_force_ptr.fx, NULL); /* @todo: check error */
-//   //bdestroy(alias);
-// 
-//   // alias = bformat("Fy");                          
-//   // success = set_vartype_ptr("[N]", alias, 0, &node_ptr->sum_force_ptr.fy, NULL); /* @todo: check error */
-//   // bdestroy(alias);
-//   // 
-//   // alias = bformat("Fz");                          
-//   // success = set_vartype_ptr("[N]", alias, 0, &node_ptr->sum_force_ptr.fy, NULL); /* @todo: check error */
-//   // bdestroy(alias);
-// 
-//   return MAP_SAFE;
-// };
-
-
 MAP_ERROR_CODE set_node_list(const MAP_ParameterType_t* p_type,  MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type, Domain* domain, struct bstrList* node_input_string, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_ERROR_CODE success = MAP_SAFE;
@@ -2412,42 +2385,10 @@ MAP_ERROR_CODE reset_line(Line* line_ptr)
   line_ptr->anchor = NULL;             /* Anchor node */
   line_ptr->fairlead = NULL;           /* Fairlead node */
   
-  // @rm  line_ptr->psi.name = NULL;
-  // @rm  line_ptr->psi.units = NULL;
-  // @rm  line_ptr->alpha.name = NULL;
-  // @rm  line_ptr->alpha.units = NULL;
-  // @rm  line_ptr->alpha_at_anchor.name = NULL;
-  // @rm  line_ptr->alpha_at_anchor.units = NULL;
-  // @rm  line_ptr->l.name = NULL;
-  // @rm  line_ptr->l.units = NULL;
-  // @rm  line_ptr->Lb.name = NULL;
-  // @rm  line_ptr->Lb.units = NULL;
-  // @rm  line_ptr->h.name = NULL;
-  // @rm  line_ptr->h.units = NULL;
   line_ptr->H.name = NULL;
   line_ptr->H.units = NULL;
   line_ptr->V.name = NULL;
   line_ptr->V.units = NULL;
-  // @rm  line_ptr->H_at_anchor.name = NULL;
-  // @rm  line_ptr->H_at_anchor.units = NULL;
-  // @rm  line_ptr->V_at_anchor.name = NULL;
-  // @rm  line_ptr->V_at_anchor.units = NULL;
-  // @rm  line_ptr->force_at_fairlead.fx.name = NULL;  
-  // @rm  line_ptr->force_at_fairlead.fx.units = NULL; 
-  // @rm  line_ptr->force_at_fairlead.fy.name = NULL;  
-  // @rm  line_ptr->force_at_fairlead.fy.units = NULL; 
-  // @rm  line_ptr->force_at_fairlead.fz.name = NULL;  
-  // @rm  line_ptr->force_at_fairlead.fz.units = NULL; 
-  // @rm  line_ptr->force_at_anchor.fx.name = NULL;
-  // @rm  line_ptr->force_at_anchor.fx.units = NULL;
-  // @rm  line_ptr->force_at_anchor.fy.name = NULL;
-  // @rm  line_ptr->force_at_anchor.fy.units = NULL;
-  // @rm  line_ptr->force_at_anchor.fz.name = NULL;
-  // @rm  line_ptr->force_at_anchor.fz.units = NULL;
-  // @rm  line_ptr->T.name = NULL;
-  // @rm  line_ptr->T.units = NULL;
-  // @rm  line_ptr->tension_at_anchor.name = NULL;
-  // @rm  line_ptr->tension_at_anchor.units = NULL;
 
   line_ptr->psi = -999.9;
   line_ptr->alpha = -999.9;
@@ -2474,124 +2415,6 @@ MAP_ERROR_CODE reset_line(Line* line_ptr)
   line_ptr->segment_size = 10;
 
 };
-
-
-// @rm
-// MAP_ERROR_CODE set_line_vartype(Line* line_ptr, const int i)
-// {
-//   MAP_ERROR_CODE success = MAP_SAFE;
-//   bstring alias = NULL;
-// 
-//   // alias = bformat("psi[%d]", i+1);
-//   // success = set_vartype("[deg]", alias, 0, &line_ptr->psi, NULL); /* @todo: check error */
-//   // bdestroy(alias);
-//   // 
-//   // alias = bformat("alpha[%d]", i+1);                  
-//   // success = set_vartype("[deg]", alias, 0, &line_ptr->alpha, NULL); /* @todo: check error */
-//   // bdestroy(alias);
-//   // 
-//   // alias = bformat("alpha_a[%d]", i+1);                      
-//   // success = set_vartype("[deg]", alias, 0, &line_ptr->alpha_at_anchor, NULL); /* @todo: check error */
-//   // bdestroy(alias);
-// 
-//   // alias = bformat("l[%d]", i+1);           
-//   // success = set_vartype("[m]", alias, 0, &line_ptr->l, NULL); /* @todo: check error */
-//   // bdestroy(alias);
-// 
-//   // alias = bformat("Lb[%d]", i+1);                  
-//   // success = set_vartype("[m]", alias, 0, &line_ptr->Lb, NULL); /* @todo: check error */
-//   // bdestroy(alias);
-// 
-//   // alias = bformat("h[%d]", i+1);                
-//   // success = set_vartype("[m]", alias, 0, &line_ptr->h, NULL); /* @todo: check error */
-//   // bdestroy(alias);
-// 
-//   // alias = bformat("H_a[%d]", i+1);                   
-//   // success = set_vartype("[N]", alias, 0, &line_ptr->H_at_anchor, NULL); /* @todo: check error */
-//   // bdestroy(alias);
-// 
-//   // alias = bformat("Fx[%d]", i+1);                
-//   // success = set_vartype("[N]", alias, 0, &line_ptr->force_at_fairlead.fx, NULL); /* @todo: check error */
-//   // bdestroy(alias);
-//   // 
-//   // alias = bformat("Fy[%d]", i+1);                 
-//   // success = set_vartype("[N]", alias, 0, &line_ptr->force_at_fairlead.fy, NULL); /* @todo: check error */
-//   // bdestroy(alias);
-//   // 
-//   // alias = bformat("Fz[%d]", i+1);                 
-//   // success = set_vartype("[N]", alias, 0, &line_ptr->force_at_fairlead.fz, NULL); /* @todo: check error */
-//   // bdestroy(alias);
-// 
-//   // alias = bformat("Fx_a[%d]", i+1);                   
-//   // success = set_vartype("[N]", alias, 0, &line_ptr->force_at_anchor.fx, NULL); /* @todo: check error */
-//   // bdestroy(alias);
-//   // 
-//   // alias = bformat("Fy_a[%d]", i+1);                 
-//   // success = set_vartype("[N]", alias, 0, &line_ptr->force_at_anchor.fy, NULL); /* @todo: check error */
-//   // bdestroy(alias);
-//   // 
-//   // alias = bformat("Fz_a[%d]", i+1);                 
-//   // success = set_vartype("[N]", alias, 0, &line_ptr->force_at_anchor.fz, NULL); /* @todo: check error */
-//   // bdestroy(alias);
-// 
-//   // alias = bformat("V_a[%d]", i+1);                
-//   // success = set_vartype("[N]", alias, 0, &line_ptr->V_at_anchor, NULL); /* @todo: check error */
-//   // bdestroy(alias);
-// 
-//   // alias = bformat("T[%d]", i+1);               
-//   // success = set_vartype("[N]", alias, 0, &line_ptr->T, NULL); /* @todo: check error */
-//   // bdestroy(alias);
-//   // 
-//   // alias = bformat("T_a[%d]", i+1);                   
-//   // success = set_vartype("[N]", alias, 0, &line_ptr->tension_at_anchor, NULL); /* @todo: check error */
-//   // bdestroy(alias);
-// 
-//   return MAP_SAFE;
-// };
-
-
-// MAP_ERROR_CODE initialize_external_applied_force(char* unit, char* alias, const int num, VarType* type, char const* property)
-// {
-//   type->name = malloc(sizeof(char)*strlen(alias)+1);
-//   type->units = malloc(sizeof(char)*strlen(unit)+1);
-//   
-//   strcpy(type->name, alias);
-//   strcpy(type->units, unit);
-// 
-//   type->ref_counter = 0;
-//   type->id = num;  
-//   type->value = 0;
-//   type->is_fixed = true;
-// 
-//   if (property[0]=='#') { 
-//     type->value = 0.0;
-//   } else { 
-//     /* this variable is constant */    
-//     if (is_numeric(property)) { 
-//       /* cannot convert to numeric value */
-//       return MAP_FATAL;
-//     } else { 
-//       /* converted to numeric value */
-//       type->value = (double)atof(property);      
-//     };
-//   };
-//   return MAP_SAFE;
-// };
-
-
-// MAP_ERROR_CODE initialize_node_sum_force_ptr(char* unit, char* alias, const int num, VarTypePtr* type)
-// {
-//   type->name = malloc(sizeof(char)*strlen(alias)+1);
-//   type->units = malloc(sizeof(char)*strlen(unit)+1);  
-//   strcpy(type->name, alias);
-//   strcpy(type->units, unit);
-// 
-//   type->ref_counter = 0;
-//   type->id = num;  
-//   type->is_fixed = true;
-//   *(type->value) = 0.0;
-//   return MAP_SAFE;
-// };
 
 
 MAP_ERROR_CODE reset_node(Node* node_ptr)
@@ -2730,6 +2553,18 @@ MAP_ERROR_CODE is_numeric(const char* string)
 };
 
 
+void log_initialization_information(MAP_InitInputType_t* init_type, MAP_ParameterType_t* p_type, MAP_OutputType_t* y_type, MAP_OtherStateType_t* other_type, Domain* domain, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  MAP_ERROR_CODE success = MAP_SAFE;
+  InitializationData* init_data = init_type->object;   
+
+  MAP_BEGIN_ERROR_LOG; 
+  success = write_summary_file(init_data, p_type, domain, map_msg, ierr); CHECKERRQ(MAP_FATAL_37);           
+  success = get_iteration_output_stream(y_type, other_type, map_msg, ierr); // @todo CHECKERRQ()    
+  MAP_END_ERROR_LOG; 
+};
+
+
 MAP_ERROR_CODE associate_vartype_ptr(VarTypePtr* type, double* arr, int index)
 {
   type->value = &arr[index-1];
@@ -2795,33 +2630,6 @@ const char* remove_first_character(const char* string)
 {
   return string+1;
 };
-
-
-// /**
-//  * @see: http://stackoverflow.com/questions/504810/how-do-i-find-the-current-machines-full-hostname-in-c-hostname-and-domain-info
-//  */
-// void __get_machine_name(char* machineName)
-// {
-//   char name[150];  
-//   
-// #if defined(_WIN32) || defined(_WIN64)
-//   int i = 0;
-//   TCHAR infoBuf[150];
-//   DWORD bufCharCount = 150;
-//   memset(name, 0, 150);
-//   if (GetComputerName(infoBuf, &bufCharCount)) {
-//     for (i=0 ; i<150 ; i++) {
-//       name[i] = infoBuf[i];
-//     };
-//   } else {
-//     strcpy(name, "Unknown_Host_Name");
-//   };
-// #else
-//   memset(name, 0, 150);
-//   gethostname(name, 150);
-// #endif
-//   strncpy(machineName ,name, 150);
-// };
 
 
 MAP_ERROR_CODE print_help_to_screen()

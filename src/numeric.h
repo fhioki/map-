@@ -28,6 +28,42 @@
 
 
 /**
+ * @brief   Forms the LU matrix for inverting the Jacobian - step 1
+ * @details Called by {@link node_solve_sequence} to form the 
+ *          lower (L) and upper (U) triangular matrices to solve
+ *          the system of equations. This is called in the outer
+ *          (node) solve sequence. Back substitution through the
+ *          function {@link lu_back_substitution} follows this 
+ *          function call to complete the newton iteration.
+ *          $\mathbf{A}=\mathbf{LU}$
+ *          with 
+ *          $\begin{bmatrix}
+ *             a_{11} & a_{12} & a_{13} \\
+ *             a_{21} & a_{22} & a_{23} \\
+ *             a_{31} & a_{32} & a_{33} \\
+ *           \end{bmatrix} =
+ *           \begin{bmatrix}
+ *             l_{11} & 0      & 0 \\
+ *             l_{21} & l_{22} & 0 \\
+ *             l_{31} & l_{32} & l_{33} \\
+ *           \end{bmatrix}
+ *           \begin{bmatrix}
+ *             u_{11} & u_{12} & u_{13} \\
+ *             0      & u_{22} & u_{23} \\
+ *             0      & 0      & u_{33} \\
+ *           \end{bmatrix}
+ *           $
+ * @param   ns, outer solve attributes; preserves l, jac, and u
+ * @param   n, matrix size, nxn
+ * @param   map_msg, error message
+ * @param   ierr, error code
+ * @see     node_solve_sequence()
+ * @return  MAP error code
+ */
+MAP_ERROR_CODE root_finding_step(OuterSolveAttributes* ns, const int n, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, double* error, char* map_msg, MAP_ERROR_CODE* ierr);
+
+
+/**
  * @brief   Wrapper for cminpack's lmder function
  * @details Called by {@link solve_line} to solve the catenary
  *          equations. The minpack documentation describes the 
