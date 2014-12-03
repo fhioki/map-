@@ -26,7 +26,7 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
     from mpl_toolkits.mplot3d import Axes3D
     import numpy as np
-    np.set_printoptions(precision=2)
+    np.set_printoptions(precision=0)
     np.set_printoptions(suppress=True)
 
     mooring_1 = Map( )
@@ -55,11 +55,11 @@ if __name__ == '__main__':
     # mooring_1.displace_vessel(15.0, 0.0, 0.0, 0.0, 0.0, 10.0)
     # mooring_1.update_states(0.0, 0)
 
-    # epsilon = 1e-3
-    # K = mooring_1.linear(epsilon)    
-    # print "\nHere is the linearized stiffness matrix with zero vessel displacement:"
-    # print np.array(K)
-    # 
+    epsilon = 1e-3
+    K = mooring_1.linear(epsilon)    
+    print "\nHere is the linearized stiffness matrix with zero vessel displacement:"
+    print np.array(K)
+    
     # H,V = mooring_1.get_fairlead_force_2d(0)    
     # print H, "  ", V
       

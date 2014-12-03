@@ -106,7 +106,6 @@
 #define ARCSINH(x) log(x+sqrt(1+x*x))
 #define SPACE_LENGTH 12
 #define MACHINE_EPSILON 1e-16
-#define MAP_RETURN if(*ierr==MAP_FATAL) { return MAP_FATAL; }; return MAP_SAFE;
 #define MAP_BEGIN_ERROR_LOG do{ \
   ; 
 #define MAP_END_ERROR_LOG } while(0);

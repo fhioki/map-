@@ -274,27 +274,29 @@ MAP_ERROR_CODE set_vessel(Vessel* floater, const MAP_InputType_t* u_type, char* 
   int i = 0;
   int n = u_type->x_Len;
 
-  do {
-    /* vessel displacement */
-    success = set_vartype_float("[m]", "Vessel_X", -999, &floater->displacement.x, 0.0); CHECKERRQ(MAP_FATAL_68);
-    success = set_vartype_float("[m]", "Vessel_Y", -999, &floater->displacement.y, 0.0); CHECKERRQ(MAP_FATAL_68);
-    success = set_vartype_float("[m]", "Vessel_Z", -999, &floater->displacement.z, 0.0); CHECKERRQ(MAP_FATAL_68);
+  MAP_BEGIN_ERROR_LOG;
+
+  /* vessel displacement */
+  success = set_vartype_float("[m]", "Vessel_X", -999, &floater->displacement.x, 0.0); CHECKERRQ(MAP_FATAL_68);
+  success = set_vartype_float("[m]", "Vessel_Y", -999, &floater->displacement.y, 0.0); CHECKERRQ(MAP_FATAL_68);
+  success = set_vartype_float("[m]", "Vessel_Z", -999, &floater->displacement.z, 0.0); CHECKERRQ(MAP_FATAL_68);
      
-    /* vessel reference origin. When ==[0.0, 0.0, 0.0], then the reference origin is aligned with the SWL */
-    success = set_vartype_float("[m]", "Vessel_Xref", -999, &floater->ref_origin.x, 0.0); CHECKERRQ(MAP_FATAL_68);
-    success = set_vartype_float("[m]", "Vessel_Yref", -999, &floater->ref_origin.y, 0.0); CHECKERRQ(MAP_FATAL_68);
-    success = set_vartype_float("[m]", "Vessel_Zref", -999, &floater->ref_origin.z, 0.0); CHECKERRQ(MAP_FATAL_68);
+  /* vessel reference origin. When ==[0.0, 0.0, 0.0], then the reference origin is aligned with the SWL */
+  success = set_vartype_float("[m]", "Vessel_Xref", -999, &floater->ref_origin.x, 0.0); CHECKERRQ(MAP_FATAL_68);
+  success = set_vartype_float("[m]", "Vessel_Yref", -999, &floater->ref_origin.y, 0.0); CHECKERRQ(MAP_FATAL_68);
+  success = set_vartype_float("[m]", "Vessel_Zref", -999, &floater->ref_origin.z, 0.0); CHECKERRQ(MAP_FATAL_68);
     
-    /* sum force of all fairleads connecte to the vessel */
-    success = set_vartype_float("[N]", "Vessel_fx", -999, &floater->line_sum_force.fx, 0.0); CHECKERRQ(MAP_FATAL_68);
-    success = set_vartype_float("[N]", "Vessel_fy", -999, &floater->line_sum_force.fy, 0.0); CHECKERRQ(MAP_FATAL_68);
-    success = set_vartype_float("[N]", "Vessel_fz", -999, &floater->line_sum_force.fz, 0.0); CHECKERRQ(MAP_FATAL_68);
+  /* sum force of all fairleads connecte to the vessel */
+  success = set_vartype_float("[N]", "Vessel_fx", -999, &floater->line_sum_force.fx, 0.0); CHECKERRQ(MAP_FATAL_68);
+  success = set_vartype_float("[N]", "Vessel_fy", -999, &floater->line_sum_force.fy, 0.0); CHECKERRQ(MAP_FATAL_68);
+  success = set_vartype_float("[N]", "Vessel_fz", -999, &floater->line_sum_force.fz, 0.0); CHECKERRQ(MAP_FATAL_68);
     
-    /* orientation of the vessel. This is used as input from the user */
-    success = set_vartype_float("[deg]", "Vessel_phi", -999, &floater->orientation.phi, 0.0); CHECKERRQ(MAP_FATAL_68);
-    success = set_vartype_float("[deg]", "Vessel_the", -999, &floater->orientation.the, 0.0); CHECKERRQ(MAP_FATAL_68);
-    success = set_vartype_float("[deg]", "Vessel_psi", -999, &floater->orientation.psi, 0.0); CHECKERRQ(MAP_FATAL_68);
-  } while(0);
+  /* orientation of the vessel. This is used as input from the user */
+  success = set_vartype_float("[deg]", "Vessel_phi", -999, &floater->orientation.phi, 0.0); CHECKERRQ(MAP_FATAL_68);
+  success = set_vartype_float("[deg]", "Vessel_the", -999, &floater->orientation.the, 0.0); CHECKERRQ(MAP_FATAL_68);
+  success = set_vartype_float("[deg]", "Vessel_psi", -999, &floater->orientation.psi, 0.0); CHECKERRQ(MAP_FATAL_68);
+
+  MAP_END_ERROR_LOG;
 
   floater->xi = malloc(n*sizeof(double));  
   floater->yi = malloc(n*sizeof(double));  
@@ -323,15 +325,8 @@ MAP_ERROR_CODE first_solve(Domain* domain, MAP_ParameterType_t* p_type, MAP_Inpu
   } else {
     success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, map_msg, ierr); /* @todo CHECKERRQ() */
   };
-
-  /* @todo replace with MAP_RETURN? */
-  if (success==MAP_SAFE) {
-    return MAP_SAFE;
-  } else if (success==MAP_ERROR) {
-    return MAP_ERROR;
-  } else {
-    return MAP_FATAL;
-  };
+  
+  MAP_RETURN_STATUS(success);
 };
 
 
@@ -1067,32 +1062,36 @@ MAP_ERROR_CODE set_model_options_list(Domain* domain, InitializationData* init_d
   cstr2tbstr(tokens," \t\n\r"); /* token for splitting line into indivdual words is a tab and space */   
   for (i=0 ; i<=n_lines ; i++) { 
     parsed = bsplits(init_data->solver_options_string->entry[i], &tokens);
-    do {
-      success = check_help_flag(parsed->entry[0]); CHECKERRQ(MAP_FATAL_85);
-      success = check_inner_f_tol_flag(parsed, &domain->inner_loop.f_tol); CHECKERRK(MAP_ERROR_2);
-      success = check_outer_max_its_flag(parsed, &domain->outer_loop.max_its); CHECKERRK(MAP_ERROR_3);
-      success = check_inner_max_its_flag(parsed, &domain->inner_loop.max_its); CHECKERRK(MAP_ERROR_4);
-      success = check_inner_g_tol_flag(parsed, &domain->inner_loop.g_tol); CHECKERRK(MAP_ERROR_9);
-      success = check_inner_x_tol_flag(parsed, &domain->inner_loop.x_tol); CHECKERRK(MAP_ERROR_10);
-      success = check_outer_tol_flag(parsed, &domain->outer_loop.tol); CHECKERRK(MAP_ERROR_3);
-      success = check_outer_epsilon_flag(parsed, &domain->outer_loop.epsilon); CHECKERRK(MAP_ERROR_3);
-      success = check_integration_dt_flag(parsed, &domain->model_options.integration_dt); CHECKERRK(MAP_ERROR_15); 
-      success = check_kb_default_flag(parsed, &domain->model_options.kb_lm); CHECKERRK(MAP_ERROR_16); 
-      success = check_cb_default_flag(parsed, &domain->model_options.cb_lm); CHECKERRK(MAP_ERROR_17); 
-      success = check_outer_bd_flag(parsed, &domain->outer_loop.fd);
-      success = check_outer_cd_flag(parsed, &domain->outer_loop.fd);
-      success = check_outer_fd_flag(parsed, &domain->outer_loop.fd);      
-      success = check_wave_kinematics_flag(parsed, &domain->model_options.wave_kinematics); CHECKERRK(MAP_WARNING_10);
-      success = check_lm_model_flag(parsed, &domain->model_options.lm_model); CHECKERRK(MAP_WARNING_11);
-      success = check_pg_cooked_flag(parsed, &domain->outer_loop); CHECKERRK(MAP_WARNING_8);
-      success = check_krylov_accelerator_flag(parsed, &domain->outer_loop); CHECKERRK(MAP_WARNING_12);
-      success = check_repeat_flag(parsed, &domain->model_options); CHECKERRQ(MAP_FATAL_34);
-      success = check_ref_position_flag(parsed, &domain->vessel.ref_origin); CHECKERRQ(MAP_FATAL_36);
-      success = check_uncaught_flag(parsed);       
-      if (success) {
-        set_universal_error_with_message(map_msg, ierr, MAP_WARNING_1, "word: <%s>", parsed->entry[0]->data);
-      };
-    } while (0);   
+
+    MAP_BEGIN_ERROR_LOG;
+
+    success = check_help_flag(parsed->entry[0]); CHECKERRQ(MAP_FATAL_85);
+    success = check_inner_f_tol_flag(parsed, &domain->inner_loop.f_tol); CHECKERRK(MAP_ERROR_2);
+    success = check_outer_max_its_flag(parsed, &domain->outer_loop.max_its); CHECKERRK(MAP_ERROR_3);
+    success = check_inner_max_its_flag(parsed, &domain->inner_loop.max_its); CHECKERRK(MAP_ERROR_4);
+    success = check_inner_g_tol_flag(parsed, &domain->inner_loop.g_tol); CHECKERRK(MAP_ERROR_9);
+    success = check_inner_x_tol_flag(parsed, &domain->inner_loop.x_tol); CHECKERRK(MAP_ERROR_10);
+    success = check_outer_tol_flag(parsed, &domain->outer_loop.tol); CHECKERRK(MAP_ERROR_3);
+    success = check_outer_epsilon_flag(parsed, &domain->outer_loop.epsilon); CHECKERRK(MAP_ERROR_3);
+    success = check_integration_dt_flag(parsed, &domain->model_options.integration_dt); CHECKERRK(MAP_ERROR_15); 
+    success = check_kb_default_flag(parsed, &domain->model_options.kb_lm); CHECKERRK(MAP_ERROR_16); 
+    success = check_cb_default_flag(parsed, &domain->model_options.cb_lm); CHECKERRK(MAP_ERROR_17); 
+    success = check_outer_bd_flag(parsed, &domain->outer_loop.fd);
+    success = check_outer_cd_flag(parsed, &domain->outer_loop.fd);
+    success = check_outer_fd_flag(parsed, &domain->outer_loop.fd);      
+    success = check_wave_kinematics_flag(parsed, &domain->model_options.wave_kinematics); CHECKERRK(MAP_WARNING_10);
+    success = check_lm_model_flag(parsed, &domain->model_options.lm_model); CHECKERRK(MAP_WARNING_11);
+    success = check_pg_cooked_flag(parsed, &domain->outer_loop); CHECKERRK(MAP_WARNING_8);
+    success = check_krylov_accelerator_flag(parsed, &domain->outer_loop); CHECKERRK(MAP_WARNING_12);
+    success = check_repeat_flag(parsed, &domain->model_options); CHECKERRQ(MAP_FATAL_34);
+    success = check_ref_position_flag(parsed, &domain->vessel.ref_origin); CHECKERRQ(MAP_FATAL_36);
+    success = check_uncaught_flag(parsed);       
+    if (success) {
+      set_universal_error_with_message(map_msg, ierr, MAP_WARNING_1, "word: <%s>", parsed->entry[0]->data);
+    };
+
+    MAP_END_ERROR_LOG;
+   
     success = bstrListDestroy(parsed);
   };
 
@@ -1102,7 +1101,7 @@ MAP_ERROR_CODE set_model_options_list(Domain* domain, InitializationData* init_d
     domain->outer_loop.krylov_accelerator = false;
   };
 
-  MAP_RETURN;
+  MAP_RETURN_STATUS(*ierr);
 };
 
 
@@ -1150,44 +1149,48 @@ MAP_ERROR_CODE set_cable_library_list(Domain* domain, InitializationData* init_d
     parsed = bsplits(init_data->library_input_string->entry[i], &tokens);
     n = 0;
     next = 0;
-    do {  
-      while (n<parsed->qty-1) { /* iterating through all strings */              
-        if (parsed->entry[n]->slen) { /* if the string length is not 0 */
-          if (next==0) {
-            library_iter->label = bstrcpy(parsed->entry[n]);                         
-            next++;
-          } else if (next==1) {
-             success = set_library_diameter(parsed->entry[n], library_iter); CHECKERRQ(MAP_FATAL_12);
-             next++;            
-          } else if (next==2) {
-             success = set_library_mass_density(parsed->entry[n], library_iter); CHECKERRQ(MAP_FATAL_13);
-             next++;
-          } else if (next==3) {
-            success = set_library_ea(parsed->entry[n], library_iter); CHECKERRQ(MAP_FATAL_14);
-            next++;
-          } else if (next==4) {
-            success = set_library_cb(parsed->entry[n], library_iter); CHECKERRQ(MAP_FATAL_15);
-            next++;
-          } else if (next==5) {
-            success = set_library_internal_damping(parsed->entry[n], library_iter); CHECKERRQ(MAP_FATAL_81);
-            next++;
-          } else if (next==6) {
-            success = set_library_added_mass_coefficient(parsed->entry[n], library_iter); CHECKERRQ(MAP_FATAL_82);
-            next++;
-          } else if (next==7) {
-            success = set_library_cross_flow_drag_coefficient(parsed->entry[n], library_iter); CHECKERRQ(MAP_FATAL_83);
-            next++;
-          } else if (next==8) {
-            success = set_library_tangent_drag_coefficient(parsed->entry[n], library_iter); CHECKERRQ(MAP_FATAL_84);
-            next++;
-          };
+
+    MAP_BEGIN_ERROR_LOG;  
+
+    while (n<parsed->qty-1) { /* iterating through all strings */              
+      if (parsed->entry[n]->slen) { /* if the string length is not 0 */
+        if (next==0) {
+          library_iter->label = bstrcpy(parsed->entry[n]);                         
+          next++;
+        } else if (next==1) {
+          success = set_library_diameter(parsed->entry[n], library_iter); CHECKERRQ(MAP_FATAL_12);
+          next++;            
+        } else if (next==2) {
+          success = set_library_mass_density(parsed->entry[n], library_iter); CHECKERRQ(MAP_FATAL_13);
+          next++;
+        } else if (next==3) {
+          success = set_library_ea(parsed->entry[n], library_iter); CHECKERRQ(MAP_FATAL_14);
+          next++;
+        } else if (next==4) {
+          success = set_library_cb(parsed->entry[n], library_iter); CHECKERRQ(MAP_FATAL_15);
+          next++;
+        } else if (next==5) {
+          success = set_library_internal_damping(parsed->entry[n], library_iter); CHECKERRQ(MAP_FATAL_81);
+          next++;
+        } else if (next==6) {
+          success = set_library_added_mass_coefficient(parsed->entry[n], library_iter); CHECKERRQ(MAP_FATAL_82);
+          next++;
+        } else if (next==7) {
+          success = set_library_cross_flow_drag_coefficient(parsed->entry[n], library_iter); CHECKERRQ(MAP_FATAL_83);
+          next++;
+        } else if (next==8) {
+          success = set_library_tangent_drag_coefficient(parsed->entry[n], library_iter); CHECKERRQ(MAP_FATAL_84);
+          next++;
         };
-        n++;
       };
-    } while (0);   
+      n++;
+    };
+
+    MAP_END_ERROR_LOG;   
+
     success = bstrListDestroy(parsed);
   };
-  MAP_RETURN;
+  MAP_RETURN_STATUS(*ierr);
 };
 
 
@@ -1440,54 +1443,58 @@ MAP_ERROR_CODE repeat_nodes(Domain* domain, InitializationData* init_data, char*
       parsed = bsplits(init_data->node_input_string->entry[j], &tokens);
       next = 0;
       i_parsed = 0;
-      do {  
-        while (i_parsed<parsed->qty-1) { /* iterating through all strings */              
-          if (parsed->entry[i_parsed]->slen) { /* if the string length is not 0 */
-            word = parsed->entry[i_parsed]->data;      
-            if (next==0) {
-              success = expand_node_number(n_line+1, line);/* @todo: checkerrq */
-              next++;
-            } else if (next==1) {
-              success = expand_node_type(word, line);/* @todo: checkerrq */
-              next++;
-            } else if (next==2) {
-              success = expand_node_position_x(&x_position, word);/* @todo: checkerrq */
-              next++;
-            } else if (next==3) {
-              success = expand_node_position_y(&y_position, word);/* @todo: checkerrq */
-              next++;
-            } else if (next==4) {
-              success = expand_node_position_z(&position, current_angle, x_position, y_position, word, line);/* @todo: checkerrq */
-              next++;
-            } else if (next==5) { /* node mass */
-              success = expand_node_mass(word, line);/* @todo: checkerrq */
-              next++;
-            } else if (next==6) { /* node buoyancy */
-              success = expand_node_buoyancy(word, line);/* @todo: checkerrq */
-              next++;
-            } else if (next==7) {
-              success = expand_node_force_x(&x_force, word);/* @todo: checkerrq */
-              next++;
-            } else if (next==8) {
-              success = expand_node_force_y(&y_force, word);/* @todo: checkerrq */
-              next++;
-            } else if (next==9) {
-              success = expand_node_force_z(&force, current_angle, x_force, y_force, word, line);/* @todo: checkerrq */
-              next++;
-            };
+
+      MAP_BEGIN_ERROR_LOG;  
+
+      while (i_parsed<parsed->qty-1) { /* iterating through all strings */              
+        if (parsed->entry[i_parsed]->slen) { /* if the string length is not 0 */
+          word = parsed->entry[i_parsed]->data;      
+          if (next==0) {
+            success = expand_node_number(n_line+1, line);/* @todo: checkerrq */
+            next++;
+          } else if (next==1) {
+            success = expand_node_type(word, line);/* @todo: checkerrq */
+            next++;
+          } else if (next==2) {
+            success = expand_node_position_x(&x_position, word);/* @todo: checkerrq */
+            next++;
+          } else if (next==3) {
+            success = expand_node_position_y(&y_position, word);/* @todo: checkerrq */
+            next++;
+          } else if (next==4) {
+            success = expand_node_position_z(&position, current_angle, x_position, y_position, word, line);/* @todo: checkerrq */
+            next++;
+          } else if (next==5) { /* node mass */
+            success = expand_node_mass(word, line);/* @todo: checkerrq */
+            next++;
+          } else if (next==6) { /* node buoyancy */
+            success = expand_node_buoyancy(word, line);/* @todo: checkerrq */
+            next++;
+          } else if (next==7) {
+            success = expand_node_force_x(&x_force, word);/* @todo: checkerrq */
+            next++;
+          } else if (next==8) {
+            success = expand_node_force_y(&y_force, word);/* @todo: checkerrq */
+            next++;
+          } else if (next==9) {
+            success = expand_node_force_z(&force, current_angle, x_force, y_force, word, line);/* @todo: checkerrq */
+            next++;
           };
-          i_parsed++;
         };
-        init_data->expanded_node_input_string->qty++;
-        init_data->expanded_node_input_string->entry[n_line] = bstrcpy(line);
-        success = bassigncstr(line, "");
-      } while (0);   
+        i_parsed++;
+      };
+      init_data->expanded_node_input_string->qty++;
+      init_data->expanded_node_input_string->entry[n_line] = bstrcpy(line);
+      success = bassigncstr(line, "");
+
+      MAP_END_ERROR_LOG;   
+
       success = bstrListDestroy(parsed);
     };  
   };
   success = bdestroy(line);               
 
-  MAP_RETURN;
+  MAP_RETURN_STATUS(*ierr);
 };
 
 
@@ -1613,42 +1620,46 @@ MAP_ERROR_CODE repeat_lines(Domain* domain, InitializationData* init_data, char*
       parsed = bsplits(init_data->line_input_string->entry[j], &tokens);
       next = 0;
       i_parsed = 0;
-      do {  
-        while (i_parsed<parsed->qty-1) { /* iterating through all strings */              
-          if (parsed->entry[i_parsed]->slen) { /* if the string length is not 0 */
-            word = parsed->entry[i_parsed]->data;
-            if (next==0) {
-              success = expand_line_number(n_line+1, line);
-              next++;
-            } else if (next==1) {
-              success = expand_line_property_name(word, line);
-              next++;
-            } else if (next==2) {
-              success = expand_line_length(word, line);
-              next++;
-            } else if (next==3) {
-              success = expand_line_anchor_number(word, i, num_node, line);
-              next++;
-            } else if (next==4) {
-              success = expand_line_fairlead_number(word, i, num_node, line);
-              next++;
-            } else {
-              success = expand_line_flag(word, line);
-              next++;
-            };
+
+      MAP_BEGIN_ERROR_LOG;
+  
+      while (i_parsed<parsed->qty-1) { /* iterating through all strings */              
+        if (parsed->entry[i_parsed]->slen) { /* if the string length is not 0 */
+          word = parsed->entry[i_parsed]->data;
+          if (next==0) {
+            success = expand_line_number(n_line+1, line);
+            next++;
+          } else if (next==1) {
+            success = expand_line_property_name(word, line);
+            next++;
+          } else if (next==2) {
+            success = expand_line_length(word, line);
+            next++;
+          } else if (next==3) {
+            success = expand_line_anchor_number(word, i, num_node, line);
+            next++;
+          } else if (next==4) {
+            success = expand_line_fairlead_number(word, i, num_node, line);
+            next++;
+          } else {
+            success = expand_line_flag(word, line);
+            next++;
           };
-          i_parsed++;
         };
-        init_data->expanded_line_input_string->qty++;
-        init_data->expanded_line_input_string->entry[n_line] = bstrcpy(line);
-        success = bassigncstr(line, "");
-      } while (0);      
+        i_parsed++;
+      };
+      init_data->expanded_line_input_string->qty++;
+      init_data->expanded_line_input_string->entry[n_line] = bstrcpy(line);
+      success = bassigncstr(line, "");
+
+      MAP_END_ERROR_LOG;      
+
       success = bstrListDestroy(parsed);
     };
   };
   success = bdestroy(line);               
 
-  MAP_RETURN;
+  MAP_RETURN_STATUS(*ierr);
 };
 
 
@@ -1675,28 +1686,32 @@ MAP_ERROR_CODE allocate_types_for_nodes(MAP_InputType_t* u_type, MAP_ConstraintS
     i_parsed = 0;
     next = 0;
     parsed = bsplits(node_input_string->entry[i], &tokens);
-    do {  
-      while (i_parsed<parsed->qty-1) { /* iterating through all strings */              
-        if (parsed->entry[i_parsed]->slen) { /* if the string length is not 0 */
-          if (next==1) {
-            if (biseqcstrcaseless(parsed->entry[i_parsed],"FIX")) {
-              fix_num++;
-              break; /* break the while-loop because the agenda is reached */
-            } else if (biseqcstrcaseless(parsed->entry[i_parsed],"CONNECT")) {
-              connect_num++;
-              break; /* break the while-loop because the agenda is reached */
-            } else if (biseqcstrcaseless(parsed->entry[i_parsed],"VESSEL")) {
-              vessel_num++;
-              break; /* break the while-loop because the agenda is reached */
-            } else {
-              set_universal_error_with_message(map_msg, ierr, MAP_FATAL_25, "Value: <%s>", parsed->entry[i_parsed]->data);
-            };
-          };          
-          next++;
-        };
-        i_parsed++;
+
+    MAP_BEGIN_ERROR_LOG;  
+
+    while (i_parsed<parsed->qty-1) { /* iterating through all strings */              
+      if (parsed->entry[i_parsed]->slen) { /* if the string length is not 0 */
+        if (next==1) {
+          if (biseqcstrcaseless(parsed->entry[i_parsed],"FIX")) {
+            fix_num++;
+            break; /* break the while-loop because the agenda is reached */
+          } else if (biseqcstrcaseless(parsed->entry[i_parsed],"CONNECT")) {
+            connect_num++;
+            break; /* break the while-loop because the agenda is reached */
+          } else if (biseqcstrcaseless(parsed->entry[i_parsed],"VESSEL")) {
+            vessel_num++;
+            break; /* break the while-loop because the agenda is reached */
+          } else {
+            set_universal_error_with_message(map_msg, ierr, MAP_FATAL_25, "Value: <%s>", parsed->entry[i_parsed]->data);
+          };
+        };          
+        next++;
       };
-    } while (0);
+      i_parsed++;
+    };
+
+    MAP_END_ERROR_LOG;
+
     success = bstrListDestroy(parsed);
   }; 
 
@@ -1790,107 +1805,111 @@ MAP_ERROR_CODE set_node_list(const MAP_ParameterType_t* p_type,  MAP_InputType_t
     i_parsed = 0;
     next = 0;
     parsed = bsplits(node_input_string->entry[i], &tokens);
-    do {  
-      while (i_parsed<parsed->qty-1) { /* iterating through all strings */              
-        if (parsed->entry[i_parsed]->slen) { /* if the string length is not 0 */
-          if (next==0) {            
-            next++;
-          } else if (next==1) {
-            if (biseqcstrcaseless(parsed->entry[i_parsed],"FIX")) {
-              node_iter->type = FIX;
-              fix_num++;                   /* VarTypePtr              FAST derived  array index */
-              success = associate_vartype_ptr(&node_iter->position_ptr.x, other_type->x, fix_num);
-              success = associate_vartype_ptr(&node_iter->position_ptr.y, other_type->y, fix_num);
-              success = associate_vartype_ptr(&node_iter->position_ptr.z, other_type->z, fix_num);
-              success = associate_vartype_ptr(&node_iter->sum_force_ptr.fx, other_type->Fx_anchor, fix_num);
-              success = associate_vartype_ptr(&node_iter->sum_force_ptr.fy, other_type->Fy_anchor, fix_num);
-              success = associate_vartype_ptr(&node_iter->sum_force_ptr.fz, other_type->Fz_anchor, fix_num);
-            } else if (biseqcstrcaseless(parsed->entry[i_parsed],"CONNECT")) {
-              node_iter->type = CONNECT;
-              connect_num++;
-              success = associate_vartype_ptr(&node_iter->position_ptr.x, z_type->x, connect_num);
-              success = associate_vartype_ptr(&node_iter->position_ptr.y, z_type->y, connect_num);
-              success = associate_vartype_ptr(&node_iter->position_ptr.z, z_type->z, connect_num);
-              success = associate_vartype_ptr(&node_iter->sum_force_ptr.fx, other_type->Fx_connect, connect_num);
-              success = associate_vartype_ptr(&node_iter->sum_force_ptr.fy, other_type->Fy_connect, connect_num);
-              success = associate_vartype_ptr(&node_iter->sum_force_ptr.fz, other_type->Fz_connect, connect_num);
-            } else if (biseqcstrcaseless(parsed->entry[i_parsed],"VESSEL")) {
-              node_iter->type = VESSEL;
-              vessel_num++;
-              u_reference_point.x = NULL;
-              u_reference_point.y = NULL;
-              u_reference_point.z = NULL;
-              success = associate_vartype_ptr(&node_iter->position_ptr.x, u_type->x, vessel_num);
-              success = associate_vartype_ptr(&node_iter->position_ptr.y, u_type->y, vessel_num);
-              success = associate_vartype_ptr(&node_iter->position_ptr.z, u_type->z, vessel_num);                           
-              success = associate_vartype_ptr(&node_iter->sum_force_ptr.fx, y_type->Fx, vessel_num);
-              success = associate_vartype_ptr(&node_iter->sum_force_ptr.fy, y_type->Fy, vessel_num);
-              success = associate_vartype_ptr(&node_iter->sum_force_ptr.fz, y_type->Fz, vessel_num);
-              u_reference_point.x = &node_iter->position_ptr.x; /* create reference to input type; this is the convenient update point when u is interpolated in FAST */
-              u_reference_point.y = &node_iter->position_ptr.y; /* create reference to input type; this is the convenient update point when u is interpolated in FAST */
-              u_reference_point.z = &node_iter->position_ptr.z; /* create reference to input type; this is the convenient update point when u is interpolated in FAST */
-              list_append(&domain->u_update_list, &u_reference_point); /* push onto the update list */
-            } else {
-              set_universal_error_with_message(map_msg, ierr, MAP_FATAL_25, "Value: <%s>", parsed->entry[i_parsed]->data);
-            };
-            next++;
-          } else if (next==2) { /* set initial X node position values */
-            alias = bformat("X[%d]", i+1);                          
-            success = set_vartype_ptr("[m]", alias, i, &node_iter->position_ptr.x, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_17);
-            bdestroy(alias);
-            next++;
-          } else if (next==3) { /* set initial Y node position values */
-            alias = bformat("Y[%d]", i+1);                          
-            success = set_vartype_ptr("[m]", alias, i, &node_iter->position_ptr.y, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_18);
-            bdestroy(alias);
-            next++;
-          } else if (next==4) { /* set initial Z node position values */
-            alias = bformat("Z[%d]", i+1);                          
-            if (biseqcstrcaseless(parsed->entry[i_parsed],"DEPTH")) {         
-              if (node_iter->type!=FIX) { /* can only use 'DEPTH' flag in input file for FIX (anchor) nodes */
-                set_universal_error_with_message(map_msg, ierr, MAP_FATAL_71, "Value: <%s>", parsed->entry[i_parsed]->data);
-              } else {
-                value_string = bformat("%f", -depth);                          
-                success = set_vartype_ptr("[m]", alias, i, &node_iter->position_ptr.z, value_string); CHECKERRQ(MAP_FATAL_19);
-                success = bdestroy(value_string);
-              };
-            } else { /* all other nodes not using the 'DEPTH' flag */
-              success = set_vartype_ptr("[m]", alias, i, &node_iter->position_ptr.z, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_19);
-            };        
-            bdestroy(alias);
-            next++;
-          } else if (next==5) { /* set the node mass */            
-            alias = bformat("M[%d]", i+1);                          
-            success = set_vartype("[kg]", alias, i, &node_iter->M_applied, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_20);
-            bdestroy(alias);
-            next++;  
-          } else if (next==6) { /* set the node buoyancy */
-            alias = bformat("B[%d]", i+1);                          
-            success = set_vartype("[m^3]", alias, i, &node_iter->B_applied, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_21);
-            bdestroy(alias);
-            next++; 
-          } else if (next==7) { /* set applied X external force (or user guess) of the node */                    
-            alias = bformat("FX[%d]", i+1);                          
-            success = set_vartype("[N]", alias, i, &node_iter->external_force.fx, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_22);
-            bdestroy(alias);
-            next++;
-          } else if (next==8) { /* set applied Y external force (or user guess) of the node */            
-            alias = bformat("FY[%d]", i+1);                          
-            success = set_vartype("[N]", alias, i, &node_iter->external_force.fy, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_23);
-            bdestroy(alias);
-            next++;
-          } else if (next==9) { /* set applied Z external force (or user guess) of the node */
-            alias = bformat("FZ[%d]", i+1);                          
-            success = set_vartype("[N]", alias, i, &node_iter->external_force.fz, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_24);
-            bdestroy(alias);
-            next++;
-          } else {            
-            next++;
+
+    MAP_BEGIN_ERROR_LOG;  
+
+    while (i_parsed<parsed->qty-1) { /* iterating through all strings */              
+      if (parsed->entry[i_parsed]->slen) { /* if the string length is not 0 */
+        if (next==0) {            
+          next++;
+        } else if (next==1) {
+          if (biseqcstrcaseless(parsed->entry[i_parsed],"FIX")) {
+            node_iter->type = FIX;
+            fix_num++;                   /* VarTypePtr              FAST derived  array index */
+            success = associate_vartype_ptr(&node_iter->position_ptr.x, other_type->x, fix_num);
+            success = associate_vartype_ptr(&node_iter->position_ptr.y, other_type->y, fix_num);
+            success = associate_vartype_ptr(&node_iter->position_ptr.z, other_type->z, fix_num);
+            success = associate_vartype_ptr(&node_iter->sum_force_ptr.fx, other_type->Fx_anchor, fix_num);
+            success = associate_vartype_ptr(&node_iter->sum_force_ptr.fy, other_type->Fy_anchor, fix_num);
+            success = associate_vartype_ptr(&node_iter->sum_force_ptr.fz, other_type->Fz_anchor, fix_num);
+          } else if (biseqcstrcaseless(parsed->entry[i_parsed],"CONNECT")) {
+            node_iter->type = CONNECT;
+            connect_num++;
+            success = associate_vartype_ptr(&node_iter->position_ptr.x, z_type->x, connect_num);
+            success = associate_vartype_ptr(&node_iter->position_ptr.y, z_type->y, connect_num);
+            success = associate_vartype_ptr(&node_iter->position_ptr.z, z_type->z, connect_num);
+            success = associate_vartype_ptr(&node_iter->sum_force_ptr.fx, other_type->Fx_connect, connect_num);
+            success = associate_vartype_ptr(&node_iter->sum_force_ptr.fy, other_type->Fy_connect, connect_num);
+            success = associate_vartype_ptr(&node_iter->sum_force_ptr.fz, other_type->Fz_connect, connect_num);
+          } else if (biseqcstrcaseless(parsed->entry[i_parsed],"VESSEL")) {
+            node_iter->type = VESSEL;
+            vessel_num++;
+            u_reference_point.x = NULL;
+            u_reference_point.y = NULL;
+            u_reference_point.z = NULL;
+            success = associate_vartype_ptr(&node_iter->position_ptr.x, u_type->x, vessel_num);
+            success = associate_vartype_ptr(&node_iter->position_ptr.y, u_type->y, vessel_num);
+            success = associate_vartype_ptr(&node_iter->position_ptr.z, u_type->z, vessel_num);                           
+            success = associate_vartype_ptr(&node_iter->sum_force_ptr.fx, y_type->Fx, vessel_num);
+            success = associate_vartype_ptr(&node_iter->sum_force_ptr.fy, y_type->Fy, vessel_num);
+            success = associate_vartype_ptr(&node_iter->sum_force_ptr.fz, y_type->Fz, vessel_num);
+            u_reference_point.x = &node_iter->position_ptr.x; /* create reference to input type; this is the convenient update point when u is interpolated in FAST */
+            u_reference_point.y = &node_iter->position_ptr.y; /* create reference to input type; this is the convenient update point when u is interpolated in FAST */
+            u_reference_point.z = &node_iter->position_ptr.z; /* create reference to input type; this is the convenient update point when u is interpolated in FAST */
+            list_append(&domain->u_update_list, &u_reference_point); /* push onto the update list */
+          } else {
+            set_universal_error_with_message(map_msg, ierr, MAP_FATAL_25, "Value: <%s>", parsed->entry[i_parsed]->data);
           };
+          next++;
+        } else if (next==2) { /* set initial X node position values */
+          alias = bformat("X[%d]", i+1);                          
+          success = set_vartype_ptr("[m]", alias, i, &node_iter->position_ptr.x, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_17);
+          bdestroy(alias);
+          next++;
+        } else if (next==3) { /* set initial Y node position values */
+          alias = bformat("Y[%d]", i+1);                          
+          success = set_vartype_ptr("[m]", alias, i, &node_iter->position_ptr.y, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_18);
+          bdestroy(alias);
+          next++;
+        } else if (next==4) { /* set initial Z node position values */
+          alias = bformat("Z[%d]", i+1);                          
+          if (biseqcstrcaseless(parsed->entry[i_parsed],"DEPTH")) {         
+            if (node_iter->type!=FIX) { /* can only use 'DEPTH' flag in input file for FIX (anchor) nodes */
+              set_universal_error_with_message(map_msg, ierr, MAP_FATAL_71, "Value: <%s>", parsed->entry[i_parsed]->data);
+            } else {
+              value_string = bformat("%f", -depth);                          
+              success = set_vartype_ptr("[m]", alias, i, &node_iter->position_ptr.z, value_string); CHECKERRQ(MAP_FATAL_19);
+              success = bdestroy(value_string);
+            };
+          } else { /* all other nodes not using the 'DEPTH' flag */
+            success = set_vartype_ptr("[m]", alias, i, &node_iter->position_ptr.z, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_19);
+          };        
+          bdestroy(alias);
+          next++;
+        } else if (next==5) { /* set the node mass */            
+          alias = bformat("M[%d]", i+1);                          
+          success = set_vartype("[kg]", alias, i, &node_iter->M_applied, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_20);
+          bdestroy(alias);
+          next++;  
+        } else if (next==6) { /* set the node buoyancy */
+          alias = bformat("B[%d]", i+1);                          
+          success = set_vartype("[m^3]", alias, i, &node_iter->B_applied, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_21);
+          bdestroy(alias);
+          next++; 
+        } else if (next==7) { /* set applied X external force (or user guess) of the node */                    
+          alias = bformat("FX[%d]", i+1);                          
+          success = set_vartype("[N]", alias, i, &node_iter->external_force.fx, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_22);
+          bdestroy(alias);
+          next++;
+        } else if (next==8) { /* set applied Y external force (or user guess) of the node */            
+          alias = bformat("FY[%d]", i+1);                          
+          success = set_vartype("[N]", alias, i, &node_iter->external_force.fy, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_23);
+          bdestroy(alias);
+          next++;
+        } else if (next==9) { /* set applied Z external force (or user guess) of the node */
+          alias = bformat("FZ[%d]", i+1);                          
+          success = set_vartype("[N]", alias, i, &node_iter->external_force.fz, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_24);
+          bdestroy(alias);
+          next++;
+        } else {            
+          next++;
         };
-        i_parsed++;
       };
-    } while (0);   
+      i_parsed++;
+    };
+  
+    MAP_END_ERROR_LOG;   
+
     success = bstrListDestroy(parsed);
     /* @todo: need to make sure next==9; otherwise not enough inputs and an error should
      *        be thrown
@@ -1900,33 +1919,35 @@ MAP_ERROR_CODE set_node_list(const MAP_ParameterType_t* p_type,  MAP_InputType_t
   /* check to make sure the number of allocated array spaces for fortran derived types matches 
    * what was actually set in the node initialization front end.
    */     
-  do {
-    success = compare_length(other_type->Fx_connect_Len, connect_num); CHECKERRQ(MAP_FATAL_49);
-    success = compare_length(other_type->Fy_connect_Len, connect_num); CHECKERRQ(MAP_FATAL_49);
-    success = compare_length(other_type->Fz_connect_Len, connect_num); CHECKERRQ(MAP_FATAL_49);
+  MAP_BEGIN_ERROR_LOG;
 
-    success = compare_length(other_type->Fx_anchor_Len, fix_num); CHECKERRQ(MAP_FATAL_49); // @todo: change error code
-    success = compare_length(other_type->Fy_anchor_Len, fix_num); CHECKERRQ(MAP_FATAL_49); // @todo: change error code
-    success = compare_length(other_type->Fz_anchor_Len, fix_num); CHECKERRQ(MAP_FATAL_49); // @todo: change error code
+  success = compare_length(other_type->Fx_connect_Len, connect_num); CHECKERRQ(MAP_FATAL_49);
+  success = compare_length(other_type->Fy_connect_Len, connect_num); CHECKERRQ(MAP_FATAL_49);
+  success = compare_length(other_type->Fz_connect_Len, connect_num); CHECKERRQ(MAP_FATAL_49);
 
-    success = compare_length(other_type->x_Len, fix_num); CHECKERRQ(MAP_FATAL_49);
-    success = compare_length(other_type->y_Len, fix_num); CHECKERRQ(MAP_FATAL_49);
-    success = compare_length(other_type->z_Len, fix_num); CHECKERRQ(MAP_FATAL_49);
-              
-    success = compare_length(u_type->x_Len, vessel_num); CHECKERRQ(MAP_FATAL_50);
-    success = compare_length(u_type->y_Len, vessel_num); CHECKERRQ(MAP_FATAL_50);
-    success = compare_length(u_type->z_Len, vessel_num); CHECKERRQ(MAP_FATAL_50);    
-              
-    success = compare_length(y_type->Fx_Len, vessel_num); CHECKERRQ(MAP_FATAL_51);
-    success = compare_length(y_type->Fy_Len, vessel_num); CHECKERRQ(MAP_FATAL_51);
-    success = compare_length(y_type->Fz_Len, vessel_num); CHECKERRQ(MAP_FATAL_51);    
-              
-    success = compare_length(z_type->x_Len, connect_num); CHECKERRQ(MAP_FATAL_52);
-    success = compare_length(z_type->y_Len, connect_num); CHECKERRQ(MAP_FATAL_52);
-    success = compare_length(z_type->z_Len, connect_num); CHECKERRQ(MAP_FATAL_52);    
-  } while (0);  
+  success = compare_length(other_type->Fx_anchor_Len, fix_num); CHECKERRQ(MAP_FATAL_49); // @todo: change error code
+  success = compare_length(other_type->Fy_anchor_Len, fix_num); CHECKERRQ(MAP_FATAL_49); // @todo: change error code
+  success = compare_length(other_type->Fz_anchor_Len, fix_num); CHECKERRQ(MAP_FATAL_49); // @todo: change error code
 
-  MAP_RETURN;
+  success = compare_length(other_type->x_Len, fix_num); CHECKERRQ(MAP_FATAL_49);
+  success = compare_length(other_type->y_Len, fix_num); CHECKERRQ(MAP_FATAL_49);
+  success = compare_length(other_type->z_Len, fix_num); CHECKERRQ(MAP_FATAL_49);
+              
+  success = compare_length(u_type->x_Len, vessel_num); CHECKERRQ(MAP_FATAL_50);
+  success = compare_length(u_type->y_Len, vessel_num); CHECKERRQ(MAP_FATAL_50);
+  success = compare_length(u_type->z_Len, vessel_num); CHECKERRQ(MAP_FATAL_50);    
+              
+  success = compare_length(y_type->Fx_Len, vessel_num); CHECKERRQ(MAP_FATAL_51);
+  success = compare_length(y_type->Fy_Len, vessel_num); CHECKERRQ(MAP_FATAL_51);
+  success = compare_length(y_type->Fz_Len, vessel_num); CHECKERRQ(MAP_FATAL_51);    
+              
+  success = compare_length(z_type->x_Len, connect_num); CHECKERRQ(MAP_FATAL_52);
+  success = compare_length(z_type->y_Len, connect_num); CHECKERRQ(MAP_FATAL_52);
+  success = compare_length(z_type->z_Len, connect_num); CHECKERRQ(MAP_FATAL_52);    
+
+  MAP_END_ERROR_LOG;  
+
+  MAP_RETURN_STATUS(*ierr);
 };
 
 
@@ -2139,45 +2160,49 @@ MAP_ERROR_CODE set_line_list(MAP_ConstraintStateType_t* z_type, Domain* domain, 
     i_parsed = 0;
     next = 0;
     parsed = bsplits(line_input_string->entry[i], &tokens);
-    do {  
-      while (i_parsed<parsed->qty-1) { /* iterating through all strings */              
-        if (parsed->entry[i_parsed]->slen) { /* if the string length is not 0 */
-          if (next==0) { /* use this first option as an opportunity to set the run-time flags to false */             
-            success = associate_vartype_ptr(&line_iter->H, z_type->H, i+1);
-            success = associate_vartype_ptr(&line_iter->V, z_type->V, i+1);
 
-            line_iter->H.is_fixed = false;
-            alias = bformat("H[%d]", i+1);
-            success = set_vartype_ptr("[N]", alias, i, &line_iter->H, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_32);            
-            success = bdestroy(alias);
+    MAP_BEGIN_ERROR_LOG;  
 
-            line_iter->V.is_fixed = false;
-            alias = bformat("V[%d]", i+1);
-            success = set_vartype_ptr("[N]", alias, i, &line_iter->V, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_32);                        
-            success = bdestroy(alias);
+    while (i_parsed<parsed->qty-1) { /* iterating through all strings */              
+      if (parsed->entry[i_parsed]->slen) { /* if the string length is not 0 */
+        if (next==0) { /* use this first option as an opportunity to set the run-time flags to false */             
+          success = associate_vartype_ptr(&line_iter->H, z_type->H, i+1);
+          success = associate_vartype_ptr(&line_iter->V, z_type->V, i+1);
+
+          line_iter->H.is_fixed = false;
+          alias = bformat("H[%d]", i+1);
+          success = set_vartype_ptr("[N]", alias, i, &line_iter->H, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_32);            
+          success = bdestroy(alias);
+
+          line_iter->V.is_fixed = false;
+          alias = bformat("V[%d]", i+1);
+          success = set_vartype_ptr("[N]", alias, i, &line_iter->V, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_32);                        
+          success = bdestroy(alias);
              
-            next++;
-          } else if (next==1) {
-            success = associate_line_with_cable_property(line_iter, domain, parsed->entry[i_parsed]->data, map_msg, ierr); CHECKERRQ(MAP_FATAL_32);           
-            next++;
-          } else if (next==2) { 
-            alias = bformat("Lu[%d]", i+1);
-            success = set_vartype("[m]", alias, i, &line_iter->Lu, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_26);
-            success = bdestroy(alias);
-            next++;
-          } else if (next==3) { 
-            success = associate_line_with_anchor_node(line_iter, domain, i+1, parsed->entry[i_parsed]->data,  map_msg, ierr); CHECKERRQ(MAP_FATAL_32);        
-            next++;
-          } else if (next==4) { 
-            success = associate_line_with_fairlead_node(line_iter, domain, i+1, parsed->entry[i_parsed]->data,  map_msg, ierr); CHECKERRQ(MAP_FATAL_32);        
-            next++;
-          } else { /* set the node mass */            
-            success = set_line_option_flags(parsed, &i_parsed, line_iter, map_msg, ierr);
-          };
+          next++;
+        } else if (next==1) {
+          success = associate_line_with_cable_property(line_iter, domain, parsed->entry[i_parsed]->data, map_msg, ierr); CHECKERRQ(MAP_FATAL_32);           
+          next++;
+        } else if (next==2) { 
+          alias = bformat("Lu[%d]", i+1);
+          success = set_vartype("[m]", alias, i, &line_iter->Lu, parsed->entry[i_parsed]); CHECKERRQ(MAP_FATAL_26);
+          success = bdestroy(alias);
+          next++;
+        } else if (next==3) { 
+          success = associate_line_with_anchor_node(line_iter, domain, i+1, parsed->entry[i_parsed]->data,  map_msg, ierr); CHECKERRQ(MAP_FATAL_32);        
+          next++;
+        } else if (next==4) { 
+          success = associate_line_with_fairlead_node(line_iter, domain, i+1, parsed->entry[i_parsed]->data,  map_msg, ierr); CHECKERRQ(MAP_FATAL_32);        
+          next++;
+        } else { /* set the node mass */            
+          success = set_line_option_flags(parsed, &i_parsed, line_iter, map_msg, ierr);
         };
-        i_parsed++;
       };
-    } while (0);   
+      i_parsed++;
+    };
+
+    MAP_END_ERROR_LOG;   
+
     success = bstrListDestroy(parsed);
   };  
   return MAP_SAFE;

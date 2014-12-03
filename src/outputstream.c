@@ -109,7 +109,7 @@ MAP_ERROR_CODE write_summary_file(InitializationData* init, MAP_ParameterType_t*
   success = write_expanded_input_file_to_summary_file(file, init);
   fclose(file);  
   
-  MAP_RETURN;
+  MAP_RETURN_STATUS(*ierr);
 };
 
 
@@ -587,66 +587,69 @@ MAP_ERROR_CODE write_node_information_to_summary_file(FILE* file, Domain* domain
   unsigned int col = 0;
   MAP_ERROR_CODE success = MAP_SAFE;
 
-  do {
-    for (i=0 ; i<num_nodes ; i+=FOUR) {
-      if (i+FOUR>num_nodes) {
-        num = num_nodes-i;
-      } else {
-        num = FOUR;
-      };    
+  MAP_BEGIN_ERROR_LOG;
 
-      line0 = bformat("");
-      line1 = bformat("");
-      line2 = bformat("");
-      line3 = bformat("");
-      line4 = bformat("");
-      line5 = bformat("");
-      line6 = bformat("");
-      line7 = bformat("");
-      line8 = bformat("");
-      line9 = bformat("");
+  for (i=0 ; i<num_nodes ; i+=FOUR) {
+    if (i+FOUR>num_nodes) {
+      num = num_nodes-i;
+    } else {
+      num = FOUR;
+    };    
 
-      for (col=i ; col<i+num ; col++) {
-        node_iter = (Node*)list_get_at(&domain->node, col);      
-        success = write_node_header_to_summary_file(col-i, col_cnt, col+1, line0); CHECKERRQ(MAP_FATAL_70);
-        success = write_node_type_to_summary_file(col-i, col_cnt, node_iter->type, line1); CHECKERRQ(MAP_FATAL_70);
-        success = write_node_x_position_to_summary_file(col-i, col_cnt, &node_iter->position_ptr.x, line2); CHECKERRQ(MAP_FATAL_70);
-        success = write_node_y_position_to_summary_file(col-i, col_cnt, &node_iter->position_ptr.y, line3); CHECKERRQ(MAP_FATAL_70);
-        success = write_node_z_position_to_summary_file(col-i, col_cnt, &node_iter->position_ptr.z, line4); CHECKERRQ(MAP_FATAL_70);
-        success = write_node_mass_information_to_summary_file(col-i, col_cnt, &node_iter->M_applied, line5); CHECKERRQ(MAP_FATAL_70);
-        success = write_node_buoyancy_information_to_summary_file(col-i, col_cnt, &node_iter->B_applied, line6); CHECKERRQ(MAP_FATAL_70);
-        success = write_node_x_sum_force_to_summary_file(col-i, col_cnt, &node_iter->sum_force_ptr.fx, line7); CHECKERRQ(MAP_FATAL_70);
-        success = write_node_y_sum_force_to_summary_file(col-i, col_cnt, &node_iter->sum_force_ptr.fy, line8); CHECKERRQ(MAP_FATAL_70);
-        success = write_node_z_sum_force_to_summary_file(col-i, col_cnt, &node_iter->sum_force_ptr.fz, line9); CHECKERRQ(MAP_FATAL_70);
-        col_cnt++;
-      };
-      col_cnt = 0;
-      
-      fprintf(file, "%s\n",line0->data);
-      fprintf(file, "          | -------------------------------------------------------------------------------------------\n");
-      fprintf(file, "%s\n",line1->data);
-      fprintf(file, "%s\n",line2->data);
-      fprintf(file, "%s\n",line3->data);
-      fprintf(file, "%s\n",line4->data);
-      fprintf(file, "%s\n",line5->data);
-      fprintf(file, "%s\n",line6->data);
-      fprintf(file, "%s\n",line7->data);
-      fprintf(file, "%s\n",line8->data);
-      fprintf(file, "%s\n\n\n",line9->data);
-      
-      bdestroy(line0);
-      bdestroy(line1);
-      bdestroy(line2);
-      bdestroy(line3);
-      bdestroy(line4);
-      bdestroy(line5);
-      bdestroy(line6);
-      bdestroy(line7);
-      bdestroy(line8);
-      bdestroy(line9);
+    line0 = bformat("");
+    line1 = bformat("");
+    line2 = bformat("");
+    line3 = bformat("");
+    line4 = bformat("");
+    line5 = bformat("");
+    line6 = bformat("");
+    line7 = bformat("");
+    line8 = bformat("");
+    line9 = bformat("");
+
+    for (col=i ; col<i+num ; col++) {
+      node_iter = (Node*)list_get_at(&domain->node, col);      
+      success = write_node_header_to_summary_file(col-i, col_cnt, col+1, line0); CHECKERRQ(MAP_FATAL_70);
+      success = write_node_type_to_summary_file(col-i, col_cnt, node_iter->type, line1); CHECKERRQ(MAP_FATAL_70);
+      success = write_node_x_position_to_summary_file(col-i, col_cnt, &node_iter->position_ptr.x, line2); CHECKERRQ(MAP_FATAL_70);
+      success = write_node_y_position_to_summary_file(col-i, col_cnt, &node_iter->position_ptr.y, line3); CHECKERRQ(MAP_FATAL_70);
+      success = write_node_z_position_to_summary_file(col-i, col_cnt, &node_iter->position_ptr.z, line4); CHECKERRQ(MAP_FATAL_70);
+      success = write_node_mass_information_to_summary_file(col-i, col_cnt, &node_iter->M_applied, line5); CHECKERRQ(MAP_FATAL_70);
+      success = write_node_buoyancy_information_to_summary_file(col-i, col_cnt, &node_iter->B_applied, line6); CHECKERRQ(MAP_FATAL_70);
+      success = write_node_x_sum_force_to_summary_file(col-i, col_cnt, &node_iter->sum_force_ptr.fx, line7); CHECKERRQ(MAP_FATAL_70);
+      success = write_node_y_sum_force_to_summary_file(col-i, col_cnt, &node_iter->sum_force_ptr.fy, line8); CHECKERRQ(MAP_FATAL_70);
+      success = write_node_z_sum_force_to_summary_file(col-i, col_cnt, &node_iter->sum_force_ptr.fz, line9); CHECKERRQ(MAP_FATAL_70);
+      col_cnt++;
     };
-  } while (0);
-  MAP_RETURN;
+    col_cnt = 0;
+      
+    fprintf(file, "%s\n",line0->data);
+    fprintf(file, "          | -------------------------------------------------------------------------------------------\n");
+    fprintf(file, "%s\n",line1->data);
+    fprintf(file, "%s\n",line2->data);
+    fprintf(file, "%s\n",line3->data);
+    fprintf(file, "%s\n",line4->data);
+    fprintf(file, "%s\n",line5->data);
+    fprintf(file, "%s\n",line6->data);
+    fprintf(file, "%s\n",line7->data);
+    fprintf(file, "%s\n",line8->data);
+    fprintf(file, "%s\n\n\n",line9->data);
+      
+    bdestroy(line0);
+    bdestroy(line1);
+    bdestroy(line2);
+    bdestroy(line3);
+    bdestroy(line4);
+    bdestroy(line5);
+    bdestroy(line6);
+    bdestroy(line7);
+    bdestroy(line8);
+    bdestroy(line9);
+  };
+
+  MAP_END_ERROR_LOG;
+
+  MAP_RETURN_STATUS(*ierr);
 };
 
 
