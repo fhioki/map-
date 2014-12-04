@@ -513,49 +513,60 @@ MAP_ERROR_CODE krylov_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type
 };
 
 
-MAP_ERROR_CODE node_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type, MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE newton_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type, MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, char* map_msg, MAP_ERROR_CODE* ierr) 
 {
   OuterSolveAttributes* ns = &domain->outer_loop;
   MAP_ERROR_CODE success = MAP_SAFE;
-  Line* line_iter = NULL;
   const int THREE = 3;
   const int z_size = z_type->z_Len; //N
   double error = 0.0;
   int SIZE = THREE*z_size;
-  int i = 0;
-  
+
   ns->iteration_count = 1;
+  do {
+    error = 0.0;
+    success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr); CHECKERRQ(MAP_FATAL_79);
+    switch (ns->fd) {
+    case BACKWARD_DIFFERENCE :
+      success = backward_difference_jacobian(other_type, p_type, z_type, domain, map_msg, ierr); CHECKERRQ(MAP_FATAL_75);
+      break;
+    case CENTRAL_DIFFERENCE :
+      success = central_difference_jacobian(other_type, p_type, z_type, domain, map_msg, ierr); CHECKERRQ(MAP_FATAL_76);
+      break;
+    case FORWARD_DIFFERENCE :
+      success = forward_difference_jacobian(other_type, p_type, z_type, domain, map_msg, ierr); CHECKERRQ(MAP_FATAL_77);
+      break;
+    };
+    
+    success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr); CHECKERRQ(MAP_FATAL_78);
+    success = root_finding_step(ns, SIZE, z_type, other_type, &error, map_msg, ierr); CHECKERRQ(MAP_FATAL_92);
+    
+    ns->iteration_count++;
+    if (ns->iteration_count>ns->max_its) {
+      set_universal_error(map_msg, ierr, MAP_FATAL_80);
+      break;
+    };    
+    /* @todo: end when iterations is exceeded. need some way to indicate that simulation did not suuficiently 
+     * meet termination criteria
+     */
+  } while (sqrt(error)>ns->tol);
+
+  return MAP_SAFE;
+};
+
+MAP_ERROR_CODE node_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type, MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, char* map_msg, MAP_ERROR_CODE* ierr)
+{  
+  MAP_ERROR_CODE success = MAP_SAFE;
+
+  MAP_BEGIN_ERROR_LOG;
+
   if (domain->outer_loop.krylov_accelerator) {
-    success = krylov_solve_sequence(domain, p_type, u_type, z_type, other_type, map_msg, ierr);//CHECKERRQ(MAP_FATAL_91);
+    success = krylov_solve_sequence(domain, p_type, u_type, z_type, other_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_94);
   } else {
-    do {
-      error = 0.0;
-      success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr); CHECKERRQ(MAP_FATAL_79);
-      switch (ns->fd) {
-      case BACKWARD_DIFFERENCE :
-        success = backward_difference_jacobian(other_type, p_type, z_type, domain, map_msg, ierr); CHECKERRQ(MAP_FATAL_75);
-        break;
-      case CENTRAL_DIFFERENCE :
-        success = central_difference_jacobian(other_type, p_type, z_type, domain, map_msg, ierr); CHECKERRQ(MAP_FATAL_76);
-        break;
-      case FORWARD_DIFFERENCE :
-        success = forward_difference_jacobian(other_type, p_type, z_type, domain, map_msg, ierr); CHECKERRQ(MAP_FATAL_77);
-        break;
-      };
-
-      success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr); CHECKERRQ(MAP_FATAL_78);
-      success = root_finding_step(ns, SIZE, z_type, other_type, &error, map_msg, ierr); CHECKERRQ(MAP_FATAL_92);
-
-      ns->iteration_count++;
-      if (ns->iteration_count>ns->max_its) {
-        set_universal_error(map_msg, ierr, MAP_FATAL_80);
-        break;
-      };    
-      /* @todo: end when iterations is exceeded. need some way to indicate that simulation did not suuficiently 
-       * meet termination criteria
-       */
-    } while (sqrt(error)>ns->tol);
+    success = newton_solve_sequence(domain, p_type, u_type, z_type, other_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_93);
   };    
+
+  MAP_END_ERROR_LOG;
 
   MAP_RETURN_STATUS(success);
 };
