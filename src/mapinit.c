@@ -310,8 +310,7 @@ MAP_ERROR_CODE set_vessel(Vessel* floater, const MAP_InputType_t* u_type, char* 
     floater->xi[i] = u_type->x[i];
     floater->yi[i] = u_type->y[i];
     floater->zi[i] = u_type->z[i];
-  };
-    
+  };    
   return MAP_SAFE;
 };
 
@@ -1765,7 +1764,7 @@ MAP_ERROR_CODE allocate_types_for_nodes(MAP_InputType_t* u_type, MAP_ConstraintS
 };
 
 
-MAP_ERROR_CODE compare_length(int a, int b)
+MAP_ERROR_CODE compare_integer_length(const int a, const int b)
 {
   if (a!=b) {
     return MAP_FATAL;
@@ -1921,29 +1920,29 @@ MAP_ERROR_CODE set_node_list(const MAP_ParameterType_t* p_type,  MAP_InputType_t
    */     
   MAP_BEGIN_ERROR_LOG;
 
-  success = compare_length(other_type->Fx_connect_Len, connect_num); CHECKERRQ(MAP_FATAL_49);
-  success = compare_length(other_type->Fy_connect_Len, connect_num); CHECKERRQ(MAP_FATAL_49);
-  success = compare_length(other_type->Fz_connect_Len, connect_num); CHECKERRQ(MAP_FATAL_49);
+  success = compare_integer_length(other_type->Fx_connect_Len, connect_num); CHECKERRQ(MAP_FATAL_49);
+  success = compare_integer_length(other_type->Fy_connect_Len, connect_num); CHECKERRQ(MAP_FATAL_49);
+  success = compare_integer_length(other_type->Fz_connect_Len, connect_num); CHECKERRQ(MAP_FATAL_49);
 
-  success = compare_length(other_type->Fx_anchor_Len, fix_num); CHECKERRQ(MAP_FATAL_49); // @todo: change error code
-  success = compare_length(other_type->Fy_anchor_Len, fix_num); CHECKERRQ(MAP_FATAL_49); // @todo: change error code
-  success = compare_length(other_type->Fz_anchor_Len, fix_num); CHECKERRQ(MAP_FATAL_49); // @todo: change error code
+  success = compare_integer_length(other_type->Fx_anchor_Len, fix_num); CHECKERRQ(MAP_FATAL_49); // @todo: change error code
+  success = compare_integer_length(other_type->Fy_anchor_Len, fix_num); CHECKERRQ(MAP_FATAL_49); // @todo: change error code
+  success = compare_integer_length(other_type->Fz_anchor_Len, fix_num); CHECKERRQ(MAP_FATAL_49); // @todo: change error code
 
-  success = compare_length(other_type->x_Len, fix_num); CHECKERRQ(MAP_FATAL_49);
-  success = compare_length(other_type->y_Len, fix_num); CHECKERRQ(MAP_FATAL_49);
-  success = compare_length(other_type->z_Len, fix_num); CHECKERRQ(MAP_FATAL_49);
+  success = compare_integer_length(other_type->x_Len, fix_num); CHECKERRQ(MAP_FATAL_49);
+  success = compare_integer_length(other_type->y_Len, fix_num); CHECKERRQ(MAP_FATAL_49);
+  success = compare_integer_length(other_type->z_Len, fix_num); CHECKERRQ(MAP_FATAL_49);
               
-  success = compare_length(u_type->x_Len, vessel_num); CHECKERRQ(MAP_FATAL_50);
-  success = compare_length(u_type->y_Len, vessel_num); CHECKERRQ(MAP_FATAL_50);
-  success = compare_length(u_type->z_Len, vessel_num); CHECKERRQ(MAP_FATAL_50);    
+  success = compare_integer_length(u_type->x_Len, vessel_num); CHECKERRQ(MAP_FATAL_50);
+  success = compare_integer_length(u_type->y_Len, vessel_num); CHECKERRQ(MAP_FATAL_50);
+  success = compare_integer_length(u_type->z_Len, vessel_num); CHECKERRQ(MAP_FATAL_50);    
               
-  success = compare_length(y_type->Fx_Len, vessel_num); CHECKERRQ(MAP_FATAL_51);
-  success = compare_length(y_type->Fy_Len, vessel_num); CHECKERRQ(MAP_FATAL_51);
-  success = compare_length(y_type->Fz_Len, vessel_num); CHECKERRQ(MAP_FATAL_51);    
+  success = compare_integer_length(y_type->Fx_Len, vessel_num); CHECKERRQ(MAP_FATAL_51);
+  success = compare_integer_length(y_type->Fy_Len, vessel_num); CHECKERRQ(MAP_FATAL_51);
+  success = compare_integer_length(y_type->Fz_Len, vessel_num); CHECKERRQ(MAP_FATAL_51);    
               
-  success = compare_length(z_type->x_Len, connect_num); CHECKERRQ(MAP_FATAL_52);
-  success = compare_length(z_type->y_Len, connect_num); CHECKERRQ(MAP_FATAL_52);
-  success = compare_length(z_type->z_Len, connect_num); CHECKERRQ(MAP_FATAL_52);    
+  success = compare_integer_length(z_type->x_Len, connect_num); CHECKERRQ(MAP_FATAL_52);
+  success = compare_integer_length(z_type->y_Len, connect_num); CHECKERRQ(MAP_FATAL_52);
+  success = compare_integer_length(z_type->z_Len, connect_num); CHECKERRQ(MAP_FATAL_52);    
 
   MAP_END_ERROR_LOG;  
 

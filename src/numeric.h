@@ -86,6 +86,22 @@ MAP_ERROR_CODE root_finding_step(OuterSolveAttributes* ns, const int n, MAP_Cons
  */
 MAP_ERROR_CODE call_minpack_lmder(Line* line, InnerSolveAttributes* inner_opt, const int line_num, const double time, char* map_msg, MAP_ERROR_CODE* ierr);
 
+
+/**
+ * @brief   Return the residual and Jacobian for each line
+ * @details Passed as a function pointer to the cminpack lmder routine.
+ *          Used in function {@link call_minpack_lmder} to solve the catenary
+ *          equations. 
+ * @param   line_ptr, the line structure
+ * @param   m,
+ * @param   n,
+ * @param   x, current state vector
+ * @param   fvec, residual vector
+ * @param   fjac, jacobian matrix
+ * @param   ldfjac, 
+ * @param   iflag, solve status; 0 = error
+ * @return  minpack error code
+ */
 int inner_function_evals(void* line_ptr, int m, int n, const __cminpack_real__* x, __cminpack_real__* fvec, __cminpack_real__* fjac, int ldfjac, int iflag);
 
 

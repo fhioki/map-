@@ -38,7 +38,7 @@ MAP_ERROR_CODE root_finding_step(OuterSolveAttributes* ns, const int n, MAP_Cons
 
   success = lu(ns, n, map_msg, ierr); CHECKERRQ(MAP_FATAL_74);
   success = lu_back_substitution(ns, n, map_msg, ierr); CHECKERRQ(MAP_FATAL_74);
-      
+  
   /* Note that: ns->x = J^(-1) * F
    *  [x,y,z]_i+1 =  [x,y,z]_i - J^(-1) * F        
    */   

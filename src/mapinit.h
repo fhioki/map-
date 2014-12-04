@@ -692,7 +692,19 @@ MAP_ERROR_CODE expand_line_flag(const char* word, bstring line);
 
 MAP_ERROR_CODE set_vartype_ptr(const char* unit, bstring alias, const int num, VarTypePtr* type, bstring property);
 MAP_ERROR_CODE set_vartype(const char* unit, bstring alias, const int num, VarType* type, bstring property );
-MAP_ERROR_CODE compare_length(int a, int b);
+
+
+/**
+ * @brief   Compares two integers.
+ * @details Used in comparing the size of a MAP state against iteration count. 
+ *          Used in {@link set_node_list()}
+ * @param   a, an integer 
+ * @param   b, an integer
+ * @return  MAP_FATAL if a != b; otherwise safe
+ */
+MAP_ERROR_CODE compare_integer_length(const int a, const int b);
+
+
 // MAP_ERROR_CODE set_line_vartype(Line* line_ptr, const int i); @rm
 MAP_ERROR_CODE associate_line_with_cable_property(Line* line_ptr, Domain* domain, const char* word, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE associate_line_with_anchor_node(Line* line_ptr, Domain* domain, const int line_num, const char* word, char* map_msg, MAP_ERROR_CODE* ierr);
