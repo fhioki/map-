@@ -206,9 +206,9 @@ MAP_EXTERNCALL void map_update_states(double t,
      };
    };
    
-   if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
+   if (domain->MAP_SOLVE_TYPE==MONOLITHIC) { /* if the line has no CONNECT object ... */
      success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
-   } else {
+   } else { /* the line does have CONNECT object defined ... */
      success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
    };    
 
@@ -1034,10 +1034,12 @@ MAP_EXTERNCALL void map_add_cable_library_input_text(MAP_InitInputType_t* init_t
   InitializationData* init_data = init_type->object; 
   const int n = init_data->library_input_string->qty;
   int ret = 0;
-  
+
   ret = bstrListAlloc(init_data->library_input_string, n+1);
   init_data->library_input_string->entry[n] = bfromcstr(init_type->library_input_str);
   init_data->library_input_string->qty++;
+
+  // printf("::: <%s>\n",init_data->library_input_string->entry[n]->data);
 };
 
 
@@ -1050,6 +1052,8 @@ MAP_EXTERNCALL void map_add_node_input_text(MAP_InitInputType_t* init_type)
   ret = bstrListAlloc(init_data->node_input_string, n+1);
   init_data->node_input_string->entry[n] = bfromcstr(init_type->node_input_str);
   init_data->node_input_string->qty++;
+
+  // printf("::: <%s>\n",init_data->node_input_string->entry[n]->data);
 };
 
 
@@ -1058,10 +1062,12 @@ MAP_EXTERNCALL void map_add_line_input_text(MAP_InitInputType_t* init_type)
   InitializationData* init_data = init_type->object; 
   const int n = init_data->line_input_string->qty;
   int ret = 0;
-  
+
   ret = bstrListAlloc(init_data->line_input_string, n+1);
   init_data->line_input_string->entry[n] = bfromcstr(init_type->line_input_str);
   init_data->line_input_string->qty++;
+
+  // printf("::: <%s>\n",init_data->line_input_string->entry[n]->data);
 };
 
 
@@ -1074,6 +1080,8 @@ MAP_EXTERNCALL void map_add_options_input_text(MAP_InitInputType_t* init_type)
   ret = bstrListAlloc(init_data->solver_options_string, n+1);
   init_data->solver_options_string->entry[n] = bfromcstr(init_type->option_input_str);
   init_data->solver_options_string->qty++;
+
+  // printf("::: <%s>\n",init_data->solver_options_string->entry[n]->data);
 };
 
 

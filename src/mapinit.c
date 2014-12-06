@@ -2689,7 +2689,6 @@ MAP_ERROR_CODE print_help_to_screen()
   printf("    -NodeAnch, --Anchor node number corresponding to 'Node Property Definitions' section [-]\n");
   printf("    -NodeFair, --Fairlead node number corresponding to 'Node Property Definitions' section [-]\n");
   printf("    -Flags,    --User run-time flag; see below [-]\n");
-
   printf("    \n");
   printf("  Line run-time options definitions\n");
   printf("    Outputs:\n");
@@ -2741,14 +2740,14 @@ MAP_ERROR_CODE print_help_to_screen()
   printf("      -cb_default      --Seabed damping parameter\n");
   printf("      -wave_kinematics --Enables wave kinematics to drag interaction from surface waves\n");
   printf("      -lm_model        --Enable the lumped-mass model\n");
-  printf( "\nMAP++ Copyright (C) 2014 and GNU GPL by Marco Masciola and others\n" );
+  printf( "\nMAP++ Copyright (C) 2014 and Apache'd by Marco Masciola and others\n" );
   printf( "SimCList Copyright (C) 2010 by Mij <http://mij.oltrelinux.com/devel/simclist/>\n" );
   printf( "MinPack Copyright (C) 1999 by the University of Chicago\n" );
   printf( "Modifications to MinPack by Frederic Devernay <http://devernay.free.fr/hacks/cminpack/>\n" );
   printf( "\nMAP++ is free software; see the source for copying conditions.\n" );
   printf( "This software is distributed on an \"AS IS\" BASIS, WITHOUT WARRANTIES\n" );
   printf( "OR CONDITIONS OF ANY KIND, either express or implied. See\n" );
-  printf( "<https://gnu.org/licenses/gpl.html> for more details.\n" );
+  printf( "<http://www.apache.org/licenses/LICENSE-2.0> forr more details.\n" );
   printf("    \n");
   return MAP_SAFE;
 };

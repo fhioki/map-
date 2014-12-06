@@ -1,6 +1,6 @@
 Outputs were generated using MAP++ caec-dirty.
 
-    Thursday December 04-2014 at 09:51:54 AM
+    Thursday December 04-2014 at 10:43:24 AM
 
     Gravity constant          [m/s^2]  : 9.81
     Sea density               [kg/m^3] : 1020.00
@@ -350,7 +350,7 @@ Line  LineType  UnstrLen  NodeAnch  NodeFair  Flags
 ---------------------- SOLVER OPTIONS-----------------------------------------
 Option 
 [-] 
- help
+help
  integration_dt 0
  kb_default 3.0e6
  cb_default 3.0e5

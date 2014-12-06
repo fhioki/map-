@@ -30,10 +30,43 @@
 
 MAP_ERROR_CODE initialize_fortran_types(MAP_InputType_t* u_type, MAP_ParameterType_t* p_type, MAP_ContinuousStateType_t* x_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type, MAP_InitOutputType_t* initout_type);
 MAP_ERROR_CODE allocate_outlist(Domain* data, char* map_msg, MAP_ERROR_CODE* ierr);
+
+
+/**
+ * @brief   Returns the size of CableLibrary structure for link list creation
+ * @param   el, opaque object used in simclist
+ * @see     map_init()
+ * @return  Size of CableLibrary structure
+ */
 size_t cable_library_meter(const void* el);
+
+
+/**
+ * @brief   Returns the size of Node structure for link list creation
+ * @param   el, opaque object used in simclist
+ * @see     map_init()
+ * @return  Size of Node structure
+ */
 size_t node_meter(const void* el);
-size_t cable_line_meter( const void* el);
+
+
+/**
+ * @brief   Returns the size of Line structure for link list creation
+ * @param   el, opaque object used in simclist
+ * @see     map_init()
+ * @return  Size of Line structure
+ */
+size_t cable_line_meter(const void* el);
+
+
+/**
+ * @brief   Returns the size of ReferencePoint (inputs) structure for link list creation
+ * @param   el, opaque object used in simclist
+ * @see     map_init()
+ * @return  Size of ReferencePoint (inputs) structure
+ */
 size_t u_list_meter(const void *el); 
+
 
 /**
  * @brief   Initializes the Fortran/C iteroperability types

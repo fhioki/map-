@@ -84,7 +84,7 @@ MODULE MAP
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
        TYPE( MAP_InitInputType_C ) interf                                                        !          |
-       CHARACTER(KIND=C_CHAR),DIMENSION(*) :: msg                                                !          |
+       CHARACTER(KIND=C_CHAR), DIMENSION(1024) :: msg                                            !          |
        INTEGER(KIND=C_INT) :: err                                                                !          |
      END SUBROUTINE MAP_set_summary_file_name                                                    !          |
   END INTERFACE                                                                                  !   -------+
@@ -182,11 +182,11 @@ MODULE MAP
                            FC_InitOut , &                                                        !          |
                            err        , &                                                        !          |
                            msg )        &                                                        !          |
-                           bind(C,name='map_init')                                      !          |
+                           bind(C,name='map_init')                                               !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
        INTEGER(KIND=C_INT) :: err                                                                !          |
-       CHARACTER(KIND=C_CHAR),DIMENSION(*) :: msg                                                !          |
+       CHARACTER(KIND=C_CHAR),DIMENSION(1024) :: msg                                             !          |
        TYPE( MAP_InitInputType_C ) FC_InitInp                                                    !          |
        TYPE( MAP_InitOutputType_C ) FC_InitOut                                                   !          |
        TYPE( MAP_InputType_C ) FC_u                                                              !          |
@@ -222,7 +222,7 @@ MODULE MAP
        REAL(KIND=C_FLOAT) , VALUE :: time                                                        !          |
        INTEGER(KIND=C_INT) , VALUE :: n                                                          !          |
        INTEGER(KIND=C_INT) :: err                                                                !          |
-       CHARACTER(KIND=C_CHAR),DIMENSION(*) :: msg                                                !          |
+       CHARACTER(KIND=C_CHAR),DIMENSION(1024) :: msg                                             !          |
        TYPE( MAP_InputType_C ) FC_u                                                              !          |
        TYPE( MAP_ParameterType_C ) FC_p                                                          !          |
        TYPE( MAP_ContinuousStateType_C ) FC_x                                                    !          |
@@ -254,7 +254,7 @@ MODULE MAP
        IMPLICIT NONE                                                                             !          |
        REAL(KIND=C_FLOAT) , VALUE :: time                                                        !          |
        INTEGER(KIND=C_INT) :: err                                                                !          |
-       CHARACTER(KIND=C_CHAR),DIMENSION(*) :: msg                                                !          |
+       CHARACTER(KIND=C_CHAR),DIMENSION(1024) :: msg                                             !          |
        TYPE( MAP_InputType_C ) FC_u                                                              !          |
        TYPE( MAP_ParameterType_C ) FC_p                                                          !          |
        TYPE( MAP_ContinuousStateType_C ) FC_x                                                    !          |
@@ -285,7 +285,7 @@ MODULE MAP
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
        INTEGER(KIND=C_INT) :: err                                                                !          |
-       CHARACTER(KIND=C_CHAR),DIMENSION(*) :: msg                                                !          |
+       CHARACTER(KIND=C_CHAR),DIMENSION(1024) :: msg                                             !          |
        TYPE( MAP_InputType_C ) FC_u                                                              !          |
        TYPE( MAP_ParameterType_C ) FC_p                                                          !          |
        TYPE( MAP_ContinuousStateType_C ) FC_x                                                    !          |
@@ -364,7 +364,7 @@ CONTAINS
        CALL MAP_CheckError("MAP ERROR: cannot read the MAP input file.",ErrMSg)
        RETURN
     END IF
-
+    
     ! This binds MSQS_Init function in C++ with Fortran
     CALL MSQS_Init(InitInp%C_obj   , &
                    u%C_obj         , &
@@ -491,17 +491,17 @@ CONTAINS
     ! End mesh initialization                                          !   -------+
     !==============================================================================
          
-    ! Give the program discription (name, version number, date)
-    I = INDEX(InitOut%C_obj%version, '>' ) - 1 
-    IF (I>0) InitOut%version = InitOut%C_obj%version(1:I) 
-    
-    I = INDEX( InitOut%C_obj%compilingData, '>' ) - 1 
-    IF (I>0) InitOut%compilingData = InitOut%C_obj%compilingData(1:I)
-    
-    InitOut%Ver = ProgDesc('MAP++',TRIM(InitOut%version),TRIM(InitOut%compilingData))
-    
-    WRITE(*,*) InitOut%WriteOutputHdr ! @bonnie : this is artificial. Remove.
-    WRITE(*,*) InitOut%WriteOutputUnt ! @bonnie : this is artificial. Remove.
+    ! ! Give the program discription (name, version number, date)
+    ! I = INDEX(InitOut%C_obj%version, '>' ) - 1 
+    ! IF (I>0) InitOut%version = InitOut%C_obj%version(1:I) 
+    ! 
+    ! I = INDEX( InitOut%C_obj%compilingData, '>' ) - 1 
+    ! IF (I>0) InitOut%compilingData = InitOut%C_obj%compilingData(1:I)
+    ! 
+    ! InitOut%Ver = ProgDesc('MAP++',TRIM(InitOut%version),TRIM(InitOut%compilingData))
+    ! 
+    ! WRITE(*,*) InitOut%WriteOutputHdr ! @bonnie : this is artificial. Remove.
+    ! WRITE(*,*) InitOut%WriteOutputUnt ! @bonnie : this is artificial. Remove.
   END SUBROUTINE MAP_Init                                                                        !   -------+
   !==========================================================================================================
 
@@ -672,7 +672,6 @@ CONTAINS
     ErrStat = ErrID_None                                                                 
     ErrMsg  = ""                                                                             
 
-    WRITE(*,*) "deleting something"
     CALL MSQS_End( u%C_obj         , &                                                   
                    p%C_obj         , &                                                   
                    x%C_obj         , &                                                   
@@ -711,89 +710,99 @@ CONTAINS
 
  ! ==========   MAP_ReadInputFileContents   ======     <---------------------------------------------------+
  !                                                                                              !          |
- ! Reads the MAP input files. Assumes the MAP input file is formated as demonstrated with the   !          |
- !   MAP distruction archives. Any changes to the format, and this read function may fail.      !          |
- SUBROUTINE map_read_input_file_contents(file, InitInp, ErrStat)                                !          |
-   TYPE( MAP_InitInputType ) , INTENT(INOUT)       :: InitInp                                   !          |
-   CHARACTER(255) , INTENT(IN   )                  :: file                                      !          |
-   INTEGER(IntKi),                   INTENT(  OUT) :: ErrStat                                   !          |
-   INTEGER                                         :: success                                   !          |
-   INTEGER                                         :: index_begn=1                              !          |
-   INTEGER                                         :: index_cabl=0                              !          |
-   INTEGER                                         :: index_node=0                              !          |
-   INTEGER                                         :: index_elem=0                              !          |
-   INTEGER                                         :: index_optn=0                              !          |
-   CHARACTER(255)                                  :: temp                                      !          |
-   ! Open the MAP input file                                                                    !          |
-   OPEN ( UNIT=1 , FILE=file )                                                                  !          |
-                                                                                                !          |
-   ! Read the contents of the MAP input file                                                    !          |
-   !==========   MAP_InitInpInputType   ======     <--------------------------+                 !          | 
-   DO                                                              !          |                 !          |
-      ! read one line of the MAP input file                        !          |                 !          |
-      READ( 1 , '(A)' , IOSTAT=success ) temp                      !          |                 !          |
-                                                                   !          |                 !          |
-      ! we are no longer reading the MAP input file if we          !          |                 !          |
-      !   reached the end                                          !          |                 !          |
-      IF ( success.NE.0 ) EXIT                                     !          |                 !          |
-      ! @bonnie : I figure the NWTC lib has something more cleaver !          |                 !          |
-      !           than what I would create to check if the MAP     !          |                 !          |
-      !           input file even exists in the directory it's     !          |                 !          |
-      !           looking in.                                      !          |                 !          |
-                                                                   !          |                 !          |
-      ! populate the cable library parameter                       !          |                 !          |
-      IF ( index_begn.EQ.1 ) THEN                                  !          |                 !          |
-         index_cabl = index_cabl + 1                               !          |                 !          |
-         IF ( index_cabl.GE.4 ) THEN                               !          |                 !          |
-            IF ( temp(1:1).EQ."-" ) THEN                           !          |                 !          |
-               index_begn=2                                        !          |                 !          |
-            ELSE                                                   !          |                 !          |
-               InitInp%C_obj%library_input_str = temp              !          |                 !          |
-               CALL MAP_SetCableLibraryData(InitInp%C_obj)         !          |                 !          |
-            END IF                                                 !          |                 !          |
-         END IF                                                    !          |                 !          |
-      END IF                                                       !          |                 !          |
-                                                                   !          |                 !          |
-                                                                   !          |                 !          |
-      ! populate the node parameter                                !          |                 !          |
-      IF ( index_begn.EQ.2 ) THEN                                  !          |                 !          |
-         index_node = index_node + 1                               !          |                 !          |
-         IF ( index_node.GE.4 ) THEN                               !          |                 !          |
-            IF ( temp(1:1).EQ."-" ) THEN                           !          |                 !          |
-               index_begn=3                                        !          |                 !          |
-            ELSE                                                   !          |                 !          |
-               InitInp%C_obj%node_input_str = temp                 !          |                 !          |
-               CALL MAP_SetNodeData(InitInp%C_obj)                 !          |                 !          |
-            END IF                                                 !          |                 !          |
-         END IF                                                    !          |                 !          |
-      END IF                                                       !          |                 !          |
-                                                                   !          |                 !          |
-                                                                   !          |                 !          |
-      ! populate the element parameter                             !          |                 !          |
-      IF ( index_begn.EQ.3 ) THEN                                  !          |                 !          |
-         index_elem = index_elem + 1                               !          |                 !          |
-         IF ( index_elem.GE.4 ) THEN                               !          |                 !          |
-            IF ( temp(1:1).EQ."-" ) THEN                           !          |                 !          |
-               index_begn=4                                        !          |                 !          |
-            ELSE                                                   !          |                 !          |
-               InitInp%C_obj%line_input_str = temp                 !          |                 !          |
-                CALL MAP_SetElementData(InitInp%C_obj)             !          |                 !          |
-            END IF                                                 !          |                 !          |
-         END IF                                                    !          |                 !          |
-      END IF                                                       !          |                 !          |
-                                                                   !          |                 !          |
-                                                                   !          |                 !          |
-      ! populate the solver options                                !          |                 !          |
-      IF ( index_begn.EQ.4 ) THEN                                  !          |                 !          |
-         index_optn = index_optn + 1                               !          |                 !          |
-         IF ( index_optn.GE.4 ) THEN                               !          |                 !          |
-            IF ( temp(1:1).NE."!" )  THEN                          !          |                 !          |
-               InitInp%C_obj%option_input_str = temp               !          |                 !          |
-               CALL MAP_SetSolverOptions(InitInp%C_obj)            !          |                 !          |
-            END IF                                                 !          |                 !          |
-         END IF                                                    !          |                 !          |
-      END IF                                                       !          |                 !          |
-                                                                   !          |                 !          |
+ ! Reads the MAP input files. Assumes the MAP input file is formated as demonstrated with the 
+ !   MAP distruction archives. Any changes to the format, and this read function may fail.    
+ SUBROUTINE map_read_input_file_contents(file, InitInp, ErrStat)                              
+   TYPE( MAP_InitInputType ) , INTENT(INOUT)       :: InitInp                     
+   CHARACTER(255) , INTENT(IN   )                  :: file                        
+   INTEGER(IntKi),                   INTENT(  OUT) :: ErrStat                     
+   INTEGER                                         :: success                     
+   INTEGER                                         :: index_begn=1                
+   INTEGER                                         :: index_cabl=0                
+   INTEGER                                         :: index_node=0                
+   INTEGER                                         :: index_elem=0                
+   INTEGER                                         :: index_optn=0                
+   INTEGER                                         :: i = 0
+   CHARACTER(255)                                  :: line
+
+   ! Open the MAP input file                                                      
+   OPEN(UNIT=1, FILE=file)                                                        
+                                                                                  
+   ! Read the contents of the MAP input file                                      
+   !==========   MAP_InitInpInputType   ======     <--------------------------+    
+   DO                                                              !          |   
+      READ(1 ,'(A)', IOSTAT=success) line                   
+                                                            
+      ! we are no longer reading the MAP input file if we   
+      !   reached the end                                   
+      IF(success.NE.0) EXIT                                 
+                                                            
+      ! populate the cable library parameter                
+      IF ( index_begn.EQ.1 ) THEN                           
+         index_cabl = index_cabl + 1                        
+         IF ( index_cabl.GE.4 ) THEN                        
+            IF ( line(1:1).EQ."-" ) THEN                    
+               index_begn=2                                 
+            ELSE
+               DO i = 1,LEN_TRIM(line)
+                  InitInp%C_obj%library_input_str(i) = line(i:i)   
+               END DO
+               InitInp%C_obj%library_input_str(LEN_TRIM(line)+1) = C_NULL_CHAR
+               CALL MAP_SetCableLibraryData(InitInp%C_obj)                 
+            END IF                                          
+         END IF                                             
+      END IF
+                                                            
+                                                  
+      ! populate the node parameter               
+      IF ( index_begn.EQ.2 ) THEN                 
+         index_node = index_node + 1              
+         IF ( index_node.GE.4 ) THEN              
+            IF ( line(1:1).EQ."-" ) THEN          
+               index_begn=3                       
+            ELSE
+               DO i = 1,LEN_TRIM(line)
+                  InitInp%C_obj%node_input_str(i) = line(i:i)   
+               END DO
+               InitInp%C_obj%node_input_str(LEN_TRIM(line)+1) = C_NULL_CHAR
+               CALL MAP_SetNodeData(InitInp%C_obj)
+            END IF                                
+         END IF                                   
+      END IF                                      
+                                                  
+      
+      ! populate the element parameter                 
+      IF ( index_begn.EQ.3 ) THEN                      
+         index_elem = index_elem + 1                   
+         IF ( index_elem.GE.4 ) THEN                   
+            IF ( line(1:1).EQ."-" ) THEN               
+               index_begn=4                            
+            ELSE
+               DO i = 1,LEN_TRIM(line)
+                  ! write(*,*) i, ' ' , len_trim(line)
+                  InitInp%C_obj%line_input_str(i) = line(i:i)   
+               END DO
+               InitInp%C_obj%line_input_str(LEN_TRIM(line)+1) = C_NULL_CHAR
+               CALL MAP_SetElementData(InitInp%C_obj) 
+            END IF                                     
+         END IF                                        
+      END IF                                           
+                                                        
+                                                        
+      ! populate the solver options                    
+      IF ( index_begn.EQ.4 ) THEN                      
+         index_optn = index_optn + 1                   
+         IF ( index_optn.GE.4 ) THEN                   
+            IF ( line(1:1).NE."!" )  THEN              
+               DO i = 1,LEN_TRIM(line)
+                  InitInp%C_obj%option_input_str(i) = line(i:i)   
+               END DO
+               InitInp%C_obj%option_input_str(LEN_TRIM(line)+1) = C_NULL_CHAR
+               CALL MAP_SetSolverOptions(InitInp%C_obj)
+            END IF                                     
+         END IF                                        
+      END IF                                           
+                                                         
    END DO                                                          !   -------+                 !          |
    !===========================================================================                 !          |
                                                                                                 !          |

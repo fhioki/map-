@@ -39,13 +39,13 @@ void MAP_OtherState_Delete(Domain* domain)
 MAP_ERROR_CODE free_outlist(Domain* domain, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   VarTypePtr* vartype_ptr = NULL;
-  // list_iterator_start(&domain->y_list->out_list_ptr);
-  // while (list_iterator_hasnext(&domain->y_list->out_list_ptr)) { 
-  //   vartype_ptr = (VarTypePtr*)list_iterator_next(&domain->y_list->out_list_ptr);
-  //   // bdestroy(vartype_ptr->name);
-  //   // bdestroy(vartype_ptr->units);
-  // };
-  // list_iterator_stop(&domain->y_list->out_list_ptr);     
+  list_iterator_start(&domain->y_list->out_list_ptr);
+  while (list_iterator_hasnext(&domain->y_list->out_list_ptr)) { 
+    vartype_ptr = (VarTypePtr*)list_iterator_next(&domain->y_list->out_list_ptr);
+    bdestroy(vartype_ptr->name);
+    bdestroy(vartype_ptr->units);
+  };
+  list_iterator_stop(&domain->y_list->out_list_ptr);     
 
   // @rm y_list->out_list no longer exists/is useful 
   list_destroy(&domain->y_list->out_list);    /* destroy output lists for writting information to output file */

@@ -22,7 +22,7 @@ Line    LineType  UnstrLen  NodeAnch  NodeFair  Flags
 ---------------------- SOLVER OPTIONS-----------------------------------------
 Option 
 (-) 
- help
+help
  integration_dt 0
  kb_default 3.0e6
  cb_default 3.0e5

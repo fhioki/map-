@@ -329,7 +329,6 @@ MAP_ERROR_CODE set_line_initial_guess(Domain* domain, char* map_msg, MAP_ERROR_C
 };
 
 
-
 MAP_ERROR_CODE line_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type, double t, char* map_msg, MAP_ERROR_CODE* ierr) 
 {
   MAP_ERROR_CODE success = MAP_SAFE;
@@ -546,6 +545,7 @@ MAP_ERROR_CODE newton_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type
       set_universal_error(map_msg, ierr, MAP_FATAL_80);
       break;
     };    
+
     /* @todo: end when iterations is exceeded. need some way to indicate that simulation did not suuficiently 
      * meet termination criteria
      */
@@ -553,6 +553,7 @@ MAP_ERROR_CODE newton_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type
 
   return MAP_SAFE;
 };
+
 
 MAP_ERROR_CODE node_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type, MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, char* map_msg, MAP_ERROR_CODE* ierr)
 {  

@@ -41,12 +41,12 @@ IMPLICIT NONE
     REAL(KIND=C_DOUBLE) :: gravity 
     REAL(KIND=C_DOUBLE) :: sea_density 
     REAL(KIND=C_DOUBLE) :: depth 
-    CHARACTER(KIND=C_CHAR,LEN=255) :: file_name 
-    CHARACTER(KIND=C_CHAR,LEN=255) :: summary_file_name 
-    CHARACTER(KIND=C_CHAR,LEN=255) :: library_input_str 
-    CHARACTER(KIND=C_CHAR,LEN=255) :: node_input_str 
-    CHARACTER(KIND=C_CHAR,LEN=255) :: line_input_str 
-    CHARACTER(KIND=C_CHAR,LEN=255) :: option_input_str 
+    CHARACTER(KIND=C_CHAR), DIMENSION(255) :: file_name 
+    CHARACTER(KIND=C_CHAR), DIMENSION(255) :: summary_file_name 
+    CHARACTER(KIND=C_CHAR), DIMENSION(255) :: library_input_str 
+    CHARACTER(KIND=C_CHAR), DIMENSION(255) :: node_input_str 
+    CHARACTER(KIND=C_CHAR), DIMENSION(255) :: line_input_str 
+    CHARACTER(KIND=C_CHAR), DIMENSION(255) :: option_input_str 
   END TYPE MAP_InitInputType_C
   TYPE, PUBLIC :: MAP_InitInputType
     TYPE( c_ptr ) :: MAP_UserData = C_NULL_ptr
@@ -65,9 +65,9 @@ IMPLICIT NONE
 ! =========  MAP_InitOutputType  =======
   TYPE, BIND(C) :: MAP_InitOutputType_C
     TYPE( MAP_InitOutput_C ) :: object
-    CHARACTER(KIND=C_CHAR,LEN=99) :: progName 
-    CHARACTER(KIND=C_CHAR,LEN=99) :: version 
-    CHARACTER(KIND=C_CHAR,LEN=24) :: compilingData 
+    CHARACTER(KIND=C_CHAR), DIMENSION(99) :: progName 
+    CHARACTER(KIND=C_CHAR), DIMENSION(99) :: version 
+    CHARACTER(KIND=C_CHAR), DIMENSION(24) :: compilingData 
     TYPE(C_ptr) :: writeOutputHdr = C_NULL_PTR 
     INTEGER(C_int) :: writeOutputHdr_Len = 0 
     TYPE(C_ptr) :: writeOutputUnt = C_NULL_PTR 

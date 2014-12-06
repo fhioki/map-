@@ -92,7 +92,7 @@ PROGRAM Main
       CALL WrScr(ErrMsg) 
    END IF  
 
-   CALL DispNVD(InitOutData_MAP%Ver) 
+   ! CALL DispNVD(InitOutData_MAP%Ver) 
 
 
    CALL MAP_DestroyInitInput(InitInData_MAP, ErrStat, ErrMsg)    
@@ -124,137 +124,137 @@ PROGRAM Main
    ! END IF
      
    
-   ! -------------------------------------------------------------------------
-   ! BEGIN time marching
-   ! -------------------------------------------------------------------------
-   DO n_t_global = 0, n_t_final
-      t_global =  t_initial + dt_global*n_t_global
-       
-      !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      ! Step 1.a: Extrapolate Inputs (gives predicted values at t+dt
-      ! 
-      ! a) Extrapolate inputs (and outputs -- bjj: output extrapolation not necessary, yet) 
-      !    to t + dt (i.e., t_global_next); will only be used by modules with an implicit dependence on input data.
-      ! b) Shift "window" of the ModName_Input and ModName_Output
-      !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
-      ! MAP
-      CALL MAP_Input_ExtrapInterp(MAP_Input, MAP_InputTimes, u_MAP, t_global, ErrStat, ErrMsg)
-      CALL CheckError(ErrStat,'Message from MAP_Input_ExtrapInterp (FAST): '//NewLine//ErrMsg )              
-      DO j = MAP_interp_order, 1, -1
-         CALL MAP_CopyInput (MAP_Input(j),  MAP_Input(j+1),  MESH_UPDATECOPY, Errstat, ErrMsg)
-         MAP_InputTimes(j+1) = MAP_InputTimes(j)
-      END DO
-   
-      CALL MAP_CopyInput (u_MAP,  MAP_Input(1),  MESH_UPDATECOPY, Errstat, ErrMsg)
-      MAP_InputTimes(1) = t_global          
-   
-   
-      !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      ! Step 1.b: Advance states (yield state and constraint values at t_global_next)
-      !
-      ! x, xd, and z contain val0ues at t_global;
-      ! values at t_global_next are stored in the *_pred variables.
-      !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      !----------------------------------------------------------------------------------------
-      ! copy the states at step t_global and get prediction for step t_global_next
-      ! (note that we need to copy the states because UpdateStates updates the values
-      ! and we need to have the old values [at t_global] for the next j_pc step)
-      !----------------------------------------------------------------------------------------
-      ! ElastoDyn: get predicted states
-      ! AeroDyn: get predicted states
-      ! ServoDyn: get predicted states
-      ! HydroDyn: get predicted states
-      ! SubDyn: get predicted states
-      ! MAP/FEAM: get predicted states
-   
-      CALL MAP_CopyContState   ( x_MAP,  x_MAP_pred, MESH_UPDATECOPY, Errstat, ErrMsg)
-      CALL MAP_CopyDiscState   (xd_MAP, xd_MAP_pred, MESH_UPDATECOPY, Errstat, ErrMsg)  
-      CALL MAP_CopyConstrState ( z_MAP,  z_MAP_pred, MESH_UPDATECOPY, Errstat, ErrMsg)
-      
-      ! IF ( p_FAST%n_substeps( Module_MAP ) > 1 ) THEN
-      !    CALL MAP_CopyOtherState( OtherSt_MAP, OtherSt_MAP_old, MESH_UPDATECOPY, Errstat, ErrMsg)
-      ! END IF
-          
-      DO j_ss = 1, 1 !p_FAST%n_substeps( Module_MAP )
-         ! n_t_module = n_t_global*p_FAST%n_substeps( Module_MAP ) + j_ss - 1
-         ! t_module   = n_t_module*p_FAST%dt_module( Module_MAP )           
-         CALL  MAP_UpdateStates(t_global       , &
-                                n_t_global     , &
-                                MAP_Input      , &
-                                MAP_InputTimes , &
-                                p_MAP          , &
-                                x_MAP          , &
-                                xd_MAP         , &
-                                z_MAP          , &
-                                other_MAP      , &
-                                ErrStat        , &
-                                ErrMsg )    
-         IF (ErrStat.NE.0) THEN
-            CALL WrScr(ErrMsg) 
-         END IF
-         ! CALL CheckError( ErrStat, 'Message from MAP_UpdateStates: '//NewLine//ErrMsg )
-      END DO !j_ss
-         
-      
-      ! !==========   NOTE   ======     <-----------------------------------------+
-      ! ! @bonnie : I am assuming this MAP_InputTimes{:} and MAP_Input{:} 
-      ! !           will be assigned by the glue code   
-      ! 
-      ! MAP_InputTimes(1) = t_global + dt_global
-      ! ! MAP_InputTimes(2) = MAP_InputTimes(1) - dt_global 
-      ! ! MAP_InputTimes(3) = MAP_InputTimes(2) - dt_global
-      ! 
-      MAP_Input(1)%PtFairDisplacement%TranslationDisp(1,1) = 1*n_t_global  
-      ! ! MAP_Input(2)%PtFairDisplacement%TranslationDisp(1,1) = 1*n_t_global  
-      ! ! MAP_Input(3)%PtFairDisplacement%TranslationDisp(1,1) = 1*n_t_global  
-      ! !===========================================================================
-           
-      ! @bonnie & @jason: the FAST glue code will update the new fairlead position 
-      !                   based on the new platform position in the global frame.
-      ! CALL MAP_CalcOutput( this_time, MAP_Input(1), p_MAP, x_MAP_this, xd_MAP_this, z_MAP_this, OtherSt_MAP, y_MAP, ErrStat, ErrMsg )
-      CALL MAP_CalcOutput(t_global     , &
-                          MAP_Input(1) , &
-                          p_MAP        , &
-                          x_MAP        , &
-                          xd_MAP       , &
-                          z_MAP        , &
-                          other_MAP    , &
-                          y_MAP        , &
-                          ErrStat      , &
-                          ErrMsg )
-      IF (ErrStat.NE.0) THEN
-         CALL WrScr(ErrMsg) 
-      END IF
-   
-   
-   
-      !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      ! Step 2: Correct (continue in loop) 
-      !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      ! IF ( j_pc /= p_FAST%NumCrctn)  THEN          ! Don't copy these on the last loop iteration...                  
-      !    IF ( p_FAST%n_substeps( Module_MAP ) > 1 ) THEN
-      !       CALL MAP_CopyOtherState( OtherSt_MAP_old, OtherSt_MAP, MESH_UPDATECOPY, Errstat, ErrMsg)
-      !    ELSEIF ( p_FAST%n_substeps( Module_FEAM ) > 1 ) THEN
-      !       CALL FEAM_CopyOtherState( OtherSt_FEAM_old, OtherSt_FEAM, MESH_UPDATECOPY, Errstat, ErrMsg)
-      !    END IF
-      ! END IF
-      
-      !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      ! Predictor-corrector ends here!
-      !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-   
-   
-      !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      ! Step 3: Save all final variables (advance to next time)
-      !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      ! MAP: copy final predictions to actual states
-      CALL MAP_CopyContState   ( x_MAP_pred,  x_MAP, MESH_UPDATECOPY, Errstat, ErrMsg)
-      CALL MAP_CopyDiscState   (xd_MAP_pred, xd_MAP, MESH_UPDATECOPY, Errstat, ErrMsg)  
-      CALL MAP_CopyConstrState ( z_MAP_pred,  z_MAP, MESH_UPDATECOPY, Errstat, ErrMsg)
-   END DO
-   ! -------------------------------------------------------------------------
-   ! END time marching
-   ! -------------------------------------------------------------------------
+   ! ! -------------------------------------------------------------------------
+   ! ! BEGIN time marching
+   ! ! -------------------------------------------------------------------------
+   ! DO n_t_global = 0, n_t_final
+   !    t_global =  t_initial + dt_global*n_t_global
+   !     
+   !    !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+   !    ! Step 1.a: Extrapolate Inputs (gives predicted values at t+dt
+   !    ! 
+   !    ! a) Extrapolate inputs (and outputs -- bjj: output extrapolation not necessary, yet) 
+   !    !    to t + dt (i.e., t_global_next); will only be used by modules with an implicit dependence on input data.
+   !    ! b) Shift "window" of the ModName_Input and ModName_Output
+   !    !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
+   !    ! MAP
+   !    CALL MAP_Input_ExtrapInterp(MAP_Input, MAP_InputTimes, u_MAP, t_global, ErrStat, ErrMsg)
+   !    CALL CheckError(ErrStat,'Message from MAP_Input_ExtrapInterp (FAST): '//NewLine//ErrMsg )              
+   !    DO j = MAP_interp_order, 1, -1
+   !       CALL MAP_CopyInput (MAP_Input(j),  MAP_Input(j+1),  MESH_UPDATECOPY, Errstat, ErrMsg)
+   !       MAP_InputTimes(j+1) = MAP_InputTimes(j)
+   !    END DO
+   ! 
+   !    CALL MAP_CopyInput (u_MAP,  MAP_Input(1),  MESH_UPDATECOPY, Errstat, ErrMsg)
+   !    MAP_InputTimes(1) = t_global          
+   ! 
+   ! 
+   !    !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+   !    ! Step 1.b: Advance states (yield state and constraint values at t_global_next)
+   !    !
+   !    ! x, xd, and z contain val0ues at t_global;
+   !    ! values at t_global_next are stored in the *_pred variables.
+   !    !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+   !    !----------------------------------------------------------------------------------------
+   !    ! copy the states at step t_global and get prediction for step t_global_next
+   !    ! (note that we need to copy the states because UpdateStates updates the values
+   !    ! and we need to have the old values [at t_global] for the next j_pc step)
+   !    !----------------------------------------------------------------------------------------
+   !    ! ElastoDyn: get predicted states
+   !    ! AeroDyn: get predicted states
+   !    ! ServoDyn: get predicted states
+   !    ! HydroDyn: get predicted states
+   !    ! SubDyn: get predicted states
+   !    ! MAP/FEAM: get predicted states
+   ! 
+   !    CALL MAP_CopyContState   ( x_MAP,  x_MAP_pred, MESH_UPDATECOPY, Errstat, ErrMsg)
+   !    CALL MAP_CopyDiscState   (xd_MAP, xd_MAP_pred, MESH_UPDATECOPY, Errstat, ErrMsg)  
+   !    CALL MAP_CopyConstrState ( z_MAP,  z_MAP_pred, MESH_UPDATECOPY, Errstat, ErrMsg)
+   !    
+   !    ! IF ( p_FAST%n_substeps( Module_MAP ) > 1 ) THEN
+   !    !    CALL MAP_CopyOtherState( OtherSt_MAP, OtherSt_MAP_old, MESH_UPDATECOPY, Errstat, ErrMsg)
+   !    ! END IF
+   !        
+   !    DO j_ss = 1, 1 !p_FAST%n_substeps( Module_MAP )
+   !       ! n_t_module = n_t_global*p_FAST%n_substeps( Module_MAP ) + j_ss - 1
+   !       ! t_module   = n_t_module*p_FAST%dt_module( Module_MAP )           
+   !       CALL  MAP_UpdateStates(t_global       , &
+   !                              n_t_global     , &
+   !                              MAP_Input      , &
+   !                              MAP_InputTimes , &
+   !                              p_MAP          , &
+   !                              x_MAP          , &
+   !                              xd_MAP         , &
+   !                              z_MAP          , &
+   !                              other_MAP      , &
+   !                              ErrStat        , &
+   !                              ErrMsg )    
+   !       IF (ErrStat.NE.0) THEN
+   !          CALL WrScr(ErrMsg) 
+   !       END IF
+   !       ! CALL CheckError( ErrStat, 'Message from MAP_UpdateStates: '//NewLine//ErrMsg )
+   !    END DO !j_ss
+   !       
+   !    
+   !    ! !==========   NOTE   ======     <-----------------------------------------+
+   !    ! ! @bonnie : I am assuming this MAP_InputTimes{:} and MAP_Input{:} 
+   !    ! !           will be assigned by the glue code   
+   !    ! 
+   !    ! MAP_InputTimes(1) = t_global + dt_global
+   !    ! ! MAP_InputTimes(2) = MAP_InputTimes(1) - dt_global 
+   !    ! ! MAP_InputTimes(3) = MAP_InputTimes(2) - dt_global
+   !    ! 
+   !    MAP_Input(1)%PtFairDisplacement%TranslationDisp(1,1) = 1*n_t_global  
+   !    ! ! MAP_Input(2)%PtFairDisplacement%TranslationDisp(1,1) = 1*n_t_global  
+   !    ! ! MAP_Input(3)%PtFairDisplacement%TranslationDisp(1,1) = 1*n_t_global  
+   !    ! !===========================================================================
+   !         
+   !    ! @bonnie & @jason: the FAST glue code will update the new fairlead position 
+   !    !                   based on the new platform position in the global frame.
+   !    ! CALL MAP_CalcOutput( this_time, MAP_Input(1), p_MAP, x_MAP_this, xd_MAP_this, z_MAP_this, OtherSt_MAP, y_MAP, ErrStat, ErrMsg )
+   !    CALL MAP_CalcOutput(t_global     , &
+   !                        MAP_Input(1) , &
+   !                        p_MAP        , &
+   !                        x_MAP        , &
+   !                        xd_MAP       , &
+   !                        z_MAP        , &
+   !                        other_MAP    , &
+   !                        y_MAP        , &
+   !                        ErrStat      , &
+   !                        ErrMsg )
+   !    IF (ErrStat.NE.0) THEN
+   !       CALL WrScr(ErrMsg) 
+   !    END IF
+   ! 
+   ! 
+   ! 
+   !    !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+   !    ! Step 2: Correct (continue in loop) 
+   !    !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+   !    ! IF ( j_pc /= p_FAST%NumCrctn)  THEN          ! Don't copy these on the last loop iteration...                  
+   !    !    IF ( p_FAST%n_substeps( Module_MAP ) > 1 ) THEN
+   !    !       CALL MAP_CopyOtherState( OtherSt_MAP_old, OtherSt_MAP, MESH_UPDATECOPY, Errstat, ErrMsg)
+   !    !    ELSEIF ( p_FAST%n_substeps( Module_FEAM ) > 1 ) THEN
+   !    !       CALL FEAM_CopyOtherState( OtherSt_FEAM_old, OtherSt_FEAM, MESH_UPDATECOPY, Errstat, ErrMsg)
+   !    !    END IF
+   !    ! END IF
+   !    
+   !    !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+   !    ! Predictor-corrector ends here!
+   !    !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+   ! 
+   ! 
+   !    !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+   !    ! Step 3: Save all final variables (advance to next time)
+   !    !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+   !    ! MAP: copy final predictions to actual states
+   !    CALL MAP_CopyContState   ( x_MAP_pred,  x_MAP, MESH_UPDATECOPY, Errstat, ErrMsg)
+   !    CALL MAP_CopyDiscState   (xd_MAP_pred, xd_MAP, MESH_UPDATECOPY, Errstat, ErrMsg)  
+   !    CALL MAP_CopyConstrState ( z_MAP_pred,  z_MAP, MESH_UPDATECOPY, Errstat, ErrMsg)
+   ! END DO
+   ! ! -------------------------------------------------------------------------
+   ! ! END time marching
+   ! ! -------------------------------------------------------------------------
 
 
    !==========   NOTE   ======     <-----------------------------------------+
