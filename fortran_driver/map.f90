@@ -314,7 +314,8 @@ CONTAINS
     TYPE( MAP_InitOutputType ),      INTENT(INOUT)  :: InitOut     ! Output for initialization routine
     INTEGER(IntKi),                  INTENT(  OUT)  :: ErrStat     ! Error status of the operation
     CHARACTER(*),                    INTENT(  OUT)  :: ErrMsg      ! Error message if ErrStat /= ErrID_None
-
+    INTEGER                                         :: N = 0
+    
     ! Local variables
     INTEGER(KIND=C_INT)                             :: status_from_MAP = 0
     CHARACTER(KIND=C_CHAR,len=1024)                 :: message_from_MAP = ""//CHAR(0)
@@ -348,8 +349,11 @@ CONTAINS
     InitInp%C_Obj%gravity           =  InitInp%gravity
     InitInp%C_Obj%sea_density       =  InitInp%sea_density
     InitInp%C_Obj%depth             = -InitInp%depth
-    InitInp%C_Obj%summary_file_name =  InitInp%summary_file_name   ! @gh : copy MAP fortran type to C interop derived type
-    
+    N = LEN_TRIM(InitInp%summary_file_name)
+    DO i = 1,N
+       InitInp%C_Obj%summary_file_name(i) =  InitInp%summary_file_name(i:i)   ! @gh : copy MAP fortran type to C interop derived type
+    END DO
+
     ! Set the gravity constant, water depth, and sea density in MAP.
     ! This calls functions in MAP_FortranBinding.cpp
     CALL MAP_set_gravity(p%C_obj, InitInp%C_Obj%gravity)
@@ -723,6 +727,7 @@ CONTAINS
    INTEGER                                         :: index_elem=0                
    INTEGER                                         :: index_optn=0                
    INTEGER                                         :: i = 0
+   INTEGER                                         :: N = 0
    CHARACTER(255)                                  :: line
 
    ! Open the MAP input file                                                      
@@ -744,10 +749,11 @@ CONTAINS
             IF ( line(1:1).EQ."-" ) THEN                    
                index_begn=2                                 
             ELSE
-               DO i = 1,LEN_TRIM(line)
+               N = LEN_TRIM(line)
+               DO i = 1,N
                   InitInp%C_obj%library_input_str(i) = line(i:i)   
                END DO
-               InitInp%C_obj%library_input_str(LEN_TRIM(line)+1) = C_NULL_CHAR
+               InitInp%C_obj%library_input_str(N+1) = C_NULL_CHAR
                CALL MAP_SetCableLibraryData(InitInp%C_obj)                 
             END IF                                          
          END IF                                             
@@ -761,10 +767,11 @@ CONTAINS
             IF ( line(1:1).EQ."-" ) THEN          
                index_begn=3                       
             ELSE
-               DO i = 1,LEN_TRIM(line)
+               N = LEN_TRIM(line)
+               DO i = 1,N
                   InitInp%C_obj%node_input_str(i) = line(i:i)   
                END DO
-               InitInp%C_obj%node_input_str(LEN_TRIM(line)+1) = C_NULL_CHAR
+               InitInp%C_obj%node_input_str(N+1) = C_NULL_CHAR
                CALL MAP_SetNodeData(InitInp%C_obj)
             END IF                                
          END IF                                   
@@ -778,11 +785,11 @@ CONTAINS
             IF ( line(1:1).EQ."-" ) THEN               
                index_begn=4                            
             ELSE
-               DO i = 1,LEN_TRIM(line)
-                  ! write(*,*) i, ' ' , len_trim(line)
+               N = LEN_TRIM(line)
+               DO i = 1,N
                   InitInp%C_obj%line_input_str(i) = line(i:i)   
                END DO
-               InitInp%C_obj%line_input_str(LEN_TRIM(line)+1) = C_NULL_CHAR
+               InitInp%C_obj%line_input_str(N+1) = C_NULL_CHAR
                CALL MAP_SetElementData(InitInp%C_obj) 
             END IF                                     
          END IF                                        
@@ -794,10 +801,11 @@ CONTAINS
          index_optn = index_optn + 1                   
          IF ( index_optn.GE.4 ) THEN                   
             IF ( line(1:1).NE."!" )  THEN              
-               DO i = 1,LEN_TRIM(line)
+               N = LEN_TRIM(line)
+               DO i = 1,N
                   InitInp%C_obj%option_input_str(i) = line(i:i)   
                END DO
-               InitInp%C_obj%option_input_str(LEN_TRIM(line)+1) = C_NULL_CHAR
+               InitInp%C_obj%option_input_str(N+1) = C_NULL_CHAR
                CALL MAP_SetSolverOptions(InitInp%C_obj)
             END IF                                     
          END IF                                        
