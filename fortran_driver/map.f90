@@ -753,7 +753,8 @@ CONTAINS
                DO i = 1,N
                   InitInp%C_obj%library_input_str(i) = line(i:i)   
                END DO
-               InitInp%C_obj%library_input_str(N+1) = C_NULL_CHAR
+               InitInp%C_obj%library_input_str(N+1) = ' ' 
+               InitInp%C_obj%library_input_str(N+2) = C_NULL_CHAR
                CALL MAP_SetCableLibraryData(InitInp%C_obj)                 
             END IF                                          
          END IF                                             
@@ -771,7 +772,8 @@ CONTAINS
                DO i = 1,N
                   InitInp%C_obj%node_input_str(i) = line(i:i)   
                END DO
-               InitInp%C_obj%node_input_str(N+1) = C_NULL_CHAR
+               InitInp%C_obj%node_input_str(N+1) = ' '
+               InitInp%C_obj%node_input_str(N+2) = C_NULL_CHAR
                CALL MAP_SetNodeData(InitInp%C_obj)
             END IF                                
          END IF                                   
@@ -789,7 +791,8 @@ CONTAINS
                DO i = 1,N
                   InitInp%C_obj%line_input_str(i) = line(i:i)   
                END DO
-               InitInp%C_obj%line_input_str(N+1) = C_NULL_CHAR
+               InitInp%C_obj%line_input_str(N+1) = ' '
+               InitInp%C_obj%line_input_str(N+2) = C_NULL_CHAR
                CALL MAP_SetElementData(InitInp%C_obj) 
             END IF                                     
          END IF                                        
@@ -805,7 +808,8 @@ CONTAINS
                DO i = 1,N
                   InitInp%C_obj%option_input_str(i) = line(i:i)   
                END DO
-               InitInp%C_obj%option_input_str(N+1) = C_NULL_CHAR
+               InitInp%C_obj%option_input_str(N+1) = ' '
+               InitInp%C_obj%option_input_str(N+2) = C_NULL_CHAR
                CALL MAP_SetSolverOptions(InitInp%C_obj)
             END IF                                     
          END IF                                        

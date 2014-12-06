@@ -14,8 +14,8 @@ Node  Type       X       Y       Z      M     B     FX    FY    FZ
 ---------------------- LINE P ROPERTIES ---------------------------------------
 Element  LineType  UnstrLen  NodeAnch  NodeFair  Flags
 (-)      (-)       (m)       (-)       (-)       (-)
-1        chainup   680        1         2        x_excursion z_excursion azimuth altitude altitude_anch damage_time 99 omit_contact f
-2        chainup   680        3         4        omit_contact d
+1        chainup   680        1         2        x_excursion z_excursion azimuth altitude altitude_anch damage_time 99 omit_contact
+2        chainup   680        3         4        omit_contact
 ---------------------- SOLVER OPTIONS-----------------------------------------
 Option 
 (-) 
