@@ -92,7 +92,7 @@ PROGRAM Main
       CALL WrScr(ErrMsg) 
    END IF  
 
-   ! CALL DispNVD(InitOutData_MAP%Ver) 
+   CALL DispNVD(InitOutData_MAP%Ver) 
 
 
    CALL MAP_DestroyInitInput(InitInData_MAP, ErrStat, ErrMsg)    

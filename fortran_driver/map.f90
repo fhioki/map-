@@ -494,18 +494,33 @@ CONTAINS
     y%PtFairleadLoad%IOS = COMPONENT_OUTPUT                            !          |
     ! End mesh initialization                                          !   -------+
     !==============================================================================
-         
-    ! ! Give the program discription (name, version number, date)
-    ! I = INDEX(InitOut%C_obj%version, '>' ) - 1 
-    ! IF (I>0) InitOut%version = InitOut%C_obj%version(1:I) 
-    ! 
-    ! I = INDEX( InitOut%C_obj%compilingData, '>' ) - 1 
-    ! IF (I>0) InitOut%compilingData = InitOut%C_obj%compilingData(1:I)
-    ! 
-    ! InitOut%Ver = ProgDesc('MAP++',TRIM(InitOut%version),TRIM(InitOut%compilingData))
-    ! 
-    ! WRITE(*,*) InitOut%WriteOutputHdr ! @bonnie : this is artificial. Remove.
-    ! WRITE(*,*) InitOut%WriteOutputUnt ! @bonnie : this is artificial. Remove.
+
+    ! Program version
+    N = LEN(InitOut%version)
+    DO i=1,N
+       IF (InitOut%C_obj%version(i).EQ.C_NULL_CHAR) THEN
+          InitOut%version(i:N) = ' '
+          EXIT
+       ELSE
+          InitOut%version(i:i)  = InitOut%C_obj%version(i)
+       END IF
+    END DO
+
+    ! Program compiling data
+    N = LEN(InitOut%compilingData)
+    DO i=1,N
+       IF (InitOut%C_obj%compilingData(i).EQ.C_NULL_CHAR) THEN
+          InitOut%compilingData(i:N) = ' '
+          EXIT
+       ELSE
+          InitOut%compilingData(i:i)  = InitOut%C_obj%compilingData(i)
+       END IF
+    END DO
+
+    InitOut%Ver = ProgDesc('MAP++',TRIM(InitOut%version),TRIM(InitOut%compilingData))
+     
+    WRITE(*,*) InitOut%WriteOutputHdr ! @bonnie : this is artificial. Remove.
+    WRITE(*,*) InitOut%WriteOutputUnt ! @bonnie : this is artificial. Remove.
   END SUBROUTINE MAP_Init                                                                        !   -------+
   !==========================================================================================================
 
