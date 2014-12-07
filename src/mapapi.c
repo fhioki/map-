@@ -941,10 +941,15 @@ MAP_EXTERNCALL int map_size_lines(MAP_OtherStateType_t* other_type, MAP_ERROR_CO
 };
 
 
-MAP_EXTERNCALL void map_set_summary_file_name(MAP_InitInputType_t* init_type, char *map_msg, MAP_ERROR_CODE *ierr) 
+MAP_EXTERNCALL void map_set_summary_file_name(MAP_InitInputType_t* init_type, char* map_msg, MAP_ERROR_CODE* ierr) 
 {  
+  map_reset_universal_error(map_msg, ierr);
+
   InitializationData* init_data = init_type->object;   
   init_data->summary_file_name = bformat("%s", init_type->summary_file_name);
+
+  set_universal_error(map_msg, ierr, MAP_FATAL_6);  
+  set_universal_error_with_message(map_msg, ierr, MAP_FATAL_89, "Just a check...");
 };
 
 

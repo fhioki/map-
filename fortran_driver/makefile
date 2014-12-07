@@ -22,8 +22,8 @@ PREC        = SingPrec
 SYS_FILE    = SysGnuLinux
 
 FC       = gfortran
-FCFLAGS  = -O0 -fbacktrace -fbounds-check -x f95-cpp-input -ffree-line-length-none 
-OPT      = -fmax-errors=20
+FCFLAGS  = -O0 -fbacktrace -fbounds-check -x f95-cpp-input -ffree-line-length-none
+OPT      = -fmax-errors=20 
 
 OBJ = $(PREC).o              \
 	NWTC_Base.o          \

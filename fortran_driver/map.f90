@@ -1,3 +1,5 @@
+#define MAP_CHECKERR()  IF(MAP_ERROR_CHECKER(message_from_MAP,status_from_MAP,ErrMsg,ErrStat)) RETURN
+
 MODULE MAP
   
   USE MAP_Types
@@ -9,7 +11,9 @@ MODULE MAP
   PUBLIC :: MAP_UpdateStates
   PUBLIC :: MAP_CalcOutput
   PUBLIC :: MAP_End
-  
+  PUBLIC :: MAP_ERROR_CHECKER
+
+
   ! ==========   MAP_GetHdrString   ======        <---------------------------------------------------------+
   !                                                                                              !          |
   ! Get the string information (label) of all the outputs MAP is providing the FAST glue code    !          | 
@@ -76,7 +80,7 @@ MODULE MAP
   !==========================================================================================================
   
   
-  ! ==========   MAP_SetSummaryFileName   ======     <------------------------------------------------------+
+  ! ==========   MAP_set_summary_file_name   ======     <---------------------------------------------------+
   !                                                                                              !          |
   ! Calls C function "MAPCALL_SetSummaryFilename(MAP_InitInputType)" in MAP_FortranBinding.cpp.  !          |
   INTERFACE                                                                                      !          |
@@ -84,7 +88,8 @@ MODULE MAP
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
        TYPE( MAP_InitInputType_C ) interf                                                        !          |
-       CHARACTER(KIND=C_CHAR), DIMENSION(1024) :: msg                                            !          |
+       ! TYPE(C_PTR) :: msg
+       CHARACTER(KIND=C_CHAR), DIMENSION(*), INTENT(INOUT) :: msg                                            !          |
        INTEGER(KIND=C_INT) :: err                                                                !          |
      END SUBROUTINE MAP_set_summary_file_name                                                    !          |
   END INTERFACE                                                                                  !   -------+
@@ -299,6 +304,7 @@ MODULE MAP
 
 CONTAINS
 
+
   !==========   MAP_Init   ======     <----------------------------------------------------------------------+
   SUBROUTINE MAP_Init( InitInp, u, p, x, xd, z, other, y, Interval, InitOut, ErrStat, ErrMsg )    
     IMPLICIT NONE
@@ -313,15 +319,15 @@ CONTAINS
     REAL(DbKi),                      INTENT(INOUT)  :: Interval    ! Coupling interval in seconds: the rate that Output is the actual coupling interval 
     TYPE( MAP_InitOutputType ),      INTENT(INOUT)  :: InitOut     ! Output for initialization routine
     INTEGER(IntKi),                  INTENT(  OUT)  :: ErrStat     ! Error status of the operation
-    CHARACTER(*),                    INTENT(  OUT)  :: ErrMsg      ! Error message if ErrStat /= ErrID_None
+    CHARACTER(1024),                 INTENT(INOUT)  :: ErrMsg      ! Error message if ErrStat /= ErrID_None
     INTEGER                                         :: N = 0
     
     ! Local variables
     INTEGER(KIND=C_INT)                             :: status_from_MAP = 0
-    CHARACTER(KIND=C_CHAR,len=1024)                 :: message_from_MAP = ""//CHAR(0)
+    CHARACTER(KIND=C_CHAR), DIMENSION(1024)         :: message_from_MAP = ' '
+    CHARACTER(KIND=C_CHAR,LEN=1024)                 :: fake_message_from_MAP = ""//CHAR(0)   
+    ! CHARACTER(kind=c_char), dimension(1024) :: MSG_TARGET
     
-    INTEGER( KIND=C_INT )                           :: statMap = 0
-    CHARACTER( KIND=C_CHAR,LEN=1024 )               :: msgMap = ""//CHAR(0)   
     INTEGER(IntKi)                                  :: i = 0
     REAL(ReKi)                                      :: Pos(3)
     INTEGER(IntKi)                                  :: NumNodes = 0
@@ -338,8 +344,10 @@ CONTAINS
     CALL NWTC_Init( )   
 
     ! Call the constructor for each MAP class to create and instance of each C++ object    
-    CALL MAP_InitInput_Initialize(InitInp%C_obj%object, msgMap,statMap)    
-    CALL MAP_Other_Initialize(other%C_obj%object, msgMap,statMap)
+    CALL MAP_InitInput_Initialize(InitInp%C_obj%object, fake_message_from_MAP, status_from_MAP)    
+    ! @todo: call function to convert map message to a fortran character array
+    CALL MAP_Other_Initialize(other%C_obj%object, fake_message_from_MAP, status_from_MAP)
+    ! @todo: call function to convert map message to a fortran character array
      
     ! Set the environmental properties:
     !   depth           = water depth [m]
@@ -349,9 +357,10 @@ CONTAINS
     InitInp%C_Obj%gravity           =  InitInp%gravity
     InitInp%C_Obj%sea_density       =  InitInp%sea_density
     InitInp%C_Obj%depth             = -InitInp%depth
+
     N = LEN_TRIM(InitInp%summary_file_name)
     DO i = 1,N
-       InitInp%C_Obj%summary_file_name(i) =  InitInp%summary_file_name(i:i)   ! @gh : copy MAP fortran type to C interop derived type
+       InitInp%C_Obj%summary_file_name(i) =  InitInp%summary_file_name(i:i)  
     END DO
 
     ! Set the gravity constant, water depth, and sea density in MAP.
@@ -359,12 +368,14 @@ CONTAINS
     CALL MAP_set_gravity(p%C_obj, InitInp%C_Obj%gravity)
     CALL MAP_set_depth(p%C_obj, InitInp%C_Obj%depth)
     CALL MAP_set_density(p%C_obj, InitInp%C_Obj%sea_density)
-    CALL MAP_set_summary_file_name(InitInp%C_obj, ErrMsg, ErrStat)
 
+    CALL MAP_set_summary_file_name(InitInp%C_obj, message_from_map, status_from_MAP)    
+    MAP_CHECKERR()
+       
     ! Read the MAP input file, and pass the arguments to the C++ sructures. 
     ! @note : this call the following C function in MAP_FortranBinding.cpp
     CALL map_read_input_file_contents(InitInp%file_name , InitInp, ErrStat)
-    IF (ErrStat .NE. ErrID_None ) THEN
+    IF (ErrStat.NE.ErrID_None ) THEN
        CALL MAP_CheckError("MAP ERROR: cannot read the MAP input file.",ErrMSg)
        RETURN
     END IF
@@ -380,16 +391,16 @@ CONTAINS
                    y%C_obj         , &
                    InitOut%C_obj   , &
                    status_from_MAP , &
-                   message_from_MAP )
+                   fake_message_from_MAP )
 
     ! Give the MAP code/message status to the FAST 
     IF( status_from_MAP .NE. 0 ) THEN
        IF( status_from_MAP .EQ. 1 ) THEN
-          ErrMsg = message_from_MAP
+          ErrMsg = fake_message_from_MAP
           ErrStat = ErrID_Warn
           CALL WrScr( ErrMsg )
        ELSE
-          ErrMsg = message_from_MAP
+          ErrMsg = fake_message_from_MAP
           ErrStat = ErrID_Fatal
           RETURN
        END IF
@@ -426,6 +437,8 @@ CONTAINS
        CALL MAP_CheckError("FAST/MAP C2F input state conversion error.",ErrMSg)
        RETURN
     END IF
+
+
     
     !==========   MAP_InitInpInputType   ======     <--------------------------+
     ! get header information for the FAST output file               
@@ -457,7 +470,9 @@ CONTAINS
     DEALLOCATE( strHdrPtrs  )                                       !          | 
     DEALLOCATE( strUntArray )                                       !          | 
     DEALLOCATE( strUntPtrs  )                                       !   -------+
-    ! !===========================================================================
+    !===========================================================================
+
+
     
     !==========   MAP Mesh initialization   ======     <--------------------------+               
     ! get header information for the FAST output file                  !          | 
@@ -748,9 +763,8 @@ CONTAINS
    ! Open the MAP input file                                                      
    OPEN(UNIT=1, FILE=file)                                                        
                                                                                   
-   ! Read the contents of the MAP input file                                      
-   !==========   MAP_InitInpInputType   ======     <--------------------------+    
-   DO                                                              !          |   
+   ! Read the contents of the MAP input file                                     
+   DO                                          
       READ(1 ,'(A)', IOSTAT=success) line                   
                                                             
       ! we are no longer reading the MAP input file if we   
@@ -828,18 +842,44 @@ CONTAINS
                CALL MAP_SetSolverOptions(InitInp%C_obj)
             END IF                                     
          END IF                                        
-      END IF                                           
-                                                         
-   END DO                                                          !   -------+                 !          |
-   !===========================================================================                 !          |
+      END IF                                                                                                    
+   END DO
                                                                                                 !          |
    ! Close the MAP input file                                                                   !          |
-   CLOSE( 1 )                                                                                   !          |
-                                                                                                !          |
- END SUBROUTINE map_read_input_file_contents                                                       !   -------+
+   CLOSE( 1 )                                                                                   !          |  
+ END SUBROUTINE map_read_input_file_contents                                                    !   -------+
  !==========================================================================================================
 
 
+ LOGICAL FUNCTION MAP_ERROR_CHECKER(msg, stat, ErrMsg, ErrStat)
+   CHARACTER(KIND=C_CHAR), DIMENSION(1024), INTENT(INOUT) :: msg
+   INTEGER(KIND=C_INT),                     INTENT(INOUT) :: stat
+   CHARACTER(1024),                         INTENT(  OUT) :: ErrMsg 
+   INTEGER(IntKi),                          INTENT(  OUT) :: ErrStat    
+   INTEGER                                                :: i = 0                                             
+
+   MAP_ERROR_CHECKER = .FALSE. ! default warning; does not throw a RETURN
+   IF (stat.NE.0) THEN
+      DO i = 1,1024 ! convert c-character array to a fortran character array
+         IF(msg(i).NE.C_NULL_CHAR)THEN
+            ErrMsg(i:i) = msg(i)
+         ELSE
+            EXIT
+         END IF
+      END DO
+
+      IF(stat.EQ.1) THEN ! assign warning levels
+         ErrStat = ErrID_Warn
+         CALL WrScr(ErrMsg)         
+      ELSE ! only the case of a fatal warning returns true; throws a RETURN
+         ErrStat = ErrID_Fatal
+         MAP_ERROR_CHECKER = .TRUE.
+      END IF
+   END IF   
+ END FUNCTION MAP_ERROR_CHECKER
+
+
+ 
   !==========   MAP_CheckError   =======     <---------------------------------------------------------------+
   SUBROUTINE MAP_CheckError(InMsg,OutMsg)
     ! Passed arguments
@@ -943,6 +983,5 @@ CONTAINS
     DEALLOCATE(u%y)
     DEALLOCATE(u%z)
   END SUBROUTINE deallocate_primitives_for_c
-
 
 END MODULE MAP
