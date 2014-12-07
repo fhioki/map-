@@ -24,6 +24,19 @@
 #ifndef _MAPAPI_H
 #define _MAPAPI_H
 
+
+/**
+ * @brief   Initalizes all MAP base types (including some internal state)
+ * @details The idea is to set variables to zero and null to prevent seg-faults in the case of 
+ *          early program termination before initialization (MAP_Init) is fully complete. 
+ *          {@link MAP_Init}
+ * @param   el, opaque object used in simclist
+ * @see     map_init()
+ * @return  Size of CableLibrary structure
+ */
+MAP_EXTERNCALL void initialize_msqs_base(MAP_InputType_t* u_type, MAP_ParameterType_t* p_type, MAP_ContinuousStateType_t* x_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type, MAP_InitOutputType_t* initout_type, MAP_InitOutputType_t* io_type);
+
+
 MAP_EXTERNCALL void set_init_to_null(MAP_InitInputType_t* init_type, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_EXTERNCALL void map_add_cable_library_input_text(MAP_InitInputType_t* init_type);
 MAP_EXTERNCALL void map_add_node_input_text(MAP_InitInputType_t* init_type);

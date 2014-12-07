@@ -37,6 +37,41 @@
 extern const char MAP_ERROR_STRING[][1024];
 
 
+MAP_EXTERNCALL void initialize_msqs_base(MAP_InputType_t* u_type,
+                                         MAP_ParameterType_t* p_type, 
+                                         MAP_ContinuousStateType_t* x_type, 
+                                         MAP_ConstraintStateType_t* z_type, 
+                                         MAP_OtherStateType_t* other_type,
+                                         MAP_OutputType_t* y_type,
+                                         MAP_InitOutputType_t* initout_type, 
+                                         MAP_InitOutputType_t* io_type)
+{
+  Domain* domain = other_type->object;
+  MAP_ERROR_CODE success = MAP_SAFE;
+
+  /*  initialize types; set doubles to -999.9, int=0, pointers=NULL 
+   *  @todo: add other variables as neccessary. This needs to be fixed each time the registry
+   *         is run an new varaibles are introduced 
+   */  
+  success = initialize_fortran_types(u_type, p_type, x_type, z_type, other_type, y_type, io_type);
+
+  /* create a cable library link lists for:
+   *  - nodes
+   *  - lines
+   *  - cable library (properties)
+   * The following are simclist routines 
+   */
+  list_init(&domain->library); 
+  list_init(&domain->node); 
+  list_init(&domain->line);  
+  list_init(&domain->u_update_list);  
+  list_attributes_copy(&domain->library, cable_library_meter, 1); 
+  list_attributes_copy(&domain->node, node_meter, 1); 
+  list_attributes_copy(&domain->line, cable_line_meter, 1);    
+  list_attributes_copy(&domain->u_update_list, u_list_meter, 1);    
+};
+
+
 /**
  * @file 
  * NWTC required functions necessary to hook MAP into FAST. These functions provide the binding to 
@@ -59,32 +94,32 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
   Domain* domain = other_type->object;
   MAP_ERROR_CODE success = MAP_SAFE;
 
-  domain->HEAD_U_TYPE = u_type;  
   map_reset_universal_error(map_msg, ierr);
+  domain->HEAD_U_TYPE = u_type;  
 
   MAP_BEGIN_ERROR_LOG; 
 
-  /*  initialize types; set doubles to -999.9, int=0, pointers=NULL 
-   *  @todo: add other variables as neccessary. This needs to be fixed each time the registry
-   *         is run an new varaibles are introduced 
-   */  
-  success = initialize_fortran_types(u_type, p_type, x_type, z_type, other_type, y_type, io_type);     
+  // /*  initialize types; set doubles to -999.9, int=0, pointers=NULL 
+  //  *  @todo: add other variables as neccessary. This needs to be fixed each time the registry
+  //  *         is run an new varaibles are introduced 
+  //  */  
+  // success = initialize_fortran_types(u_type, p_type, x_type, z_type, other_type, y_type, io_type);     
   success = map_get_version(io_type);
   
-  /* create a cable library link lists for:
-   *  - nodes
-   *  - lines
-   *  - cable library (properties)
-   * The following are simclist routines 
-   */
-  list_init(&domain->library); 
-  list_init(&domain->node); 
-  list_init(&domain->line);  
-  list_init(&domain->u_update_list);  
-  list_attributes_copy(&domain->library, cable_library_meter, 1); 
-  list_attributes_copy(&domain->node, node_meter, 1); 
-  list_attributes_copy(&domain->line, cable_line_meter, 1);    
-  list_attributes_copy(&domain->u_update_list, u_list_meter, 1);    
+  // /* create a cable library link lists for:
+  //  *  - nodes
+  //  *  - lines
+  //  *  - cable library (properties)
+  //  * The following are simclist routines 
+  //  */
+  // list_init(&domain->library); 
+  // list_init(&domain->node); 
+  // list_init(&domain->line);  
+  // list_init(&domain->u_update_list);  
+  // list_attributes_copy(&domain->library, cable_library_meter, 1); 
+  // list_attributes_copy(&domain->node, node_meter, 1); 
+  // list_attributes_copy(&domain->line, cable_line_meter, 1);    
+  // list_attributes_copy(&domain->u_update_list, u_list_meter, 1);    
 
   success = allocate_outlist(domain, map_msg, ierr); CHECKERRQ(MAP_FATAL_47);
   list_init(&domain->y_list->out_list); /* simclist routine */
@@ -943,13 +978,9 @@ MAP_EXTERNCALL int map_size_lines(MAP_OtherStateType_t* other_type, MAP_ERROR_CO
 
 MAP_EXTERNCALL void map_set_summary_file_name(MAP_InitInputType_t* init_type, char* map_msg, MAP_ERROR_CODE* ierr) 
 {  
-  map_reset_universal_error(map_msg, ierr);
-
   InitializationData* init_data = init_type->object;   
+  map_reset_universal_error(map_msg, ierr);
   init_data->summary_file_name = bformat("%s", init_type->summary_file_name);
-
-  set_universal_error(map_msg, ierr, MAP_FATAL_6);  
-  set_universal_error_with_message(map_msg, ierr, MAP_FATAL_89, "Just a check...");
 };
 
 

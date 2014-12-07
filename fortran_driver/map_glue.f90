@@ -89,39 +89,39 @@ PROGRAM Main
                 ErrStat        , &
                 ErrMsg )
   IF (ErrStat.NE.0) THEN
-      CALL WrScr(ErrMsg) 
-   END IF  
+     CALL WrScr(ErrMsg) 
+  END IF
 
-   ! CALL DispNVD(InitOutData_MAP%Ver) 
-
-
-   CALL MAP_DestroyInitInput(InitInData_MAP, ErrStat, ErrMsg)    
-   CALL MAP_DestroyInitOutput(InitOutData_MAP, ErrStat, ErrMsg)
+!  CALL DispNVD(InitOutData_MAP%Ver) 
 
 
-   DO j = 1, MAP_interp_order + 1
-      MAP_InputTimes(j) = t_initial - (j - 1) * dt_global
-   END DO
+  CALL MAP_DestroyInitInput(InitInData_MAP, ErrStat, ErrMsg)    
+  CALL MAP_DestroyInitOutput(InitOutData_MAP, ErrStat, ErrMsg)
 
-   DO j = 2, MAP_interp_order + 1
-      CALL MAP_CopyInput (MAP_Input(1),  MAP_Input(j),  MESH_NEWCOPY, Errstat, ErrMsg)
-      CALL CheckError( ErrStat, 'Message from MAP_CopyInput (MAP_Input): '//NewLine//ErrMsg )
-   END DO
-   CALL MAP_CopyInput (MAP_Input(1),  u_MAP,  MESH_NEWCOPY, Errstat, ErrMsg) ! do this to initialize meshes/allocatable arrays for output of ExtrapInterp routine
-   CALL CheckError( ErrStat, 'Message from MAP_CopyInput (u_MAP): '//NewLine//ErrMsg )
+
+  DO j = 1, MAP_interp_order + 1
+     MAP_InputTimes(j) = t_initial - (j - 1) * dt_global
+  END DO
+
+  DO j = 2, MAP_interp_order + 1
+     CALL MAP_CopyInput (MAP_Input(1),  MAP_Input(j),  MESH_NEWCOPY, Errstat, ErrMsg)
+     CALL CheckError( ErrStat, 'Message from MAP_CopyInput (MAP_Input): '//NewLine//ErrMsg )
+  END DO
+  CALL MAP_CopyInput (MAP_Input(1),  u_MAP,  MESH_NEWCOPY, Errstat, ErrMsg) ! do this to initialize meshes/allocatable arrays for output of ExtrapInterp routine
+  CALL CheckError( ErrStat, 'Message from MAP_CopyInput (u_MAP): '//NewLine//ErrMsg )
    
-   ! Initialize predicted states for j_pc loop:
-   CALL MAP_CopyContState   ( x_MAP,  x_MAP_pred, MESH_NEWCOPY, Errstat, ErrMsg)
-   CALL CheckError( ErrStat, 'Message from MAP_CopyContState (init): '//NewLine//ErrMsg )
-   CALL MAP_CopyDiscState   (xd_MAP, xd_MAP_pred, MESH_NEWCOPY, Errstat, ErrMsg)  
-   CALL CheckError( ErrStat, 'Message from MAP_CopyDiscState (init): '//NewLine//ErrMsg )
-   CALL MAP_CopyConstrState ( z_MAP,  z_MAP_pred, MESH_NEWCOPY, Errstat, ErrMsg)
-   CALL CheckError( ErrStat, 'Message from MAP_CopyConstrState (init): '//NewLine//ErrMsg )
+  ! Initialize predicted states for j_pc loop:
+  CALL MAP_CopyContState   ( x_MAP,  x_MAP_pred, MESH_NEWCOPY, Errstat, ErrMsg)
+  CALL CheckError( ErrStat, 'Message from MAP_CopyContState (init): '//NewLine//ErrMsg )
+  CALL MAP_CopyDiscState   (xd_MAP, xd_MAP_pred, MESH_NEWCOPY, Errstat, ErrMsg)  
+  CALL CheckError( ErrStat, 'Message from MAP_CopyDiscState (init): '//NewLine//ErrMsg )
+  CALL MAP_CopyConstrState ( z_MAP,  z_MAP_pred, MESH_NEWCOPY, Errstat, ErrMsg)
+  CALL CheckError( ErrStat, 'Message from MAP_CopyConstrState (init): '//NewLine//ErrMsg )
    
-   ! IF ( p_FAST%n_substeps( MODULE_MAP ) > 1 ) THEN
-   !    CALL MAP_CopyOtherState( other_MAP, other_MAP_old, MESH_NEWCOPY, Errstat, ErrMsg)
-   !    CALL CheckError( ErrStat, 'Message from MAP_CopyOtherState (init): '//NewLine//ErrMsg )   
-   ! END IF
+  ! IF ( p_FAST%n_substeps( MODULE_MAP ) > 1 ) THEN
+  !    CALL MAP_CopyOtherState( other_MAP, other_MAP_old, MESH_NEWCOPY, Errstat, ErrMsg)
+  !    CALL CheckError( ErrStat, 'Message from MAP_CopyOtherState (init): '//NewLine//ErrMsg )   
+  ! END IF
      
    
    ! ! -------------------------------------------------------------------------

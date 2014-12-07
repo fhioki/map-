@@ -14,18 +14,46 @@ MODULE MAP
   PUBLIC :: MAP_ERROR_CHECKER
 
 
+  ! ==========   initalize_map_base   ======     <----------------------------------------------------------+
+  ! Initializes states                                                                           !          |
+  INTERFACE                                                                                      !          |
+     SUBROUTINE MAP_Initialize_Base(FC_u       , &                                               !          |
+                                    FC_p       , &                                               !          |
+                                    FC_x       , &                                               !          |
+                                    FC_z       , &                                               !          |
+                                    FC_O       , &                                               !          |
+                                    FC_y       , &                                               !          |
+                                    FC_InitInp , &                                               !          |
+                                    FC_InitOut ) &                                               !          |
+                                    bind(C,name='initialize_msqs_base')                          !          |
+       IMPORT                                                                                    !          |
+       IMPLICIT NONE                                                                             !          |
+       TYPE(MAP_InitInputType_C)       :: FC_InitInp                                             !          |
+       TYPE(MAP_InitOutputType_C)      :: FC_InitOut                                             !          |
+       TYPE(MAP_InputType_C)           :: FC_u                                                   !          |
+       TYPE(MAP_ParameterType_C)       :: FC_p                                                   !          |
+       TYPE(MAP_ContinuousStateType_C) :: FC_x                                                   !          |
+       TYPE(MAP_DiscreteStateType_C)   :: FC_xd                                                  !          |
+       TYPE(MAP_ConstraintStateType_C) :: FC_z                                                   !          |
+       TYPE(MAP_OtherStateType_C)      :: FC_O                                                   !          |
+       TYPE(MAP_OutputType_C)          :: FC_y                                                   !          |
+     END SUBROUTINE MAP_Initialize_Base                                                          !          |
+  END INTERFACE                                                                                  !   -------+
+  !==========================================================================================================
+
+  
   ! ==========   MAP_GetHdrString   ======        <---------------------------------------------------------+
   !                                                                                              !          |
   ! Get the string information (label) of all the outputs MAP is providing the FAST glue code    !          | 
   INTERFACE                                                                                      !          | 
-     SUBROUTINE MAP_Get_Header_String(FC_int, FC_string, FC_other ) &                         
-          BIND(C,name='map_get_header_string')   
+     SUBROUTINE MAP_Get_Header_String(FC_int, FC_string, FC_other ) &                            !          | 
+          BIND(C,name='map_get_header_string')                                                   !          | 
        IMPORT                                                                                    !          | 
        IMPLICIT NONE                                                                             !          | 
-       INTEGER(KIND=C_INT) :: FC_int                                                             !          | 
-       TYPE( MAP_OtherStateType_C ) FC_other                                                 
+       INTEGER(KIND=C_INT)            :: FC_int                                                  !          | 
+       TYPE(MAP_OtherStateType_C)     :: FC_other                                                !          | 
        TYPE(C_PTR), DIMENSION(FC_int) :: FC_string                                               !          | 
-     END SUBROUTINE MAP_Get_Header_String
+     END SUBROUTINE MAP_Get_Header_String                                                        !          | 
   END INTERFACE                                                                                  !   -------+
   !==========================================================================================================
   
@@ -34,14 +62,14 @@ MODULE MAP
   !                                                                                              !          |
   ! Gets the units of all the outputs MAP is providing to the FAST glue code                     !          | 
   INTERFACE                                                                                      !          | 
-     SUBROUTINE MAP_Get_Unit_String( FC_int, FC_string, FC_other ) &                              !          | 
-          BIND(C,name='map_get_unit_string')                                                  !          | 
+     SUBROUTINE MAP_Get_Unit_String( FC_int, FC_string, FC_other ) &                             !          | 
+          BIND(C,name='map_get_unit_string')                                                     !          | 
        IMPORT                                                                                    !          | 
        IMPLICIT NONE                                                                             !          | 
-       INTEGER(KIND=C_INT) :: FC_int                                                             !          | 
-       TYPE( MAP_OtherStateType_C ) FC_other                                                 
+       INTEGER(KIND=C_INT)            :: FC_int                                                  !          | 
+       TYPE(MAP_OtherStateType_C)     :: FC_other                                                !          | 
        TYPE(C_PTR), DIMENSION(FC_int) :: FC_string                                               !          | 
-     END SUBROUTINE MAP_Get_Unit_String                                                       !          | 
+     END SUBROUTINE MAP_Get_Unit_String                                                          !          | 
   END INTERFACE                                                                                  !   -------+
   !==========================================================================================================
   
@@ -53,11 +81,11 @@ MODULE MAP
   !   something indenpendent of it. Numerical errors can generate is g (in units of [Nm/s^2]     !          |
   !   is not consistent among modules.                                                           !          |
   INTERFACE                                                                                      !          |
-     SUBROUTINE MAP_set_gravity( interf, val ) bind(C,name='map_set_gravity')                    !          |
+     SUBROUTINE MAP_set_gravity(interf, val) bind(C,name='map_set_gravity')                      !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
-       TYPE( MAP_ParameterType_C ) interf                                                        !          |
-       REAL(C_DOUBLE), VALUE :: val                                                              !          |
+       TYPE(MAP_ParameterType_C) :: interf                                                       !          |
+       REAL(C_DOUBLE), VALUE     :: val                                                          !          |
      END SUBROUTINE MAP_set_gravity                                                              !          |
   END INTERFACE                                                                                  !   -------+
   !==========================================================================================================
@@ -70,11 +98,11 @@ MODULE MAP
   !   something indenpendent of it. Numerical errors can generate is g (in units of [Nm/s^2]     !          |
   !   is not consistent among modules.                                                           !          |
   INTERFACE                                                                                      !          |
-     SUBROUTINE MAP_set_depth( interf, val ) bind(C,name='map_set_sea_depth')                    !          |
+     SUBROUTINE MAP_set_depth(interf, val) BIND(C,name='map_set_sea_depth')                      !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
-       TYPE( MAP_ParameterType_C ) interf                                                        !          |
-       REAL(C_DOUBLE), VALUE :: val                                                              !          |
+       TYPE(MAP_ParameterType_C) :: interf                                                       !          |
+       REAL(C_DOUBLE), VALUE     :: val                                                          !          |
      END SUBROUTINE MAP_set_depth                                                                !          |
   END INTERFACE                                                                                  !   -------+
   !==========================================================================================================
@@ -84,12 +112,12 @@ MODULE MAP
   !                                                                                              !          |
   ! Calls C function "MAPCALL_SetSummaryFilename(MAP_InitInputType)" in MAP_FortranBinding.cpp.  !          |
   INTERFACE                                                                                      !          |
-     SUBROUTINE MAP_set_summary_file_name(interf,msg,err) bind(C,name='map_set_summary_file_name')!         |
+     SUBROUTINE MAP_set_summary_file_name(interf,msg,err) &                                      !          |
+          BIND(C,name='map_set_summary_file_name')                                               !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
        TYPE( MAP_InitInputType_C ) interf                                                        !          |
-       ! TYPE(C_PTR) :: msg
-       CHARACTER(KIND=C_CHAR), DIMENSION(*), INTENT(INOUT) :: msg                                            !          |
+       CHARACTER(KIND=C_CHAR), DIMENSION(*), INTENT(INOUT) :: msg                                !          |
        INTEGER(KIND=C_INT) :: err                                                                !          |
      END SUBROUTINE MAP_set_summary_file_name                                                    !          |
   END INTERFACE                                                                                  !   -------+
@@ -101,11 +129,11 @@ MODULE MAP
   ! Calls C function "MAPCALL_SetDensity(MAP_InitInputType)" in MAP_FortranBinding.cpp.          !          |
   ! Sets the density of seawater [kg/m^3] according to what is being used in HydroDyn/FAST       !          |
   INTERFACE                                                                                      !          |
-     SUBROUTINE MAP_set_density( interf, val ) bind(C,name='map_set_sea_density')                !          |
+     SUBROUTINE MAP_set_density(interf, val) BIND(C,name='map_set_sea_density')                  !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
-       TYPE( MAP_ParameterType_C ) interf                                                        !          |
-       REAL(C_DOUBLE), VALUE :: val                                                              !          |
+       TYPE(MAP_ParameterType_C) :: interf                                                       !          |
+       REAL(C_DOUBLE), VALUE     :: val                                                          !          |
      END SUBROUTINE MAP_set_density                                                              !          |
   END INTERFACE                                                                                  !   -------+
   !==========================================================================================================
@@ -117,10 +145,10 @@ MODULE MAP
   ! Pases strings from the "LINE DICTIONARY" porition of the MPA input file to the C++           !          |
   !   data structure.                                                                            !          |
   INTERFACE                                                                                      !          |
-     SUBROUTINE MAP_SetCableLibraryData( interf ) bind(C,name='map_add_cable_library_input_text')!          |
+     SUBROUTINE MAP_SetCableLibraryData(interf) BIND(C,name='map_add_cable_library_input_text')  !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
-       TYPE( MAP_InitInputType_C ) interf                                                        !          |
+       TYPE(MAP_InitInputType_C) :: interf                                                       !          |
      END SUBROUTINE MAP_SetCableLibraryData                                                      !          |
   END INTERFACE                                                                                  !   -------+
   !==========================================================================================================
@@ -132,10 +160,10 @@ MODULE MAP
   ! Pases strings from the "NOE PROPERTIES" porition of the MPA input file to the C++            !          |
   !   data structure.                                                                            !          |
   INTERFACE                                                                                      !          |
-     SUBROUTINE MAP_SetNodeData( interf ) bind(C,name='map_add_node_input_text')                 !          |
+     SUBROUTINE MAP_SetNodeData(interf) BIND(C,name='map_add_node_input_text')                   !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
-       TYPE( MAP_InitInputType_C ) interf                                                        !          |
+       TYPE(MAP_InitInputType_C) :: interf                                                       !          |
      END SUBROUTINE MAP_SetNodeData                                                              !          |
   END INTERFACE                                                                                  !   -------+
   !==========================================================================================================
@@ -147,10 +175,10 @@ MODULE MAP
   ! Pases strings from the "ELEMENT PROPERTIES" porition of the MPA input file to the C++        !          |
   !   data structure.                                                                            !          |
   INTERFACE                                                                                      !          |
-     SUBROUTINE MAP_SetElementData( interf ) bind(C,name='map_add_line_input_text')           !          |
+     SUBROUTINE MAP_SetElementData(interf) BIND(C,name='map_add_line_input_text')                !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
-       TYPE( MAP_InitInputType_C ) interf                                                        !          |
+       TYPE( MAP_InitInputType_C ) :: interf                                                     !          |
      END SUBROUTINE MAP_SetElementData                                                           !          |
   END INTERFACE                                                                                  !   -------+
   !==========================================================================================================
@@ -162,10 +190,10 @@ MODULE MAP
   ! Pases strings from the "SOLVER OPTIONS" porition of the MPA input file to the C++            !          |
   !   data structure.                                                                            !          |
   INTERFACE                                                                                      !          |
-     SUBROUTINE MAP_SetSolverOptions( interf ) bind(C,name='map_add_options_input_text')         !          |
+     SUBROUTINE MAP_SetSolverOptions(interf) BIND(C,name='map_add_options_input_text')           !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
-       TYPE( MAP_InitInputType_C ) interf                                                        !          |
+       TYPE(MAP_InitInputType_C) :: interf                                                       !          |
      END SUBROUTINE MAP_SetSolverOptions                                                         !          |
   END INTERFACE                                                                                  !   -------+
   !==========================================================================================================
@@ -176,31 +204,31 @@ MODULE MAP
   ! Calls C function "MAPCALL_MSQS_Init(...)" in MAP_FortranBinding.cpp.                         !          |
   ! Initializes the model                                                                        !          |
   INTERFACE                                                                                      !          |
-     SUBROUTINE MSQS_Init( FC_InitInp , &                                                        !          |
-                           FC_u       , &                                                        !          |
-                           FC_p       , &                                                        !          |
-                           FC_x       , &                                                        !          |
-                           FC_xd      , &                                                        !          |
-                           FC_z       , &                                                        !          |
-                           FC_O       , &                                                        !          |
-                           FC_y       , &                                                        !          |
-                           FC_InitOut , &                                                        !          |
-                           err        , &                                                        !          |
-                           msg )        &                                                        !          |
-                           bind(C,name='map_init')                                               !          |
+     SUBROUTINE MSQS_Init(FC_InitInp, &                                                          !          |
+                          FC_u      , &                                                          !          |
+                          FC_p      , &                                                          !          |
+                          FC_x      , &                                                          !          |
+                          FC_xd     , &                                                          !          |
+                          FC_z      , &                                                          !          |
+                          FC_O      , &                                                          !          |
+                          FC_y      , &                                                          !          |
+                          FC_InitOut, &                                                          !          |
+                          err       , &                                                          !          |
+                          msg)        &                                                          !          |
+                          BIND(C,name='map_init')                                                !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
-       INTEGER(KIND=C_INT) :: err                                                                !          |
-       CHARACTER(KIND=C_CHAR),DIMENSION(1024) :: msg                                             !          |
-       TYPE( MAP_InitInputType_C ) FC_InitInp                                                    !          |
-       TYPE( MAP_InitOutputType_C ) FC_InitOut                                                   !          |
-       TYPE( MAP_InputType_C ) FC_u                                                              !          |
-       TYPE( MAP_ParameterType_C ) FC_p                                                          !          |
-       TYPE( MAP_ContinuousStateType_C ) FC_x                                                    !          |
-       TYPE( MAP_DiscreteStateType_C ) FC_xd                                                     !          |
-       TYPE( MAP_ConstraintStateType_C ) FC_z                                                    !          |
-       TYPE( MAP_OtherStateType_C ) FC_O                                                         !          |
-       TYPE( MAP_OutputType_C ) FC_y                                                             !          |
+       INTEGER(KIND=C_INT)                     :: err                                            !          |
+       CHARACTER(KIND=C_CHAR), DIMENSION(1024) :: msg                                            !          |
+       TYPE(MAP_InitInputType_C)               :: FC_InitInp                                     !          |
+       TYPE(MAP_InitOutputType_C)              :: FC_InitOut                                     !          |
+       TYPE(MAP_InputType_C)                   :: FC_u                                           !          |
+       TYPE(MAP_ParameterType_C)               :: FC_p                                           !          |
+       TYPE(MAP_ContinuousStateType_C)         :: FC_x                                           !          |
+       TYPE(MAP_DiscreteStateType_C)           :: FC_xd                                          !          |
+       TYPE(MAP_ConstraintStateType_C)         :: FC_z                                           !          |
+       TYPE(MAP_OtherStateType_C)              :: FC_O                                           !          |
+       TYPE(MAP_OutputType_C)                  :: FC_y                                           !          |
      END SUBROUTINE MSQS_Init                                                                    !          |
   END INTERFACE                                                                                  !   -------+
   !==========================================================================================================
@@ -208,32 +236,32 @@ MODULE MAP
   
   ! ==========   MSQS_UpdateStates   ======     <-----------------------------------------------------------+
   !                                                                                              !          |
-  ! Calls C function "mapcall_msqs_update_states(...)" in MAP_FortranBinding.cpp.                         !          |
+  ! Calls C function "mapcall_msqs_update_states(...)" in MAP_FortranBinding.cpp.                !          |
   ! Calculates the new fairlead forces based on an updated fairlead displacement                 !          |
   INTERFACE                                                                                      !          |
-     SUBROUTINE MSQS_UpdateStates( time  , &                                                     !          |
-                                   n     , &                                                     !          |
-                                   FC_u  , &                                                     !          |
-                                   FC_p  , &                                                     !          |
-                                   FC_x  , &                                                     !          |
-                                   FC_xd , &                                                     !          |
-                                   FC_z  , &                                                     !          |
-                                   FC_O  , &                                                     !          |
-                                   err   , &                                                     !          |
-                                   msg ) &                                                       !          |
-                                   bind(C,name='map_update_states')                              !          |
+     SUBROUTINE MSQS_UpdateStates(time , &                                                       !          |
+                                  n    , &                                                       !          |
+                                  FC_u , &                                                       !          |
+                                  FC_p , &                                                       !          |
+                                  FC_x , &                                                       !          |
+                                  FC_xd, &                                                       !          |
+                                  FC_z , &                                                       !          |
+                                  FC_O , &                                                       !          |
+                                  err  , &                                                       !          |
+                                  msg)   &                                                       !          |
+                                  BIND(C,name='map_update_states')                               !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
-       REAL(KIND=C_FLOAT) , VALUE :: time                                                        !          |
-       INTEGER(KIND=C_INT) , VALUE :: n                                                          !          |
-       INTEGER(KIND=C_INT) :: err                                                                !          |
-       CHARACTER(KIND=C_CHAR),DIMENSION(1024) :: msg                                             !          |
-       TYPE( MAP_InputType_C ) FC_u                                                              !          |
-       TYPE( MAP_ParameterType_C ) FC_p                                                          !          |
-       TYPE( MAP_ContinuousStateType_C ) FC_x                                                    !          |
-       TYPE( MAP_DiscreteStateType_C ) FC_xd                                                     !          |
-       TYPE( MAP_ConstraintStateType_C ) FC_z                                                    !          |
-       TYPE( MAP_OtherStateType_C ) FC_O                                                         !          |
+       REAL(KIND=C_FLOAT), VALUE               :: time                                           !          |
+       INTEGER(KIND=C_INT), VALUE              :: n                                              !          |
+       INTEGER(KIND=C_INT)                     :: err                                            !          |
+       CHARACTER(KIND=C_CHAR), DIMENSION(1024) :: msg                                            !          |
+       TYPE(MAP_InputType_C)                   :: FC_u                                           !          |
+       TYPE(MAP_ParameterType_C)               :: FC_p                                           !          |
+       TYPE(MAP_ContinuousStateType_C)         :: FC_x                                           !          |
+       TYPE(MAP_DiscreteStateType_C)           :: FC_xd                                          !          |
+       TYPE(MAP_ConstraintStateType_C)         :: FC_z                                           !          |
+       TYPE(MAP_OtherStateType_C)              :: FC_O                                           !          |
      END SUBROUTINE MSQS_UpdateStates                                                            !          |
   END INTERFACE                                                                                  !   -------+
   !==========================================================================================================
@@ -244,29 +272,29 @@ MODULE MAP
   ! Calls C function "MAPCALL_MSQS_CalcOutput(...)" in MAP_FortranBinding.cpp.                   !          |
   ! Calculates the outputs                                                                       !          |
   INTERFACE                                                                                      !          |
-     SUBROUTINE MSQS_CalcOutput( time  , &                                                       !          |
-                                 FC_u  , &                                                       !          |
-                                 FC_p  , &                                                       !          |
-                                 FC_x  , &                                                       !          |
-                                 FC_xd , &                                                       !          |
-                                 FC_z  , &                                                       !          |
-                                 FC_O  , &                                                       !          |
-                                 FC_y  , &                                                       !          |
-                                 err   , &                                                       !          |
-                                 msg )   &                                                       !          |
-                                 bind(C,name='map_calc_output')                                  !          |
+     SUBROUTINE MSQS_CalcOutput(time , &                                                         !          |
+                                FC_u , &                                                         !          |
+                                FC_p , &                                                         !          |
+                                FC_x , &                                                         !          |
+                                FC_xd, &                                                         !          |
+                                FC_z , &                                                         !          |
+                                FC_O , &                                                         !          |
+                                FC_y , &                                                         !          |
+                                err  , &                                                         !          |
+                                msg )  &                                                         !          |
+                                BIND(C,name='map_calc_output')                                   !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
-       REAL(KIND=C_FLOAT) , VALUE :: time                                                        !          |
-       INTEGER(KIND=C_INT) :: err                                                                !          |
-       CHARACTER(KIND=C_CHAR),DIMENSION(1024) :: msg                                             !          |
-       TYPE( MAP_InputType_C ) FC_u                                                              !          |
-       TYPE( MAP_ParameterType_C ) FC_p                                                          !          |
-       TYPE( MAP_ContinuousStateType_C ) FC_x                                                    !          |
-       TYPE( MAP_DiscreteStateType_C ) FC_xd                                                     !          |
-       TYPE( MAP_ConstraintStateType_C ) FC_z                                                    !          |
-       TYPE( MAP_OtherStateType_C ) FC_O                                                         !          |
-       TYPE( MAP_OutputType_C ) FC_y                                                             !          |
+       REAL(KIND=C_FLOAT) , VALUE              :: time                                           !          |
+       INTEGER(KIND=C_INT)                     :: err                                            !          |
+       CHARACTER(KIND=C_CHAR), DIMENSION(1024) :: msg                                            !          |
+       TYPE(MAP_InputType_C)                   :: FC_u                                           !          |
+       TYPE(MAP_ParameterType_C)               :: FC_p                                           !          |
+       TYPE(MAP_ContinuousStateType_C)         :: FC_x                                           !          |
+       TYPE(MAP_DiscreteStateType_C)           :: FC_xd                                          !          |
+       TYPE(MAP_ConstraintStateType_C)         :: FC_z                                           !          |
+       TYPE(MAP_OtherStateType_C)              :: FC_O                                           !          |
+       TYPE(MAP_OutputType_C)                  :: FC_y                                           !          |
      END SUBROUTINE MSQS_CalcOutput                                                              !          |
   END INTERFACE                                                                                  !   -------+
   !==========================================================================================================
@@ -277,16 +305,16 @@ MODULE MAP
   ! Calls C function "MAPCALL_MSQS_Init(...)" in MAP_FortranBinding.cpp.                         !          |
   ! Initializes the model                                                                        !          |
   INTERFACE                                                                                      !          |
-     SUBROUTINE MSQS_End( FC_u       , &                                                         !          |
-                          FC_p       , &                                                         !          |
-                          FC_x       , &                                                         !          |
-                          FC_xd      , &                                                         !          |
-                          FC_z       , &                                                         !          |
-                          FC_O       , &                                                         !          |
-                          FC_y       , &                                                         !          |
-                          err        , &                                                         !          |
-                          msg )        &                                                         !          |
-                          bind(C,name='map_end')                                                 !          |
+     SUBROUTINE MSQS_End(FC_u , &                                                                !          |
+                         FC_p , &                                                                !          |
+                         FC_x , &                                                                !          |
+                         FC_xd, &                                                                !          |
+                         FC_z , &                                                                !          |
+                         FC_O , &                                                                !          |
+                         FC_y , &                                                                !          |
+                         err  , &                                                                !          |
+                         msg)   &                                                                !          |
+                         BIND(C,name='map_end')                                                  !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
        INTEGER(KIND=C_INT) :: err                                                                !          |
@@ -325,8 +353,6 @@ CONTAINS
     ! Local variables
     INTEGER(KIND=C_INT)                             :: status_from_MAP = 0
     CHARACTER(KIND=C_CHAR), DIMENSION(1024)         :: message_from_MAP = ' '
-    CHARACTER(KIND=C_CHAR,LEN=1024)                 :: fake_message_from_MAP = ""//CHAR(0)   
-    ! CHARACTER(kind=c_char), dimension(1024) :: MSG_TARGET
     
     INTEGER(IntKi)                                  :: i = 0
     REAL(ReKi)                                      :: Pos(3)
@@ -344,11 +370,14 @@ CONTAINS
     CALL NWTC_Init( )   
 
     ! Call the constructor for each MAP class to create and instance of each C++ object    
-    CALL MAP_InitInput_Initialize(InitInp%C_obj%object, fake_message_from_MAP, status_from_MAP)    
-    ! @todo: call function to convert map message to a fortran character array
-    CALL MAP_Other_Initialize(other%C_obj%object, fake_message_from_MAP, status_from_MAP)
-    ! @todo: call function to convert map message to a fortran character array
-     
+    CALL MAP_InitInput_Initialize(InitInp%C_obj%object, message_from_MAP, status_from_MAP)    
+    MAP_CHECKERR() ! call function to convert map message to a fortran character array
+
+    CALL MAP_Other_Initialize(other%C_obj%object, message_from_MAP, status_from_MAP)
+    MAP_CHECKERR() ! call function to convert map message to a fortran character array
+
+    CALL MAP_Initialize_Base(u%C_obj, p%C_obj, x%C_obj, z%C_obj, other%C_obj, y%C_obj, InitInp%C_obj, InitOut%C_obj)
+
     ! Set the environmental properties:
     !   depth           = water depth [m]
     !   gravity         = the acceleration due to gravity [N] -or- [kg*m/s^2]
@@ -379,33 +408,21 @@ CONTAINS
        CALL MAP_CheckError("MAP ERROR: cannot read the MAP input file.",ErrMSg)
        RETURN
     END IF
+
     
     ! This binds MSQS_Init function in C++ with Fortran
-    CALL MSQS_Init(InitInp%C_obj   , &
-                   u%C_obj         , &
-                   p%C_obj         , &
-                   x%C_obj         , &
-                   xd%C_obj        , &
-                   z%C_obj         , &
-                   other%C_obj     , &
-                   y%C_obj         , &
-                   InitOut%C_obj   , &
-                   status_from_MAP , &
-                   fake_message_from_MAP )
-
-    ! Give the MAP code/message status to the FAST 
-    IF( status_from_MAP .NE. 0 ) THEN
-       IF( status_from_MAP .EQ. 1 ) THEN
-          ErrMsg = fake_message_from_MAP
-          ErrStat = ErrID_Warn
-          CALL WrScr( ErrMsg )
-       ELSE
-          ErrMsg = fake_message_from_MAP
-          ErrStat = ErrID_Fatal
-          RETURN
-       END IF
-    END IF
-
+    CALL MSQS_Init(InitInp%C_obj  , &
+                   u%C_obj        , &
+                   p%C_obj        , &
+                   x%C_obj        , &
+                   xd%C_obj       , &
+                   z%C_obj        , &
+                   other%C_obj    , &
+                   y%C_obj        , &
+                   InitOut%C_obj  , &
+                   status_from_MAP, &
+                   message_from_MAP)
+    MAP_CHECKERR()
 
     ! ==========   MAP F2C (literally, Fortran to C) conversion   ===========================================
     ! Now call the C2FC_ routines for the INTENT(  OUT) C objects
