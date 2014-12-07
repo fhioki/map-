@@ -25,7 +25,7 @@ MODULE MAP
                                     FC_y       , &                                               !          |
                                     FC_InitInp , &                                               !          |
                                     FC_InitOut ) &                                               !          |
-                                    bind(C,name='initialize_msqs_base')                          !          |
+                                    bind(C,name='initialize_msqs_base')                      !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
        TYPE(MAP_InitInputType_C)       :: FC_InitInp                                             !          |
@@ -371,10 +371,10 @@ CONTAINS
 
     ! Call the constructor for each MAP class to create and instance of each C++ object    
     CALL MAP_InitInput_Initialize(InitInp%C_obj%object, message_from_MAP, status_from_MAP)    
-    MAP_CHECKERR() ! call function to convert map message to a fortran character array
+!    MAP_CHECKERR() ! call function to convert map message to a fortran character array
 
     CALL MAP_Other_Initialize(other%C_obj%object, message_from_MAP, status_from_MAP)
-    MAP_CHECKERR() ! call function to convert map message to a fortran character array
+ !   MAP_CHECKERR() ! call function to convert map message to a fortran character array
 
     CALL MAP_Initialize_Base(u%C_obj, p%C_obj, x%C_obj, z%C_obj, other%C_obj, y%C_obj, InitInp%C_obj, InitOut%C_obj)
 
