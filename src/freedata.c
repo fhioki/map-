@@ -146,6 +146,7 @@ MAP_ERROR_CODE free_line(list_t* restrict line)
     line_iter->fairlead = NULL;
   };
   list_iterator_stop(line); /* ending the iteration "session" */  
+  return MAP_SAFE;
 };
 
 
