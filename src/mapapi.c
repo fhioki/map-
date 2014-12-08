@@ -934,11 +934,12 @@ MAP_EXTERNCALL void map_get_fairlead_force_2d(double* H, double* V, MAP_OtherSta
 {
   Line* iter_line = NULL;
   Domain* domain = other_type->object;
+  const unsigned int i = index;
 
   map_reset_universal_error(map_msg, ierr);  
 
-  if (index<=list_size(&domain->line)-1) {
-    iter_line = (Line*)list_get_at(&domain->line, index);
+  if (i<=list_size(&domain->line)-1) {
+    iter_line = (Line*)list_get_at(&domain->line, i);
     *H = *(iter_line->H.value);
     *V = *(iter_line->V.value);
   } else {
@@ -953,9 +954,10 @@ MAP_EXTERNCALL void map_get_fairlead_force_3d(double* fx, double* fy, double* fz
   Line* iter_line = NULL;
   Domain* domain = other_type->object;
   double psi = 0.0;
+  const unsigned int i = index;
 
-  if (index<=list_size(&domain->line)-1) {
-    iter_line = (Line*)list_get_at(&domain->line, index);
+  if (i<=list_size(&domain->line)-1) {
+    iter_line = (Line*)list_get_at(&domain->line, i);
     psi = iter_line->psi;
     *fx = *(iter_line->H.value)*cos(psi);
     *fy = *(iter_line->H.value)*sin(psi);
