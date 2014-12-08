@@ -145,40 +145,6 @@ void initialize_outer_solve_data_defaults(OuterSolveAttributes* outer);
 
 
 /**
- * @brief   Allocate Domain
- * @details Called by {@link  map_create_other_type} to allocate memory for the internal 
- *          state (model) data type. 'Other States', as FAST calls them, are states not 
- *          fitting a regular role as a parameter, constraint, input, ect. Other states
- *          contain information on the line connectivity matrix, how reference to poperties
- *          for each line, buoyancy properties of the nodes, ect. Deallocated using
- *          interaction with python and C based programs. Structure is free'd by calling
- *          {@link MAP_OtherState_Delete}.
- * @param   map_msg, error message
- * @param   ierr, error code
- * @see     map_create_other_type()
- * @return  instance of the interal model struct (different from the FAST-required derived types)  
- */
-Domain* MAP_OtherState_Create(char* map_msg, MAP_ERROR_CODE* ierr);
-
-
-/**
- * @brief   Allocate InitializationData
- * @details Called by {@link  map_create_init_type} to allocate memory for the iinitialization
- *          data type. The reason why a layer is added to the initialization data is due to 
- *          Fortran interactions. It is straighforward to pass 1D character arrays between
- *          Fortran and C instead of 2D arrays. 2D arrays would make more sense since multiple 
- *          lines from the MAP input file can be packed in one step. {@link MAP_InitInputType_t}
- *          in responsible for the 1D arrays. which are passed from Fortran to C. MAP then takes
- *          the 1D aray and packs it into InitializationData. This is used to subsequently 
- *          initialize the model. Structure is free'd by calling {@link MAP_InitInput_Delete}.
- * @param   map_msg, error message
- * @param   ierr, error code
- * @return  instance of the packed initialization strings (different from the FAST-required derived types)  
- */
-InitializationData* MAP_InitInput_Create(char* map_msg, MAP_ERROR_CODE* ierr);
-
-
-/**
  * @brief   Sets model solver options corresponding to the MAP input file parameters 
  * @details Called in {@link map_init} to set the corresponding model (solver) options
  *          in MAP. This is different from line flags. Note that this function can 

@@ -811,18 +811,6 @@ CONTAINS
   !==========================================================================================================
 
  
-  ! !==========   MAP_CheckError   =======     <---------------------------------------------------------------+
-  ! SUBROUTINE MAP_CheckError(InMsg,OutMsg)
-  !   ! Passed arguments
-  !   CHARACTER(*), INTENT(IN   ) :: InMsg       ! The input string
-  !   CHARACTER(*), INTENT(INOUT) :: OutMsg      ! The error message (ErrMsg)
-  ! 
-  !   OutMsg = TRIM(OutMsg)//InMsg
-  !   RETURN
-  ! END SUBROUTINE MAP_CheckError                                                                  !   -------+
-  ! !==========================================================================================================
-
-
   ! ==========   MAP_C2F_OtherState_Array_Allocation   ======     <-----------------------------------------+
   !                                                                                              !          |
   ! Get te output header for the FAST text file so something like this is printed:

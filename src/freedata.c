@@ -30,6 +30,12 @@
 
 
 
+void MAP_InitInput_Delete(InitializationData* init_data)
+{
+  MAPFREE(init_data); 
+};
+
+
 void MAP_OtherState_Delete(Domain* domain)
 {
   MAPFREE(domain);

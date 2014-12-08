@@ -415,6 +415,23 @@ MAP_EXTERNCALL void map_get_unit_string(int* n, char** str_array ,MAP_OtherState
 
 
 /**
+ * @brief   Allocate InitializationData
+ * @details Called by {@link  map_create_init_type} to allocate memory for the iinitialization
+ *          data type. The reason why a layer is added to the initialization data is due to 
+ *          Fortran interactions. It is straighforward to pass 1D character arrays between
+ *          Fortran and C instead of 2D arrays. 2D arrays would make more sense since multiple 
+ *          lines from the MAP input file can be packed in one step. {@link MAP_InitInputType_t}
+ *          in responsible for the 1D arrays. which are passed from Fortran to C. MAP then takes
+ *          the 1D aray and packs it into InitializationData. This is used to subsequently 
+ *          initialize the model. Structure is free'd by calling {@link MAP_InitInput_Delete}.
+ * @param   map_msg, error message
+ * @param   ierr, error code
+ * @return  instance of the packed initialization strings (different from the FAST-required derived types)  
+ */
+MAP_EXTERNCALL InitializationData* MAP_InitInput_Create(char* map_msg, MAP_ERROR_CODE* ierr);
+
+
+/**
  * @brief   Allocate MAP_InitInputType_t and InitializationData
  * @details Called to allocate memory for the initialzation data for both the Fortran
  *          derived data and internal state data. Following sucessful allocation, 
@@ -427,6 +444,23 @@ MAP_EXTERNCALL void map_get_unit_string(int* n, char** str_array ,MAP_OtherState
  * @return  initialization input type (equivalent C binding struct)  
  */
 MAP_EXTERNCALL MAP_InitInputType_t* map_create_init_type(char* map_msg, MAP_ERROR_CODE* ierr);
+
+
+/**
+ * @brief   Allocate Domain
+ * @details Called by {@link  map_create_other_type} to allocate memory for the internal 
+ *          state (model) data type. 'Other States', as FAST calls them, are states not 
+ *          fitting a regular role as a parameter, constraint, input, ect. Other states
+ *          contain information on the line connectivity matrix, how reference to poperties
+ *          for each line, buoyancy properties of the nodes, ect. Deallocated using
+ *          interaction with python and C based programs. Structure is free'd by calling
+ *          {@link MAP_OtherState_Delete}.
+ * @param   map_msg, error message
+ * @param   ierr, error code
+ * @see     map_create_other_type()
+ * @return  instance of the interal model struct (different from the FAST-required derived types)  
+ */
+MAP_EXTERNCALL Domain* MAP_OtherState_Create(char* map_msg, MAP_ERROR_CODE* ierr);
 
 
 /**

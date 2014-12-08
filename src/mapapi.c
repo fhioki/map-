@@ -1274,12 +1274,6 @@ MAP_EXTERNCALL MAP_ContinuousStateType_t* map_create_continuous_type(char* map_m
 };
 
 
-MAP_EXTERNCALL void MAP_InitInput_Delete(InitializationData* init_data)
-{
-  MAPFREE(init_data); 
-};
-
-
 MAP_EXTERNCALL int free_init_data(InitializationData* init_data, char* map_msg, MAP_ERROR_CODE* ierr) 
 {
   int ret = 0;
