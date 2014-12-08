@@ -2082,7 +2082,7 @@ MAP_ERROR_CODE set_line_option_flags(struct bstrList* words, int* i_parsed, Line
       };
     } while (words->entry[index]->slen<1);
     if (is_numeric(words->entry[index]->data)) {
-      line_ptr->segment_size = (double)atof(words->entry[index]->data);
+      line_ptr->segment_size = (int)atoi(words->entry[index]->data);
       *i_parsed = index;
     } else { /* should not cancel the simulation; simply ignore it */      
       set_universal_error_with_message(map_msg, ierr, MAP_FATAL_18, "Option <%s>", words->entry[index]->data);
