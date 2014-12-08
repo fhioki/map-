@@ -77,10 +77,12 @@ MAP_ERROR_CODE write_summary_file(InitializationData* init, MAP_ParameterType_t*
   struct tm* tm_info;
   time(&timer);
   tm_info = localtime(&timer);
+  strftime(time_buffer, TIME_BUFFER_SIZE, "%A %B %d-%Y at %H:%M:%S %p", tm_info);
 # else
   struct tm tm_info;
   time(&timer);
   localtime_s(&tm_info, &timer);
+  strftime(time_buffer, TIME_BUFFER_SIZE, "%A %B %d-%Y at %H:%M:%S %p", &tm_info);
 # endif
 
   err = fopen_s(&file, init->summary_file_name->data, "w");
@@ -95,7 +97,6 @@ MAP_ERROR_CODE write_summary_file(InitializationData* init, MAP_ParameterType_t*
   };
   
   //__get_machine_name(name);  
-  strftime(time_buffer, TIME_BUFFER_SIZE, "%A %B %d-%Y at %H:%M:%S %p", tm_info);
 
   /* May want to retag version number of git between major/minor releases. A trick to include git revision number
    * can be found archived here: http://stackoverflow.com/questions/1704907/how-can-i-get-my-c-code-to-automatically-print-out-its-git-version-hash
