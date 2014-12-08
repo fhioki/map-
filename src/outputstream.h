@@ -26,9 +26,15 @@
 
 
 #include <time.h>
+#include "mapsys.h"
 #include "map.h"
 #include "maperror.h"
 #include "MAP_Types.h"
+
+
+#if !defined(_WIN32) || !defined(_WIN64)
+MAP_ERROR_CODE fopen_s(FILE** f, const char* name, const char* mode);
+#endif
 
 
 /**
