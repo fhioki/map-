@@ -38,12 +38,7 @@
 #endif
 
 
-#ifdef _WIN64 
-#  include "stdbool.h"
-#  define map_snprintf _snprintf
-#  define map_strcat(a,b,c) strcat_s(a,b,c)
-#  define MAP_EXTERNCALL __declspec( dllexport )
-#elif _WIN32 
+#if defined(_WIN32) || defined(_WIN64 )
 #  include "stdbool.h"
 #  define map_snprintf _snprintf
 #  define map_strcat(a,b,c) strcat_s(a,b,c)
