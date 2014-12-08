@@ -227,14 +227,14 @@ void __cminpack_func__(lmpar)(int n, real *r, int ldr,
     gnorm = __cminpack_enorm__(n, wa1);
     paru = gnorm / delta;
     if (paru == 0.) {
-        paru = dwarf / min(delta,(real)p1) /* / p001 ??? */;
+        paru = dwarf / minpack_min(delta,(real)p1) /* / p001 ??? */;
     }
 
 /*     if the input par lies outside of the interval (parl,paru), */
 /*     set par to the closer endpoint. */
 
-    *par = max(*par,parl);
-    *par = min(*par,paru);
+    *par = minpack_max(*par,parl);
+    *par = minpack_min(*par,paru);
     if (*par == 0.) {
         *par = gnorm / dxnorm;
     }
@@ -249,7 +249,7 @@ void __cminpack_func__(lmpar)(int n, real *r, int ldr,
         if (*par == 0.) {
             /* Computing MAX */
             d1 = dwarf, d2 = p001 * paru;
-            *par = max(d1,d2);
+            *par = minpack_max(d1,d2);
         }
         temp = sqrt(*par);
         for (j = 0; j < n; ++j) {
@@ -309,17 +309,17 @@ void __cminpack_func__(lmpar)(int n, real *r, int ldr,
 /*        depending on the sign of the function, update parl or paru. */
 
         if (fp > 0.) {
-            parl = max(parl,*par);
+            parl = minpack_max(parl,*par);
         }
         if (fp < 0.) {
-            paru = min(paru,*par);
+            paru = minpack_min(paru,*par);
         }
 
 /*        compute an improved estimate for par. */
 
         /* Computing MAX */
         d1 = parl, d2 = *par + parc;
-        *par = max(d1,d2);
+        *par = minpack_max(d1,d2);
 
 /*        end of an iteration. */
 

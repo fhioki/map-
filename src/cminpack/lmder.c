@@ -338,7 +338,7 @@ int __cminpack_func__(lmder)(__cminpack_decl_fcnder_mn__ void *p, int m, int n, 
                     }
                     /* Computing MAX */
                     d1 = fabs(sum / wa2[l]);
-                    gnorm = max(gnorm,d1);
+                    gnorm = minpack_max(gnorm,d1);
                 }
             }
         }
@@ -358,7 +358,7 @@ int __cminpack_func__(lmder)(__cminpack_decl_fcnder_mn__ void *p, int m, int n, 
             for (j = 0; j < n; ++j) {
                 /* Computing MAX */
                 d1 = diag[j], d2 = wa2[j];
-                diag[j] = max(d1,d2);
+                diag[j] = minpack_max(d1,d2);
             }
         }
 
@@ -383,7 +383,7 @@ int __cminpack_func__(lmder)(__cminpack_decl_fcnder_mn__ void *p, int m, int n, 
 /*           on the first iteration, adjust the initial step bound. */
 
             if (iter == 1) {
-                delta = min(delta,pnorm);
+                delta = minpack_min(delta,pnorm);
             }
 
 /*           evaluate the function at x + p and calculate its norm. */
@@ -441,7 +441,7 @@ int __cminpack_func__(lmder)(__cminpack_decl_fcnder_mn__ void *p, int m, int n, 
                 }
                 /* Computing MIN */
                 d1 = pnorm / p1;
-                delta = temp * min(delta,d1);
+                delta = temp * minpack_min(delta,d1);
                 par /= temp;
             } else {
                 if (par == 0. || ratio >= p75) {

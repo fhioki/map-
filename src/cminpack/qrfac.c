@@ -208,7 +208,7 @@ void __cminpack_func__(qrfac)(int m, int n, real *a, int
 
 /*     reduce a to r with householder transformations. */
 
-    minmn = min(m,n);
+    minmn = minpack_min(m,n);
     for (j = 0; j < minmn; ++j) {
 	if (pivot) {
 
@@ -265,7 +265,7 @@ void __cminpack_func__(qrfac)(int m, int n, real *a, int
                         temp = a[j + k * lda] / rdiag[k];
                         /* Computing MAX */
                         d1 = 1. - temp * temp;
-                        rdiag[k] *= sqrt((max((real)0.,d1)));
+                        rdiag[k] *= sqrt((minpack_max((real)0.,d1)));
                         /* Computing 2nd power */
                         d1 = rdiag[k] / wa[k];
                         if (p05 * (d1 * d1) <= epsmch) {

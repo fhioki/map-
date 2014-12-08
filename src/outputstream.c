@@ -582,7 +582,7 @@ MAP_ERROR_CODE write_node_z_sum_force_to_summary_file(const int num_col, const i
 MAP_ERROR_CODE write_node_information_to_summary_file(FILE* file, Domain* domain, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   int num = 0;
-  int i = 0;
+  unsigned int i = 0;
   int col_cnt = 0; /* number of columns. The MAP summary file prints 4 columns of node information. After column 4, carriage return */
   
   bstring line0 = NULL; 
