@@ -34,7 +34,7 @@
  * @see     map_init()
  * @return  Size of CableLibrary structure
  */
-MAP_EXTERNCALL void initialize_msqs_base(MAP_InputType_t* u_type, MAP_ParameterType_t* p_type, MAP_ContinuousStateType_t* x_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type, MAP_InitOutputType_t* initout_type, MAP_InitOutputType_t* io_type);
+MAP_EXTERNCALL void map_initialize_msqs_base(MAP_InputType_t* u_type, MAP_ParameterType_t* p_type, MAP_ContinuousStateType_t* x_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type, MAP_InitOutputType_t* io_type);
 
 
 MAP_EXTERNCALL void set_init_to_null(MAP_InitInputType_t* init_type, char* map_msg, MAP_ERROR_CODE* ierr);

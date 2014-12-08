@@ -81,7 +81,7 @@ MODULE MAP_C_Types
           BIND( C , NAME="MAP_InitInput_Create" )                 !          |     !          |
        IMPORT                                                     !          |     !          |
        TYPE(C_ptr) :: this                                        !          |     !          |
-       CHARACTER(KIND=C_CHAR) :: msg                              !          |     !          |
+       CHARACTER(KIND=C_CHAR), DIMENSION(1024) :: msg                              !          |     !          |
        INTEGER(KIND=C_INT) :: err                                 !          |     !          |
      END FUNCTION C_Create_MAP_InitInput                          !          |     !          |
                                                                   !          |     !          |
@@ -234,7 +234,7 @@ MODULE MAP_C_Types
           BIND( C , NAME="MAP_OtherState_Create" )                     !          |     !          |
        IMPORT                                                     !          |     !          |
        TYPE(C_ptr) :: this                                        !          |     !          |
-       CHARACTER(KIND=C_CHAR) :: msg                              !          |     !          |
+       CHARACTER(KIND=C_CHAR), DIMENSION(1024) :: msg                              !          |     !          |
        INTEGER(KIND=C_INT) :: err                                 !          |     !          |
      END FUNCTION C_Create_MAP_Other                              !          |     !          |
                                                                   !          |     !          |
@@ -403,7 +403,7 @@ CONTAINS
   ! Initialization Input type construction
   SUBROUTINE MAP_InitInput_Create( this,msg,err )
     TYPE( MAP_InitInput_C ), INTENT( OUT ) :: this
-    CHARACTER(KIND=C_CHAR) :: msg
+    CHARACTER(KIND=C_CHAR), DIMENSION(1024) :: msg
     INTEGER(KIND=C_INT) :: err
     this%object = C_Create_MAP_InitInput(msg,err)
   END SUBROUTINE MAP_InitInput_Create
@@ -508,7 +508,7 @@ CONTAINS
   ! Other type initialization
   SUBROUTINE MAP_OtherState_Create( this,msg,err )
     TYPE( MAP_OtherState_C ), INTENT( OUT ) :: this
-    CHARACTER(KIND=C_CHAR) :: msg
+    CHARACTER(KIND=C_CHAR), DIMENSION(1024) :: msg
     INTEGER(KIND=C_INT) :: err
     this%object = C_Create_MAP_Other(msg,err)
   END SUBROUTINE MAP_OtherState_Create

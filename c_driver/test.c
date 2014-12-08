@@ -91,6 +91,7 @@ int main(int argc, char *argv[])
   strcpy(option_def[6], "outer_max_its 200\0");
   strcpy(option_def[7], " repeat 120 240\0");
 
+  map_initialize_msqs_base(u_type, p_type, x_type, z_type, other_type, y_type, io_type);
   map_set_sea_depth(p_type, depth);
   map_set_gravity(p_type, g);
   map_set_sea_density(p_type, rho);

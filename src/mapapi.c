@@ -37,14 +37,13 @@
 extern const char MAP_ERROR_STRING[][1024];
 
 
-MAP_EXTERNCALL void initialize_msqs_base(MAP_InputType_t* u_type,
-                                         MAP_ParameterType_t* p_type, 
-                                         MAP_ContinuousStateType_t* x_type, 
-                                         MAP_ConstraintStateType_t* z_type, 
-                                         MAP_OtherStateType_t* other_type,
-                                         MAP_OutputType_t* y_type,
-                                         MAP_InitOutputType_t* initout_type, 
-                                         MAP_InitOutputType_t* io_type)
+MAP_EXTERNCALL void map_initialize_msqs_base(MAP_InputType_t* u_type,
+                                             MAP_ParameterType_t* p_type, 
+                                             MAP_ContinuousStateType_t* x_type, 
+                                             MAP_ConstraintStateType_t* z_type, 
+                                             MAP_OtherStateType_t* other_type,
+                                             MAP_OutputType_t* y_type,
+                                             MAP_InitOutputType_t* io_type)
 {
   Domain* domain = other_type->object;
   MAP_ERROR_CODE success = MAP_SAFE;
