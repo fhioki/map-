@@ -1,5 +1,5 @@
-#define MAP_CHECKERR()  IF(MAP_ERROR_CHECKER(message_from_MAP,status_from_MAP,ErrMsg,ErrStat)) RETURN
-#define MAP_CHECKERRQ(string)  IF(MAP_ERROR(ErrMsg,ErrStat,string)) RETURN
+#define MAP_CHECKERR() IF(MAP_ERROR_CHECKER(message_from_MAP,status_from_MAP,ErrMsg,ErrStat)) RETURN
+#define MAP_CHECKERRQ(string) IF(MAP_ERROR(ErrMsg,ErrStat,string)) RETURN
 
 MODULE MAP
   
@@ -18,13 +18,13 @@ MODULE MAP
   ! ==========   initalize_map_base   ======     <----------------------------------------------------------+
   ! Initializes states                                                                           !          |
   INTERFACE                                                                                      !          |
-     SUBROUTINE MAP_Initialize_Base(FC_u       , &                                               !          |
-                                    FC_p       , &                                               !          |
-                                    FC_x       , &                                               !          |
-                                    FC_z       , &                                               !          |
-                                    FC_O       , &                                               !          |
-                                    FC_y       , &                                               !          |
-                                    FC_InitOut ) &                                               !          |
+     SUBROUTINE MAP_Initialize_Base(FC_u      , &                                                !          |
+                                    FC_p      , &                                                !          |
+                                    FC_x      , &                                                !          |
+                                    FC_z      , &                                                !          |
+                                    FC_O      , &                                                !          |
+                                    FC_y      , &                                                !          |
+                                    FC_InitOut) &                                                !          |
                                     bind(C,name='map_initialize_msqs_base')                      !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
@@ -45,7 +45,7 @@ MODULE MAP
   !                                                                                              !          |
   ! Get the string information (label) of all the outputs MAP is providing the FAST glue code    !          | 
   INTERFACE                                                                                      !          | 
-     SUBROUTINE MAP_Get_Header_String(FC_int, FC_string, FC_other ) &                            !          | 
+     SUBROUTINE MAP_Get_Header_String(FC_int, FC_string, FC_other) &                             !          | 
           BIND(C,name='map_get_header_string')                                                   !          | 
        IMPORT                                                                                    !          | 
        IMPLICIT NONE                                                                             !          | 
@@ -61,7 +61,7 @@ MODULE MAP
   !                                                                                              !          |
   ! Gets the units of all the outputs MAP is providing to the FAST glue code                     !          | 
   INTERFACE                                                                                      !          | 
-     SUBROUTINE MAP_Get_Unit_String( FC_int, FC_string, FC_other ) &                             !          | 
+     SUBROUTINE MAP_Get_Unit_String(FC_int, FC_string, FC_other) &                               !          | 
           BIND(C,name='map_get_unit_string')                                                     !          | 
        IMPORT                                                                                    !          | 
        IMPLICIT NONE                                                                             !          | 
@@ -500,7 +500,8 @@ CONTAINS
   
     ! Local variables
     INTEGER(KIND=C_INT)                             :: status_from_MAP = 0
-    CHARACTER(KIND=C_CHAR,len=1024)                 :: message_from_MAP = ""//CHAR(0)
+    CHARACTER(KIND=C_CHAR), DIMENSION(1024)         :: message_from_MAP = ' '
+    ! CHARACTER(KIND=C_CHAR,len=1024)                 :: message_from_MAP = ""//CHAR(0)
     REAL(KIND=C_FLOAT)                              :: time = 0
     INTEGER(KIND=C_INT)                             :: interval = 0
     INTEGER(IntKi)                                  :: i=0  
@@ -536,16 +537,16 @@ CONTAINS
     !          that u_interp is setup in a way to be handled by the C code -> this is why the states are not updated when 
     !          UpdateStates is called. I think there is a discrepancy here because the arrays are allocated/deallocation in C. 
     !          I think MAP_Input_ExtrapInterp neglected this detail? If so, this might also explain the memory leaks.     
-    CALL MSQS_UpdateStates( time            , &
-                            interval        , & 
-                            u_interp%C_obj  , &
-                            p%C_obj         , &
-                            x%C_obj         , &
-                            xd%C_obj        , &
-                            z%C_obj         , &
-                            O%C_obj         , &
-                            status_from_MAP , &
-                            message_from_MAP  )
+    CALL MSQS_UpdateStates( time           , &
+                            interval       , & 
+                            u_interp%C_obj , &
+                            p%C_obj        , &
+                            x%C_obj        , &
+                            xd%C_obj       , &
+                            z%C_obj        , &
+                            O%C_obj        , &
+                            status_from_MAP, &
+                            message_from_MAP)
     MAP_CHECKERR()
   
     ! delete the temporary input arrays/meshes 
@@ -570,7 +571,7 @@ CONTAINS
   
     ! Local variables
     INTEGER(KIND=C_INT)                             :: status_from_MAP
-    CHARACTER(KIND=C_CHAR,len=1024)                 :: message_from_MAP = ""//CHAR(0)
+    CHARACTER(KIND=C_CHAR), DIMENSION(1024)         :: message_from_MAP = ' '
     REAL(KIND=C_FLOAT)                              :: time = 0
   
     time = t
@@ -590,7 +591,7 @@ CONTAINS
                          O%C_obj         , &
                          y%C_obj         , &
                          status_from_MAP , &
-                         message_from_MAP ) 
+                         message_from_MAP) 
     MAP_CHECKERR()
   
     WRITE(*,*) y%wrtOutput ! @bonnie : remove
@@ -616,8 +617,10 @@ CONTAINS
     TYPE( MAP_OutputType ) ,          INTENT(INOUT) :: y                                 
     INTEGER(IntKi),                   INTENT(  OUT) :: ErrStat                           
     CHARACTER(*),                     INTENT(  OUT) :: ErrMsg                            
+
+    ! Locals
     INTEGER(KIND=C_INT)                             :: status_from_MAP=0                 
-    CHARACTER(KIND=C_CHAR,len=1024)                 :: message_from_MAP = ""//CHAR(0)    
+    CHARACTER(KIND=C_CHAR), DIMENSION(1024)         :: message_from_MAP = ' '
     INTEGER(IntKi)                                  :: i=0 
                                                                                          
     ErrStat = ErrID_None                                                                 
@@ -628,10 +631,10 @@ CONTAINS
                    x%C_obj         , &                                                   
                    xd%C_obj        , &                                                   
                    z%C_obj         , &                                                   
-                   other%C_obj         , &                                                   
+                   other%C_obj     , &                                                   
                    y%C_obj         , &                                                   
                    status_from_MAP , &                                                   
-                   message_from_MAP  )                                                    
+                   message_from_MAP)                                                    
     MAP_CHECKERR()
   
     ! Destroy Fortran MAP types
@@ -652,18 +655,18 @@ CONTAINS
   ! Reads the MAP input files. Assumes the MAP input file is formated as demonstrated with the 
   !   MAP distruction archives. Any changes to the format, and this read function may fail.    
   SUBROUTINE map_read_input_file_contents(file, InitInp, ErrStat)                              
-    TYPE( MAP_InitInputType ) , INTENT(INOUT)       :: InitInp                     
-    CHARACTER(255) , INTENT(IN   )                  :: file                        
-    INTEGER(IntKi),                   INTENT(  OUT) :: ErrStat                     
-    INTEGER                                         :: success                     
-    INTEGER                                         :: index_begn=1                
-    INTEGER                                         :: index_cabl=0                
-    INTEGER                                         :: index_node=0                
-    INTEGER                                         :: index_elem=0                
-    INTEGER                                         :: index_optn=0                
-    INTEGER                                         :: i = 0
-    INTEGER                                         :: N = 0
-    CHARACTER(255)                                  :: line
+    TYPE(MAP_InitInputType), INTENT(INOUT) :: InitInp                     
+    CHARACTER(255) ,         INTENT(IN   ) :: file                        
+    INTEGER(IntKi),          INTENT(  OUT) :: ErrStat                     
+    INTEGER                                :: success                     
+    INTEGER                                :: index_begn=1                
+    INTEGER                                :: index_cabl=0                
+    INTEGER                                :: index_node=0                
+    INTEGER                                :: index_elem=0                
+    INTEGER                                :: index_optn=0                
+    INTEGER                                :: i = 0
+    INTEGER                                :: N = 0
+    CHARACTER(255)                         :: line
 
     ! Open the MAP input file                                                      
     OPEN(UNIT=1, FILE=file)                                                        
