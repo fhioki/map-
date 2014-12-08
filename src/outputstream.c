@@ -682,7 +682,7 @@ MAP_ERROR_CODE write_line_information_to_summary_file(FILE* file, Domain* domain
   bstring line8 = NULL;
   bstring line9 = NULL;
   bstring line10 = NULL;
-  int i = 0;  
+  unsigned int i = 0;  
 
   for (i=0 ; i<num_lines ; i++) {
     line_iter = (Line*)list_get_at(&domain->line, i);
