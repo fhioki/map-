@@ -993,7 +993,7 @@ MAP_EXTERNCALL void map_get_header_string(int* n, char** str_array, MAP_OtherSta
   list_iterator_start(&domain->y_list->out_list_ptr);
   while (list_iterator_hasnext(&domain->y_list->out_list_ptr)) { 
     vartype_ptr = (VarTypePtr*)list_iterator_next(&domain->y_list->out_list_ptr);
-    strcpy(str_array[count],vartype_ptr->name->data);
+    MAP_STRCPY(str_array[count], 16, vartype_ptr->name->data);
     count++;
   };
   list_iterator_stop(&domain->y_list->out_list_ptr);     
@@ -1001,7 +1001,7 @@ MAP_EXTERNCALL void map_get_header_string(int* n, char** str_array, MAP_OtherSta
   list_iterator_start(&domain->y_list->out_list);
   while (list_iterator_hasnext(&domain->y_list->out_list)) { 
     vartype = (VarType*)list_iterator_next(&domain->y_list->out_list);
-    strcpy(str_array[count],vartype->name->data);
+    MAP_STRCPY(str_array[count], 16, vartype->name->data);
     count++;
   };
   list_iterator_stop(&domain->y_list->out_list);     
@@ -1019,7 +1019,7 @@ MAP_EXTERNCALL void map_get_unit_string(int* n, char** str_array, MAP_OtherState
   list_iterator_start(&domain->y_list->out_list_ptr);
   while (list_iterator_hasnext(&domain->y_list->out_list_ptr)) { 
     vartype_ptr = (VarTypePtr*)list_iterator_next(&domain->y_list->out_list_ptr );
-    strcpy(str_array[count],vartype_ptr->units->data);
+    MAP_STRCPY(str_array[count], 15, vartype_ptr->units->data);
     count++;
   };
   list_iterator_stop(&domain->y_list->out_list_ptr);     
@@ -1027,7 +1027,7 @@ MAP_EXTERNCALL void map_get_unit_string(int* n, char** str_array, MAP_OtherState
   list_iterator_start(&domain->y_list->out_list);
   while (list_iterator_hasnext(&domain->y_list->out_list)) { 
     vartype = (VarType*)list_iterator_next(&domain->y_list->out_list );
-    strcpy(str_array[count],vartype->units->data);
+    MAP_STRCPY(str_array[count], 15, vartype->units->data);
     count++;
   };
   list_iterator_stop(&domain->y_list->out_list);     
