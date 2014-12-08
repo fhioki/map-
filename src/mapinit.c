@@ -1342,6 +1342,7 @@ MAP_ERROR_CODE expand_node_force_x(double* fx, const char* word)
   } else {
     return MAP_FATAL;
   };
+  return MAP_SAFE;
 };
 
 
@@ -1358,6 +1359,7 @@ MAP_ERROR_CODE expand_node_force_y(double* fy, const char* word)
   } else {
     return MAP_FATAL;
   };
+  return MAP_SAFE;
 };
 
 
@@ -2436,7 +2438,7 @@ MAP_ERROR_CODE reset_line(Line* line_ptr)
   line_ptr->damage_time = -999.9;
   line_ptr->diagnostic_type = -9999;
   line_ptr->segment_size = 10;
-
+  return MAP_SAFE;
 };
 
 
@@ -2484,6 +2486,7 @@ MAP_ERROR_CODE reset_node(Node* node_ptr)
   node_ptr->sum_force_ptr.fx.is_fixed = false;
   node_ptr->sum_force_ptr.fy.is_fixed = false;
   node_ptr->sum_force_ptr.fz.is_fixed = false;
+  return MAP_SAFE;
 };
 
 
