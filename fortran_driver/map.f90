@@ -356,11 +356,6 @@ CONTAINS
     INTEGER(IntKi)                                  :: i = 0
     REAL(ReKi)                                      :: Pos(3)
     INTEGER(IntKi)                                  :: NumNodes = 0
-    ! INTEGER(C_INT)                                  :: numHeaderStr=0
-    ! CHARACTER(16),DIMENSION(:), ALLOCATABLE, TARGET :: strHdrArray ! Hopefully none of the headers are more than 16 characters long
-    ! TYPE(C_PTR), DIMENSION(:), ALLOCATABLE          :: strHdrPtrs
-    ! CHARACTER(15),DIMENSION(:), ALLOCATABLE, TARGET :: strUntArray ! Hopefully none of the headers are more than 15 characters long
-    ! TYPE(C_PTR), DIMENSION(:), ALLOCATABLE          :: strUntPtrs
 
     ErrStat = ErrID_None
     ErrMsg  = "" 
@@ -552,21 +547,6 @@ CONTAINS
                             status_from_MAP , &
                             message_from_MAP  )
     MAP_CHECKERR()
-    ! ! Give the MAP code/message status to the FAST 
-    ! IF( status_from_MAP .NE. 0 ) THEN
-    !    IF( status_from_MAP .EQ. 1 ) THEN
-    !       ErrMsg = message_from_MAP
-    !       ErrStat = ErrID_Warn
-    !       CALL WrScr( ErrMsg )
-    !    ELSE
-    !       ErrMsg = message_from_MAP
-    !       ErrStat = ErrID_Fatal
-    !       ! make sure this is destroyed on early return
-    !       CALL deallocate_primitives_for_c(u_interp, ErrStat, ErrMsg)
-    !       CALL MAP_DestroyInput( u_interp, ErrStat, ErrMsg )      
-    !       RETURN
-    !    END IF
-    ! END IF
   
     ! delete the temporary input arrays/meshes 
     CALL deallocate_primitives_for_c(u_interp, ErrStat, ErrMsg)
@@ -612,18 +592,6 @@ CONTAINS
                          status_from_MAP , &
                          message_from_MAP ) 
     MAP_CHECKERR()
-    ! ! Give the MAP code/message status to the FAST 
-    ! IF( status_from_MAP .NE. 0 ) THEN
-    !    IF( status_from_MAP .EQ. 1 ) THEN
-    !       ErrMsg = message_from_MAP
-    !       ErrStat = ErrID_Warn
-    !       CALL WrScr( ErrMsg )
-    !    ELSE
-    !       ErrMsg = message_from_MAP
-    !       ErrStat = ErrID_Fatal
-    !       RETURN
-    !    END IF
-    ! END IF
   
     WRITE(*,*) y%wrtOutput ! @bonnie : remove
     write(*,*)
@@ -665,18 +633,6 @@ CONTAINS
                    status_from_MAP , &                                                   
                    message_from_MAP  )                                                    
     MAP_CHECKERR()
-    ! ! Give the MAP code/message status to the FAST 
-    ! IF( status_from_MAP .NE. 0 ) THEN
-    !    IF( status_from_MAP .EQ. 1 ) THEN
-    !       ErrMsg = message_from_MAP
-    !       ErrStat = ErrID_Warn
-    !       CALL WrScr( ErrMsg )
-    !    ELSE
-    !       ErrMsg = message_from_MAP
-    !       ErrStat = ErrID_Fatal
-    !       RETURN
-    !    END IF
-    ! END IF
   
     ! Destroy Fortran MAP types
     ! Anything allocated in C should be destroyed in C. Calling these functions only destroys mesh types. 
