@@ -1,4 +1,5 @@
 #define MAP_CHECKERR()  IF(MAP_ERROR_CHECKER(message_from_MAP,status_from_MAP,ErrMsg,ErrStat)) RETURN
+#define MAP_CHECKERRQ(string)  IF(MAP_ERROR(ErrMsg,ErrStat,string)) RETURN
 
 MODULE MAP
   
@@ -355,25 +356,18 @@ CONTAINS
     INTEGER(IntKi)                                  :: i = 0
     REAL(ReKi)                                      :: Pos(3)
     INTEGER(IntKi)                                  :: NumNodes = 0
-    INTEGER(C_INT)                                  :: numHeaderStr=0
-    CHARACTER(16),DIMENSION(:), ALLOCATABLE, TARGET :: strHdrArray ! Hopefully none of the headers are more than 16 characters long
-    TYPE(C_PTR), DIMENSION(:), ALLOCATABLE          :: strHdrPtrs
-    CHARACTER(15),DIMENSION(:), ALLOCATABLE, TARGET :: strUntArray ! Hopefully none of the headers are more than 15 characters long
-    TYPE(C_PTR), DIMENSION(:), ALLOCATABLE          :: strUntPtrs
+    ! INTEGER(C_INT)                                  :: numHeaderStr=0
+    ! CHARACTER(16),DIMENSION(:), ALLOCATABLE, TARGET :: strHdrArray ! Hopefully none of the headers are more than 16 characters long
+    ! TYPE(C_PTR), DIMENSION(:), ALLOCATABLE          :: strHdrPtrs
+    ! CHARACTER(15),DIMENSION(:), ALLOCATABLE, TARGET :: strUntArray ! Hopefully none of the headers are more than 15 characters long
+    ! TYPE(C_PTR), DIMENSION(:), ALLOCATABLE          :: strUntPtrs
 
     ErrStat = ErrID_None
     ErrMsg  = "" 
-
-    ! Initialize the NWTC Subroutine Library
-    CALL NWTC_Init( )   
-
-    ! Call the constructor for each MAP class to create and instance of each C++ object    
-    CALL MAP_InitInput_Initialize(InitInp%C_obj%object, message_from_MAP, status_from_MAP)    
-    MAP_CHECKERR() ! call function to convert map message to a fortran character array
-
-    CALL MAP_Other_Initialize(other%C_obj%object, message_from_MAP, status_from_MAP)
-    MAP_CHECKERR() ! call function to convert map message to a fortran character array
-
+    
+    CALL NWTC_Init() ! Initialize the NWTC Subroutine Library    
+    CALL MAP_InitInput_Initialize(InitInp%C_obj%object, message_from_MAP, status_from_MAP); MAP_CHECKERR() ! Call the constructor for each MAP class to create and instance of each C++ object        
+    CALL MAP_Other_Initialize(other%C_obj%object, message_from_MAP, status_from_MAP); MAP_CHECKERR() 
     CALL MAP_Initialize_Base(u%C_obj, p%C_obj, x%C_obj, z%C_obj, other%C_obj, y%C_obj, InitOut%C_obj)
 
     ! Set the environmental properties:
@@ -387,7 +381,7 @@ CONTAINS
 
     N = LEN_TRIM(InitInp%summary_file_name)
     DO i = 1,N
-       InitInp%C_Obj%summary_file_name(i) =  InitInp%summary_file_name(i:i)  
+       InitInp%C_Obj%summary_file_name(i) = InitInp%summary_file_name(i:i)  
     END DO
 
     ! Set the gravity constant, water depth, and sea density in MAP.
@@ -395,18 +389,12 @@ CONTAINS
     CALL MAP_set_gravity(p%C_obj, InitInp%C_Obj%gravity)
     CALL MAP_set_depth(p%C_obj, InitInp%C_Obj%depth)
     CALL MAP_set_density(p%C_obj, InitInp%C_Obj%sea_density)
-
-    CALL MAP_set_summary_file_name(InitInp%C_obj, message_from_map, status_from_MAP)    
-    MAP_CHECKERR()
+    CALL MAP_set_summary_file_name(InitInp%C_obj, message_from_map, status_from_MAP); MAP_CHECKERR()
        
     ! Read the MAP input file, and pass the arguments to the C++ sructures. 
     ! @note : this call the following C function in MAP_FortranBinding.cpp
     CALL map_read_input_file_contents(InitInp%file_name , InitInp, ErrStat)
-    IF (ErrStat.NE.ErrID_None ) THEN
-       CALL MAP_CheckError("MAP ERROR: cannot read the MAP input file.",ErrMSg)
-       RETURN
-    END IF
-
+    MAP_CHECKERRQ("MAP_ERROR[FORT]: cannot read the MAP input file.")
     
     ! This binds MSQS_Init function in C++ with Fortran
     CALL MSQS_Init(InitInp%C_obj  , &
@@ -429,65 +417,11 @@ CONTAINS
     !  MAP Other State
     !  MAP Output State
     ! =======================================================================================================  
-    CALL MAP_C2F_ConstrState_Array_Allocation(z, ErrStat, ErrMsg) 
-    IF (ErrStat .NE. ErrID_None ) THEN
-       CALL MAP_CheckError("FAST/MAP C2F constraint state conversion error.",ErrMSg)
-       RETURN
-    END IF
-    
-    CALL MAP_C2F_Output_Array_Allocation(y, ErrStat, ErrMsg) 
-    IF (ErrStat .NE. ErrID_None ) THEN
-       CALL MAP_CheckError("FAST/MAP C2F output state conversion error.",ErrMSg)
-       RETURN
-    END IF
-
-    CALL MAP_C2F_OtherState_Array_Allocation(other, ErrStat, ErrMsg) 
-    IF (ErrStat .NE. ErrID_None ) THEN
-       CALL MAP_CheckError("FAST/MAP C2F other state conversion error.",ErrMSg)
-       RETURN
-    END IF
-
-    CALL MAP_C2F_Input_Array_Allocation(u, ErrStat, ErrMsg) 
-    IF (ErrStat .NE. ErrID_None ) THEN
-       CALL MAP_CheckError("FAST/MAP C2F input state conversion error.",ErrMSg)
-       RETURN
-    END IF
-
-
-    
-    !==========   MAP_InitInpInputType   ======     <--------------------------+
-    ! get header information for the FAST output file               
-    
-    numHeaderStr=InitOut%C_obj%writeOutputHdr_Len    
-    ALLOCATE(strHdrArray(numHeaderStr+1))           
-    ALLOCATE(strHdrPtrs (numHeaderStr+1))           
-    ALLOCATE(strUntArray(numHeaderStr))             
-    ALLOCATE(strUntPtrs (numHeaderStr))             
-    ALLOCATE(InitOut%WriteOutputHdr(numHeaderStr))  
-    ALLOCATE(InitOut%WriteOutputUnt(numHeaderStr))
-    
-    DO i = 1, numHeaderStr                       
-       strHdrArray(i) = "None"//C_NULL_CHAR     
-       strUntArray(i) = "None"//C_NULL_CHAR     
-       strHdrPtrs(i) = C_LOC(strHdrArray(i))  
-       strUntPtrs(i) = C_LOC(strUntArray(i))  
-    END DO                                       
-    
-    CALL MAP_Get_Header_String(numHeaderStr, strHdrPtrs, Other%C_obj)
-    CALL MAP_Get_Unit_String(numHeaderStr, strUntPtrs, Other%C_obj)
-    
-    DO i = 1, numHeaderStr                                          !          | 
-       InitOut%WriteOutputHdr(i) = strHdrArray(i)                   !          | 
-       InitOut%WriteOutputUnt(i) = strUntArray(i)                   !          | 
-    END DO                                                          !          | 
-                                                                    !          | 
-    DEALLOCATE( strHdrArray )                                       !          | 
-    DEALLOCATE( strHdrPtrs  )                                       !          | 
-    DEALLOCATE( strUntArray )                                       !          | 
-    DEALLOCATE( strUntPtrs  )                                       !   -------+
-    !===========================================================================
-
-
+    CALL MAP_C2F_ConstrState_Array_Allocation(z, ErrStat, ErrMsg); MAP_CHECKERRQ("MAP_ERROR[FORT]: FAST/MAP C2F constraint state conversion error.")
+    CALL MAP_C2F_Output_Array_Allocation(y, ErrStat, ErrMsg); MAP_CHECKERRQ("MAP_ERROR[FORT]: FAST/MAP C2F output state conversion error.")
+    CALL MAP_C2F_OtherState_Array_Allocation(other, ErrStat, ErrMsg); MAP_CHECKERRQ("MAP_ERROR[FORT]: FAST/MAP C2F other state conversion error.")
+    CALL MAP_C2F_Input_Array_Allocation(u, ErrStat, ErrMsg); MAP_CHECKERRQ("MAP_ERROR[FORT]: FAST/MAP C2F input state conversion error.")
+    CALL MAP_Get_Output_Headers(InitOut, other)
     
     !==========   MAP Mesh initialization   ======     <--------------------------+               
     ! get header information for the FAST output file                  !          | 
@@ -617,22 +551,22 @@ CONTAINS
                             O%C_obj         , &
                             status_from_MAP , &
                             message_from_MAP  )
-    
-    ! Give the MAP code/message status to the FAST 
-    IF( status_from_MAP .NE. 0 ) THEN
-       IF( status_from_MAP .EQ. 1 ) THEN
-          ErrMsg = message_from_MAP
-          ErrStat = ErrID_Warn
-          CALL WrScr( ErrMsg )
-       ELSE
-          ErrMsg = message_from_MAP
-          ErrStat = ErrID_Fatal
-          ! make sure this is destroyed on early return
-          CALL deallocate_primitives_for_c(u_interp, ErrStat, ErrMsg)
-          CALL MAP_DestroyInput( u_interp, ErrStat, ErrMsg )      
-          RETURN
-       END IF
-    END IF
+    MAP_CHECKERR()
+    ! ! Give the MAP code/message status to the FAST 
+    ! IF( status_from_MAP .NE. 0 ) THEN
+    !    IF( status_from_MAP .EQ. 1 ) THEN
+    !       ErrMsg = message_from_MAP
+    !       ErrStat = ErrID_Warn
+    !       CALL WrScr( ErrMsg )
+    !    ELSE
+    !       ErrMsg = message_from_MAP
+    !       ErrStat = ErrID_Fatal
+    !       ! make sure this is destroyed on early return
+    !       CALL deallocate_primitives_for_c(u_interp, ErrStat, ErrMsg)
+    !       CALL MAP_DestroyInput( u_interp, ErrStat, ErrMsg )      
+    !       RETURN
+    !    END IF
+    ! END IF
   
     ! delete the temporary input arrays/meshes 
     CALL deallocate_primitives_for_c(u_interp, ErrStat, ErrMsg)
@@ -677,19 +611,19 @@ CONTAINS
                          y%C_obj         , &
                          status_from_MAP , &
                          message_from_MAP ) 
-  
-    ! Give the MAP code/message status to the FAST 
-    IF( status_from_MAP .NE. 0 ) THEN
-       IF( status_from_MAP .EQ. 1 ) THEN
-          ErrMsg = message_from_MAP
-          ErrStat = ErrID_Warn
-          CALL WrScr( ErrMsg )
-       ELSE
-          ErrMsg = message_from_MAP
-          ErrStat = ErrID_Fatal
-          RETURN
-       END IF
-    END IF
+    MAP_CHECKERR()
+    ! ! Give the MAP code/message status to the FAST 
+    ! IF( status_from_MAP .NE. 0 ) THEN
+    !    IF( status_from_MAP .EQ. 1 ) THEN
+    !       ErrMsg = message_from_MAP
+    !       ErrStat = ErrID_Warn
+    !       CALL WrScr( ErrMsg )
+    !    ELSE
+    !       ErrMsg = message_from_MAP
+    !       ErrStat = ErrID_Fatal
+    !       RETURN
+    !    END IF
+    ! END IF
   
     WRITE(*,*) y%wrtOutput ! @bonnie : remove
     write(*,*)
@@ -730,19 +664,19 @@ CONTAINS
                    y%C_obj         , &                                                   
                    status_from_MAP , &                                                   
                    message_from_MAP  )                                                    
-
-    ! Give the MAP code/message status to the FAST 
-    IF( status_from_MAP .NE. 0 ) THEN
-       IF( status_from_MAP .EQ. 1 ) THEN
-          ErrMsg = message_from_MAP
-          ErrStat = ErrID_Warn
-          CALL WrScr( ErrMsg )
-       ELSE
-          ErrMsg = message_from_MAP
-          ErrStat = ErrID_Fatal
-          RETURN
-       END IF
-    END IF
+    MAP_CHECKERR()
+    ! ! Give the MAP code/message status to the FAST 
+    ! IF( status_from_MAP .NE. 0 ) THEN
+    !    IF( status_from_MAP .EQ. 1 ) THEN
+    !       ErrMsg = message_from_MAP
+    !       ErrStat = ErrID_Warn
+    !       CALL WrScr( ErrMsg )
+    !    ELSE
+    !       ErrMsg = message_from_MAP
+    !       ErrStat = ErrID_Fatal
+    !       RETURN
+    !    END IF
+    ! END IF
   
     ! Destroy Fortran MAP types
     ! Anything allocated in C should be destroyed in C. Calling these functions only destroys mesh types. 
@@ -757,162 +691,239 @@ CONTAINS
   !==========================================================================================================
 
 
- ! ==========   MAP_ReadInputFileContents   ======     <---------------------------------------------------+
- !                                                                                              !          |
- ! Reads the MAP input files. Assumes the MAP input file is formated as demonstrated with the 
- !   MAP distruction archives. Any changes to the format, and this read function may fail.    
- SUBROUTINE map_read_input_file_contents(file, InitInp, ErrStat)                              
-   TYPE( MAP_InitInputType ) , INTENT(INOUT)       :: InitInp                     
-   CHARACTER(255) , INTENT(IN   )                  :: file                        
-   INTEGER(IntKi),                   INTENT(  OUT) :: ErrStat                     
-   INTEGER                                         :: success                     
-   INTEGER                                         :: index_begn=1                
-   INTEGER                                         :: index_cabl=0                
-   INTEGER                                         :: index_node=0                
-   INTEGER                                         :: index_elem=0                
-   INTEGER                                         :: index_optn=0                
-   INTEGER                                         :: i = 0
-   INTEGER                                         :: N = 0
-   CHARACTER(255)                                  :: line
+  ! ==========   MAP_ReadInputFileContents   ======     <---------------------------------------------------+
+  !                                                                                              !          |
+  ! Reads the MAP input files. Assumes the MAP input file is formated as demonstrated with the 
+  !   MAP distruction archives. Any changes to the format, and this read function may fail.    
+  SUBROUTINE map_read_input_file_contents(file, InitInp, ErrStat)                              
+    TYPE( MAP_InitInputType ) , INTENT(INOUT)       :: InitInp                     
+    CHARACTER(255) , INTENT(IN   )                  :: file                        
+    INTEGER(IntKi),                   INTENT(  OUT) :: ErrStat                     
+    INTEGER                                         :: success                     
+    INTEGER                                         :: index_begn=1                
+    INTEGER                                         :: index_cabl=0                
+    INTEGER                                         :: index_node=0                
+    INTEGER                                         :: index_elem=0                
+    INTEGER                                         :: index_optn=0                
+    INTEGER                                         :: i = 0
+    INTEGER                                         :: N = 0
+    CHARACTER(255)                                  :: line
 
-   ! Open the MAP input file                                                      
-   OPEN(UNIT=1, FILE=file)                                                        
-                                                                                  
-   ! Read the contents of the MAP input file                                     
-   DO                                          
-      READ(1 ,'(A)', IOSTAT=success) line                   
-                                                            
-      ! we are no longer reading the MAP input file if we   
-      !   reached the end                                   
-      IF(success.NE.0) EXIT                                 
-                                                            
-      ! populate the cable library parameter                
-      IF ( index_begn.EQ.1 ) THEN                           
-         index_cabl = index_cabl + 1                        
-         IF ( index_cabl.GE.4 ) THEN                        
-            IF ( line(1:1).EQ."-" ) THEN                    
-               index_begn=2                                 
-            ELSE
-               N = LEN_TRIM(line)
-               DO i = 1,N
-                  InitInp%C_obj%library_input_str(i) = line(i:i)   
-               END DO
-               InitInp%C_obj%library_input_str(N+1) = ' ' 
-               InitInp%C_obj%library_input_str(N+2) = C_NULL_CHAR
-               CALL MAP_SetCableLibraryData(InitInp%C_obj)                 
-            END IF                                          
-         END IF                                             
-      END IF
-                                                            
-                                                  
-      ! populate the node parameter               
-      IF ( index_begn.EQ.2 ) THEN                 
-         index_node = index_node + 1              
-         IF ( index_node.GE.4 ) THEN              
-            IF ( line(1:1).EQ."-" ) THEN          
-               index_begn=3                       
-            ELSE
-               N = LEN_TRIM(line)
-               DO i = 1,N
-                  InitInp%C_obj%node_input_str(i) = line(i:i)   
-               END DO
-               InitInp%C_obj%node_input_str(N+1) = ' '
-               InitInp%C_obj%node_input_str(N+2) = C_NULL_CHAR
-               CALL MAP_SetNodeData(InitInp%C_obj)
-            END IF                                
-         END IF                                   
-      END IF                                      
-                                                  
-      
-      ! populate the element parameter                 
-      IF ( index_begn.EQ.3 ) THEN                      
-         index_elem = index_elem + 1                   
-         IF ( index_elem.GE.4 ) THEN                   
-            IF ( line(1:1).EQ."-" ) THEN               
-               index_begn=4                            
-            ELSE
-               N = LEN_TRIM(line)
-               DO i = 1,N
-                  InitInp%C_obj%line_input_str(i) = line(i:i)   
-               END DO
-               InitInp%C_obj%line_input_str(N+1) = ' '
-               InitInp%C_obj%line_input_str(N+2) = C_NULL_CHAR
-               CALL MAP_SetElementData(InitInp%C_obj) 
-            END IF                                     
-         END IF                                        
-      END IF                                           
-                                                        
-                                                        
-      ! populate the solver options                    
-      IF ( index_begn.EQ.4 ) THEN                      
-         index_optn = index_optn + 1                   
-         IF ( index_optn.GE.4 ) THEN                   
-            IF ( line(1:1).NE."!" )  THEN              
-               N = LEN_TRIM(line)
-               DO i = 1,N
-                  InitInp%C_obj%option_input_str(i) = line(i:i)   
-               END DO
-               InitInp%C_obj%option_input_str(N+1) = ' '
-               InitInp%C_obj%option_input_str(N+2) = C_NULL_CHAR
-               CALL MAP_SetSolverOptions(InitInp%C_obj)
-            END IF                                     
-         END IF                                        
-      END IF                                                                                                    
-   END DO
-                                                                                                !          |
-   ! Close the MAP input file                                                                   !          |
-   CLOSE( 1 )                                                                                   !          |  
- END SUBROUTINE map_read_input_file_contents                                                    !   -------+
- !==========================================================================================================
+    ! Open the MAP input file                                                      
+    OPEN(UNIT=1, FILE=file)                                                        
+
+    ! Read the contents of the MAP input file                                     
+    DO                                          
+       READ(1 ,'(A)', IOSTAT=success) line                   
+
+       ! we are no longer reading the MAP input file if we   
+       !   reached the end                                   
+       IF(success.NE.0) EXIT                                 
+
+       ! populate the cable library parameter                
+       IF ( index_begn.EQ.1 ) THEN                           
+          index_cabl = index_cabl + 1                        
+          IF ( index_cabl.GE.4 ) THEN                        
+             IF ( line(1:1).EQ."-" ) THEN                    
+                index_begn=2                                 
+             ELSE
+                N = LEN_TRIM(line)
+                DO i = 1,N
+                   InitInp%C_obj%library_input_str(i) = line(i:i)   
+                END DO
+                InitInp%C_obj%library_input_str(N+1) = ' ' 
+                InitInp%C_obj%library_input_str(N+2) = C_NULL_CHAR
+                CALL MAP_SetCableLibraryData(InitInp%C_obj)                 
+             END IF
+          END IF
+       END IF
 
 
- LOGICAL FUNCTION MAP_ERROR_CHECKER(msg, stat, ErrMsg, ErrStat)
-   CHARACTER(KIND=C_CHAR), DIMENSION(1024), INTENT(INOUT) :: msg
-   INTEGER(KIND=C_INT),                     INTENT(INOUT) :: stat
-   CHARACTER(1024),                         INTENT(  OUT) :: ErrMsg 
-   INTEGER(IntKi),                          INTENT(  OUT) :: ErrStat    
-   INTEGER                                                :: i = 0                                             
-
-   MAP_ERROR_CHECKER = .FALSE. ! default warning; does not throw a RETURN
-   IF (stat.NE.0) THEN
-      DO i = 1,1024 ! convert c-character array to a fortran character array
-         IF(msg(i).NE.C_NULL_CHAR)THEN
-            ErrMsg(i:i) = msg(i)
-         ELSE
-            EXIT
-         END IF
-      END DO
-
-      IF(stat.EQ.1) THEN ! assign warning levels
-         ErrStat = ErrID_Warn
-         CALL WrScr(ErrMsg)         
-      ELSE ! only the case of a fatal warning returns true; throws a RETURN
-         ErrStat = ErrID_Fatal
-         MAP_ERROR_CHECKER = .TRUE.
-      END IF
-   END IF   
- END FUNCTION MAP_ERROR_CHECKER
+       ! populate the node parameter               
+       IF ( index_begn.EQ.2 ) THEN                 
+          index_node = index_node + 1              
+          IF ( index_node.GE.4 ) THEN              
+             IF ( line(1:1).EQ."-" ) THEN          
+                index_begn=3                       
+             ELSE
+                N = LEN_TRIM(line)
+                DO i = 1,N
+                   InitInp%C_obj%node_input_str(i) = line(i:i)   
+                END DO
+                InitInp%C_obj%node_input_str(N+1) = ' '
+                InitInp%C_obj%node_input_str(N+2) = C_NULL_CHAR
+                CALL MAP_SetNodeData(InitInp%C_obj)
+             END IF
+          END IF
+       END IF
 
 
- 
-  !==========   MAP_CheckError   =======     <---------------------------------------------------------------+
-  SUBROUTINE MAP_CheckError(InMsg,OutMsg)
-    ! Passed arguments
-    CHARACTER(*), INTENT(IN   ) :: InMsg       ! The input string
-    CHARACTER(*), INTENT(INOUT) :: OutMsg      ! The error message (ErrMsg)
+       ! populate the element parameter                 
+       IF ( index_begn.EQ.3 ) THEN                      
+          index_elem = index_elem + 1                   
+          IF ( index_elem.GE.4 ) THEN                   
+             IF ( line(1:1).EQ."-" ) THEN               
+                index_begn=4                            
+             ELSE
+                N = LEN_TRIM(line)
+                DO i = 1,N
+                   InitInp%C_obj%line_input_str(i) = line(i:i)   
+                END DO
+                InitInp%C_obj%line_input_str(N+1) = ' '
+                InitInp%C_obj%line_input_str(N+2) = C_NULL_CHAR
+                CALL MAP_SetElementData(InitInp%C_obj) 
+             END IF
+          END IF
+       END IF
 
-    OutMsg = InMsg
-    RETURN
-  END SUBROUTINE MAP_CheckError                                                                  !   -------+
+
+       ! populate the solver options                    
+       IF ( index_begn.EQ.4 ) THEN                      
+          index_optn = index_optn + 1                   
+          IF ( index_optn.GE.4 ) THEN                   
+             IF ( line(1:1).NE."!" )  THEN              
+                N = LEN_TRIM(line)
+                DO i = 1,N
+                   InitInp%C_obj%option_input_str(i) = line(i:i)   
+                END DO
+                InitInp%C_obj%option_input_str(N+1) = ' '
+                InitInp%C_obj%option_input_str(N+2) = C_NULL_CHAR
+                CALL MAP_SetSolverOptions(InitInp%C_obj)
+             END IF
+          END IF
+       END IF
+    END DO
+
+    ! Close the MAP input file                                                                   !          |
+    CLOSE( 1 )                                                                                   !          |  
+  END SUBROUTINE map_read_input_file_contents                                                    !   -------+
   !==========================================================================================================
 
-   
+
+  ! ==========   MAP_ERROR   ======     <-------------------------------------------------------------------+
+  !                                                                                              !          |
+  ! this is different from MAP_ERROR_CHECKER. MAP_ERROR check internal fortran errors, whereas
+  ! the former checks errors in the MAP DLL.
+  LOGICAL FUNCTION MAP_ERROR(ErrMsg, ErrStat, string)
+    CHARACTER(1024), INTENT(INOUT) :: ErrMsg 
+    INTEGER(IntKi),  INTENT(  OUT) :: ErrStat 
+    CHARACTER(*),    INTENT(IN   ) :: string    
+    
+    MAP_ERROR = .FALSE.
+
+    IF (ErrStat.NE.ErrID_None) THEN
+       ErrMsg = TRIM(ErrMsg)//string
+       MAP_ERROR = .TRUE.
+    END IF
+  END FUNCTION MAP_ERROR                                                                         !   -------+
+  !==========================================================================================================
+
+  
+  ! ==========   MAP_ERROR_CHECKER   ======     <-----------------------------------------------------------+
+  !                                                                                              !          |
+  ! A convenient way to convert C-character arrays into a fortran string. The return argustment 
+  ! is a logical: False if program is safe; True if program fails in the MAP DLL 
+  LOGICAL FUNCTION MAP_ERROR_CHECKER(msg, stat, ErrMsg, ErrStat)
+    CHARACTER(KIND=C_CHAR), DIMENSION(1024), INTENT(INOUT) :: msg
+    INTEGER(KIND=C_INT),                     INTENT(INOUT) :: stat
+    CHARACTER(1024),                         INTENT(  OUT) :: ErrMsg 
+    INTEGER(IntKi),                          INTENT(  OUT) :: ErrStat    
+    INTEGER                                                :: i = 0                                             
+
+    MAP_ERROR_CHECKER = .FALSE. ! default warning; does not throw a RETURN
+    IF (stat.NE.0) THEN
+       DO i = 1,1024 ! convert c-character array to a fortran character array
+          IF(msg(i).NE.C_NULL_CHAR) THEN
+             ErrMsg(i:i) = msg(i)
+          ELSE
+             EXIT
+          END IF
+       END DO
+
+       IF(stat.EQ.1) THEN ! assign warning levels
+          ErrStat = ErrID_Warn
+          CALL WrScr(ErrMsg)         
+       ELSE ! only the case of a fatal warning returns true; throws a RETURN
+          ErrStat = ErrID_Fatal
+          MAP_ERROR_CHECKER = .TRUE.
+       END IF
+    END IF
+  END FUNCTION MAP_ERROR_CHECKER                                                                 !   -------+
+  !==========================================================================================================
+
+ 
+  ! !==========   MAP_CheckError   =======     <---------------------------------------------------------------+
+  ! SUBROUTINE MAP_CheckError(InMsg,OutMsg)
+  !   ! Passed arguments
+  !   CHARACTER(*), INTENT(IN   ) :: InMsg       ! The input string
+  !   CHARACTER(*), INTENT(INOUT) :: OutMsg      ! The error message (ErrMsg)
+  ! 
+  !   OutMsg = TRIM(OutMsg)//InMsg
+  !   RETURN
+  ! END SUBROUTINE MAP_CheckError                                                                  !   -------+
+  ! !==========================================================================================================
+
+
+  ! ==========   MAP_C2F_OtherState_Array_Allocation   ======     <-----------------------------------------+
+  !                                                                                              !          |
+  ! Get te output header for the FAST text file so something like this is printed:
+  !  l[1]     h[1]     psi[1]   alpha[1] alpha_a[1]
+  !   [m]     [m]     [m]            [m]        [m]   
+  SUBROUTINE MAP_Get_Output_Headers(InitOut, Other) 
+    TYPE(MAP_InitOutputType), INTENT(INOUT)  :: InitOut     ! Output for initialization routine
+    TYPE(MAP_OtherStateType), INTENT(INOUT)  :: Other   
+
+    ! Locals
+    INTEGER :: i = 0
+    INTEGER(C_INT)                                  :: numHeaderStr = 0
+    CHARACTER(16),DIMENSION(:), ALLOCATABLE, TARGET :: strHdrArray ! Hopefully none of the headers are more than 16 characters long
+    TYPE(C_PTR), DIMENSION(:), ALLOCATABLE          :: strHdrPtrs
+    CHARACTER(15),DIMENSION(:), ALLOCATABLE, TARGET :: strUntArray ! Hopefully none of the headers are more than 15 characters long
+    TYPE(C_PTR), DIMENSION(:), ALLOCATABLE          :: strUntPtrs
+
+    !==========   MAP_InitInpInputType   ======     <--------------------------+
+    ! get header information for the FAST output file               
+    
+    numHeaderStr = InitOut%C_obj%writeOutputHdr_Len    
+    ALLOCATE(strHdrArray(numHeaderStr+1))           
+    ALLOCATE(strHdrPtrs (numHeaderStr+1))           
+    ALLOCATE(strUntArray(numHeaderStr))             
+    ALLOCATE(strUntPtrs (numHeaderStr))             
+    ALLOCATE(InitOut%WriteOutputHdr(numHeaderStr))  
+    ALLOCATE(InitOut%WriteOutputUnt(numHeaderStr))
+    
+    DO i = 1, numHeaderStr                       
+       strHdrArray(i) = "None"//C_NULL_CHAR     
+       strUntArray(i) = "None"//C_NULL_CHAR     
+       strHdrPtrs(i) = C_LOC(strHdrArray(i))  
+       strUntPtrs(i) = C_LOC(strUntArray(i))  
+    END DO                                       
+    
+    CALL MAP_Get_Header_String(numHeaderStr, strHdrPtrs, Other%C_obj)
+    CALL MAP_Get_Unit_String(numHeaderStr, strUntPtrs, Other%C_obj)
+    
+    DO i = 1, numHeaderStr                        
+       InitOut%WriteOutputHdr(i) = strHdrArray(i) 
+       InitOut%WriteOutputUnt(i) = strUntArray(i) 
+    END DO                   
+                             
+    DEALLOCATE(strHdrArray)
+    DEALLOCATE(strHdrPtrs)
+    DEALLOCATE(strUntArray)
+    DEALLOCATE(strUntPtrs)
+  END SUBROUTINE MAP_Get_Output_Headers                                                          !   -------+
+  !==========================================================================================================
+
+
+  ! ==========   MAP_C2F_OtherState_Array_Allocation   ======     <-----------------------------------------+
+  !                                                                                              !          |
   ! MAP_OtherStateType (defined in MAP_Types.f90 and MAP_Types.h) :
+  ! Done just once for other states.
   SUBROUTINE MAP_C2F_OtherState_Array_Allocation(other, ErrStat, ErrMsg) 
     ! Passed arguments
-    TYPE( MAP_OtherStateType ), INTENT(INOUT)  :: other
-    INTEGER(IntKi),             INTENT(INOUT)  :: ErrStat     ! Error status of the operation
-    CHARACTER(*),               INTENT(INOUT)  :: ErrMsg      ! Error message if ErrStat /= ErrID_None
+    TYPE(MAP_OtherStateType), INTENT(INOUT)  :: other
+    INTEGER(IntKi),           INTENT(INOUT)  :: ErrStat     ! Error status of the operation
+    CHARACTER(*),             INTENT(INOUT)  :: ErrMsg      ! Error message if ErrStat /= ErrID_None
 
     CALL C_F_POINTER(other%C_obj%x, other%x, (/other%C_obj%x_Len/))  
     CALL C_F_POINTER(other%C_obj%y, other%y, (/other%C_obj%y_Len/))  
@@ -924,30 +935,38 @@ CONTAINS
     CALL C_F_POINTER(other%C_obj%Fy_anchor, other%Fy_anchor, (/other%C_obj%Fy_anchor_Len/))  
     CALL C_F_POINTER(other%C_obj%Fz_anchor, other%Fz_anchor, (/other%C_obj%Fz_anchor_Len/))  
     ErrStat = ErrID_None
-  END SUBROUTINE MAP_C2F_OtherState_Array_Allocation
+  END SUBROUTINE MAP_C2F_OtherState_Array_Allocation                                             !   -------+
+  !==========================================================================================================
 
 
+  ! ==========   MAP_C2F_Output_Array_Allocation   ======     <---------------------------------------------+
+  !                                                                                              !          |
   ! MAP_OutputType (defined in MAP_Types.f90 and MAP_Types.h) :
+  ! Done just once for output states.
   SUBROUTINE MAP_C2F_Output_Array_Allocation(y, ErrStat, ErrMsg) 
     ! Passed arguments
-    TYPE( MAP_OutputType ), INTENT(INOUT)  :: y
-    INTEGER(IntKi),         INTENT(INOUT)  :: ErrStat     ! Error status of the operation
-    CHARACTER(*),           INTENT(INOUT)  :: ErrMsg      ! Error message if ErrStat /= ErrID_None
+    TYPE(MAP_OutputType), INTENT(INOUT)  :: y
+    INTEGER(IntKi),       INTENT(INOUT)  :: ErrStat     ! Error status of the operation
+    CHARACTER(*),         INTENT(INOUT)  :: ErrMsg      ! Error message if ErrStat /= ErrID_None
 
     CALL C_F_POINTER(y%C_obj%Fx, y%Fx, (/y%C_obj%Fx_Len/))  
     CALL C_F_POINTER(y%C_obj%Fy, y%Fy, (/y%C_obj%Fy_Len/))  
     CALL C_F_POINTER(y%C_obj%Fz, y%Fz, (/y%C_obj%Fz_Len/))  
     CALL C_F_POINTER(y%C_obj%wrtOutput, y%wrtOutput, (/y%C_obj%wrtOutput_Len/))  
     ErrStat = ErrID_None
-  END SUBROUTINE MAP_C2F_Output_Array_Allocation
+  END SUBROUTINE MAP_C2F_Output_Array_Allocation                                                 !   -------+
+  !==========================================================================================================
 
 
+  ! ==========   MAP_C2F_ConstrState_Array_Allocation   ======     <----------------------------------------+
+  !                                                                                              !          |
   ! MAP_ConstrStateType (defined in MAP_Types.f90 and MAP_Types.h) :
+  ! Done just once for constraint states.  
   SUBROUTINE MAP_C2F_ConstrState_Array_Allocation(z, ErrStat, ErrMsg) 
     ! Passed arguments
-    TYPE( MAP_ConstraintStateType ), INTENT(INOUT)  :: z
-    INTEGER(IntKi),                  INTENT(INOUT)  :: ErrStat     ! Error status of the operation
-    CHARACTER(*),                    INTENT(INOUT)  :: ErrMsg      ! Error message if ErrStat /= ErrID_None
+    TYPE(MAP_ConstraintStateType), INTENT(INOUT)  :: z
+    INTEGER(IntKi),                INTENT(INOUT)  :: ErrStat     ! Error status of the operation
+    CHARACTER(*),                  INTENT(INOUT)  :: ErrMsg      ! Error message if ErrStat /= ErrID_None
 
     CALL C_F_POINTER(z%C_obj%H, z%H, (/z%C_obj%H_Len/))  
     CALL C_F_POINTER(z%C_obj%V, z%V, (/z%C_obj%V_Len/))  
@@ -955,23 +974,32 @@ CONTAINS
     CALL C_F_POINTER(z%C_obj%y, z%y, (/z%C_obj%y_Len/))  
     CALL C_F_POINTER(z%C_obj%z, z%z, (/z%C_obj%z_Len/))  
     ErrStat = ErrID_None
-  END SUBROUTINE MAP_C2F_ConstrState_Array_Allocation   
+  END SUBROUTINE MAP_C2F_ConstrState_Array_Allocation                                            !   -------+
+  !==========================================================================================================
 
 
-  ! MAP_OutputType (defined in MAP_Types.f90 and MAP_Types.h) :
+  ! ==========   MAP_C2F_Input_Array_Allocation   ======     <----------------------------------------------+
+  !                                                                                              !          |
+  ! MAP_InputType (defined in MAP_Types.f90 and MAP_Types.h) :
+  ! Done just once for input states.  
   SUBROUTINE MAP_C2F_Input_Array_Allocation(u, ErrStat, ErrMsg) 
     ! Passed arguments
-    TYPE( MAP_InputType ), INTENT(INOUT)  :: u
-    INTEGER(IntKi),        INTENT(INOUT)  :: ErrStat     ! Error status of the operation
-    CHARACTER(*),          INTENT(INOUT)  :: ErrMsg      ! Error message if ErrStat /= ErrID_None
+    TYPE(MAP_InputType), INTENT(INOUT)  :: u
+    INTEGER(IntKi),      INTENT(INOUT)  :: ErrStat     ! Error status of the operation
+    CHARACTER(*),        INTENT(INOUT)  :: ErrMsg      ! Error message if ErrStat /= ErrID_None
 
     CALL C_F_POINTER(u%C_obj%x, u%x, (/u%C_obj%x_Len/))  
     CALL C_F_POINTER(u%C_obj%y, u%y, (/u%C_obj%y_Len/))  
     CALL C_F_POINTER(u%C_obj%z, u%z, (/u%C_obj%z_Len/))  
     ErrStat = ErrID_None
-  END SUBROUTINE MAP_C2F_Input_Array_Allocation
+  END SUBROUTINE MAP_C2F_Input_Array_Allocation                                                  !   -------+
+  !==========================================================================================================
 
 
+  ! ==========   copy_input_for_c   ======     <------------------------------------------------------------+
+  !                                                                                              !          |
+  ! We need to copy the inputs and set the pointer before entering the DLL. Referencing to the inputs
+  ! change when interp/extrap routines are executed. 
   SUBROUTINE copy_inputs_for_c(u, ErrStat, ErrMsg)
     TYPE(MAP_InputType), INTENT(INOUT)  :: u
     INTEGER(IntKi),      INTENT(INOUT)  :: ErrStat     ! Error status of the operation
@@ -983,9 +1011,13 @@ CONTAINS
     u%c_obj%y_Len = SIZE(u%y)
     u%c_obj%z = C_LOC(u%z(1))
     u%c_obj%z_Len = SIZE(u%z)    
-  END SUBROUTINE copy_inputs_for_c
+  END SUBROUTINE copy_inputs_for_c                                                               !   -------+
+  !==========================================================================================================
 
 
+  ! ==========   deallocate_primitives_for_c   ======     <-------------------------------------------------+
+  !                                                                                              !          |
+  ! Delete the above stuff
   SUBROUTINE deallocate_primitives_for_c(u, ErrStat, ErrMsg)
     TYPE(MAP_InputType), INTENT(INOUT)  :: u
     INTEGER(IntKi),      INTENT(INOUT)  :: ErrStat     ! Error status of the operation
@@ -997,6 +1029,8 @@ CONTAINS
     DEALLOCATE(u%x)
     DEALLOCATE(u%y)
     DEALLOCATE(u%z)
-  END SUBROUTINE deallocate_primitives_for_c
+  END SUBROUTINE deallocate_primitives_for_c                                                     !   -------+
+  !==========================================================================================================
+
 
 END MODULE MAP
