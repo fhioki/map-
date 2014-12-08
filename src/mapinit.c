@@ -2232,7 +2232,6 @@ MAP_ERROR_CODE set_output_list(Domain* domain, MAP_InitOutputType_t* io_type, ch
   OutputList* y_list = domain->y_list;
   int size = 0;
   int line_num = 1;
-  VarTypePtr vartype_ptr;
   VarTypePtr* iter_vartype = NULL;
 
   list_iterator_start(&domain->line); /* starting an iteration "session" */
