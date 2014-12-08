@@ -1060,7 +1060,7 @@ MAP_EXTERNCALL void map_set_sea_density(MAP_ParameterType_t* p_type, const doubl
 };
 
 
-MAP_EXTERNCALL void map_set_gravity(MAP_ParameterType_t* p_type, double gravity)
+MAP_EXTERNCALL void map_set_gravity(MAP_ParameterType_t* p_type, const double gravity)
 {
   p_type->g = gravity;
 };
