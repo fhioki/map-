@@ -68,20 +68,26 @@ MAP_ERROR_CODE get_iteration_output_stream(MAP_OutputType_t *y_type, MAP_OtherSt
 MAP_ERROR_CODE write_summary_file(InitializationData* init, MAP_ParameterType_t* paramType, Domain* data, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_ERROR_CODE success = MAP_SAFE;
-  struct tm* tm_info;
-  time_t timer;
   FILE* file;
   MAP_ERROR_CODE err = MAP_SAFE;
   char time_buffer[TIME_BUFFER_SIZE] = "\0";
-  
+  time_t timer;
+
+# if !defined(_WIN32) || !defined(_WIN64)  
+  struct tm* tm_info;
+  time(&timer);
+  tm_info = localtime(&timer);
+# else
+  struct tm tm_info;
+  time(&timer);
+  localtime_s(&tm_info, &timer);
+# endif
+
   err = fopen_s(&file, init->summary_file_name->data, "w");
   if (err!=MAP_SAFE) {
     set_universal_error_with_message(map_msg, ierr, MAP_FATAL_95, "File name: <%s>", init->summary_file_name->data);
     return MAP_FATAL;
   };
-
-  time(&timer);
-  tm_info = localtime(&timer);
   
   if (file==NULL) {
     set_universal_error_with_message(map_msg, ierr, MAP_FATAL_38, "File name: <%s>", init->summary_file_name->data);
