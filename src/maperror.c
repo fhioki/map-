@@ -192,7 +192,8 @@ void set_universal_error(char* map_msg, MAP_ERROR_CODE* ierr, const MAP_ERROR_CO
 void map_reset_universal_error(char* map_msg, MAP_ERROR_CODE* ierr)
 {
   *ierr = MAP_SAFE;
-  strcpy(map_msg, "\0");
+  map_msg[0] = "\0";
+  // strcpy(map_msg, "\0");
 };
 
 
