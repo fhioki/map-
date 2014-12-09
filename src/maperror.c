@@ -229,7 +229,7 @@ void set_universal_error_with_message(char* map_msg, MAP_ERROR_CODE* ierr, const
     };
     while (1) {
       va_start(arglist, in_string);      
-#     if !defined(_WIN32) || !defined(_WIN64)
+#     if !defined(_MSC_VER)
       r = vsnprintf((char*)user_msg->data, n+1, in_string, arglist); /* this is a copy of exvsnprintf in bstring library */
 #     else
       r = vsnprintf_s((char*)user_msg->data, MAP_ERROR_STRING_LENGTH, n+1, in_string, arglist); /* windows way (or ISO C11 Annex K) way of doing things */

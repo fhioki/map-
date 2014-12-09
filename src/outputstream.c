@@ -73,7 +73,7 @@ MAP_ERROR_CODE write_summary_file(InitializationData* init, MAP_ParameterType_t*
   char time_buffer[TIME_BUFFER_SIZE] = "\0";
   time_t timer;
 
-# if !defined(_WIN32) || !defined(_WIN64)  
+# if !defined(_MSC_VER)
   struct tm* tm_info;
   time(&timer);
   tm_info = localtime(&timer);
@@ -854,7 +854,7 @@ MAP_ERROR_CODE write_expanded_input_file_to_summary_file(FILE* file, Initializat
 };
 
 
-#if !defined(_WIN32) || !defined(_WIN64)
+#if !defined(_MSC_VER)
 MAP_ERROR_CODE fopen_s(FILE** f, const char* name, const char* mode)
 {
   assert(f);

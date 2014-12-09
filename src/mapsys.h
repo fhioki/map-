@@ -38,7 +38,7 @@
 #endif
 
 
-#if defined(_WIN32) || defined(_WIN64 )
+#if defined(_MSC_VER)
 #  include "stdbool.h"
 #  define map_snprintf _snprintf
 #  define map_strcat(a,b,c) strcat_s(a,b,c)
