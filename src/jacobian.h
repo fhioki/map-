@@ -27,7 +27,6 @@
 
 #include "map.h"
 
-
 double jacobian_dxdh_no_contact(const double V, const double H, const double w, const double Lu, const double EA);
 double jacobian_dxdv_no_contact(const double V, const double H, const double w, const double Lu, const double EA);
 double jacobian_dzdh_no_contact(const double V, const double H, const double w, const double Lu, const double EA);

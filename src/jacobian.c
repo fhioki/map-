@@ -27,9 +27,9 @@
 
 double jacobian_dxdh_no_contact(const double V, const double H, const double w, const double Lu, const double EA)
 {
-  return (asinh(V/H) - asinh((V-w*Lu)/H))/w - ((V/H + pow(V/H, 2)/sqrt(1.0 + pow(V/H, 2)))/(V/H + sqrt(1.0 + pow(V/H, 2))) 
-                                               - ((V-w*Lu)/H + pow((V-w*Lu)/H, 2)/sqrt(1.0 + pow((V-w*Lu)/H, 2)))
-                                               /((V-w*Lu)/H + sqrt(1.0 + pow((V-w*Lu)/H, 2))))/w + (Lu/(EA));      
+  return (ARCSINH(V/H) - ARCSINH((V-w*Lu)/H))/w - ((V/H + pow(V/H, 2)/sqrt(1.0 + pow(V/H, 2)))/(V/H + sqrt(1.0 + pow(V/H, 2))) 
+                                                   - ((V-w*Lu)/H + pow((V-w*Lu)/H, 2)/sqrt(1.0 + pow((V-w*Lu)/H, 2)))
+                                                   /((V-w*Lu)/H + sqrt(1.0 + pow((V-w*Lu)/H, 2))))/w + (Lu/(EA));      
 };
 
 

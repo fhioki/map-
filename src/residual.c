@@ -26,7 +26,7 @@
 
 double residual_function_length_no_contact(const double V, const double H, const double w, const double Lu, const double EA, const double l)
 {  
-  return (H/w)*asinh(V/H) - (H/w)*asinh( (V-w*Lu)/H ) + ((H*Lu)/(EA)) - l;
+  return (H/w)*ARCSINH(V/H) - (H/w)*ARCSINH( (V-w*Lu)/H ) + ((H*Lu)/(EA)) - l;
 };
 
 
