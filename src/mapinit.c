@@ -381,9 +381,9 @@ MAP_ERROR_CODE allocate_outer_solve_data(OuterSolveAttributes* ns, const int siz
   };
   
   if (ns->krylov_accelerator) { /* only allocated if  Krylov accelerator algorimth is invoked */    
+    ns->U_previous = malloc(SIZE*sizeof(double));
     ns->AV = malloc(SIZE*sizeof(double*));
     ns->V = malloc(SIZE*sizeof(double*));
-    ns->U_previous = malloc(SIZE*sizeof(double));
     ns->C = malloc(SIZE*sizeof(double));  
     ns->q = malloc(SIZE*sizeof(double));  
     ns->w = malloc(SIZE*sizeof(double));  

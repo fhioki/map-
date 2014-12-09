@@ -1,6 +1,6 @@
-Outputs were generated using MAP++ 4aa3-dirty.
+Outputs were generated using MAP++ 6d8c-dirty.
 
-    Tuesday December 09-2014 at 09:28:20 AM
+    Tuesday December 09-2014 at 15:18:05 PM
 
     Gravity constant          [m/s^2]  : 9.81
     Sea density               [kg/m^3] : 1020.00
@@ -32,7 +32,7 @@ Outputs were generated using MAP++ 4aa3-dirty.
           | -------------------------------------------------------------------------------------------
 Type      |  FIX                    CONNECT                CONNECT                VESSEL
 X  [m]    |  -300.000              (-173.598)             (-64.068)               -25.000
-Y  [m]    |  0.000                 (-0.000)               (-0.000)                 15.000
+Y  [m]    |  0.000                 ( 0.000)               ( 0.000)                 15.000
 Z  [m]    |  -100.000              (-81.010)              (-27.114)                0.000
 M  [kg]   |  0.000                   0.000                  0.000                  0.000
 B  [m^3]  |  0.000                   0.000                  0.000                  0.000
@@ -93,7 +93,7 @@ HAnch     [N]   |  368000.505
 VAnch     [N]   | -66596.208
 TAnch     [N]   |  373977.843
 AlphaAnch [deg] | -10.258
-L^2-Norm        |  1.464821e-14
+L^2-Norm        |  1.065814e-14
 Function Evals  |  2
 Jacobian Evals  |  1
 Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
@@ -131,7 +131,7 @@ HAnch     [N]   |  197096.030
 VAnch     [N]   |  90541.183
 TAnch     [N]   |  216897.559
 AlphaAnch [deg] |  24.673
-L^2-Norm        |  2.864289e-14
+L^2-Norm        |  5.728579e-14
 Function Evals  |  2
 Jacobian Evals  |  1
 Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
@@ -150,7 +150,7 @@ HAnch     [N]   |  197096.030
 VAnch     [N]   |  90541.183
 TAnch     [N]   |  216897.559
 AlphaAnch [deg] |  24.673
-L^2-Norm        |  1.464821e-14
+L^2-Norm        |  2.161031e-14
 Function Evals  |  2
 Jacobian Evals  |  1
 Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
@@ -169,7 +169,7 @@ HAnch     [N]   |  368000.937
 VAnch     [N]   | -66596.060
 TAnch     [N]   |  373978.241
 AlphaAnch [deg] | -10.258
-L^2-Norm        |  4.158345e-14
+L^2-Norm        |  2.864289e-14
 Function Evals  |  2
 Jacobian Evals  |  1
 Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
@@ -207,7 +207,7 @@ HAnch     [N]   |  197095.950
 VAnch     [N]   |  90541.042
 TAnch     [N]   |  216897.427
 AlphaAnch [deg] |  24.673
-L^2-Norm        |  1.065814e-14
+L^2-Norm        |  7.105427e-15
 Function Evals  |  2
 Jacobian Evals  |  1
 Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
@@ -226,7 +226,7 @@ HAnch     [N]   |  197096.625
 VAnch     [N]   |  90541.472
 TAnch     [N]   |  216898.219
 AlphaAnch [deg] |  24.673
-L^2-Norm        |  1.004859e-14
+L^2-Norm        |  2.864289e-14
 Function Evals  |  2
 Jacobian Evals  |  1
 Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
@@ -245,7 +245,7 @@ HAnch     [N]   |  368000.937
 VAnch     [N]   | -66596.060
 TAnch     [N]   |  373978.241
 AlphaAnch [deg] | -10.258
-L^2-Norm        |  7.105427e-15
+L^2-Norm        |  6.55088e-14
 Function Evals  |  2
 Jacobian Evals  |  1
 Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
@@ -283,7 +283,7 @@ HAnch     [N]   |  197096.625
 VAnch     [N]   |  90541.472
 TAnch     [N]   |  216898.219
 AlphaAnch [deg] |  24.673
-L^2-Norm        |  2.586415e-14
+L^2-Norm        |  3.177644e-14
 Function Evals  |  4
 Jacobian Evals  |  3
 Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
@@ -302,7 +302,7 @@ HAnch     [N]   |  197095.950
 VAnch     [N]   |  90541.042
 TAnch     [N]   |  216897.427
 AlphaAnch [deg] |  24.673
-L^2-Norm        |  2.586415e-14
+L^2-Norm        |  2.383233e-14
 Function Evals  |  4
 Jacobian Evals  |  3
 Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.

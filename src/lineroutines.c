@@ -367,16 +367,33 @@ MAP_ERROR_CODE krylov_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type
   int SIZE = THREE*z_size;
   int i = 0;
   int j = 0;
-  int m = domain->outer_loop.max_krylov_its+1; // artificially inflate 'm' such that l and u are solved the first go-around
+  int dimension = domain->outer_loop.max_krylov_its+1; // artificially inflate 'm' such that l and u are solved the first go-around
+
+
+  int k = 0;
+
+  /*
+  Vector &r = vStar;
+  // int k = dimension;
+  int i,j,ii;
+  double sum = 0.0;
+  double sumi = 0.0;
+  double sumj = 0.0;
+  double cj;
+
+  char *trans = "N";                     // No transpose    
+  int nrhs = 1;                          // The number of right hand side vectors    
+  int ldb = (numEqns > k) ? numEqns : k; // Leading dimension of the right hand side vector    
+  int info = 0;                          // Subroutine error flag
+  */
 
   do {
     error = 0.0;
 
-    /* Refresh Jacobian, L and U components of the domain. 
-     * This is solved only once per Kyrlov iteration
+    /* Refresh Jacobian, L and U components of the domain. This is solved only once per Kyrlov iteration
      */
-    if (m>domain->outer_loop.max_krylov_its) {      
-      m = 0;
+    if (dimension>domain->outer_loop.max_krylov_its) {      
+      dimension = 0;
       success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr); CHECKERRQ(MAP_FATAL_79);
       switch (ns->fd) {
       case BACKWARD_DIFFERENCE :
@@ -391,122 +408,208 @@ MAP_ERROR_CODE krylov_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type
       };
       success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr); CHECKERRQ(MAP_FATAL_78);
       success = lu(ns, SIZE, map_msg, ierr); CHECKERRQ(MAP_FATAL_74);                  
+      success = lu_back_substitution(ns, SIZE, map_msg, ierr);
     };
 
-    /* Backsolve */
-    for (i=0 ; i<z_size ; i++) {
-      ns->b[THREE*i] = other_type->Fx_connect[i];
-      ns->b[THREE*i+1] = other_type->Fy_connect[i];
-      ns->b[THREE*i+2] = other_type->Fz_connect[i];      
-    };
-    success = lu_back_substitution(ns, SIZE, map_msg, ierr); CHECKERRQ(MAP_FATAL_74);
+    k = dimension;
+
     for (i=0 ; i<SIZE ; i++) { 
-      ns->AV[i][m] = ns->x[i];
+      ns->AV[i][k] = ns->x[i];
     };
 
-    /* Least-square analysis */
-    if (m>0) {
-      /* AV(:,m) = AV(:,m) - r */
+    if (dimension>0) {
+      /* Compute Av_k = f(y_{k-1}) - f(y_k) = r_{k-1} - r_k
+       * Av[k-1]->addVector(1.0, r, -1.0); /* AV(:,m+1) = r 
+       */       
       for (i=0 ; i<SIZE ; i++) { 
-        ns->AV[i][m-1] -= ns->x[i];
-      };
-
-      /* c = AV(:,1:m) \ r */
-      for (j=0 ; j<m-1 ; j++) {         
-        sum = 0.0;
-        for (i=0 ; i<SIZE ; i++) {         
-          sum += ns->AV[i][j]/ns->x[i];
-        };
-        ns->C[j] = sum;        
-        printf("C: %f\n",sum);
-      };
-      
-      /* set V[][m] */
-      for (i=0 ; i<z_size ; i++) { 
-        ns->V[THREE*i][m-1] = (z_type->x[i] - ns->U_previous[THREE*i]);
-        ns->V[THREE*i+1][m-1] = (z_type->y[i] - ns->U_previous[THREE*i+1]);
-        ns->V[THREE*i+2][m-1] = (z_type->z[i] - ns->U_previous[THREE*i+2]);
-      };
-
-
-
-      // /* w = V(:,1:m)*c */
-      // for (j=0 ; j<m-1 ; j++) {         
-      //   sum = 0.0;
-      //   for (i=0 ; i<SIZE ; i++) {         
-      //     sum += ns->V[i][j]*ns->C[j];
-      //   };
-      //   ns->w[j] = sum;
-      // };
-      /* w = V(:,1:m)*c */
-      for (i=0 ; i<SIZE ; i++) {         
-        sum = 0.0;        
-        for (j=0 ; j<m-1 ; j++) {                   
-          sum += ns->V[i][j]*ns->C[j];
-        };
-        ns->w[i] = sum;
-      };
-
-
-      // /* q = AV(:,1:m)*c */      
-      // for (j=0 ; j<m-1 ; j++) {         
-      //   sum = 0.0;
-      //   for (i=0 ; i<SIZE ; i++) {         
-      //     sum += ns->AV[i][j]*ns->C[j];
-      //   };
-      //   ns->q[j] = sum;
-      // };
-      /* q = AV(:,1:m)*c */      
-      for (i=0 ; i<SIZE ; i++) {         
-        sum = 0.0;
-        for (j=0 ; j<m-1 ; j++) {         
-          sum += ns->AV[i][j]*ns->C[j];
-        };
-        ns->q[i] = sum;
-      }; 
-      /* r = r + V(:,1:m)*c; % w */
-      for (i=0 ; i<SIZE ; i++) {         
-        ns->x[i] += ns->w[i];
-      };
-
-      /* r = r - AV(:,1:m)*c; % q */
-      for (i=0 ; i<SIZE ; i++) {         
-        ns->x[i] -= ns->q[i];
+        ns->AV[i][k-1] = 0;
       };
     };
-  
+
+    dimension++;
+
+
+//     /**
+//      * % Least squares analysis
+//      * if (m > 0)
+//      */
+//     if (dimension > 0) {
+//       
+//       /**
+//        * Compute Av_k = f(y_{k-1}) - f(y_k) = r_{k-1} - r_k
+//        */
+//       Av[k-1]->addVector(1.0, r, -1.0); /* AV(:,m+1) = r */
+//       
+//       // Put subspace vectors into AvData
+//       Matrix A(AvData, numEqns, k); /* Matrix(double *data, int nrows, int ncols);  */
+//       
+//       for (i = 0; i < k; i++) {
+//         Vector &Ai = *(Av[i]);
+//         for (j = 0; j < numEqns; j++)
+//           A(j,i) = Ai(j); /* A = [A0 ; A1 ; A2 ; ... ; An ] */
+//       }
+//       
+//       // Put residual vector into rData (need to save r for later!)
+//       Vector B(rData, numEqns);
+//       B = r;
+//       
+//       // Call the LAPACK least squares subroutine
+// #    ifdef _WIN32
+//       DGELS(trans, &numEqns, &k, &nrhs, AvData, &numEqns,
+//             rData, &ldb, work, &lwork, &info);
+// #     else
+//       dgels_(trans, &numEqns, &k, &nrhs, AvData, &numEqns,
+//              rData, &ldb, work, &lwork, &info);
+// #     endif
+//       
+//       // Check for error returned by subroutine
+//       if (info < 0) {
+//         opserr << "WARNING KrylovAccelerator::accelerate() - \n";
+//         opserr << "error code " << info << " returned by LAPACK dgels\n";
+//         return info;
+//       }
+//       
+//       // Vector w(numEqns);
+//       // Vector q(numEqns);
+//       // q = r;
+//       
+//       /* Compute the correction vector */
+//       for (j = 0; j < k; j++) {
+//         
+//         // Solution to least squares is written to rData
+//         cj = rData[j];
+//         
+//         // Compute w_{k+1} = c_1 v_1 + ... + c_k v_k
+//         r.addVector(1.0, *(v[j]), cj);
+//         //w.addVector(1.0, *(v[j]), cj);
+//         
+//         // Compute least squares residual
+//         // q_{k+1} = r_k - (c_1 Av_1 + ... + c_k Av_k)
+//         r.addVector(1.0, *(Av[j]), -cj);
+//         //q.addVector(1.0, *(Av[j]), -cj);
+//       }
+//     }
+//     
+//     // Put accelerated vector into storage for next iteration
+//     *(v[k]) = r;
+//     
+//     dimension++;
+
     
-    /* update state of structure
-     *
-     * Note that: ns->x = J^(-1) * F
-     *  [x,y,z]_i+1 =  [x,y,z]_i - J^(-1) * F        
-     */   
-    for (i=0 ; i<z_size ; i++) { 
-      ns->U_previous[THREE*i] = z_type->x[i];
-      ns->U_previous[THREE*i+1] = z_type->y[i];
-      ns->U_previous[THREE*i+2] = z_type->z[i];
-      
-      z_type->x[i] -= ns->x[THREE*i];
-      z_type->y[i] -= ns->x[THREE*i+1];
-      z_type->z[i] -= ns->x[THREE*i+2];            
-    };
-    success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr); CHECKERRQ(MAP_FATAL_78);
-    
-    for (i=0 ; i<z_size ; i++) { 
-      error += (pow(other_type->Fx_connect[i],2)+ pow(other_type->Fy_connect[i],2) + pow(other_type->Fz_connect[i],2));
-    }
-    m++;
+    /* Backsolve */
+    // for (i=0 ; i<z_size ; i++) {
+    //   ns->b[THREE*i] = other_type->Fx_connect[i];
+    //   ns->b[THREE*i+1] = other_type->Fy_connect[i];
+    //   ns->b[THREE*i+2] = other_type->Fz_connect[i];      
+    // };
+    // success = lu_back_substitution(ns, SIZE, map_msg, ierr); CHECKERRQ(MAP_FATAL_74);
+    // for (i=0 ; i<SIZE ; i++) { 
+    //   ns->AV[i][m] = ns->x[i];
+    // };
+    // 
+    // /* Least-square analysis */
+    // if (dimension>0) {
+    //   /* AV(:,m) = AV(:,m) - r */
+    //   for (i=0 ; i<SIZE ; i++) { 
+    //     ns->AV[i][m-1] -= ns->x[i];
+    //   };
+    // 
+    //   /* c = AV(:,1:m) \ r */
+    //   for (j=0 ; j<m-1 ; j++) {         
+    //     sum = 0.0;
+    //     for (i=0 ; i<SIZE ; i++) {         
+    //       sum += ns->AV[i][j]/ns->x[i];
+    //     };
+    //     ns->C[j] = sum;        
+    //     printf("C: %f\n",sum);
+    //   };
+    //   
+    //   /* set V[][m] */
+    //   for (i=0 ; i<z_size ; i++) { 
+    //     ns->V[THREE*i][m-1] = (z_type->x[i] - ns->U_previous[THREE*i]);
+    //     ns->V[THREE*i+1][m-1] = (z_type->y[i] - ns->U_previous[THREE*i+1]);
+    //     ns->V[THREE*i+2][m-1] = (z_type->z[i] - ns->U_previous[THREE*i+2]);
+    //   };
+    // 
+    // 
+    // 
+    //   // /* w = V(:,1:m)*c */
+    //   // for (j=0 ; j<m-1 ; j++) {         
+    //   //   sum = 0.0;
+    //   //   for (i=0 ; i<SIZE ; i++) {         
+    //   //     sum += ns->V[i][j]*ns->C[j];
+    //   //   };
+    //   //   ns->w[j] = sum;
+    //   // };
+    //   /* w = V(:,1:m)*c */
+    //   for (i=0 ; i<SIZE ; i++) {         
+    //     sum = 0.0;        
+    //     for (j=0 ; j<m-1 ; j++) {                   
+    //       sum += ns->V[i][j]*ns->C[j];
+    //     };
+    //     ns->w[i] = sum;
+    //   };
+    // 
+    // 
+    //   // /* q = AV(:,1:m)*c */      
+    //   // for (j=0 ; j<m-1 ; j++) {         
+    //   //   sum = 0.0;
+    //   //   for (i=0 ; i<SIZE ; i++) {         
+    //   //     sum += ns->AV[i][j]*ns->C[j];
+    //   //   };
+    //   //   ns->q[j] = sum;
+    //   // };
+    //   /* q = AV(:,1:m)*c */      
+    //   for (i=0 ; i<SIZE ; i++) {         
+    //     sum = 0.0;
+    //     for (j=0 ; j<m-1 ; j++) {         
+    //       sum += ns->AV[i][j]*ns->C[j];
+    //     };
+    //     ns->q[i] = sum;
+    //   }; 
+    //   /* r = r + V(:,1:m)*c; % w */
+    //   for (i=0 ; i<SIZE ; i++) {         
+    //     ns->x[i] += ns->w[i];
+    //   };
+    // 
+    //   /* r = r - AV(:,1:m)*c; % q */
+    //   for (i=0 ; i<SIZE ; i++) {         
+    //     ns->x[i] -= ns->q[i];
+    //   };
+    // };
+    // 
+    // 
+    // /* update state of structure
+    //  *
+    //  * Note that: ns->x = J^(-1) * F
+    //  *  [x,y,z]_i+1 =  [x,y,z]_i - J^(-1) * F        
+    //  */   
+    // for (i=0 ; i<z_size ; i++) { 
+    //   ns->U_previous[THREE*i] = z_type->x[i];
+    //   ns->U_previous[THREE*i+1] = z_type->y[i];
+    //   ns->U_previous[THREE*i+2] = z_type->z[i];
+    //   
+    //   z_type->x[i] -= ns->x[THREE*i];
+    //   z_type->y[i] -= ns->x[THREE*i+1];
+    //   z_type->z[i] -= ns->x[THREE*i+2];            
+    // };
+    // success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr); CHECKERRQ(MAP_FATAL_78);
+    // 
+    // for (i=0 ; i<z_size ; i++) { 
+    //   error += (pow(other_type->Fx_connect[i],2)+ pow(other_type->Fy_connect[i],2) + pow(other_type->Fz_connect[i],2));
+    // }
+    dimension++;
 
-    printf("\n");
-    for (i=0 ; i<SIZE ; i++) {         
-      printf("  %f\n",ns->U_previous[i]);
-    };
-    
-    ns->iteration_count++;
-    if (ns->iteration_count>ns->max_its) {
-      set_universal_error(map_msg, ierr, MAP_FATAL_80);
-      break;
-    };
+    // printf("\n");
+    // for (i=0 ; i<SIZE ; i++) {         
+    //   printf("  %f\n",ns->U_previous[i]);
+    // };
+    // 
+    // ns->iteration_count++;
+    // if (ns->iteration_count>ns->max_its) {
+    //   set_universal_error(map_msg, ierr, MAP_FATAL_80);
+    //   break;
+    // };
   } while (sqrt(error)>ns->tol);
   return MAP_SAFE;
 };
