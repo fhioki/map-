@@ -26,9 +26,6 @@
 #include "jacobian.h"
 
 
-extern const char MAP_ERROR_STRING[][1024];
-
-
 MAP_ERROR_CODE reset_node_force_to_zero(Domain* domain, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   Node* node_iter = NULL;
@@ -420,10 +417,42 @@ MAP_ERROR_CODE krylov_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type
     if (dimension>0) {
       /* Compute Av_k = f(y_{k-1}) - f(y_k) = r_{k-1} - r_k
        * Av[k-1]->addVector(1.0, r, -1.0); /* AV(:,m+1) = r 
+       * Av[k-1] = Av[k-1] + (-1.0)*r
        */       
       for (i=0 ; i<SIZE ; i++) { 
-        ns->AV[i][k-1] = 0;
+        ns->AV[i][k-1] += -(1.0*ns->x[i]);
       };
+      
+      /* Put subspace vectors into AvData
+       * Matrix A(AvData, numEqns, k); // Matrix::Matrix(double *theData, int row, int col) 
+       */      
+      double** A = malloc(k*sizeof(double*));
+      for(i=0 ; i<SIZE ; i++) {
+        A[i] = malloc(SIZE*sizeof(double));    
+      };
+
+      /* A(j,i) = Ai(j);  A = [A0 ; A1 ; A2 ; ... ; An ] */
+      for (i=0 ; i< k ; i++) {
+        // Vector &Ai = *(Av[i]);
+        for (j=0 ; j<SIZE ; j++) {
+          A[j][i] = ns->AV[j][i];          
+        };
+      };
+      
+      double* rData = malloc(SIZE*sizeof(double));
+      for (i=0 ; i<SIZE ; i++) {
+        rData[i] = ns->x[i];
+      };
+
+      //dgels_(trans, &numEqns, &k, &nrhs, AvData, &numEqns, rData, &ldb, work, &lwork, &info);
+      
+
+      /* free locally allocated data */
+      for(i=0 ; i<k ; i++) {
+        MAPFREE(A[i]);
+      };
+      MAPFREE(A);
+      MAPFREE(rData);
     };
 
     dimension++;

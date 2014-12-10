@@ -34,9 +34,6 @@
 #include "residual.h"
 
 
-extern const char MAP_ERROR_STRING[][1024];
-
-
 MAP_EXTERNCALL void map_initialize_msqs_base(MAP_InputType_t* u_type,
                                              MAP_ParameterType_t* p_type, 
                                              MAP_ContinuousStateType_t* x_type, 

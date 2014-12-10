@@ -24,20 +24,21 @@ PLATFORM = $(shell uname -s)
 CMINPACK_DIR = cminpack
 BSTRING_DIR = bstring
 SIMCLIST_DIR = simclist
+LAPACK_DIR = lapack
 
-VPATH = cminpack:simclist:bstring
+VPATH = cminpack:simclist:bstring:lapack
 
 
 ifeq ($(PLATFORM),Darwin)
   CC_TOOLS  = clang
   CFLAGS    = -g -O1 -fsanitize=address -fno-omit-frame-pointer -fPIC -D DEBUG -Icminpack -Isimclist
-  LDFLAGS   = -g -fsanitize=address -fno-omit-frame-pointer -dynamiclib
+  LDFLAGS   = -g -fsanitize=address -fno-omit-frame-pointer -dynamiclib 
 else ifeq ($(PLATFORM),Linux)
   CC_TOOLS  = gcc
   #CFLAGS    = -g -O1 -fsanitize=address -fno-omit-frame-pointer -fPIC -D DEBUG -DGITVERSION=\"$(GIT_VERSION)\" -Icminpack -Isimclist
   #CFLAGS    = -g -fPIC -std=c99 -Wuninitialized -Wall -D DEBUG -DGITVERSION=\"$(GIT_VERSION)\" 
   CFLAGS    = $(BITS) -g -fPIC -std=c99 -D DEBUG -DGITVERSION=\"$(GIT_VERSION)\" 
-  LDFLAGS   = $(BITS) -g -shared 
+  LDFLAGS   = $(BITS) -g -shared
 endif
 
 
