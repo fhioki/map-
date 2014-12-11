@@ -24,6 +24,7 @@
 #include "lineroutines.h"
 #include "numeric.h"
 #include "jacobian.h"
+#include "lapack\lapacke.h"
 
 
 MAP_ERROR_CODE reset_node_force_to_zero(Domain* domain, char* map_msg, MAP_ERROR_CODE* ierr)
@@ -384,7 +385,10 @@ MAP_ERROR_CODE krylov_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type
   int info = 0;                          // Subroutine error flag
   */
 
-#ifndef WITH_LAPACK /* can't use this function (and option 'KRYLOV_ACCELERATOR') if MAP is compiled without LAPACK libraries */
+  /* can't use this function (and option 'KRYLOV_ACCELERATOR') 
+   * if MAP is compiled without LAPACK libraries 
+   */
+#ifndef WITH_LAPACK 
   set_universal_error(map_msg, ierr, MAP_FATAL_96);
   return MAP_FATAL;
 #endif
@@ -450,6 +454,29 @@ MAP_ERROR_CODE krylov_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type
         rData[i] = ns->x[i];
       };
 
+
+      double a[] = {1,2,3,4}; //NO need for column-major mode
+      double bn[] = {19, 22, 43, 50}; //NO need for column-major mode
+      int nn = 2;
+      int nrhs = 2;
+      int lda = n;
+      int ipiv[n];
+      int ldb = n;
+      
+      int info = LAPACKE_dgesv(LAPACK_ROW_MAJOR, nn, nrhs, a, lda, ipiv, bb, ldb);
+
+      lapack_int r = 0;
+      int matrix_order;
+      char trans;
+      lapack_int m;
+      lapack_int nn;
+      lapack_int nrhs;
+      double* a;
+      lapack_int lda;
+      double* bb;
+      lapack_int ldb ;
+      /* lapack_int*/ r = LAPACKE_dgels(matrix_order, trans,m,nn,nrhs,a,lda,bb,ldb);
+      
       // dgels_(trans, &numEqns, &k, &nrhs, AvData, &numEqns, rData, &ldb, work, &lwork, &info);
       
 
