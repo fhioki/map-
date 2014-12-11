@@ -258,7 +258,7 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
  * @param     map_msg error string
  * @see       {@link map_calc_output()}
  */
-MAP_EXTERNCALL void map_update_states(double t,
+MAP_EXTERNCALL void map_update_states(float t,
                                       int interval,
                                       MAP_InputType_t* u_type,
                                       MAP_ParameterType_t* p_type,
@@ -285,7 +285,7 @@ MAP_EXTERNCALL void map_update_states(double t,
  * @param     map_msg error string
  * @see       {@link map_update_states()}
  */
-MAP_EXTERNCALL void map_calc_output(double t,
+MAP_EXTERNCALL void map_calc_output(float t,
                                     MAP_InputType_t* u_type,
                                     MAP_ParameterType_t* p_type,
                                     MAP_ContinuousStateType_t* x_type,

@@ -95,28 +95,7 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
 
   MAP_BEGIN_ERROR_LOG; 
 
-  // /*  initialize types; set doubles to -999.9, int=0, pointers=NULL 
-  //  *  @todo: add other variables as neccessary. This needs to be fixed each time the registry
-  //  *         is run an new varaibles are introduced 
-  //  */  
-  // success = initialize_fortran_types(u_type, p_type, x_type, z_type, other_type, y_type, io_type);     
-  success = map_get_version(io_type);
-  
-  // /* create a cable library link lists for:
-  //  *  - nodes
-  //  *  - lines
-  //  *  - cable library (properties)
-  //  * The following are simclist routines 
-  //  */
-  // list_init(&domain->library); 
-  // list_init(&domain->node); 
-  // list_init(&domain->line);  
-  // list_init(&domain->u_update_list);  
-  // list_attributes_copy(&domain->library, cable_library_meter, 1); 
-  // list_attributes_copy(&domain->node, node_meter, 1); 
-  // list_attributes_copy(&domain->line, cable_line_meter, 1);    
-  // list_attributes_copy(&domain->u_update_list, u_list_meter, 1);    
-
+  success = map_get_version(io_type);  
   success = allocate_outlist(domain, map_msg, ierr); CHECKERRQ(MAP_FATAL_47);
   list_init(&domain->y_list->out_list); /* simclist routine */
   list_init(&domain->y_list->out_list_ptr); /* simclist routine */
@@ -182,7 +161,7 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
 };
 
 
-MAP_EXTERNCALL void map_update_states(double t,
+MAP_EXTERNCALL void map_update_states(float t,
                                       int interval,
                                       MAP_InputType_t* u_type,
                                       MAP_ParameterType_t* p_type,
@@ -247,7 +226,7 @@ MAP_EXTERNCALL void map_update_states(double t,
 };    
 
 
-MAP_EXTERNCALL void map_calc_output(double t,
+MAP_EXTERNCALL void map_calc_output(float t,
                                     MAP_InputType_t* u_type,
                                     MAP_ParameterType_t* p_type,
                                     MAP_ContinuousStateType_t* x_type,
