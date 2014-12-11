@@ -30,21 +30,21 @@
 #define giant(type) _giant(type)
 #define _giant(type) type ## _giant
 
-#define rdwarf dwarf(real)
-#define rgiant giant(real)
+#define rdwarf dwarf(real_mp)
+#define rgiant giant(real_mp)
 
 __cminpack_attr__
-real __cminpack_func__(enorm)(int n, const real *x)
+real_mp __cminpack_func__(enorm)(int n, const real_mp *x)
 {
 #ifdef USE_CBLAS
     return cblas_dnrm2(n, x, 1);
 #else /* !USE_CBLAS */
     /* System generated locals */
-    real ret_val, d1;
+    real_mp ret_val, d1;
 
     /* Local variables */
     int i;
-    real s1, s2, s3, xabs, x1max, x3max, agiant, floatn;
+    real_mp s1, s2, s3, xabs, x1max, x3max, agiant, floatn;
 
 /*     ********** */
 
@@ -89,7 +89,7 @@ real __cminpack_func__(enorm)(int n, const real *x)
     s3 = 0.;
     x1max = 0.;
     x3max = 0.;
-    floatn = (real) (n);
+    floatn = (real_mp) (n);
     agiant = rgiant / floatn;
     for (i = 0; i < n; ++i) {
 	xabs = fabs(x[i]);

@@ -430,7 +430,7 @@ MAP_ERROR_CODE krylov_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type
       for(i=0 ; i<SIZE ; i++) {
         A[i] = malloc(SIZE*sizeof(double));    
       };
-
+      
       /* A(j,i) = Ai(j);  A = [A0 ; A1 ; A2 ; ... ; An ] */
       for (i=0 ; i< k ; i++) {
         // Vector &Ai = *(Av[i]);

@@ -8,10 +8,10 @@
 #include "cminpackP.h"
 
 __cminpack_attr__
-void __cminpack_func__(lmpar)(int n, real *r, int ldr, 
-	const int *ipvt, const real *diag, const real *qtb, real delta, 
-	real *par, real *x, real *sdiag, real *wa1, 
-	real *wa2)
+void __cminpack_func__(lmpar)(int n, real_mp *r, int ldr, 
+	const int *ipvt, const real_mp *diag, const real_mp *qtb, real_mp delta, 
+	real_mp *par, real_mp *x, real_mp *sdiag, real_mp *wa1, 
+	real_mp *wa2)
 {
     /* Initialized data */
 
@@ -19,17 +19,17 @@ void __cminpack_func__(lmpar)(int n, real *r, int ldr,
 #define p001 .001
 
     /* System generated locals */
-    real d1, d2;
+    real_mp d1, d2;
 
     /* Local variables */
     int j, l;
-    real fp;
-    real parc, parl;
+    real_mp fp;
+    real_mp parc, parl;
     int iter;
-    real temp, paru, dwarf;
+    real_mp temp, paru, dwarf;
     int nsing;
-    real gnorm;
-    real dxnorm;
+    real_mp gnorm;
+    real_mp dxnorm;
 
 /*     ********** */
 
@@ -194,7 +194,7 @@ void __cminpack_func__(lmpar)(int n, real *r, int ldr,
         cblas_dtrsv(CblasColMajor, CblasUpper, CblasTrans, CblasNonUnit, n, r, ldr, wa1, 1);
 #     else
         for (j = 0; j < n; ++j) {
-            real sum = 0.;
+            real_mp sum = 0.;
             if (j >= 1) {
                 int i;
                 for (i = 0; i < j; ++i) {
@@ -211,7 +211,7 @@ void __cminpack_func__(lmpar)(int n, real *r, int ldr,
 /*     calculate an upper bound, paru, for the zero of the function. */
 
     for (j = 0; j < n; ++j) {
-        real sum;
+        real_mp sum;
 #     ifdef USE_CBLAS
         sum = cblas_ddot(j+1, &r[j*ldr], 1, qtb, 1);
 #     else
@@ -227,7 +227,7 @@ void __cminpack_func__(lmpar)(int n, real *r, int ldr,
     gnorm = __cminpack_enorm__(n, wa1);
     paru = gnorm / delta;
     if (paru == 0.) {
-        paru = dwarf / minpack_min(delta,(real)p1) /* / p001 ??? */;
+        paru = dwarf / minpack_min(delta,(real_mp)p1) /* / p001 ??? */;
     }
 
 /*     if the input par lies outside of the interval (parl,paru), */

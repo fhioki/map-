@@ -3,9 +3,9 @@
 #include "cminpackP.h"
 
 __cminpack_attr__
-void __cminpack_func__(qrsolv)(int n, real *r, int ldr, 
-	const int *ipvt, const real *diag, const real *qtb, real *x, 
-	real *sdiag, real *wa)
+void __cminpack_func__(qrsolv)(int n, real_mp *r, int ldr, 
+	const int *ipvt, const real_mp *diag, const real_mp *qtb, real_mp *x, 
+	real_mp *sdiag, real_mp *wa)
 {
     /* Initialized data */
 
@@ -14,9 +14,9 @@ void __cminpack_func__(qrsolv)(int n, real *r, int ldr,
 
     /* Local variables */
     int i, j, k, l;
-    real cos, sin, sum, temp;
+    real_mp cos, sin, sum, temp;
     int nsing;
-    real qtbpj;
+    real_mp qtbpj;
 
 /*     ********** */
 
@@ -136,12 +136,12 @@ void __cminpack_func__(qrsolv)(int n, real *r, int ldr,
                     dlartg_( &r[k + k * ldr], &sdiag[k], &cos, &sin, &temp );
 #                 else /* !USE_LAPACK */
                     if (fabs(r[k + k * ldr]) < fabs(sdiag[k])) {
-                        real cotan;
+                        real_mp cotan;
                         cotan = r[k + k * ldr] / sdiag[k];
                         sin = p5 / sqrt(p25 + p25 * (cotan * cotan));
                         cos = sin * cotan;
                     } else {
-                        real tan;
+                        real_mp tan;
                         tan = sdiag[k] / r[k + k * ldr];
                         cos = p5 / sqrt(p25 + p25 * (tan * tan));
                         sin = cos * tan;

@@ -53,7 +53,7 @@ int dgeqrf_(__CLPK_integer *m, __CLPK_integer *n, __CLPK_doublereal *a, __CLPK_i
 #endif
 #endif
 
-#define real __cminpack_real__
+#define real_mp __cminpack_real__
 #define minpack_min(a,b) ((a) <= (b) ? (a) : (b))
 #define minpack_max(a,b) ((a) >= (b) ? (a) : (b))
 #define TRUE_ (1)

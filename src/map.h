@@ -35,6 +35,8 @@
 #include "cminpack/cminpackP.h"
 #include "cminpack/minpack.h"
 
+// #include "lapack/f2c.h"
+
 #include "MAP_Types.h"
 #include "maperror.h"
 #include "lmroutines.hpp"
