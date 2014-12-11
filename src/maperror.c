@@ -281,3 +281,4 @@ void set_universal_error_with_message(char* map_msg, MAP_ERROR_CODE* ierr, const
   ret = bdestroy(message);
   ret = bdestroy(user_msg);
 };
+
