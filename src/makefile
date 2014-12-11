@@ -38,7 +38,7 @@ else ifeq ($(PLATFORM),Linux)
   #CFLAGS    = -g -O1 -fsanitize=address -fno-omit-frame-pointer -fPIC -D DEBUG -DGITVERSION=\"$(GIT_VERSION)\" -Icminpack -Isimclist
   #CFLAGS    = -g -fPIC -std=c99 -Wuninitialized -Wall -D DEBUG -DGITVERSION=\"$(GIT_VERSION)\" 
   CFLAGS    = $(BITS) -g -fPIC -std=c99 -D DEBUG -DGITVERSION=\"$(GIT_VERSION)\" -D WITH_LAPACK
-  LDFLAGS   = $(BITS) -g -shared
+  LDFLAGS   = $(BITS) -g -shared -llapacke
 endif
 
 
@@ -68,55 +68,9 @@ OBJ       = lmder.o \
 	lmroutines.o \
 	jacobian.o \
 	residual.o \
-#	s_cat.o \
-#	pow_di.o \
-#	f77_aloc.o \
-#	sfe.o \
-#	err.o \
-#	dcopy.o \
-#	dgelq2.o \
-#	dgelqf.o \
-#	dgels.o \
-#	dgemm.o \
-#	dgemv.o \
-#	dgeqr2.o \
-#	dgeqrf.o \
-#	dger.o \
-#	disnan.o \
-#	dlabad.o \
-#	dlaisnan.o \
-#	dlamch.o \
-#	dlange.o \
-#	dlapy2.o \
-#	dlarfb.o \
-#	dlarf.o \
-#	dlarfp.o \
-#	dlarft.o \
-#	dlascl.o \
-#	dlaset.o \
-#	dlassq.o \
-#	dnrm2.o \
-#	dorml2.o \
-#	dormlq.o \
-#	dormqr.o \
-#	dormr2.o \
-#	dscal.o \
-#	dtrmm.o \
-#	dtrmv.o \
-#	dtrsm.o \
-#	dtrtrs.o \
-#	ieeeck.o \
-#	iladlc.o \
-#	iladlr.o \
-#	ilaenv.o \
-#	iparmq.o \
-#	lsame.o \
-#	xerbla.o \
-
 
 all : $(OBJ)
-	$(CC_TOOLS) $(LDFLAGS) -o libmap-1.00.01.so $(DEBUG) $(OBJ) -lm
-	@echo $(CFLAGS)
+	$(CC_TOOLS) $(LDFLAGS) -o libmap-1.00.01.so $(DEBUG) $(OBJ) -lm -llapacke
 
 .c.o :
 	$(CC_TOOLS) -c $(CFLAGS) $<

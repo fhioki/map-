@@ -436,52 +436,55 @@ MAP_ERROR_CODE krylov_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type
       /* Put subspace vectors into AvData
        * Matrix A(AvData, numEqns, k); // Matrix::Matrix(double *theData, int row, int col) 
        */      
-      double** A = malloc(k*sizeof(double*));
+      double** A = NULL;
+      A = malloc(SIZE*sizeof(double*));
       for(i=0 ; i<SIZE ; i++) {
-        A[i] = malloc(SIZE*sizeof(double));    
+        A[i] = malloc(k*sizeof(double));    
       };
       
       /* A(j,i) = Ai(j);  A = [A0 ; A1 ; A2 ; ... ; An ] */
-      for (i=0 ; i< k ; i++) {
+      for (i=0 ; i<k ; i++) {
         // Vector &Ai = *(Av[i]);
         for (j=0 ; j<SIZE ; j++) {
           A[j][i] = ns->AV[j][i];          
         };
       };
       
-      double* rData = malloc(SIZE*sizeof(double));
+      double* rData = NULL;
+      rData = malloc(SIZE*sizeof(double));
       for (i=0 ; i<SIZE ; i++) {
         rData[i] = ns->x[i];
       };
 
 
       double a[] = {1,2,3,4}; //NO need for column-major mode
-      double bn[] = {19, 22, 43, 50}; //NO need for column-major mode
+      double bb[] = {19, 22, 43, 50}; //NO need for column-major mode
       int nn = 2;
       int nrhs = 2;
-      int lda = n;
-      int ipiv[n];
-      int ldb = n;
+      int lda = nn;
+      int ipiv[nn];
+      int ldb = nn;
       
       int info = LAPACKE_dgesv(LAPACK_ROW_MAJOR, nn, nrhs, a, lda, ipiv, bb, ldb);
+      printf("here : <%d>", info);
 
-      lapack_int r = 0;
-      int matrix_order;
-      char trans;
-      lapack_int m;
-      lapack_int nn;
-      lapack_int nrhs;
-      double* a;
-      lapack_int lda;
-      double* bb;
-      lapack_int ldb ;
-      /* lapack_int*/ r = LAPACKE_dgels(matrix_order, trans,m,nn,nrhs,a,lda,bb,ldb);
+      // lapack_int r = 0;
+      // int matrix_order;
+      // char trans;
+      // lapack_int m;
+      // lapack_int nn;
+      // lapack_int nrhs;
+      // double* a;
+      // lapack_int lda;
+      // double* bb;
+      // lapack_int ldb ;
+      // /* lapack_int*/ r = LAPACKE_dgels(matrix_order, trans,m,nn,nrhs,a,lda,bb,ldb);
       
       // dgels_(trans, &numEqns, &k, &nrhs, AvData, &numEqns, rData, &ldb, work, &lwork, &info);
       
 
       /* free locally allocated data */
-      for(i=0 ; i<k ; i++) {
+      for(i=0 ; i<SIZE ; i++) {
         MAPFREE(A[i]);
       };
       MAPFREE(A);
