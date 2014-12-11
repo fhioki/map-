@@ -68,6 +68,46 @@ OBJ       = lmder.o \
 	lmroutines.o \
 	jacobian.o \
 	residual.o \
+	dcopy.o \
+	dgelq2.o \
+	dgelqf.o \
+	dgels.o \
+	dgemm.o \
+	dgemv.o \
+	dgeqr2.o \
+	dgeqrf.o \
+	dger.o \
+	disnan.o \
+	dlabad.o \
+	dlaisnan.o \
+	dlamch.o \
+	dlange.o \
+	dlapy2.o \
+	dlarfb.o \
+	dlarf.o \
+	dlarfp.o \
+	dlarft.o \
+	dlascl.o \
+	dlaset.o \
+	dlassq.o \
+	dnrm2.o \
+	dorml2.o \
+	dormlq.o \
+	dormqr.o \
+	dormr2.o \
+	dscal.o \
+	dtrmm.o \
+	dtrmv.o \
+	dtrsm.o \
+	dtrtrs.o \
+	ieeeck.o \
+	iladlc.o \
+	iladlr.o \
+	ilaenv.o \
+	iparmq.o \
+	lsame.o \
+	xerbla.o \
+
 
 all : $(OBJ)
 	$(CC_TOOLS) $(LDFLAGS) -o libmap-1.00.01.so $(DEBUG) $(OBJ) -lm
