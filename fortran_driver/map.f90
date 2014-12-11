@@ -598,9 +598,9 @@ CONTAINS
     write(*,*)
     ! Copy the MAP C output types to the native Fortran mesh output types
     DO i = 1,y%ptFairleadLoad%NNodes
-       y%ptFairleadLoad%Force(1,i) = y%FX(i) 
-       y%ptFairleadLoad%Force(2,i) = y%FY(i)
-       y%ptFairleadLoad%Force(3,i) = y%FZ(i)
+       y%ptFairleadLoad%Force(1,i) = -y%FX(i) 
+       y%ptFairleadLoad%Force(2,i) = -y%FY(i)
+       y%ptFairleadLoad%Force(3,i) = -y%FZ(i)
     END DO  
   END SUBROUTINE MAP_CalcOutput                                                                  !   -------+
   !==========================================================================================================
