@@ -37,7 +37,7 @@ else ifeq ($(PLATFORM),Linux)
   CC_TOOLS  = gcc
   #CFLAGS    = -g -O1 -fsanitize=address -fno-omit-frame-pointer -fPIC -D DEBUG -DGITVERSION=\"$(GIT_VERSION)\" -Icminpack -Isimclist
   #CFLAGS    = -g -fPIC -std=c99 -Wuninitialized -Wall -D DEBUG -DGITVERSION=\"$(GIT_VERSION)\" 
-  CFLAGS    = $(BITS) -g -fPIC -std=c99 -D DEBUG -DGITVERSION=\"$(GIT_VERSION)\" 
+  CFLAGS    = $(BITS) -g -fPIC -std=c99 -D DEBUG -DGITVERSION=\"$(GIT_VERSION)\" -D WITH_LAPACK
   LDFLAGS   = $(BITS) -g -shared
 endif
 
@@ -68,6 +68,11 @@ OBJ       = lmder.o \
 	lmroutines.o \
 	jacobian.o \
 	residual.o \
+#	s_cat.o \
+#	pow_di.o \
+#	f77_aloc.o \
+#	sfe.o \
+#	err.o \
 #	dcopy.o \
 #	dgelq2.o \
 #	dgelqf.o \

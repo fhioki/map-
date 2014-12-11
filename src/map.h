@@ -35,11 +35,13 @@
 #include "cminpack/cminpackP.h"
 #include "cminpack/minpack.h"
 
-// #include "lapack/f2c.h"
-
 #include "MAP_Types.h"
 #include "maperror.h"
 #include "lmroutines.hpp"
+
+#ifdef WITH_LAPACK
+#  include "lapack/lapacke.h"
+#endif // WITH_LAPACK
 
 /**
  * @brief Associates the node with a particular type. Fix nodes are anchor points

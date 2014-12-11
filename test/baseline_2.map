@@ -22,7 +22,7 @@ Line    LineType  UnstrLen  NodeAnch  NodeFair  Flags
 ---------------------- SOLVER OPTIONS-----------------------------------------
 Option 
 (-) 
-help
+ help
  integration_dt 0
  kb_default 3.0e6
  cb_default 3.0e5
@@ -38,7 +38,7 @@ outer_tol 1e-4
  inner_max_its 100
  outer_max_its 500
 repeat 120 240
- krylov_accelerator 3
+krylov_accelerator 3
  ref_position 0.0 0.0 -6.0
  -172.772029
     0.000000

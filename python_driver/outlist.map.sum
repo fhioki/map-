@@ -1,6 +1,6 @@
-Outputs were generated using MAP++ 5b3f-dirty.
+Outputs were generated using MAP++ eba1-dirty.
 
-    Thursday December 11-2014 at 10:04:07 AM
+    Thursday December 11-2014 at 13:51:05 PM
 
     Gravity constant          [m/s^2]  : 9.81
     Sea density               [kg/m^3] : 1020.00
@@ -350,7 +350,7 @@ Line  LineType  UnstrLen  NodeAnch  NodeFair  Flags
 ---------------------- SOLVER OPTIONS-----------------------------------------
 Option 
 [-] 
-help
+ help
  integration_dt 0
  kb_default 3.0e6
  cb_default 3.0e5
