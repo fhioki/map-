@@ -398,7 +398,7 @@ struct OuterSolveAttributes_t {
   double** jac;
   double** l;         /**< lower triangle matrix in LU */
   double** u;         /**< upper triangle matrix in LU */
-  double* b;
+  double* b;          /**< this is the force vector used in x += ([J]^-1)*b */
   double* C;          /**< for the Krylov accelerator */
   double* w;          /**< for the Krylov accelerator */
   double* q;          /**< for the Krylov accelerator */

@@ -129,13 +129,17 @@ MAP_ERROR_CODE lu(OuterSolveAttributes* ns, const int n, char* map_msg, MAP_ERRO
 };
 
 
+/**
+ * Ax = b -> LUx = b. Then y is defined to be Ux
+ */
 MAP_ERROR_CODE lu_back_substitution(OuterSolveAttributes* ns, const int n, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   int i = 0;
   int j = 0;
-
+  
   /* Forward solve Ly = b */
   for (i=0 ; i<n ; i++) {
+    /* @todo: I think y can be eliminated. It is simply a copy of b */
     ns->y[i] = ns->b[i];
     for (j=0 ; j<i ; j++) {
       ns->y[i] -= (ns->l[i][j])*(ns->y[j]);

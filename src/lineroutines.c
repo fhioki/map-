@@ -353,6 +353,19 @@ MAP_ERROR_CODE line_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type, 
 };    
 
 
+
+
+/* Auxiliary routine: printing a matrix */
+void print_matrix_rowmajor( char* desc, lapack_int m, lapack_int n, double* mat, lapack_int ldm ) {
+        lapack_int i, j;
+        printf( "\n %s\n", desc );
+        
+        for( i = 0; i < m; i++ ) {
+                for( j = 0; j < n; j++ ) printf( " %6.2f", mat[i*ldm+j] );
+                printf( "\n" );
+        }
+}
+
 MAP_ERROR_CODE krylov_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type, MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, char* map_msg, MAP_ERROR_CODE* ierr) 
 {
   OuterSolveAttributes* ns = &domain->outer_loop;
@@ -362,28 +375,23 @@ MAP_ERROR_CODE krylov_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type
   const int z_size = z_type->z_Len; //N
   double error = 0.0;
   double sum = 0.0;
-  int SIZE = THREE*z_size;
+  int num_eq = THREE*z_size;
   int i = 0;
   int j = 0;
   int dimension = domain->outer_loop.max_krylov_its+1; // artificially inflate 'm' such that l and u are solved the first go-around
-
-
   int k = 0;
+  lapack_int info = 0; /* = 0:  successful exit
+                        * < 0:  if INFO = -i, the i-th argument had an illegal value
+                        * > 0:  if INFO =  i, the i-th diagonal element of the
+                        * triangular factor of A is zero, so that A does not have
+                        * full rank; the least squares solution could not be
+                        * computed.
+                        */
 
-  /*
-  Vector &r = vStar;
-  // int k = dimension;
-  int i,j,ii;
-  double sum = 0.0;
-  double sumi = 0.0;
-  double sumj = 0.0;
-  double cj;
-
-  char *trans = "N";                     // No transpose    
-  int nrhs = 1;                          // The number of right hand side vectors    
-  int ldb = (numEqns > k) ? numEqns : k; // Leading dimension of the right hand side vector    
-  int info = 0;                          // Subroutine error flag
-  */
+  double* W = NULL;  
+  double* Q = NULL;
+  W = malloc(num_eq*sizeof(double));
+  Q = malloc(num_eq*sizeof(double));
 
   /* can't use this function (and option 'KRYLOV_ACCELERATOR') 
    * if MAP is compiled without LAPACK libraries 
@@ -395,13 +403,10 @@ MAP_ERROR_CODE krylov_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type
 
   ns->iteration_count = 1;
   do {
-    error = 1.0;
-
     /* Refresh Jacobian, L and U components of the domain. This is solved only once per Kyrlov iteration
-     */
+     */    
     if (dimension>domain->outer_loop.max_krylov_its) {      
       dimension = 0;
-      success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr); CHECKERRQ(MAP_FATAL_79);
       switch (ns->fd) {
       case BACKWARD_DIFFERENCE :
         success = backward_difference_jacobian(other_type, p_type, z_type, domain, map_msg, ierr); CHECKERRQ(MAP_FATAL_75);
@@ -414,83 +419,95 @@ MAP_ERROR_CODE krylov_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type
         break;
       };
       success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr); CHECKERRQ(MAP_FATAL_78);
-      success = lu(ns, SIZE, map_msg, ierr); CHECKERRQ(MAP_FATAL_74);                  
-      success = lu_back_substitution(ns, SIZE, map_msg, ierr);
+      success = lu(ns, num_eq, map_msg, ierr); CHECKERRQ(MAP_FATAL_74);
     };
-
+    
+    success = lu_back_substitution(ns, num_eq, map_msg, ierr);
     k = dimension;
 
-    for (i=0 ; i<SIZE ; i++) { 
-      ns->AV[i][k] = ns->x[i];
+    for (i=0 ; i<num_eq ; i++) { 
+      ns->AV[i][k] = ns->x[i]; /* ns->b = function residual */
     };
-   
+    
     if (dimension>0) {
-      /* Compute Av_k = f(y_{k-1}) - f(y_k) = r_{k-1} - r_k
-       * Av[k-1]->addVector(1.0, r, -1.0); /* AV(:,m+1) = r 
-       * Av[k-1] = Av[k-1] + (-1.0)*r
-       */       
-      for (i=0 ; i<SIZE ; i++) { 
-        ns->AV[i][k-1] += -(1.0*ns->x[i]);
+      for (i=0 ; i<num_eq ; i++) { 
+        ns->AV[i][k-1] -= ns->x[i];
       };
       
-      /* Put subspace vectors into AvData
-       * Matrix A(AvData, numEqns, k); // Matrix::Matrix(double *theData, int row, int col) 
-       */      
-      double** A = NULL;
-      A = malloc(SIZE*sizeof(double*));
-      for(i=0 ; i<SIZE ; i++) {
-        A[i] = malloc(k*sizeof(double));    
+      double* rData = NULL; // B is DOUBLE PRECISION array, dimension (LDB,NRHS). On entry, the matrix B of right hand side vectors, stored
+      rData = malloc(num_eq*sizeof(double));
+      for (i=0 ; i<num_eq ; i++) {
+        rData[i] = ns->x[i];
       };
-      
-      /* A(j,i) = Ai(j);  A = [A0 ; A1 ; A2 ; ... ; An ] */
-      for (i=0 ; i<k ; i++) {
-        // Vector &Ai = *(Av[i]);
-        for (j=0 ; j<SIZE ; j++) {
-          A[j][i] = ns->AV[j][i];          
+            
+      lapack_int m = num_eq; // number of rows in A
+      lapack_int n = k;    // number of columns in A
+      lapack_int nrhs = 1; // The number of right hand sides, i.e., the number of columns of the matrices B and X. NRHS >=0.
+      lapack_int lda = k;  // The leading dimension of the array A.  LDA >= max(1,M).
+      lapack_int ldb = 1;//(num_eq>k) ? num_eq : k; // Leading dimension of the right hand side vector    
+
+      double* aa = NULL;   // A is DOUBLE PRECISION array, dimension (LDA,N). On entry, the M-by-N matrix A.       
+      aa = malloc(k*num_eq*sizeof(double));
+       
+      int counter = 0;
+      for (i=0 ; i<num_eq ; i++) {
+        for (j=0 ; j<k ; j++) {
+          aa[counter] = ns->AV[i][j];          
+          counter++;
         };
       };
       
-      double* rData = NULL;
-      rData = malloc(SIZE*sizeof(double));
-      for (i=0 ; i<SIZE ; i++) {
-        rData[i] = ns->x[i];
+      info = LAPACKE_dgels(LAPACK_ROW_MAJOR, 'N', m, n, nrhs, aa, lda, rData, ldb);
+      // printf("info is ,<%d>\n",info);      
+      
+      //print_matrix_rowmajor( "aa", m, n, aa, lda );
+      //printf("\n");
+      //print_matrix_rowmajor( "Solution", n, nrhs, rData, ldb );
+      
+      double c = 0.0;
+      
+      for (i=0 ; i<num_eq ; i++) {
+        W[i] = 0.0;
+        Q[i] = 0.0;
       };
-
-
-      double a[] = {1,2,3,4}; //NO need for column-major mode
-      double bb[] = {19, 22, 43, 50}; //NO need for column-major mode
-      int nn = 2;
-      int nrhs = 2;
-      int lda = nn;
-      int ipiv[nn];
-      int ldb = nn;
       
-      int info = LAPACKE_dgesv(LAPACK_ROW_MAJOR, nn, nrhs, a, lda, ipiv, bb, ldb);
-      printf("here : <%d>", info);
+      for (j=0 ; j<k ; j++) {        
+        c = rData[j]; /* Solution to least squares is written to rData */
+        //printf("c(%d) is <%f>\n",k,c);
+        for (i=0 ; i<num_eq ; i++) {      
+          W[i] = c*ns->V[i][j];
+          Q[i] = c*ns->AV[i][j];                    
+        };
 
-      // lapack_int r = 0;
-      // int matrix_order;
-      // char trans;
-      // lapack_int m;
-      // lapack_int nn;
-      // lapack_int nrhs;
-      // double* a;
-      // lapack_int lda;
-      // double* bb;
-      // lapack_int ldb ;
-      // /* lapack_int*/ r = LAPACKE_dgels(matrix_order, trans,m,nn,nrhs,a,lda,bb,ldb);
-      
-      // dgels_(trans, &numEqns, &k, &nrhs, AvData, &numEqns, rData, &ldb, work, &lwork, &info);
-      
-
-      /* free locally allocated data */
-      for(i=0 ; i<SIZE ; i++) {
-        MAPFREE(A[i]);
+        for (i=0 ; i<num_eq ; i++) {      
+          ns->x[i] += (W[i] - Q[i]);
+        };
       };
-      MAPFREE(A);
+      // printf("\n");
+       
       MAPFREE(rData);
+      MAPFREE(aa);
+    };
+    
+    for (i=0 ; i<num_eq ; i++) { 
+      ns->V[i][k] = ns->x[i]; /* ns->b = function residual */
+    };
+    
+    for (i=0 ; i<z_size ; i++) { 
+      z_type->x[i] -= ns->x[THREE*i];
+      z_type->y[i] -= ns->x[THREE*i+1];
+      z_type->z[i] -= ns->x[THREE*i+2];      
     };
 
+    success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr); 
+    error = 0.0;
+    for (i=0 ; i<z_size ; i++) {
+      ns->b[THREE*i] = other_type->Fx_connect[i];
+      ns->b[THREE*i+1] = other_type->Fy_connect[i];
+      ns->b[THREE*i+2] = other_type->Fz_connect[i];      
+      error += (pow(other_type->Fx_connect[i],2)+ pow(other_type->Fy_connect[i],2) + pow(other_type->Fz_connect[i],2));
+    }
+    printf("error %f\n",error);    
     dimension++;
     
     ns->iteration_count++;
@@ -499,6 +516,9 @@ MAP_ERROR_CODE krylov_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type
       break;
     };
   } while (sqrt(error)>ns->tol);
+  
+  MAPFREE(W);
+  MAPFREE(Q);
   return MAP_SAFE;
 };
 

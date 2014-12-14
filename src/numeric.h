@@ -142,9 +142,6 @@ MAP_ERROR_CODE lu(OuterSolveAttributes* ns, const int n, char* map_msg, MAP_ERRO
 
 
 /**
- * Ax = b -> LUx = b. Then y is defined to be Ux
- */
-/**
  * @brief   Solves $\mathbf{Ax}=\mathbf{b}$ through forward and backward substitution
  * @details Called by {@link node_solve_sequence} to solve: 
  *          $\mathbf{Ly}=\mathbf{b}$
