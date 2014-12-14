@@ -378,8 +378,8 @@ MAP_ERROR_CODE krylov_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type
   int num_eq = THREE*z_size;
   int i = 0;
   int j = 0;
-  int dimension = domain->outer_loop.max_krylov_its+1; // artificially inflate 'm' such that l and u are solved the first go-around
-  int k = 0;
+  int dim = domain->outer_loop.max_krylov_its+1; // artificially inflate 'm' such that l and u are solved the first go-around
+  // int k = 0;
   lapack_int info = 0; /* = 0:  successful exit
                         * < 0:  if INFO = -i, the i-th argument had an illegal value
                         * > 0:  if INFO =  i, the i-th diagonal element of the
@@ -405,8 +405,8 @@ MAP_ERROR_CODE krylov_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type
   do {
     /* Refresh Jacobian, L and U components of the domain. This is solved only once per Kyrlov iteration
      */    
-    if (dimension>domain->outer_loop.max_krylov_its) {      
-      dimension = 0;
+    if (dim>domain->outer_loop.max_krylov_its) {      
+      dim = 0;
       switch (ns->fd) {
       case BACKWARD_DIFFERENCE :
         success = backward_difference_jacobian(other_type, p_type, z_type, domain, map_msg, ierr); CHECKERRQ(MAP_FATAL_75);
@@ -423,15 +423,15 @@ MAP_ERROR_CODE krylov_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type
     };
     
     success = lu_back_substitution(ns, num_eq, map_msg, ierr);
-    k = dimension;
+    // k = dim;
 
     for (i=0 ; i<num_eq ; i++) { 
-      ns->AV[i][k] = ns->x[i]; /* ns->b = function residual */
+      ns->AV[i][dim] = ns->x[i]; /* ns->b = function residual */
     };
     
-    if (dimension>0) {
+    if (dim>0) {
       for (i=0 ; i<num_eq ; i++) { 
-        ns->AV[i][k-1] -= ns->x[i];
+        ns->AV[i][dim-1] -= ns->x[i];
       };
       
       double* rData = NULL; // B is DOUBLE PRECISION array, dimension (LDB,NRHS). On entry, the matrix B of right hand side vectors, stored
@@ -440,57 +440,48 @@ MAP_ERROR_CODE krylov_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type
         rData[i] = ns->x[i];
       };
             
-      lapack_int m = num_eq; // number of rows in A
-      lapack_int n = k;    // number of columns in A
-      lapack_int nrhs = 1; // The number of right hand sides, i.e., the number of columns of the matrices B and X. NRHS >=0.
-      lapack_int lda = k;  // The leading dimension of the array A.  LDA >= max(1,M).
-      lapack_int ldb = 1;//(num_eq>k) ? num_eq : k; // Leading dimension of the right hand side vector    
+      //lapack_int m = num_eq; // number of rows in A
+      //lapack_int n = dim;    // number of columns in A
+      // lapack_int nrhs = 1; // The number of right hand sides, i.e., the number of columns of the matrices B and X. NRHS >=0.
+      // lapack_int lda = dim;  // The leading dimension of the array A.  LDA >= max(1,M).
+      // lapack_int ldb = 1;//(num_eq>k) ? num_eq : k; // Leading dimension of the right hand side vector    
 
       double* aa = NULL;   // A is DOUBLE PRECISION array, dimension (LDA,N). On entry, the M-by-N matrix A.       
-      aa = malloc(k*num_eq*sizeof(double));
+      aa = malloc(dim*num_eq*sizeof(double));
        
       int counter = 0;
       for (i=0 ; i<num_eq ; i++) {
-        for (j=0 ; j<k ; j++) {
+        for (j=0 ; j<dim ; j++) {
           aa[counter] = ns->AV[i][j];          
           counter++;
         };
       };
       
-      info = LAPACKE_dgels(LAPACK_ROW_MAJOR, 'N', m, n, nrhs, aa, lda, rData, ldb);
+      info = LAPACKE_dgels(LAPACK_ROW_MAJOR, 'N', num_eq, dim, 1, aa, dim, rData, 1);
       // printf("info is ,<%d>\n",info);      
-      
-      //print_matrix_rowmajor( "aa", m, n, aa, lda );
-      //printf("\n");
-      //print_matrix_rowmajor( "Solution", n, nrhs, rData, ldb );
-      
-      double c = 0.0;
       
       for (i=0 ; i<num_eq ; i++) {
         W[i] = 0.0;
         Q[i] = 0.0;
       };
       
-      for (j=0 ; j<k ; j++) {        
-        c = rData[j]; /* Solution to least squares is written to rData */
-        //printf("c(%d) is <%f>\n",k,c);
+      for (j=0 ; j<dim ; j++) {        
+        // c = rData[j]; /* Solution to least squares is written to rData */
         for (i=0 ; i<num_eq ; i++) {      
-          W[i] = c*ns->V[i][j];
-          Q[i] = c*ns->AV[i][j];                    
+          W[i] = rData[j]*ns->V[i][j];
+          Q[i] = rData[j]*ns->AV[i][j];                    
         };
 
         for (i=0 ; i<num_eq ; i++) {      
           ns->x[i] += (W[i] - Q[i]);
         };
       };
-      // printf("\n");
-       
       MAPFREE(rData);
       MAPFREE(aa);
     };
     
     for (i=0 ; i<num_eq ; i++) { 
-      ns->V[i][k] = ns->x[i]; /* ns->b = function residual */
+      ns->V[i][dim] = ns->x[i]; /* ns->b = function residual */
     };
     
     for (i=0 ; i<z_size ; i++) { 
@@ -500,15 +491,13 @@ MAP_ERROR_CODE krylov_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type
     };
 
     success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr); 
+    success = update_outer_residual(ns, z_size, other_type, map_msg, ierr);
     error = 0.0;
     for (i=0 ; i<z_size ; i++) {
-      ns->b[THREE*i] = other_type->Fx_connect[i];
-      ns->b[THREE*i+1] = other_type->Fy_connect[i];
-      ns->b[THREE*i+2] = other_type->Fz_connect[i];      
       error += (pow(other_type->Fx_connect[i],2)+ pow(other_type->Fy_connect[i],2) + pow(other_type->Fz_connect[i],2));
     }
     printf("error %f\n",error);    
-    dimension++;
+    dim++;
     
     ns->iteration_count++;
     if (ns->iteration_count>ns->max_its) {
@@ -519,6 +508,18 @@ MAP_ERROR_CODE krylov_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type
   
   MAPFREE(W);
   MAPFREE(Q);
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE update_outer_residual(OuterSolveAttributes* ns, const int size, MAP_OtherStateType_t* other_type, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  int i = 0;
+  for (i=0 ; i<size ; i++) {
+    ns->b[3*i] = other_type->Fx_connect[i];
+    ns->b[3*i+1] = other_type->Fy_connect[i];
+    ns->b[3*i+2] = other_type->Fz_connect[i];        
+  }
   return MAP_SAFE;
 };
 

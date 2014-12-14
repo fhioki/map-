@@ -59,6 +59,12 @@ MAP_ERROR_CODE set_force_plus(const double* inputType, double* force, const int 
 
 
 /**
+ *
+ */
+MAP_ERROR_CODE update_outer_residual(OuterSolveAttributes* ns, const int size, MAP_OtherStateType_t* other_type, char* map_msg, MAP_ERROR_CODE* ierr);
+
+
+/**
  * success = set_moment_minus(yType, vessel, mx, my, mz, N)
  */
 MAP_ERROR_CODE set_moment_minus(const MAP_OutputType_t* outputType, const Vessel* vessel, double* mx, double* my, double* mz, const int size);

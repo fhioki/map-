@@ -1,6 +1,6 @@
-Outputs were generated using MAP++ bc62-dirty.
+Outputs were generated using MAP++ 73c0-dirty.
 
-    Sunday December 14-2014 at 00:10:56 AM
+    Sunday December 14-2014 at 11:36:28 AM
 
     Gravity constant          [m/s^2]  : 9.81
     Sea density               [kg/m^3] : 1020.00
@@ -36,9 +36,9 @@ Y  [m]    |  0.000                 ( 0.000)               ( 0.000)              
 Z  [m]    |  -100.000              (-81.010)              (-27.114)                0.000
 M  [kg]   |  0.000                   0.000                  0.000                  0.000
 B  [m^3]  |  0.000                   0.000                  0.000                  0.000
-FX [N]    | (-368000.505)          ( 0.000)               ( 0.000)               ( 184000.253)
-FY [N]    | (-0.000)               ( 0.000)               (-0.000)               ( 70645.257)
-FZ [N]    | ( 66596.208)           ( 0.000)               ( 0.000)               ( 167095.764)
+FX [N]    | (-368000.505)          ( 0.000)               (-0.000)               ( 184000.253)
+FY [N]    | (-0.000)               ( 0.000)               ( 0.000)               ( 70645.257)
+FZ [N]    | ( 66596.208)           ( 0.000)               (-0.000)               ( 167095.764)
 
 
           | Node 5 Data            Node 6 Data            Node 7 Data            Node 8 Data
@@ -49,9 +49,9 @@ Y  [m]    |  -15.000                 259.808              ( 150.340)            
 Z  [m]    |  0.000                  -100.000              (-81.010)              (-27.114)
 M  [kg]   |  0.000                   0.000                  0.000                  0.000
 B  [m^3]  |  0.000                   0.000                  0.000                  0.000
-FX [N]    | ( 184000.253)          ( 184000.490)          (-0.000)               (-0.000)
-FY [N]    | (-70645.257)           ( 318698.148)          (-0.000)               (-0.000)
-FZ [N]    | ( 167095.764)          ( 66596.060)           ( 0.000)               ( 0.000)
+FX [N]    | ( 184000.253)          ( 184000.490)          ( 0.000)               (-0.000)
+FY [N]    | (-70645.257)           ( 318698.148)          ( 0.000)               (-0.000)
+FZ [N]    | ( 167095.764)          ( 66596.060)           (-0.000)               ( 0.000)
 
 
           | Node 9 Data            Node 10 Data           Node 11 Data           Node 12 Data
@@ -75,9 +75,9 @@ Y  [m]    | (-55.485)               -29.151                -14.151
 Z  [m]    | (-27.114)                0.000                  0.000
 M  [kg]   |  0.000                   0.000                  0.000
 B  [m^3]  |  0.000                   0.000                  0.000
-FX [N]    | (-0.000)               (-153181.144)          (-30819.346)
-FY [N]    | ( 0.000)               ( 124026.677)          ( 194671.470)
-FZ [N]    | ( 0.000)               ( 167096.053)          ( 167095.624)
+FX [N]    | ( 0.000)               (-153181.144)          (-30819.346)
+FY [N]    | (-0.000)               ( 124026.677)          ( 194671.470)
+FZ [N]    | (-0.000)               ( 167096.053)          ( 167095.624)
 
 
                 | Line 1
@@ -93,7 +93,7 @@ HAnch     [N]   |  368000.505
 VAnch     [N]   | -66596.208
 TAnch     [N]   |  373977.843
 AlphaAnch [deg] | -10.258
-L^2-Norm        |  3.82639e-14
+L^2-Norm        |  3.351623e-14
 Function Evals  |  2
 Jacobian Evals  |  1
 Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
@@ -131,7 +131,7 @@ HAnch     [N]   |  197096.030
 VAnch     [N]   |  90541.183
 TAnch     [N]   |  216897.559
 AlphaAnch [deg] |  24.673
-L^2-Norm        |  3.776586e-14
+L^2-Norm        |  2.929643e-14
 Function Evals  |  2
 Jacobian Evals  |  1
 Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
@@ -150,7 +150,7 @@ HAnch     [N]   |  197096.030
 VAnch     [N]   |  90541.183
 TAnch     [N]   |  216897.559
 AlphaAnch [deg] |  24.673
-L^2-Norm        |  5.329071e-14
+L^2-Norm        |  1.421085e-14
 Function Evals  |  2
 Jacobian Evals  |  1
 Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
@@ -169,7 +169,7 @@ HAnch     [N]   |  368000.937
 VAnch     [N]   | -66596.060
 TAnch     [N]   |  373978.241
 AlphaAnch [deg] | -10.258
-L^2-Norm        |  2.4869e-14
+L^2-Norm        |  5.783399e-14
 Function Evals  |  2
 Jacobian Evals  |  1
 Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
@@ -207,7 +207,7 @@ HAnch     [N]   |  197095.950
 VAnch     [N]   |  90541.042
 TAnch     [N]   |  216897.427
 AlphaAnch [deg] |  24.673
-L^2-Norm        |  1.280949e-14
+L^2-Norm        |  2.929643e-14
 Function Evals  |  2
 Jacobian Evals  |  1
 Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
@@ -226,7 +226,7 @@ HAnch     [N]   |  197096.625
 VAnch     [N]   |  90541.472
 TAnch     [N]   |  216898.219
 AlphaAnch [deg] |  24.673
-L^2-Norm        |  1.776357e-14
+L^2-Norm        |  5.422982e-14
 Function Evals  |  2
 Jacobian Evals  |  1
 Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
@@ -245,7 +245,7 @@ HAnch     [N]   |  368000.937
 VAnch     [N]   | -66596.060
 TAnch     [N]   |  373978.241
 AlphaAnch [deg] | -10.258
-L^2-Norm        |  1.588822e-14
+L^2-Norm        |  2.929643e-14
 Function Evals  |  2
 Jacobian Evals  |  1
 Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
@@ -302,7 +302,7 @@ HAnch     [N]   |  197095.950
 VAnch     [N]   |  90541.042
 TAnch     [N]   |  216897.427
 AlphaAnch [deg] |  24.673
-L^2-Norm        |  3.351623e-14
+L^2-Norm        |  2.009718e-14
 Function Evals  |  2
 Jacobian Evals  |  1
 Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
@@ -366,7 +366,7 @@ outer_tol 1e-4
  inner_max_its 100
  outer_max_its 500
 repeat 120 240
-krylov_accelerator 3
+krylov_accelerator 0
  ref_position 0.0 0.0 -6.0
  -172.772029
     0.000000

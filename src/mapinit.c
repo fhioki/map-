@@ -227,7 +227,6 @@ void initialize_outer_solve_data_defaults(OuterSolveAttributes* outer)
   outer->max_krylov_its = 3;
   outer->AV = NULL;
   outer->V = NULL;
-  outer->U_previous = NULL;
   outer->C = NULL;
   outer->q = NULL;
   outer->w = NULL;
@@ -332,10 +331,11 @@ MAP_ERROR_CODE first_solve(Domain* domain, MAP_ParameterType_t* p_type, MAP_Inpu
 MAP_ERROR_CODE allocate_outer_solve_data(OuterSolveAttributes* ns, const int size, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   int ret = 0;
+  int i = 0;
+  int j = 0;
   const int THREE = 3;  
   const int N = ns->max_krylov_its + 1;
   const int SIZE = THREE*size;
-  int i = 0;
 
   ns->jac = malloc(SIZE*sizeof(double*));
   ns->l = malloc(SIZE*sizeof(double*));  
@@ -374,14 +374,35 @@ MAP_ERROR_CODE allocate_outer_solve_data(OuterSolveAttributes* ns, const int siz
     return MAP_FATAL;
   };
 
+  /* final initialization to -999.9 */
   for(i=0 ; i<SIZE ; i++) {
     ns->jac[i] = malloc(SIZE*sizeof(double));    
     ns->l[i] = malloc(SIZE*sizeof(double));    
     ns->u[i] = malloc(SIZE*sizeof(double));    
+    ns->x[i] = -999.9;
+    ns->b[i] = -999.9;
+    ns->y[i] = -999.9;
+
+    if (ns->jac[i]==NULL) {
+      set_universal_error(map_msg, ierr, MAP_FATAL_8);        
+      return MAP_FATAL;
+    };
+    if (ns->l[i]==NULL) {
+      set_universal_error(map_msg, ierr, MAP_FATAL_8);        
+      return MAP_FATAL;
+    };
+    if (ns->u[i]==NULL) {
+      set_universal_error(map_msg, ierr, MAP_FATAL_8);        
+      return MAP_FATAL;
+    };
+    for(j=0 ; j<SIZE ; j++) {
+      ns->jac[i][j] = -999.9;
+      ns->l[i][j] = -999.9;   
+      ns->u[i][j] = -999.9;
+    };
   };
   
   if (ns->krylov_accelerator) { /* only allocated if  Krylov accelerator algorimth is invoked */    
-    ns->U_previous = malloc(SIZE*sizeof(double));
     ns->AV = malloc(SIZE*sizeof(double*));
     ns->V = malloc(SIZE*sizeof(double*));
     ns->C = malloc(SIZE*sizeof(double));  
@@ -393,17 +414,45 @@ MAP_ERROR_CODE allocate_outer_solve_data(OuterSolveAttributes* ns, const int siz
       return MAP_FATAL;
     };
 
-    for(i=0 ; i<SIZE ; i++) {
-      ns->AV[i] = malloc(N*sizeof(double));    
-    };
-
     if (ns->V==NULL) {
       set_universal_error(map_msg, ierr, MAP_FATAL_8);        
       return MAP_FATAL;
     };
 
+    if (ns->C==NULL) {
+      set_universal_error(map_msg, ierr, MAP_FATAL_8);        
+      return MAP_FATAL;
+    };
+
+    if (ns->q==NULL) {
+      set_universal_error(map_msg, ierr, MAP_FATAL_8);        
+      return MAP_FATAL;
+    };
+
+    if (ns->w==NULL) {
+      set_universal_error(map_msg, ierr, MAP_FATAL_8);        
+      return MAP_FATAL;
+    };
+
+    /* final initialization to -999.9 */
     for(i=0 ; i<SIZE ; i++) {
+      ns->AV[i] = malloc(N*sizeof(double));    
       ns->V[i] = malloc(N*sizeof(double));    
+      if (ns->AV[i]==NULL) {
+        set_universal_error(map_msg, ierr, MAP_FATAL_8);        
+        return MAP_FATAL;
+      };
+      if (ns->V[i]==NULL) {
+        set_universal_error(map_msg, ierr, MAP_FATAL_8);        
+        return MAP_FATAL;
+      };
+      ns->C[i] = -999.9;
+      ns->q[i] = -999.9;
+      ns->w[i] = -999.9;
+      for(j=0 ; j<N ; j++) {
+        ns->AV[i][j] = -999.9;
+        ns->V[i][j] = -999.9;
+      };
     };
   };
 
