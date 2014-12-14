@@ -61,7 +61,13 @@ MAP_ERROR_CODE set_force_plus(const double* inputType, double* force, const int 
 /**
  *
  */
-MAP_ERROR_CODE update_outer_residual(OuterSolveAttributes* ns, const int size, MAP_OtherStateType_t* other_type, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE update_outer_loop_inputs(double* input, MAP_ConstraintStateType_t* z_type,  const int size, char* map_msg, MAP_ERROR_CODE* ierr);
+
+
+/**
+ *
+ */
+MAP_ERROR_CODE update_outer_loop_residuals(double* residual, MAP_OtherStateType_t* other_type, const int size, char* map_msg, MAP_ERROR_CODE* ierr);
 
 
 /**

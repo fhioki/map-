@@ -376,10 +376,10 @@ MAP_ERROR_CODE krylov_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type
   double error = 0.0;
   double sum = 0.0;
   int num_eq = THREE*z_size;
+  int cnt = 0;
   int i = 0;
   int j = 0;
   int dim = domain->outer_loop.max_krylov_its+1; // artificially inflate 'm' such that l and u are solved the first go-around
-  // int k = 0;
   lapack_int info = 0; /* = 0:  successful exit
                         * < 0:  if INFO = -i, the i-th argument had an illegal value
                         * > 0:  if INFO =  i, the i-th diagonal element of the
@@ -388,18 +388,13 @@ MAP_ERROR_CODE krylov_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type
                         * computed.
                         */
 
-  double* W = NULL;  
-  double* Q = NULL;
-  W = malloc(num_eq*sizeof(double));
-  Q = malloc(num_eq*sizeof(double));
-
   /* can't use this function (and option 'KRYLOV_ACCELERATOR') 
    * if MAP is compiled without LAPACK libraries 
    */
-#ifndef WITH_LAPACK 
+# ifndef WITH_LAPACK 
   set_universal_error(map_msg, ierr, MAP_FATAL_96);
   return MAP_FATAL;
-#endif
+# endif
 
   ns->iteration_count = 1;
   do {
@@ -423,75 +418,41 @@ MAP_ERROR_CODE krylov_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type
     };
     
     success = lu_back_substitution(ns, num_eq, map_msg, ierr);
-    // k = dim;
 
     for (i=0 ; i<num_eq ; i++) { 
       ns->AV[i][dim] = ns->x[i]; /* ns->b = function residual */
     };
     
     if (dim>0) {
+      cnt = 0;
       for (i=0 ; i<num_eq ; i++) { 
         ns->AV[i][dim-1] -= ns->x[i];
-      };
-      
-      double* rData = NULL; // B is DOUBLE PRECISION array, dimension (LDB,NRHS). On entry, the matrix B of right hand side vectors, stored
-      rData = malloc(num_eq*sizeof(double));
-      for (i=0 ; i<num_eq ; i++) {
-        rData[i] = ns->x[i];
-      };
-            
-      //lapack_int m = num_eq; // number of rows in A
-      //lapack_int n = dim;    // number of columns in A
-      // lapack_int nrhs = 1; // The number of right hand sides, i.e., the number of columns of the matrices B and X. NRHS >=0.
-      // lapack_int lda = dim;  // The leading dimension of the array A.  LDA >= max(1,M).
-      // lapack_int ldb = 1;//(num_eq>k) ? num_eq : k; // Leading dimension of the right hand side vector    
-
-      double* aa = NULL;   // A is DOUBLE PRECISION array, dimension (LDA,N). On entry, the M-by-N matrix A.       
-      aa = malloc(dim*num_eq*sizeof(double));
-       
-      int counter = 0;
-      for (i=0 ; i<num_eq ; i++) {
+        ns->C[i] = ns->x[i];
         for (j=0 ; j<dim ; j++) {
-          aa[counter] = ns->AV[i][j];          
-          counter++;
+          ns->aa[cnt] = ns->AV[i][j];                    
+          cnt++;
         };
       };
-      
-      info = LAPACKE_dgels(LAPACK_ROW_MAJOR, 'N', num_eq, dim, 1, aa, dim, rData, 1);
-      // printf("info is ,<%d>\n",info);      
-      
-      for (i=0 ; i<num_eq ; i++) {
-        W[i] = 0.0;
-        Q[i] = 0.0;
-      };
-      
-      for (j=0 ; j<dim ; j++) {        
-        // c = rData[j]; /* Solution to least squares is written to rData */
-        for (i=0 ; i<num_eq ; i++) {      
-          W[i] = rData[j]*ns->V[i][j];
-          Q[i] = rData[j]*ns->AV[i][j];                    
-        };
 
-        for (i=0 ; i<num_eq ; i++) {      
-          ns->x[i] += (W[i] - Q[i]);
+#     ifdef WITH_LAPACK              
+      info = LAPACKE_dgels(LAPACK_ROW_MAJOR, 'N', num_eq, dim, 1, ns->aa, dim, ns->C, 1);
+#     endif
+
+      for (i=0 ; i<num_eq ; i++) {      
+        for (j=0 ; j<dim ; j++) {        
+          ns->x[i] += (ns->C[j]*ns->V[i][j] - ns->C[j]*ns->AV[i][j]);
         };
       };
-      MAPFREE(rData);
-      MAPFREE(aa);
     };
     
     for (i=0 ; i<num_eq ; i++) { 
       ns->V[i][dim] = ns->x[i]; /* ns->b = function residual */
     };
     
-    for (i=0 ; i<z_size ; i++) { 
-      z_type->x[i] -= ns->x[THREE*i];
-      z_type->y[i] -= ns->x[THREE*i+1];
-      z_type->z[i] -= ns->x[THREE*i+2];      
-    };
-
+    success = update_outer_loop_inputs(ns->x, z_type, z_size, map_msg, ierr);
     success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr); 
-    success = update_outer_residual(ns, z_size, other_type, map_msg, ierr);
+    success = update_outer_loop_residuals(ns->b, other_type, z_size, map_msg, ierr);
+
     error = 0.0;
     for (i=0 ; i<z_size ; i++) {
       error += (pow(other_type->Fx_connect[i],2)+ pow(other_type->Fy_connect[i],2) + pow(other_type->Fz_connect[i],2));
@@ -505,21 +466,31 @@ MAP_ERROR_CODE krylov_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type
       break;
     };
   } while (sqrt(error)>ns->tol);
-  
-  MAPFREE(W);
-  MAPFREE(Q);
   return MAP_SAFE;
 };
 
 
-MAP_ERROR_CODE update_outer_residual(OuterSolveAttributes* ns, const int size, MAP_OtherStateType_t* other_type, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE update_outer_loop_residuals(double* residual, MAP_OtherStateType_t* other_type,  const int size, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   int i = 0;
   for (i=0 ; i<size ; i++) {
-    ns->b[3*i] = other_type->Fx_connect[i];
-    ns->b[3*i+1] = other_type->Fy_connect[i];
-    ns->b[3*i+2] = other_type->Fz_connect[i];        
+    residual[3*i] = other_type->Fx_connect[i];
+    residual[3*i+1] = other_type->Fy_connect[i];
+    residual[3*i+2] = other_type->Fz_connect[i];        
   }
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE update_outer_loop_inputs(double* input, MAP_ConstraintStateType_t* z_type,  const int size, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  int i = 0;
+
+  for (i=0 ; i<size ; i++) { 
+    z_type->x[i] -= input[3*i];
+    z_type->y[i] -= input[3*i+1];
+    z_type->z[i] -= input[3*i+2];      
+  };
   return MAP_SAFE;
 };
 
