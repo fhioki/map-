@@ -312,7 +312,7 @@ MAP_ERROR_CODE free_outer_solve_data(OuterSolveAttributes* ns, const int size, c
 
   MAPFREE(ns->jac);
   MAPFREE(ns->AV);
-  MAPFREE(ns->aa);
+  MAPFREE(ns->av);
   MAPFREE(ns->V);
   MAPFREE(ns->l);
   MAPFREE(ns->u);

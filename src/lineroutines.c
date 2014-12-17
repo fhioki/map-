@@ -361,32 +361,42 @@ void print_matrix_rowmajor( char* desc, lapack_int m, lapack_int n, double* mat,
         printf( "\n %s\n", desc );
         
         for( i = 0; i < m; i++ ) {
-                for( j = 0; j < n; j++ ) printf( " %6.2f", mat[i*ldm+j] );
+                for( j = 0; j < n; j++ ) printf( " %6.5f", mat[i*ldm+j] );
                 printf( "\n" );
         }
 }
+
+/* Auxiliary routine: printing a matrix */
+void print_matrix_colmajor( char* desc, lapack_int m, lapack_int n, double* mat, lapack_int ldm ) {
+        lapack_int i, j;
+        printf( "\n %s\n", desc );
+        
+        for( i = 0; i < m; i++ ) {
+                for( j = 0; j < n; j++ ) printf( " %6.5f", mat[i+j*ldm] );
+                printf( "\n" );
+        }
+}
+
 
 MAP_ERROR_CODE krylov_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type, MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, char* map_msg, MAP_ERROR_CODE* ierr) 
 {
   OuterSolveAttributes* ns = &domain->outer_loop;
   MAP_ERROR_CODE success = MAP_SAFE;
-  Line* line_iter = NULL;
-  const int THREE = 3;
   const int z_size = z_type->z_Len; //N
+  const int rows = 3*z_size; 
+  double* av_head = NULL;
+  double* v_head = NULL;
   double error = 0.0;
-  double sum = 0.0;
-  int num_eq = THREE*z_size;
-  int cnt = 0;
   int i = 0;
   int j = 0;
   int dim = domain->outer_loop.max_krylov_its+1; // artificially inflate 'm' such that l and u are solved the first go-around
-  lapack_int info = 0; /* = 0:  successful exit
-                        * < 0:  if INFO = -i, the i-th argument had an illegal value
-                        * > 0:  if INFO =  i, the i-th diagonal element of the
-                        * triangular factor of A is zero, so that A does not have
-                        * full rank; the least squares solution could not be
-                        * computed.
-                        */
+  int info = 0; /* = 0:  successful exit
+                 * < 0:  if INFO = -i, the i-th argument had an illegal value
+                 * > 0:  if INFO =  i, the i-th diagonal element of the
+                 * triangular factor of A is zero, so that A does not have
+                 * full rank; the least squares solution could not be
+                 * computed.
+                 */
 
   /* can't use this function (and option 'KRYLOV_ACCELERATOR') 
    * if MAP is compiled without LAPACK libraries 
@@ -414,45 +424,47 @@ MAP_ERROR_CODE krylov_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type
         break;
       };
       success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr); CHECKERRQ(MAP_FATAL_78);
-      success = lu(ns, num_eq, map_msg, ierr); CHECKERRQ(MAP_FATAL_74);
+      success = lu(ns, rows, map_msg, ierr); CHECKERRQ(MAP_FATAL_74);
     };
     
-    success = lu_back_substitution(ns, num_eq, map_msg, ierr);
+    success = lu_back_substitution(ns, rows, map_msg, ierr);
 
-    for (i=0 ; i<num_eq ; i++) { 
-      ns->AV[i][dim] = ns->x[i]; /* ns->b = function residual */
-    };
     
+    for (i=0 ; i<rows ; i++) { 
+      ns->AV[i][dim] = ns->x[i]; /* ns->b = function residual */      
+    };
+
     if (dim>0) {
-      cnt = 0;
-      for (i=0 ; i<num_eq ; i++) { 
+      for (i=0 ; i<rows ; i++) { 
+        av_head = ns->AV[i];
         ns->AV[i][dim-1] -= ns->x[i];
-        ns->C[i] = ns->x[i];
-        for (j=0 ; j<dim ; j++) {
-          ns->aa[cnt] = ns->AV[i][j];                    
-          cnt++;
+        ns->C[i] = ns->x[i];                
+        for (j=0 ; j<dim ; j++) {          
+          *(ns->av+j+i*dim) = *av_head++; /* av[col + row*num_cols] = AV[i][j], Row Major  format */
         };
       };
-
+      
 #     ifdef WITH_LAPACK              
-      info = LAPACKE_dgels(LAPACK_ROW_MAJOR, 'N', num_eq, dim, 1, ns->aa, dim, ns->C, 1);
+      info = LAPACKE_dgels(LAPACK_ROW_MAJOR, 'N', rows, dim, 1, ns->av, dim, ns->C, 1);
 #     endif
 
-      for (i=0 ; i<num_eq ; i++) {      
+      for (i=0 ; i<rows ; i++) {              
+        av_head = ns->AV[i];
+        v_head = ns->V[i];
         for (j=0 ; j<dim ; j++) {        
-          ns->x[i] += (ns->C[j]*ns->V[i][j] - ns->C[j]*ns->AV[i][j]);
+          ns->x[i] += (ns->C[j]*(*v_head++) - ns->C[j]*(*av_head++));
         };
       };
     };
-    
-    for (i=0 ; i<num_eq ; i++) { 
-      ns->V[i][dim] = ns->x[i]; /* ns->b = function residual */
+
+    for (i=0 ; i<rows ; i++) { 
+      ns->V[i][dim] = ns->x[i]; 
     };
     
     success = update_outer_loop_inputs(ns->x, z_type, z_size, map_msg, ierr);
     success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr); 
     success = update_outer_loop_residuals(ns->b, other_type, z_size, map_msg, ierr);
-
+    
     error = 0.0;
     for (i=0 ; i<z_size ; i++) {
       error += (pow(other_type->Fx_connect[i],2)+ pow(other_type->Fy_connect[i],2) + pow(other_type->Fz_connect[i],2));

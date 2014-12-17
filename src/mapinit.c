@@ -227,7 +227,7 @@ void initialize_outer_solve_data_defaults(OuterSolveAttributes* outer)
   outer->max_krylov_its = 3;
   outer->AV = NULL;
   outer->V = NULL;
-  outer->aa = NULL;
+  outer->av = NULL;
   outer->C = NULL;
   outer->q = NULL;
   outer->w = NULL;
@@ -406,7 +406,7 @@ MAP_ERROR_CODE allocate_outer_solve_data(OuterSolveAttributes* ns, const int siz
   if (ns->krylov_accelerator) { /* only allocated if  Krylov accelerator algorimth is invoked */    
     ns->AV = malloc(SIZE*sizeof(double*));
     ns->V = malloc(SIZE*sizeof(double*));
-    ns->aa = malloc(SIZE*N*sizeof(double*));
+    ns->av = malloc(SIZE*N*sizeof(double*));
     ns->C = malloc(SIZE*sizeof(double));  
     ns->q = malloc(SIZE*sizeof(double));  
     ns->w = malloc(SIZE*sizeof(double));  
