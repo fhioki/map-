@@ -71,35 +71,35 @@ gen_f2c_interface( FILE         *fp        , // *.f90 file we are writting to
 
               if ( strncmp( r->type->mapsto,"CHARACTER",9   )!=0 ) { // DON'T CREATE AN INTERFACE BLOCK FOR C_CHARS!!!!
 
-                // Because the C derived types name does not match between what is defined in the MAP_C_Types.f90 file and
-                // what can be produced by this function, we have to modify the name...
-                //
-                // @see   :  Template_C_Types.c. c_type_alias should match the match the name of a BIND(C)
-                //           derived type.
-                // @tdod  :  This should be changed so that the c_type_alias name is now part of the
-                //           "node_t" struct
-                if ( strcmp( nonick, "OtherState" )==0 ) strcat( modified_mod_name, "OtherState"      ) ;
-                if ( strcmp( nonick, "ConstrState")==0 ) strcat( modified_mod_name, "ConstraintState" ) ;
-                if ( strcmp( nonick, "Param"      )==0 ) strcat( modified_mod_name, "Parameter"       ) ;
-                if ( strcmp( nonick, "Input"      )==0 ) strcat( modified_mod_name, "Input"           ) ;
-                if ( strcmp( nonick, "Output"     )==0 ) strcat( modified_mod_name, "Output"          ) ;
-
-                // Now create the interface block and write it to the file fp
-                fprintf(fp,"\n  INTERFACE\n");
-                fprintf(fp,"     SUBROUTINE %s_F2C_%s_%s( Object, arr, len) BIND(C,name='%s_F2C_%s_%s_C') \n",
-                        ModName->nickname ,
-                        nonick            ,
-                        r->name           ,
-                        ModName->nickname ,
-                        nonick            ,
-                        r->name           );
-                fprintf(fp,"       IMPORT\n");
-                fprintf(fp,"       IMPLICIT NONE\n");
-                fprintf(fp,"       TYPE( %s_%sType_C ) Object\n"       , ModName->nickname, modified_mod_name );
-                fprintf(fp,"       %s(KIND=%s), DIMENSION(*) :: arr\n" , var_type, c_var_type                 );
-                fprintf(fp,"       INTEGER(KIND=C_INT), VALUE :: len\n"                                       );
-                fprintf(fp,"     END SUBROUTINE %s_F2C_%s_%s\n"        , ModName->nickname, nonick,r->name    );
-                fprintf(fp,"  END INTERFACE\n"                                                                 );
+                // // Because the C derived types name does not match between what is defined in the MAP_C_Types.f90 file and
+                // // what can be produced by this function, we have to modify the name...
+                // //
+                // // @see   :  Template_C_Types.c. c_type_alias should match the match the name of a BIND(C)
+                // //           derived type.
+                // // @tdod  :  This should be changed so that the c_type_alias name is now part of the
+                // //           "node_t" struct
+                // if ( strcmp( nonick, "OtherState" )==0 ) strcat( modified_mod_name, "OtherState"      ) ;
+                // if ( strcmp( nonick, "ConstrState")==0 ) strcat( modified_mod_name, "ConstraintState" ) ;
+                // if ( strcmp( nonick, "Param"      )==0 ) strcat( modified_mod_name, "Parameter"       ) ;
+                // if ( strcmp( nonick, "Input"      )==0 ) strcat( modified_mod_name, "Input"           ) ;
+                // if ( strcmp( nonick, "Output"     )==0 ) strcat( modified_mod_name, "Output"          ) ;
+                // 
+                // // Now create the interface block and write it to the file fp
+                // fprintf(fp,"\n  INTERFACE\n");
+                // fprintf(fp,"     SUBROUTINE %s_F2C_%s_%s( Object, arr, len) BIND(C,name='%s_F2C_%s_%s_C') \n",
+                //         ModName->nickname ,
+                //         nonick            ,
+                //         r->name           ,
+                //         ModName->nickname ,
+                //         nonick            ,
+                //         r->name           );
+                // fprintf(fp,"       IMPORT\n");
+                // fprintf(fp,"       IMPLICIT NONE\n");
+                // fprintf(fp,"       TYPE( %s_%sType_C ) Object\n"       , ModName->nickname, modified_mod_name );
+                // fprintf(fp,"       %s(KIND=%s), DIMENSION(*) :: arr\n" , var_type, c_var_type                 );
+                // fprintf(fp,"       INTEGER(KIND=C_INT), VALUE :: len\n"                                       );
+                // fprintf(fp,"     END SUBROUTINE %s_F2C_%s_%s\n"        , ModName->nickname, nonick,r->name    );
+                // fprintf(fp,"  END INTERFACE\n"                                                                 );
 
 
                 // bjj: duplicate this in a fortran file (for dummy .f90 file)
@@ -1907,8 +1907,8 @@ gen_module( FILE * fp , node_t * ModName, char * prog_ver/*, FILE * fpIntf */)
         }
 
         if ( sw_ccode ) {
-          gen_copy_f2c_c2f( fp, ModName, ddtname, ddtnamelong, 0 ) ;
-          gen_copy_f2c_c2f( fp, ModName, ddtname, ddtnamelong, 1 ) ;
+          // gen_copy_f2c_c2f( fp, ModName, ddtname, ddtnamelong, 0 ) ;
+          // gen_copy_f2c_c2f( fp, ModName, ddtname, ddtnamelong, 1 ) ;
         }
         gen_copy( fp, ModName, ddtname, ddtnamelong ) ;
         gen_destroy( fp, ModName, ddtname, ddtnamelong ) ;
