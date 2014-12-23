@@ -25,8 +25,8 @@ gen_f2c_interface( FILE         *fp        , // *.f90 file we are writting to
                    const node_t *ModName   , // module name
                    char         *inout     , // character string written out
                    char         *inoutlong , // not sure what this is used for
-                   int          sw         , // sw=0 f2c, sw=1 c2f
-                   FILE         *fpIntf    ) // *.f90 interface file we are writting to (for dummy .f90 code)
+                   int          sw      /*   , // sw=0 f2c, sw=1 c2f
+                   FILE         *fpIntf   */ ) // *.f90 interface file we are writting to (for dummy .f90 code)
 {
   char tmp[NAMELEN], tmp2[NAMELEN], addnick[NAMELEN], nonick[NAMELEN] ;
   node_t *q, * r ;
@@ -103,22 +103,22 @@ gen_f2c_interface( FILE         *fp        , // *.f90 file we are writting to
 
 
                 // bjj: duplicate this in a fortran file (for dummy .f90 file)
-                fprintf(fpIntf,"SUBROUTINE %s_F2C_%s_%s( Object, arr, len) BIND(C,name='%s_F2C_%s_%s_C') \n",
-                        ModName->nickname ,
-                        nonick            ,
-                        r->name           ,
-                        ModName->nickname ,
-                        nonick            ,
-                        r->name           );
-                fprintf(fpIntf,"!DEC$ ATTRIBUTES DLLEXPORT:: %s_F2C_%s_%s\n", ModName->nickname ,nonick,r->name   );
-                fprintf(fpIntf,"       USE MAP_Types, only : %s_%sType_C\n", ModName->nickname, modified_mod_name );
-                fprintf(fpIntf,"       USE , INTRINSIC :: ISO_C_Binding\n"   );
-                fprintf(fpIntf,"       IMPLICIT NONE\n");
-                fprintf(fpIntf,"!GCC$ ATTRIBUTES DLLEXPORT ::%s_F2C_%s_%s\n", ModName->nickname ,nonick,r->name   );
-                fprintf(fpIntf,"       TYPE( %s_%sType_C ) Object\n"       , ModName->nickname, modified_mod_name );
-                fprintf(fpIntf,"       %s(KIND=%s), DIMENSION(*) :: arr\n" , var_type, c_var_type                 );
-                fprintf(fpIntf,"       INTEGER(KIND=C_INT), VALUE :: len\n"                                       );
-                fprintf(fpIntf,"END SUBROUTINE %s_F2C_%s_%s\n"        , ModName->nickname, nonick,r->name    );
+                // fprintf(fpIntf,"SUBROUTINE %s_F2C_%s_%s( Object, arr, len) BIND(C,name='%s_F2C_%s_%s_C') \n",
+                //         ModName->nickname ,
+                //         nonick            ,
+                //         r->name           ,
+                //         ModName->nickname ,
+                //         nonick            ,
+                //         r->name           );
+                // fprintf(fpIntf,"!DEC$ ATTRIBUTES DLLEXPORT:: %s_F2C_%s_%s\n", ModName->nickname ,nonick,r->name   );
+                // fprintf(fpIntf,"       USE MAP_Types, only : %s_%sType_C\n", ModName->nickname, modified_mod_name );
+                // fprintf(fpIntf,"       USE , INTRINSIC :: ISO_C_Binding\n"   );
+                // fprintf(fpIntf,"       IMPLICIT NONE\n");
+                // fprintf(fpIntf,"!GCC$ ATTRIBUTES DLLEXPORT ::%s_F2C_%s_%s\n", ModName->nickname ,nonick,r->name   );
+                // fprintf(fpIntf,"       TYPE( %s_%sType_C ) Object\n"       , ModName->nickname, modified_mod_name );
+                // fprintf(fpIntf,"       %s(KIND=%s), DIMENSION(*) :: arr\n" , var_type, c_var_type                 );
+                // fprintf(fpIntf,"       INTEGER(KIND=C_INT), VALUE :: len\n"                                       );
+                // fprintf(fpIntf,"END SUBROUTINE %s_F2C_%s_%s\n"        , ModName->nickname, nonick,r->name    );
               }
             }
           }
@@ -1662,7 +1662,7 @@ gen_modname_unpack( FILE *fp , const node_t * ModName )
 
 
 int
-gen_module( FILE * fp , node_t * ModName, char * prog_ver, FILE * fpIntf )
+gen_module( FILE * fp , node_t * ModName, char * prog_ver/*, FILE * fpIntf */)
 {
   node_t * p, * q, * r ;
   int i ;
@@ -1873,7 +1873,7 @@ gen_module( FILE * fp , node_t * ModName, char * prog_ver, FILE * fpIntf )
                ddtnamelong = ddtname ;
             }
 
-            gen_f2c_interface( fp, ModName, ddtname, ddtnamelong, 0 , fpIntf) ;
+            gen_f2c_interface( fp, ModName, ddtname, ddtnamelong, 0 /*, fpIntf*/ ) ;
          }
       }
     } // sw_ccode
@@ -1926,7 +1926,7 @@ gen_module( FILE * fp , node_t * ModName, char * prog_ver, FILE * fpIntf )
 int
 gen_module_files ( char * dirname, char * prog_ver )
 {
-  FILE * fp, *fpc, *fph, *fpIntf ;
+  FILE * fp, *fpc, *fph/*, *fpIntf */ ;
   char  fname[NAMELEN], fname2[NAMELEN] ;
   char * fn ;
 
@@ -1937,7 +1937,7 @@ gen_module_files ( char * dirname, char * prog_ver )
     if ( strlen( p->nickname ) > 0  && ! p->usefrom ) {
       fp = NULL ;
       fpc = NULL ;
-      fpIntf = NULL;
+      // fpIntf = NULL;
       if ( strlen(dirname) > 0 )
         { sprintf(fname,"%s/%s_Types.f90",dirname,p->name) ; }
       else
@@ -1948,12 +1948,12 @@ gen_module_files ( char * dirname, char * prog_ver )
       print_warning(fp,fname, "") ;
 
       if ( sw_ccode == 1 ) {
-        if ( strlen(dirname) > 0 )
-          { sprintf(fname,"%s/%s_Types_Intf.f90",dirname,p->name) ; }
-        else
-          { sprintf(fname,"%s_Types_Intf.f90",p->name) ; }
-        if ((fpIntf = fopen( fname , "w" )) == NULL ) return(1) ;
-        print_warning(fpIntf,fname, "") ;
+        // if ( strlen(dirname) > 0 )
+        //   { sprintf(fname,"%s/%s_Types_Intf.f90",dirname,p->name) ; }
+        // else
+        //   { sprintf(fname,"%s_Types_Intf.f90",p->name) ; }
+        // if ((fpIntf = fopen( fname , "w" )) == NULL ) return(1) ;
+        // print_warning(fpIntf,fname, "") ;
 
         if ( strlen(dirname) > 0 )
           { sprintf(fname,"%s/%s_Types.c",dirname,p->name) ; }
@@ -2000,15 +2000,15 @@ gen_module_files ( char * dirname, char * prog_ver )
         fprintf(fph,"#  define CALL \n");
         fprintf(fph,"#endif\n\n\n");
       }
-      gen_module ( fp , p, prog_ver, fpIntf ) ;
+      gen_module ( fp , p, prog_ver/*, fpIntf*/ ) ;
       close_the_file( fp, "" ) ;
       if ( sw_ccode ) {
-        gen_c_module ( fpc , fph , p, fpIntf ) ;
+        gen_c_module ( fpc , fph , p/*, fpIntf */) ;
         
         fprintf(fph,"\n#endif // _%s_TYPES_H\n\n\n",p->name);
         close_the_file( fpc,"//") ;
         close_the_file( fph,"//") ;
-        close_the_file( fpIntf,"") ;
+        // close_the_file( fpIntf,"") ;
 
       }
     }
