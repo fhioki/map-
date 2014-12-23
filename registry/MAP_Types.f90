@@ -37,7 +37,7 @@ USE NWTC_Library
 IMPLICIT NONE
 ! =========  MAP_InitInputType_C  =======
   TYPE, BIND(C) :: MAP_InitInputType_C
-    TYPE( MAP_InitInput_C ) :: object
+   TYPE( MAP_InitInput_C ) :: object
     REAL(KIND=C_DOUBLE) :: gravity 
     REAL(KIND=C_DOUBLE) :: sea_density 
     REAL(KIND=C_DOUBLE) :: depth 
@@ -64,7 +64,7 @@ IMPLICIT NONE
 ! =======================
 ! =========  MAP_InitOutputType  =======
   TYPE, BIND(C) :: MAP_InitOutputType_C
-    TYPE( MAP_InitOutput_C ) :: object
+   TYPE(C_PTR) :: object
     CHARACTER(KIND=C_CHAR), DIMENSION(99) :: progName 
     CHARACTER(KIND=C_CHAR), DIMENSION(99) :: version 
     CHARACTER(KIND=C_CHAR), DIMENSION(24) :: compilingData 
@@ -86,7 +86,7 @@ IMPLICIT NONE
 ! =======================
 ! =========  MAP_ContinuousStateType  =======
   TYPE, BIND(C) :: MAP_ContinuousStateType_C
-    TYPE( MAP_ContState_C ) :: object
+   TYPE(C_PTR) :: object
     REAL(KIND=C_DOUBLE) :: dummy 
   END TYPE MAP_ContinuousStateType_C
   TYPE, PUBLIC :: MAP_ContinuousStateType
@@ -97,7 +97,7 @@ IMPLICIT NONE
 ! =======================
 ! =========  MAP_DiscreteStateType  =======
   TYPE, BIND(C) :: MAP_DiscreteStateType_C
-    TYPE( MAP_DiscState_C ) :: object
+   TYPE(C_PTR) :: object
     REAL(KIND=C_DOUBLE) :: dummy 
   END TYPE MAP_DiscreteStateType_C
   TYPE, PUBLIC :: MAP_DiscreteStateType
@@ -108,7 +108,7 @@ IMPLICIT NONE
 ! =======================
 ! =========  MAP_OtherStateType  =======
   TYPE, BIND(C) :: MAP_OtherStateType_C
-    TYPE( MAP_OtherState_C ) :: object
+   TYPE( MAP_OtherState_C ) :: object
     TYPE(C_ptr) :: H = C_NULL_PTR 
     INTEGER(C_int) :: H_Len = 0 
     TYPE(C_ptr) :: V = C_NULL_PTR 
@@ -165,7 +165,7 @@ IMPLICIT NONE
 ! =======================
 ! =========  MAP_ConstraintStateType  =======
   TYPE, BIND(C) :: MAP_ConstraintStateType_C
-    TYPE( MAP_ConstrState_C ) :: object
+   TYPE(C_PTR) :: object
     TYPE(C_ptr) :: H = C_NULL_PTR 
     INTEGER(C_int) :: H_Len = 0 
     TYPE(C_ptr) :: V = C_NULL_PTR 
@@ -189,7 +189,7 @@ IMPLICIT NONE
 ! =======================
 ! =========  MAP_ParameterType  =======
   TYPE, BIND(C) :: MAP_ParameterType_C
-    TYPE( MAP_Param_C ) :: object
+   TYPE(C_PTR) :: object
     REAL(KIND=C_DOUBLE) :: g 
     REAL(KIND=C_DOUBLE) :: depth 
     REAL(KIND=C_DOUBLE) :: rho_sea 
@@ -204,7 +204,7 @@ IMPLICIT NONE
 ! =======================
 ! =========  MAP_InputType  =======
   TYPE, BIND(C) :: MAP_InputType_C
-    TYPE( MAP_Input_C ) :: object
+   TYPE(C_PTR) :: object
     TYPE(C_ptr) :: x = C_NULL_PTR 
     INTEGER(C_int) :: x_Len = 0 
     TYPE(C_ptr) :: y = C_NULL_PTR 
@@ -223,7 +223,7 @@ IMPLICIT NONE
 ! =======================
 ! =========  MAP_OutputType  =======
   TYPE, BIND(C) :: MAP_OutputType_C
-    TYPE( MAP_Output_C ) :: object
+   TYPE(C_PTR) :: object
     TYPE(C_ptr) :: Fx = C_NULL_PTR 
     INTEGER(C_int) :: Fx_Len = 0 
     TYPE(C_ptr) :: Fy = C_NULL_PTR 

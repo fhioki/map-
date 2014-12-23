@@ -1758,7 +1758,13 @@ gen_module( FILE * fp , node_t * ModName, char * prog_ver/*, FILE * fpIntf */)
         fprintf(fp,"  TYPE, %s :: %s%s\n",(ipass==0)?"BIND(C)":"PUBLIC",q->mapsto,(ipass==0)?"_C":"") ;
         if ( sw_ccode ) {
           if ( ipass == 0 ) {
-            fprintf(fp,"    TYPE( %s_%s_C ) :: object\n",ModName->nickname,fast_interface_type_shortname(nonick)) ;
+            if (strcmp(fast_interface_type_shortname(nonick), "OtherState" )==0 || 
+                strcmp(fast_interface_type_shortname(nonick), "InitInput" )==0) {
+              /* @mdm */
+              fprintf(fp,"   TYPE( %s_%s_C ) :: object\n",ModName->nickname,fast_interface_type_shortname(nonick)) ;
+            } else {
+              fprintf(fp,"   TYPE(C_PTR) :: object\n") ;
+            };
           } else {
             fprintf(fp,"    TYPE( c_ptr ) :: %s_UserData = C_NULL_ptr\n",ModName->nickname) ;
             fprintf(fp,"    TYPE( %s_C ) :: C_obj\n",q->mapsto) ;
