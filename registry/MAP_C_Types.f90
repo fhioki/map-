@@ -24,31 +24,31 @@ MODULE MAP_C_Types
   !    PRIVATE                                                      !          |
   !    TYPE(C_ptr) :: object = C_NULL_ptr                           !          |
   ! END TYPE MAP_InitOutput_C                                        !          |
-                                                                  !          |
+  !                                                                 !          |
   ! ! Input States                                                  !          |
   ! TYPE , BIND(C) :: MAP_Input_C                                   !          |
   !    PRIVATE                                                      !          |
   !    TYPE(C_ptr) :: object = C_NULL_ptr                           !          |
   ! END TYPE MAP_Input_C                                            !          |
-                                                                  !          |
+  !                                                                 !          |
   ! ! Parameter States                                              !          |
   ! TYPE , BIND(C) :: MAP_Param_C                               !          |
   !    PRIVATE                                                      !          |
   !    TYPE(C_ptr) :: object = C_NULL_ptr                           !          |
   ! END TYPE MAP_Param_C                                        !          |
-                                                                  !          |
+  !                                                                 !          |
   ! ! Continuous States                                             !          |
   ! TYPE , BIND(C) :: MAP_ContState_C                              !          |
   !    PRIVATE                                                      !          |
   !    TYPE(C_ptr) :: object = C_NULL_ptr                           !          |
   ! END TYPE MAP_ContState_C                                       !          |
-                                                                  !          |
+  !                                                                 !          |
   ! ! Discrete States                                               !          |
   ! TYPE , BIND(C) :: MAP_DiscState_C                                !          |
   !    PRIVATE                                                      !          |
   !    TYPE(C_ptr) :: object = C_NULL_ptr                           !          |
   ! END TYPE MAP_DiscState_C                                         !          |
-                                                                  !          |
+  !                                                                 !          |
   ! ! Constraint States                                             !          |
   ! TYPE , BIND(C) :: MAP_ConstrState_C                              !          |
   !    PRIVATE                                                      !          |
@@ -114,8 +114,8 @@ MODULE MAP_C_Types
      !   TYPE(C_ptr), VALUE :: this                                 !          |     !          |
      ! END SUBROUTINE C_Delete_MAP_InitOutput                        !   -------+     !          |
      ! !========================================================================     !          |
-                                                                                   !          |
-                                                                                   !          |
+     !                                                                               !          |
+     !                                                                               !          |
      ! !==========   MAP C++ Object Constructor/Destructor   ======     <------+     !          |
      ! !                                                            !          |     !          |
      ! ! Initalize Input object                                     !          |     !          |
@@ -136,8 +136,8 @@ MODULE MAP_C_Types
      !   TYPE(C_ptr), VALUE :: this                                 !          |     !          |
      ! END SUBROUTINE C_Delete_MAP_Input                            !   -------+     !          |
      ! !========================================================================     !          |
-                                                                                   !          |
-                                                                                   !          |
+     !                                                                               !          |
+     !                                                                               !          |
      ! !==========   MAP C++ Object Constructor/Destructor   ======     <------+     !          |
      ! !                                                            !          |     !          |
      ! ! Initalize input object                                     !          |     !          |
@@ -158,8 +158,8 @@ MODULE MAP_C_Types
      !   TYPE(C_ptr), VALUE :: this                                 !          |     !          |
      ! END SUBROUTINE C_Delete_MAP_Parameter                        !   -------+     !          |
      ! !========================================================================     !          |
-                                                                                   !          |
-                                                                                   !          |
+     !                                                                               !          |
+     !                                                                               !          |
      ! !==========   MAP C++ Object Constructor/Destructor   ======     <------+     !          |
      ! !                                                            !          |     !          |
      ! ! Initalize input object                                     !          |     !          |
@@ -180,8 +180,8 @@ MODULE MAP_C_Types
      !   TYPE(C_ptr), VALUE :: this                                 !          |     !          |
      ! END SUBROUTINE C_Delete_MAP_Continuous                       !   -------+     !          |
      ! !========================================================================     !          |
-                                                                                   !          |
-                                                                                   !          |
+     !                                                                               !          |
+     !                                                                               !          |
      ! !==========   MAP C++ Object Constructor/Destructor   ======     <------+     !          |
      ! !                                                            !          |     !          |
      ! ! Initalize input object                                     !          |     !          |
@@ -202,8 +202,8 @@ MODULE MAP_C_Types
      !   TYPE(C_ptr), VALUE :: this                                 !          |     !          |
      ! END SUBROUTINE C_Delete_MAP_Discrete                         !   -------+     !          |
      ! !========================================================================     !          |
-                                                                                   !          |
-                                                                                   !          |
+     !                                                                               !          |
+     !                                                                               !          |
      ! !==========   MAP C++ Object Constructor/Destructor   ======     <------+     !          |
      ! !                                                            !          |     !          |
      ! ! Initalize input object                                     !          |     !          |
@@ -294,7 +294,7 @@ MODULE MAP_C_Types
   ! INTERFACE MAP_InitOutput_Destroy                              !          |
   !    MODULE PROCEDURE MAP_InitOutput_Delete                     !          |
   ! END INTERFACE MAP_InitOutput_Destroy                          !          |
-                                                               !          |
+  !                                                              !          |
   ! ! Input Constructor interface                                !          |
   ! INTERFACE MAP_Input_Initialize                                !          |
   !    MODULE PROCEDURE MAP_Input_Create                         !          |
@@ -304,8 +304,8 @@ MODULE MAP_C_Types
   ! INTERFACE MAP_Input_Destroy                                  !          |
   !    MODULE PROCEDURE MAP_Input_Delete                         !          |
   ! END INTERFACE MAP_Input_Destroy                              !          |
-                                                               !          |
-                                                               !          |
+  !                                                              !          |
+  !                                                              !          |
   ! ! Input initalize interface                                  !          |
   ! INTERFACE MAP_Parameter_Initialize                            !          |
   !    MODULE PROCEDURE MAP_Param_Create                     !          |
@@ -314,8 +314,8 @@ MODULE MAP_C_Types
   ! INTERFACE MAP_Parameter_Destroy                              !          |
   !    MODULE PROCEDURE MAP_Parameter_Delete                     !          |
   ! END INTERFACE MAP_Parameter_Destroy                          !          |
-                                                               !          |
-                                                               !          |
+  !                                                              !          |
+  !                                                              !          |
   ! ! Input initalize interface                                  !          |
   ! INTERFACE MAP_Continuous_Initialize                           !          |
   !    MODULE PROCEDURE MAP_ContState_Create                    !          |
@@ -324,8 +324,8 @@ MODULE MAP_C_Types
   ! INTERFACE MAP_Continuous_Destroy                             !          |
   !    MODULE PROCEDURE MAP_Continuous_Delete                    !          |
   ! END INTERFACE MAP_Continuous_Destroy                         !          |
-                                                               !          |
-                                                               !          |
+  !                                                              !          |
+  !                                                              !          |
   ! ! Input initalize interface                                  !          |
   ! INTERFACE MAP_Discrete_Initialize                             !          |
   !    MODULE PROCEDURE MAP_DiscState_Create                      !          |
@@ -334,8 +334,8 @@ MODULE MAP_C_Types
   ! INTERFACE MAP_Discrete_Destroy                               !          |
   !    MODULE PROCEDURE MAP_Discrete_Delete                      !          |
   ! END INTERFACE MAP_Discrete_Destroy                           !          |
-                                                               !          |
-                                                               !          |
+  !                                                              !          |
+  !                                                              !          |
   ! ! Input initalize interface                                  !          |
   ! INTERFACE MAP_Constraint_Initialize                           !          |
   !    MODULE PROCEDURE MAP_ConstrState_Create                    !          |
@@ -364,36 +364,36 @@ MODULE MAP_C_Types
   ! INTERFACE MAP_Output_Destroy                                 !          |
   !    MODULE PROCEDURE MAP_Output_Delete                        !          |
   ! END INTERFACE MAP_Output_Destroy                             !   -------+
-  !========================================================================
+  ! !========================================================================
 
 
   PUBLIC :: MAP_InitInput_C     , &
-!       MAP_InitOutput_C        , &
-!       MAP_Input_C              , &
-!       MAP_Param_C          , &
-!       MAP_ContState_C         , &
-!       MAP_DiscState_C           , &
-!       MAP_ConstrState_C         , &
+ !      MAP_InitOutput_C        , &
+ !      MAP_Input_C              , &
+ !      MAP_Param_C          , &
+ !      MAP_ContState_C         , &
+ !      MAP_DiscState_C           , &
+ !      MAP_ConstrState_C         , &
        MAP_OtherState_C              , &
-!       MAP_Output_C             , &
+ !      MAP_Output_C             , &
        MAP_InitInput_Initialize  , & 
-!       MAP_InitOutput_Initialize  , & 
-!       MAP_Input_Initialize      , & 
-!       MAP_Parameter_Initialize  , & 
-!       MAP_Continuous_Initialize , & 
-!       MAP_Discrete_Initialize   , &
-!       MAP_Constraint_Initialize , &
+ !      MAP_InitOutput_Initialize  , & 
+ !      MAP_Input_Initialize      , & 
+ !      MAP_Parameter_Initialize  , & 
+ !      MAP_Continuous_Initialize , & 
+ !      MAP_Discrete_Initialize   , &
+ !      MAP_Constraint_Initialize , &
        MAP_Other_Initialize      , &
-!       MAP_Output_Initialize     , &
+ !      MAP_Output_Initialize     , &
        MAP_InitInput_Destroy    , &
-!       MAP_InitOutput_Destroy    , &
-!       MAP_Input_Destroy        , &
-!       MAP_Parameter_Destroy    , &
-!       MAP_Continuous_Destroy   , &
-!       MAP_Discrete_Destroy     , &
-!       MAP_Constraint_Destroy   , &
+ !      MAP_InitOutput_Destroy    , &
+ !      MAP_Input_Destroy        , &
+ !      MAP_Parameter_Destroy    , &
+ !      MAP_Continuous_Destroy   , &
+ !      MAP_Discrete_Destroy     , &
+ !      MAP_Constraint_Destroy   , &
        MAP_Other_Destroy        
-!       MAP_Output_Destroy       
+  !     MAP_Output_Destroy       
 
 CONTAINS
 
