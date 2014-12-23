@@ -60,7 +60,6 @@ OBJ       = lmder.o \
 	freedata.o \
 	mapinit.o \
 	maperror.o \
-	MAP_Types.o \
 	lineroutines.o \
 	numeric.o \
 	outputstream.o \

@@ -21,22 +21,22 @@
 //#define CALL __attribute__((dllexport) )
 //MAP_InitInputType_t* CALL MAP_InitInput_Create() { return ((MAP_InitInputType_t*) malloc( sizeof(MAP_InitInputType_t()))) ; } ;
 //void CALL MAP_InitInput_Delete(MAP_InitInputType_t *This) { free(This) ; } ;
-void CALL MAP_InitOutput_Create() { } ;
-void CALL MAP_InitOutput_Delete(void* none) { } ;
-void CALL MAP_ContState_Create() { } ;
-void CALL MAP_ContState_Delete(void* none) { } ;
-void CALL MAP_DiscState_Create() { } ;
-void CALL MAP_DiscState_Delete(void* none) { } ;
+/* void CALL MAP_InitOutput_Create() { } ; */
+/* void CALL MAP_InitOutput_Delete(void* none) { } ; */
+/* void CALL MAP_ContState_Create() { } ; */
+/* void CALL MAP_ContState_Delete(void* none) { } ; */
+/* void CALL MAP_DiscState_Create() { } ; */
+/* void CALL MAP_DiscState_Delete(void* none) { } ; */
 //MAP_OtherStateType_t* CALL MAP_OtherState_Create() { return ((MAP_OtherStateType_t*) malloc( sizeof(MAP_OtherStateType_t()))) ; } ;
 //void CALL MAP_OtherState_Delete(MAP_OtherStateType_t *This) { free(This) ; } ;
-void CALL MAP_ConstrState_Create() { } ;
-void CALL MAP_ConstrState_Delete(void* none) { } ;
-void CALL MAP_Param_Create() { } ;
-void CALL MAP_Param_Delete(void* none) { } ;
-void CALL MAP_Input_Create() { } ;
-void CALL MAP_Input_Delete(void* none) { } ;
-void CALL MAP_Output_Create() { } ;
-void CALL MAP_Output_Delete(void* none) { } ;
+/* void CALL MAP_ConstrState_Create() { } ; */
+/* void CALL MAP_ConstrState_Delete(void* none) { } ; */ 
+/* void CALL MAP_Param_Create() { } ; */
+/* void CALL MAP_Param_Delete(void* none) { } ; */
+/* void CALL MAP_Input_Create() { } ; */
+/* void CALL MAP_Input_Delete(void* none) { } ; */
+/* void CALL MAP_Output_Create() { } ; */
+/* void CALL MAP_Output_Delete(void* none) { } ; */
 
 int
 C_MAP_PackInitInput( float * ReKiBuf,  int * Re_BufSz ,
@@ -174,17 +174,17 @@ C_MAP_UnpackInitOutput( float * ReKiBuf,
   return(ErrStat) ;
 }
 
-CALL void MAP_F2C_InitOutput_writeOutputHdr_C ( MAP_InitOutputType_t *type, char *arr, int len )
-{
-  int i = 0;
-  for( i=0 ; i<=len-1 ; i++ ) type->writeOutputHdr[i] = arr[i];
-}
-
-CALL void MAP_F2C_InitOutput_writeOutputUnt_C ( MAP_InitOutputType_t *type, char *arr, int len )
-{
-  int i = 0;
-  for( i=0 ; i<=len-1 ; i++ ) type->writeOutputUnt[i] = arr[i];
-}
+// CALL void MAP_F2C_InitOutput_writeOutputHdr_C ( MAP_InitOutputType_t *type, char *arr, int len )
+// {
+//   int i = 0;
+//   for( i=0 ; i<=len-1 ; i++ ) type->writeOutputHdr[i] = arr[i];
+// }
+// 
+// CALL void MAP_F2C_InitOutput_writeOutputUnt_C ( MAP_InitOutputType_t *type, char *arr, int len )
+// {
+//   int i = 0;
+//   for( i=0 ; i<=len-1 ; i++ ) type->writeOutputUnt[i] = arr[i];
+// }
 
 int
 C_MAP_PackContState( float * ReKiBuf,  int * Re_BufSz ,
@@ -524,101 +524,101 @@ C_MAP_UnpackOtherState( float * ReKiBuf,
   return(ErrStat) ;
 }
 
-CALL void MAP_F2C_OtherState_H_C ( MAP_OtherStateType_t *type, double *arr, int len )
-{
-  int i = 0;
-  for( i=0 ; i<=len-1 ; i++ ) type->H[i] = arr[i];
-}
-
-CALL void MAP_F2C_OtherState_V_C ( MAP_OtherStateType_t *type, double *arr, int len )
-{
-  int i = 0;
-  for( i=0 ; i<=len-1 ; i++ ) type->V[i] = arr[i];
-}
-
-CALL void MAP_F2C_OtherState_Ha_C ( MAP_OtherStateType_t *type, double *arr, int len )
-{
-  int i = 0;
-  for( i=0 ; i<=len-1 ; i++ ) type->Ha[i] = arr[i];
-}
-
-CALL void MAP_F2C_OtherState_Va_C ( MAP_OtherStateType_t *type, double *arr, int len )
-{
-  int i = 0;
-  for( i=0 ; i<=len-1 ; i++ ) type->Va[i] = arr[i];
-}
-
-CALL void MAP_F2C_OtherState_x_C ( MAP_OtherStateType_t *type, double *arr, int len )
-{
-  int i = 0;
-  for( i=0 ; i<=len-1 ; i++ ) type->x[i] = arr[i];
-}
-
-CALL void MAP_F2C_OtherState_y_C ( MAP_OtherStateType_t *type, double *arr, int len )
-{
-  int i = 0;
-  for( i=0 ; i<=len-1 ; i++ ) type->y[i] = arr[i];
-}
-
-CALL void MAP_F2C_OtherState_z_C ( MAP_OtherStateType_t *type, double *arr, int len )
-{
-  int i = 0;
-  for( i=0 ; i<=len-1 ; i++ ) type->z[i] = arr[i];
-}
-
-CALL void MAP_F2C_OtherState_xa_C ( MAP_OtherStateType_t *type, double *arr, int len )
-{
-  int i = 0;
-  for( i=0 ; i<=len-1 ; i++ ) type->xa[i] = arr[i];
-}
-
-CALL void MAP_F2C_OtherState_ya_C ( MAP_OtherStateType_t *type, double *arr, int len )
-{
-  int i = 0;
-  for( i=0 ; i<=len-1 ; i++ ) type->ya[i] = arr[i];
-}
-
-CALL void MAP_F2C_OtherState_za_C ( MAP_OtherStateType_t *type, double *arr, int len )
-{
-  int i = 0;
-  for( i=0 ; i<=len-1 ; i++ ) type->za[i] = arr[i];
-}
-
-CALL void MAP_F2C_OtherState_Fx_connect_C ( MAP_OtherStateType_t *type, double *arr, int len )
-{
-  int i = 0;
-  for( i=0 ; i<=len-1 ; i++ ) type->Fx_connect[i] = arr[i];
-}
-
-CALL void MAP_F2C_OtherState_Fy_connect_C ( MAP_OtherStateType_t *type, double *arr, int len )
-{
-  int i = 0;
-  for( i=0 ; i<=len-1 ; i++ ) type->Fy_connect[i] = arr[i];
-}
-
-CALL void MAP_F2C_OtherState_Fz_connect_C ( MAP_OtherStateType_t *type, double *arr, int len )
-{
-  int i = 0;
-  for( i=0 ; i<=len-1 ; i++ ) type->Fz_connect[i] = arr[i];
-}
-
-CALL void MAP_F2C_OtherState_Fx_anchor_C ( MAP_OtherStateType_t *type, double *arr, int len )
-{
-  int i = 0;
-  for( i=0 ; i<=len-1 ; i++ ) type->Fx_anchor[i] = arr[i];
-}
-
-CALL void MAP_F2C_OtherState_Fy_anchor_C ( MAP_OtherStateType_t *type, double *arr, int len )
-{
-  int i = 0;
-  for( i=0 ; i<=len-1 ; i++ ) type->Fy_anchor[i] = arr[i];
-}
-
-CALL void MAP_F2C_OtherState_Fz_anchor_C ( MAP_OtherStateType_t *type, double *arr, int len )
-{
-  int i = 0;
-  for( i=0 ; i<=len-1 ; i++ ) type->Fz_anchor[i] = arr[i];
-}
+// CALL void MAP_F2C_OtherState_H_C ( MAP_OtherStateType_t *type, double *arr, int len )
+// {
+//   int i = 0;
+//   for( i=0 ; i<=len-1 ; i++ ) type->H[i] = arr[i];
+// }
+// 
+// CALL void MAP_F2C_OtherState_V_C ( MAP_OtherStateType_t *type, double *arr, int len )
+// {
+//   int i = 0;
+//   for( i=0 ; i<=len-1 ; i++ ) type->V[i] = arr[i];
+// }
+// 
+// CALL void MAP_F2C_OtherState_Ha_C ( MAP_OtherStateType_t *type, double *arr, int len )
+// {
+//   int i = 0;
+//   for( i=0 ; i<=len-1 ; i++ ) type->Ha[i] = arr[i];
+// }
+// 
+// CALL void MAP_F2C_OtherState_Va_C ( MAP_OtherStateType_t *type, double *arr, int len )
+// {
+//   int i = 0;
+//   for( i=0 ; i<=len-1 ; i++ ) type->Va[i] = arr[i];
+// }
+// 
+// CALL void MAP_F2C_OtherState_x_C ( MAP_OtherStateType_t *type, double *arr, int len )
+// {
+//   int i = 0;
+//   for( i=0 ; i<=len-1 ; i++ ) type->x[i] = arr[i];
+// }
+// 
+// CALL void MAP_F2C_OtherState_y_C ( MAP_OtherStateType_t *type, double *arr, int len )
+// {
+//   int i = 0;
+//   for( i=0 ; i<=len-1 ; i++ ) type->y[i] = arr[i];
+// }
+// 
+// CALL void MAP_F2C_OtherState_z_C ( MAP_OtherStateType_t *type, double *arr, int len )
+// {
+//   int i = 0;
+//   for( i=0 ; i<=len-1 ; i++ ) type->z[i] = arr[i];
+// }
+// 
+// CALL void MAP_F2C_OtherState_xa_C ( MAP_OtherStateType_t *type, double *arr, int len )
+// {
+//   int i = 0;
+//   for( i=0 ; i<=len-1 ; i++ ) type->xa[i] = arr[i];
+// }
+// 
+// CALL void MAP_F2C_OtherState_ya_C ( MAP_OtherStateType_t *type, double *arr, int len )
+// {
+//   int i = 0;
+//   for( i=0 ; i<=len-1 ; i++ ) type->ya[i] = arr[i];
+// }
+// 
+// CALL void MAP_F2C_OtherState_za_C ( MAP_OtherStateType_t *type, double *arr, int len )
+// {
+//   int i = 0;
+//   for( i=0 ; i<=len-1 ; i++ ) type->za[i] = arr[i];
+// }
+// 
+// CALL void MAP_F2C_OtherState_Fx_connect_C ( MAP_OtherStateType_t *type, double *arr, int len )
+// {
+//   int i = 0;
+//   for( i=0 ; i<=len-1 ; i++ ) type->Fx_connect[i] = arr[i];
+// }
+// 
+// CALL void MAP_F2C_OtherState_Fy_connect_C ( MAP_OtherStateType_t *type, double *arr, int len )
+// {
+//   int i = 0;
+//   for( i=0 ; i<=len-1 ; i++ ) type->Fy_connect[i] = arr[i];
+// }
+// 
+// CALL void MAP_F2C_OtherState_Fz_connect_C ( MAP_OtherStateType_t *type, double *arr, int len )
+// {
+//   int i = 0;
+//   for( i=0 ; i<=len-1 ; i++ ) type->Fz_connect[i] = arr[i];
+// }
+// 
+// CALL void MAP_F2C_OtherState_Fx_anchor_C ( MAP_OtherStateType_t *type, double *arr, int len )
+// {
+//   int i = 0;
+//   for( i=0 ; i<=len-1 ; i++ ) type->Fx_anchor[i] = arr[i];
+// }
+// 
+// CALL void MAP_F2C_OtherState_Fy_anchor_C ( MAP_OtherStateType_t *type, double *arr, int len )
+// {
+//   int i = 0;
+//   for( i=0 ; i<=len-1 ; i++ ) type->Fy_anchor[i] = arr[i];
+// }
+// 
+// CALL void MAP_F2C_OtherState_Fz_anchor_C ( MAP_OtherStateType_t *type, double *arr, int len )
+// {
+//   int i = 0;
+//   for( i=0 ; i<=len-1 ; i++ ) type->Fz_anchor[i] = arr[i];
+// }
 
 int
 C_MAP_PackConstrState( float * ReKiBuf,  int * Re_BufSz ,
@@ -727,35 +727,35 @@ C_MAP_UnpackConstrState( float * ReKiBuf,
   return(ErrStat) ;
 }
 
-CALL void MAP_F2C_ConstrState_H_C ( MAP_ConstraintStateType_t *type, double *arr, int len )
-{
-  int i = 0;
-  for( i=0 ; i<=len-1 ; i++ ) type->H[i] = arr[i];
-}
-
-CALL void MAP_F2C_ConstrState_V_C ( MAP_ConstraintStateType_t *type, double *arr, int len )
-{
-  int i = 0;
-  for( i=0 ; i<=len-1 ; i++ ) type->V[i] = arr[i];
-}
-
-CALL void MAP_F2C_ConstrState_x_C ( MAP_ConstraintStateType_t *type, double *arr, int len )
-{
-  int i = 0;
-  for( i=0 ; i<=len-1 ; i++ ) type->x[i] = arr[i];
-}
-
-CALL void MAP_F2C_ConstrState_y_C ( MAP_ConstraintStateType_t *type, double *arr, int len )
-{
-  int i = 0;
-  for( i=0 ; i<=len-1 ; i++ ) type->y[i] = arr[i];
-}
-
-CALL void MAP_F2C_ConstrState_z_C ( MAP_ConstraintStateType_t *type, double *arr, int len )
-{
-  int i = 0;
-  for( i=0 ; i<=len-1 ; i++ ) type->z[i] = arr[i];
-}
+// CALL void MAP_F2C_ConstrState_H_C ( MAP_ConstraintStateType_t *type, double *arr, int len )
+// {
+//   int i = 0;
+//   for( i=0 ; i<=len-1 ; i++ ) type->H[i] = arr[i];
+// }
+// 
+// CALL void MAP_F2C_ConstrState_V_C ( MAP_ConstraintStateType_t *type, double *arr, int len )
+// {
+//   int i = 0;
+//   for( i=0 ; i<=len-1 ; i++ ) type->V[i] = arr[i];
+// }
+// 
+// CALL void MAP_F2C_ConstrState_x_C ( MAP_ConstraintStateType_t *type, double *arr, int len )
+// {
+//   int i = 0;
+//   for( i=0 ; i<=len-1 ; i++ ) type->x[i] = arr[i];
+// }
+// 
+// CALL void MAP_F2C_ConstrState_y_C ( MAP_ConstraintStateType_t *type, double *arr, int len )
+// {
+//   int i = 0;
+//   for( i=0 ; i<=len-1 ; i++ ) type->y[i] = arr[i];
+// }
+// 
+// CALL void MAP_F2C_ConstrState_z_C ( MAP_ConstraintStateType_t *type, double *arr, int len )
+// {
+//   int i = 0;
+//   for( i=0 ; i<=len-1 ; i++ ) type->z[i] = arr[i];
+// }
 
 int
 C_MAP_PackParam( float * ReKiBuf,  int * Re_BufSz ,
@@ -926,23 +926,23 @@ C_MAP_UnpackInput( float * ReKiBuf,
   return(ErrStat) ;
 }
 
-CALL void MAP_F2C_Input_x_C ( MAP_InputType_t *type, double *arr, int len )
-{
-  int i = 0;
-  for( i=0 ; i<=len-1 ; i++ ) type->x[i] = arr[i];
-}
-
-CALL void MAP_F2C_Input_y_C ( MAP_InputType_t *type, double *arr, int len )
-{
-  int i = 0;
-  for( i=0 ; i<=len-1 ; i++ ) type->y[i] = arr[i];
-}
-
-CALL void MAP_F2C_Input_z_C ( MAP_InputType_t *type, double *arr, int len )
-{
-  int i = 0;
-  for( i=0 ; i<=len-1 ; i++ ) type->z[i] = arr[i];
-}
+// CALL void MAP_F2C_Input_x_C ( MAP_InputType_t *type, double *arr, int len )
+// {
+//   int i = 0;
+//   for( i=0 ; i<=len-1 ; i++ ) type->x[i] = arr[i];
+// }
+// 
+// CALL void MAP_F2C_Input_y_C ( MAP_InputType_t *type, double *arr, int len )
+// {
+//   int i = 0;
+//   for( i=0 ; i<=len-1 ; i++ ) type->y[i] = arr[i];
+// }
+// 
+// CALL void MAP_F2C_Input_z_C ( MAP_InputType_t *type, double *arr, int len )
+// {
+//   int i = 0;
+//   for( i=0 ; i<=len-1 ; i++ ) type->z[i] = arr[i];
+// }
 
 int
 C_MAP_PackOutput( float * ReKiBuf,  int * Re_BufSz ,
@@ -1048,27 +1048,27 @@ C_MAP_UnpackOutput( float * ReKiBuf,
   return(ErrStat) ;
 }
 
-CALL void MAP_F2C_Output_Fx_C ( MAP_OutputType_t *type, double *arr, int len )
-{
-  int i = 0;
-  for( i=0 ; i<=len-1 ; i++ ) type->Fx[i] = arr[i];
-}
-
-CALL void MAP_F2C_Output_Fy_C ( MAP_OutputType_t *type, double *arr, int len )
-{
-  int i = 0;
-  for( i=0 ; i<=len-1 ; i++ ) type->Fy[i] = arr[i];
-}
-
-CALL void MAP_F2C_Output_Fz_C ( MAP_OutputType_t *type, double *arr, int len )
-{
-  int i = 0;
-  for( i=0 ; i<=len-1 ; i++ ) type->Fz[i] = arr[i];
-}
-
-CALL void MAP_F2C_Output_wrtOutput_C ( MAP_OutputType_t *type, double *arr, int len )
-{
-  int i = 0;
-  for( i=0 ; i<=len-1 ; i++ ) type->wrtOutput[i] = arr[i];
-}
+// CALL void MAP_F2C_Output_Fx_C ( MAP_OutputType_t *type, double *arr, int len )
+// {
+//   int i = 0;
+//   for( i=0 ; i<=len-1 ; i++ ) type->Fx[i] = arr[i];
+// }
+// 
+// CALL void MAP_F2C_Output_Fy_C ( MAP_OutputType_t *type, double *arr, int len )
+// {
+//   int i = 0;
+//   for( i=0 ; i<=len-1 ; i++ ) type->Fy[i] = arr[i];
+// }
+// 
+// CALL void MAP_F2C_Output_Fz_C ( MAP_OutputType_t *type, double *arr, int len )
+// {
+//   int i = 0;
+//   for( i=0 ; i<=len-1 ; i++ ) type->Fz[i] = arr[i];
+// }
+// 
+// CALL void MAP_F2C_Output_wrtOutput_C ( MAP_OutputType_t *type, double *arr, int len )
+// {
+//   int i = 0;
+//   for( i=0 ; i<=len-1 ; i++ ) type->wrtOutput[i] = arr[i];
+// }
 //!ENDOFREGISTRYGENERATEDFILE
