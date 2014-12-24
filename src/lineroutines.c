@@ -221,7 +221,7 @@ MAP_ERROR_CODE set_line_variables_post_solve(Domain* domain, char* map_msg, MAP_
     line_iter->fz_fairlead = V;
 
     line_iter->fx_anchor = Ha*cos(line_iter->psi);
-    line_iter->fy_anchor = Ha*cos(line_iter->psi);
+    line_iter->fy_anchor = Ha*sin(line_iter->psi);
     line_iter->fz_anchor = Va;
   };
   list_iterator_stop(&domain->line); /* ending the iteration "session" */        
@@ -469,7 +469,7 @@ MAP_ERROR_CODE krylov_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type
     for (i=0 ; i<z_size ; i++) {
       error += (pow(other_type->Fx_connect[i],2)+ pow(other_type->Fy_connect[i],2) + pow(other_type->Fz_connect[i],2));
     }
-    printf("error %f\n",error);    
+    // printf("error %f\n",error);    
     dim++;
     
     ns->iteration_count++;

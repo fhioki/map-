@@ -107,3 +107,5 @@ if __name__ == '__main__':
     plt.show()
     
     mooring_1.end( )
+#        for column in zip(*reader):
+#            print column

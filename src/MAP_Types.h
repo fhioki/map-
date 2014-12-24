@@ -8,9 +8,12 @@
 #define _MAP_TYPES_H
 
 
-#ifdef _MSC_VER //define something for Windows MS compiler
+#ifdef _WIN32 //define something for Windows (32-bit)
 #  include "stdbool.h"
 #  define CALL __declspec( dllexport )
+#elif _WIN64 //define something for Windows (64-bit)
+#  include "stdbool.h"
+#  define CALL __declspec( dllexport ) 
 #else
 #  include <stdbool.h>
 #  define CALL 
