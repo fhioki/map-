@@ -117,6 +117,12 @@ const char MAP_ERROR_STRING[][256] = {
   /* MAP_FATAL_88   */  "Line failed",
   /* MAP_FATAL_89   */  "Input index array exceeded during UpdateStates. Inputs were not set correctly by the program",
   /* MAP_FATAL_90   */  "L^2 norm is too large. MAP may not have converged",
+  /* MAP_FATAL_91   */  "Krylov acceleration routine failure",
+  /* MAP_FATAL_92   */  "Failed inside Newton foot-finding iteration",
+  /* MAP_FATAL_93   */  "Newton failed to converge inside the node sequece. Try adjusting tolerance levels or change Krylov accelerator: option 'KRYLOV_ACCELERATOR <int>'",
+  /* MAP_FATAL_94   */  "Krylov accelerator failed to converge inside the node solve sequence. Try adjusting tolerance levels or switch to the unmodified Newton step",
+  /* MAP_FATAL_95   */  "Could not create the MAP initialization outpt file",
+  /* MAP_FATAL_96   */  "Atempting to run option KRYLOV_ACCELERATOR without LAPACK libraries compiled in. This option is not available without the LAPACK library",
   /* MAP_ERROR_1    */  "Line option 'DAMGE_TIME' does not trail with a valid value. Ignoring this run-time flag. Chek the MAP input file",
   /* MAP_ERROR_2    */  "Value for 'INNER_FTOL' is not a valid numeric value. Using the default value <1e-6>",
   /* MAP_ERROR_3    */  "Value for 'OUTER_TOL' is not a valid numeric value. Using the default value <1e-6>",
@@ -146,6 +152,8 @@ const char MAP_ERROR_STRING[][256] = {
   /* MAP_WARNING_9  */  "Attemping to recover from fatal error...",
   /* MAP_WARNING_10 */  "Ignoring wave kinematic hydrodynamics. This feature is not available",
   /* MAP_WARNING_11 */  "Could not enable the lumped-mass model during initialization",
+  /* MAP_WARNING_12 */  "Line option 'KRYLOV_ACCELERATOR' does not trail with a valid integer. Defaulting to initialized MMAX value",
+  /* MAP_WARNING_13 */  "Line options 'KRYLOV_ACCELERATOR' and 'PG_COOKED' are not compatible together. Disabling Krylov acceleration",
 };
 
 
@@ -185,7 +193,8 @@ void set_universal_error(char* map_msg, MAP_ERROR_CODE* ierr, const MAP_ERROR_CO
 void map_reset_universal_error(char* map_msg, MAP_ERROR_CODE* ierr)
 {
   *ierr = MAP_SAFE;
-  strcpy(map_msg, "\0");
+  map_msg[0] = '\0';
+  // strcpy(map_msg, "\0");
 };
 
 
@@ -221,7 +230,11 @@ void set_universal_error_with_message(char* map_msg, MAP_ERROR_CODE* ierr, const
     };
     while (1) {
       va_start(arglist, in_string);      
+#     if !defined(_MSC_VER)
       r = vsnprintf((char*)user_msg->data, n+1, in_string, arglist); /* this is a copy of exvsnprintf in bstring library */
+#     else
+      r = vsnprintf_s((char*)user_msg->data, MAP_ERROR_STRING_LENGTH, n+1, in_string, arglist); /* windows way (or ISO C11 Annex K) way of doing things */
+#     endif
       va_end(arglist);
       user_msg->data[n] = (unsigned char)'\0';
       user_msg->slen = (int)strlen((char*)user_msg->data);
@@ -268,3 +281,4 @@ void set_universal_error_with_message(char* map_msg, MAP_ERROR_CODE* ierr, const
   ret = bdestroy(message);
   ret = bdestroy(user_msg);
 };
+

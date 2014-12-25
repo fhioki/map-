@@ -58,7 +58,8 @@ int main(int argc, char **argv)
   double depth = 100.0;
   double g = 9.81;
   double rho = 1025.0;
-  
+
+  map_initialize_msqs_base(_u_type, _p_type, _x_type, _z_type, _other_type, _y_type, _io_type);  
   map_set_sea_depth(_p_type, depth);
   map_set_gravity(_p_type, g);
   map_set_sea_density(_p_type, rho);
@@ -133,7 +134,7 @@ int main(int argc, char **argv)
    
    int ntimesteps = 10;
    double dx = 1.0;
-   ModelData* data = (ModelData*)_other_type->object;
+   Domain* data = (Domain*)_other_type->object;
    Vessel* vessel = &data->vessel;
    int N = _u_type->x_Len;
    

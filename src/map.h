@@ -39,6 +39,10 @@
 #include "maperror.h"
 #include "lmroutines.hpp"
 
+#ifdef WITH_LAPACK
+#  include "lapack/lapacke.h"
+#endif // WITH_LAPACK
+
 /**
  * @brief Associates the node with a particular type. Fix nodes are anchor points
  *        (ussually) and cannot move with time. Connect nodes are intermediaries
@@ -385,12 +389,19 @@ struct InnerSolveAttributes_t {
 }; typedef struct InnerSolveAttributes_t InnerSolveAttributes;
 
 
+
 struct OuterSolveAttributes_t {
   FdType fd;
+  double** AV;        /**< for the Krylov accelerator */
+  double** V;         /**< for the Krylov accelerator */
+  double* av;         /**< for the Krylov accelerator, rown-major storage for AV */
   double** jac;
-  double** l;
-  double** u;
-  double* b;
+  double** l;         /**< lower triangle matrix in LU */
+  double** u;         /**< upper triangle matrix in LU */
+  double* b;          /**< this is the force vector used in x += ([J]^-1)*b */
+  double* C;          /**< for the Krylov accelerator */
+  double* w;          /**< for the Krylov accelerator */
+  double* q;          /**< for the Krylov accelerator */
   double* x;
   double* y;
   double ds;
@@ -400,6 +411,8 @@ struct OuterSolveAttributes_t {
   double tol;
   double coef;
   bool pg;
+  bool krylov_accelerator;
+  int max_krylov_its;
   int max_its;
   int iteration_count;
 }; typedef struct OuterSolveAttributes_t OuterSolveAttributes;

@@ -68,13 +68,28 @@ MAP_ERROR_CODE get_iteration_output_stream(MAP_OutputType_t *y_type, MAP_OtherSt
 MAP_ERROR_CODE write_summary_file(InitializationData* init, MAP_ParameterType_t* paramType, Domain* data, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_ERROR_CODE success = MAP_SAFE;
-  struct tm* tm_info;
-  time_t timer;
-  FILE* file = fopen(init->summary_file_name->data, "w");
+  FILE* file;
+  MAP_ERROR_CODE err = MAP_SAFE;
   char time_buffer[TIME_BUFFER_SIZE] = "\0";
-  
+  time_t timer;
+
+# if !defined(_MSC_VER)
+  struct tm* tm_info;
   time(&timer);
   tm_info = localtime(&timer);
+  strftime(time_buffer, TIME_BUFFER_SIZE, "%A %B %d-%Y at %H:%M:%S %p", tm_info);
+# else
+  struct tm tm_info;
+  time(&timer);
+  localtime_s(&tm_info, &timer);
+  strftime(time_buffer, TIME_BUFFER_SIZE, "%A %B %d-%Y at %H:%M:%S %p", &tm_info);
+# endif
+
+  err = fopen_s(&file, init->summary_file_name->data, "w");
+  if (err!=MAP_SAFE) {
+    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_95, "File name: <%s>", init->summary_file_name->data);
+    return MAP_FATAL;
+  };
   
   if (file==NULL) {
     set_universal_error_with_message(map_msg, ierr, MAP_FATAL_38, "File name: <%s>", init->summary_file_name->data);
@@ -82,7 +97,6 @@ MAP_ERROR_CODE write_summary_file(InitializationData* init, MAP_ParameterType_t*
   };
   
   //__get_machine_name(name);  
-  strftime(time_buffer, TIME_BUFFER_SIZE, "%A %B %d-%Y at %H:%M:%S %p", tm_info);
 
   /* May want to retag version number of git between major/minor releases. A trick to include git revision number
    * can be found archived here: http://stackoverflow.com/questions/1704907/how-can-i-get-my-c-code-to-automatically-print-out-its-git-version-hash
@@ -109,7 +123,7 @@ MAP_ERROR_CODE write_summary_file(InitializationData* init, MAP_ParameterType_t*
   success = write_expanded_input_file_to_summary_file(file, init);
   fclose(file);  
   
-  MAP_RETURN;
+  MAP_RETURN_STATUS(*ierr);
 };
 
 
@@ -568,7 +582,7 @@ MAP_ERROR_CODE write_node_z_sum_force_to_summary_file(const int num_col, const i
 MAP_ERROR_CODE write_node_information_to_summary_file(FILE* file, Domain* domain, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   int num = 0;
-  int i = 0;
+  unsigned int i = 0;
   int col_cnt = 0; /* number of columns. The MAP summary file prints 4 columns of node information. After column 4, carriage return */
   
   bstring line0 = NULL; 
@@ -587,66 +601,69 @@ MAP_ERROR_CODE write_node_information_to_summary_file(FILE* file, Domain* domain
   unsigned int col = 0;
   MAP_ERROR_CODE success = MAP_SAFE;
 
-  do {
-    for (i=0 ; i<num_nodes ; i+=FOUR) {
-      if (i+FOUR>num_nodes) {
-        num = num_nodes-i;
-      } else {
-        num = FOUR;
-      };    
+  MAP_BEGIN_ERROR_LOG;
 
-      line0 = bformat("");
-      line1 = bformat("");
-      line2 = bformat("");
-      line3 = bformat("");
-      line4 = bformat("");
-      line5 = bformat("");
-      line6 = bformat("");
-      line7 = bformat("");
-      line8 = bformat("");
-      line9 = bformat("");
+  for (i=0 ; i<num_nodes ; i+=FOUR) {
+    if (i+FOUR>num_nodes) {
+      num = num_nodes-i;
+    } else {
+      num = FOUR;
+    };    
 
-      for (col=i ; col<i+num ; col++) {
-        node_iter = (Node*)list_get_at(&domain->node, col);      
-        success = write_node_header_to_summary_file(col-i, col_cnt, col+1, line0); CHECKERRQ(MAP_FATAL_70);
-        success = write_node_type_to_summary_file(col-i, col_cnt, node_iter->type, line1); CHECKERRQ(MAP_FATAL_70);
-        success = write_node_x_position_to_summary_file(col-i, col_cnt, &node_iter->position_ptr.x, line2); CHECKERRQ(MAP_FATAL_70);
-        success = write_node_y_position_to_summary_file(col-i, col_cnt, &node_iter->position_ptr.y, line3); CHECKERRQ(MAP_FATAL_70);
-        success = write_node_z_position_to_summary_file(col-i, col_cnt, &node_iter->position_ptr.z, line4); CHECKERRQ(MAP_FATAL_70);
-        success = write_node_mass_information_to_summary_file(col-i, col_cnt, &node_iter->M_applied, line5); CHECKERRQ(MAP_FATAL_70);
-        success = write_node_buoyancy_information_to_summary_file(col-i, col_cnt, &node_iter->B_applied, line6); CHECKERRQ(MAP_FATAL_70);
-        success = write_node_x_sum_force_to_summary_file(col-i, col_cnt, &node_iter->sum_force_ptr.fx, line7); CHECKERRQ(MAP_FATAL_70);
-        success = write_node_y_sum_force_to_summary_file(col-i, col_cnt, &node_iter->sum_force_ptr.fy, line8); CHECKERRQ(MAP_FATAL_70);
-        success = write_node_z_sum_force_to_summary_file(col-i, col_cnt, &node_iter->sum_force_ptr.fz, line9); CHECKERRQ(MAP_FATAL_70);
-        col_cnt++;
-      };
-      col_cnt = 0;
-      
-      fprintf(file, "%s\n",line0->data);
-      fprintf(file, "          | -------------------------------------------------------------------------------------------\n");
-      fprintf(file, "%s\n",line1->data);
-      fprintf(file, "%s\n",line2->data);
-      fprintf(file, "%s\n",line3->data);
-      fprintf(file, "%s\n",line4->data);
-      fprintf(file, "%s\n",line5->data);
-      fprintf(file, "%s\n",line6->data);
-      fprintf(file, "%s\n",line7->data);
-      fprintf(file, "%s\n",line8->data);
-      fprintf(file, "%s\n\n\n",line9->data);
-      
-      bdestroy(line0);
-      bdestroy(line1);
-      bdestroy(line2);
-      bdestroy(line3);
-      bdestroy(line4);
-      bdestroy(line5);
-      bdestroy(line6);
-      bdestroy(line7);
-      bdestroy(line8);
-      bdestroy(line9);
+    line0 = bformat("");
+    line1 = bformat("");
+    line2 = bformat("");
+    line3 = bformat("");
+    line4 = bformat("");
+    line5 = bformat("");
+    line6 = bformat("");
+    line7 = bformat("");
+    line8 = bformat("");
+    line9 = bformat("");
+
+    for (col=i ; col<i+num ; col++) {
+      node_iter = (Node*)list_get_at(&domain->node, col);      
+      success = write_node_header_to_summary_file(col-i, col_cnt, col+1, line0); CHECKERRQ(MAP_FATAL_70);
+      success = write_node_type_to_summary_file(col-i, col_cnt, node_iter->type, line1); CHECKERRQ(MAP_FATAL_70);
+      success = write_node_x_position_to_summary_file(col-i, col_cnt, &node_iter->position_ptr.x, line2); CHECKERRQ(MAP_FATAL_70);
+      success = write_node_y_position_to_summary_file(col-i, col_cnt, &node_iter->position_ptr.y, line3); CHECKERRQ(MAP_FATAL_70);
+      success = write_node_z_position_to_summary_file(col-i, col_cnt, &node_iter->position_ptr.z, line4); CHECKERRQ(MAP_FATAL_70);
+      success = write_node_mass_information_to_summary_file(col-i, col_cnt, &node_iter->M_applied, line5); CHECKERRQ(MAP_FATAL_70);
+      success = write_node_buoyancy_information_to_summary_file(col-i, col_cnt, &node_iter->B_applied, line6); CHECKERRQ(MAP_FATAL_70);
+      success = write_node_x_sum_force_to_summary_file(col-i, col_cnt, &node_iter->sum_force_ptr.fx, line7); CHECKERRQ(MAP_FATAL_70);
+      success = write_node_y_sum_force_to_summary_file(col-i, col_cnt, &node_iter->sum_force_ptr.fy, line8); CHECKERRQ(MAP_FATAL_70);
+      success = write_node_z_sum_force_to_summary_file(col-i, col_cnt, &node_iter->sum_force_ptr.fz, line9); CHECKERRQ(MAP_FATAL_70);
+      col_cnt++;
     };
-  } while (0);
-  MAP_RETURN;
+    col_cnt = 0;
+      
+    fprintf(file, "%s\n",line0->data);
+    fprintf(file, "          | -------------------------------------------------------------------------------------------\n");
+    fprintf(file, "%s\n",line1->data);
+    fprintf(file, "%s\n",line2->data);
+    fprintf(file, "%s\n",line3->data);
+    fprintf(file, "%s\n",line4->data);
+    fprintf(file, "%s\n",line5->data);
+    fprintf(file, "%s\n",line6->data);
+    fprintf(file, "%s\n",line7->data);
+    fprintf(file, "%s\n",line8->data);
+    fprintf(file, "%s\n\n\n",line9->data);
+      
+    bdestroy(line0);
+    bdestroy(line1);
+    bdestroy(line2);
+    bdestroy(line3);
+    bdestroy(line4);
+    bdestroy(line5);
+    bdestroy(line6);
+    bdestroy(line7);
+    bdestroy(line8);
+    bdestroy(line9);
+  };
+
+  MAP_END_ERROR_LOG;
+
+  MAP_RETURN_STATUS(*ierr);
 };
 
 
@@ -665,7 +682,7 @@ MAP_ERROR_CODE write_line_information_to_summary_file(FILE* file, Domain* domain
   bstring line8 = NULL;
   bstring line9 = NULL;
   bstring line10 = NULL;
-  int i = 0;  
+  unsigned int i = 0;  
 
   for (i=0 ; i<num_lines ; i++) {
     line_iter = (Line*)list_get_at(&domain->line, i);
@@ -835,3 +852,16 @@ MAP_ERROR_CODE write_expanded_input_file_to_summary_file(FILE* file, Initializat
   };
   return MAP_SAFE;
 };
+
+
+#if !defined(_MSC_VER)
+MAP_ERROR_CODE fopen_s(FILE** f, const char* name, const char* mode)
+{
+  assert(f);
+  *f = fopen(name, mode);
+  if (!*f) {
+    return MAP_FATAL;   
+  }
+  return MAP_SAFE;
+};
+#endif

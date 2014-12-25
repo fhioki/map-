@@ -24,7 +24,7 @@ inner_ftol 1e-12
 inner_gtol 1e-12 
 inner_xtol 1e-12 
 pg_cooked 2 3
-repeat    120 240
+repeat  120 240
 !outer_tol 1e-4
 inner_max_its  400 
  wave_kinematics

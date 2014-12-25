@@ -30,10 +30,43 @@
 
 MAP_ERROR_CODE initialize_fortran_types(MAP_InputType_t* u_type, MAP_ParameterType_t* p_type, MAP_ContinuousStateType_t* x_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type, MAP_InitOutputType_t* initout_type);
 MAP_ERROR_CODE allocate_outlist(Domain* data, char* map_msg, MAP_ERROR_CODE* ierr);
+
+
+/**
+ * @brief   Returns the size of CableLibrary structure for link list creation
+ * @param   el, opaque object used in simclist
+ * @see     map_init()
+ * @return  Size of CableLibrary structure
+ */
 size_t cable_library_meter(const void* el);
+
+
+/**
+ * @brief   Returns the size of Node structure for link list creation
+ * @param   el, opaque object used in simclist
+ * @see     map_init()
+ * @return  Size of Node structure
+ */
 size_t node_meter(const void* el);
-size_t cable_line_meter( const void* el);
+
+
+/**
+ * @brief   Returns the size of Line structure for link list creation
+ * @param   el, opaque object used in simclist
+ * @see     map_init()
+ * @return  Size of Line structure
+ */
+size_t cable_line_meter(const void* el);
+
+
+/**
+ * @brief   Returns the size of ReferencePoint (inputs) structure for link list creation
+ * @param   el, opaque object used in simclist
+ * @see     map_init()
+ * @return  Size of ReferencePoint (inputs) structure
+ */
 size_t u_list_meter(const void *el); 
+
 
 /**
  * @brief   Initializes the Fortran/C iteroperability types
@@ -112,40 +145,6 @@ void initialize_outer_solve_data_defaults(OuterSolveAttributes* outer);
 
 
 /**
- * @brief   Allocate Domain
- * @details Called by {@link  map_create_other_type} to allocate memory for the internal 
- *          state (model) data type. 'Other States', as FAST calls them, are states not 
- *          fitting a regular role as a parameter, constraint, input, ect. Other states
- *          contain information on the line connectivity matrix, how reference to poperties
- *          for each line, buoyancy properties of the nodes, ect. Deallocated using
- *          interaction with python and C based programs. Structure is free'd by calling
- *          {@link MAP_OtherState_Delete}.
- * @param   map_msg, error message
- * @param   ierr, error code
- * @see     map_create_other_type()
- * @return  instance of the interal model struct (different from the FAST-required derived types)  
- */
-Domain* MAP_OtherState_Create(char* map_msg, MAP_ERROR_CODE* ierr);
-
-
-/**
- * @brief   Allocate InitializationData
- * @details Called by {@link  map_create_init_type} to allocate memory for the iinitialization
- *          data type. The reason why a layer is added to the initialization data is due to 
- *          Fortran interactions. It is straighforward to pass 1D character arrays between
- *          Fortran and C instead of 2D arrays. 2D arrays would make more sense since multiple 
- *          lines from the MAP input file can be packed in one step. {@link MAP_InitInputType_t}
- *          in responsible for the 1D arrays. which are passed from Fortran to C. MAP then takes
- *          the 1D aray and packs it into InitializationData. This is used to subsequently 
- *          initialize the model. Structure is free'd by calling {@link MAP_InitInput_Delete}.
- * @param   map_msg, error message
- * @param   ierr, error code
- * @return  instance of the packed initialization strings (different from the FAST-required derived types)  
- */
-InitializationData* MAP_InitInput_Create(char* map_msg, MAP_ERROR_CODE* ierr);
-
-
-/**
  * @brief   Sets model solver options corresponding to the MAP input file parameters 
  * @details Called in {@link map_init} to set the corresponding model (solver) options
  *          in MAP. This is different from line flags. Note that this function can 
@@ -168,7 +167,8 @@ InitializationData* MAP_InitInput_Create(char* map_msg, MAP_ERROR_CODE* ierr);
  *          outer_bd
  *          outer_cd
  *          outer_fd
- *          pg_cooked
+ *          pg_cooked (not compatible with krylov_accelerator option)
+ *          krylov_accelerator (not compatible ith pg_cooked option)
  *          repeat
  *          ref_position
  *          </pre>
@@ -437,6 +437,23 @@ MAP_ERROR_CODE check_kb_default_flag(struct bstrList* list, double* kb);
 
 
 /**
+ * @brief   Sets the boolean and maximum iterations for kyrlov accelerator
+ * @details Called by {@link set_model_option_list} to choose the krylov
+ *          accelerator option as the MSQS outer-loop option. Not compatible
+ *          with pg_cooked option.
+ *          MAP input file syntax:
+ *          <pre>
+ *          krylov_accelerator <float>
+ *          </pre>
+ * @param   list, a character array structure
+ * @param   max_its, maximum numnber of krylov iterations 
+ * @see     set_model_options_list(), map_init()
+ * @return  MAP error code
+ */
+MAP_ERROR_CODE check_krylov_accelerator_flag(struct bstrList* list, OuterSolveAttributes* solver);
+
+
+/**
  * @brief   Sets seabed damping factor for the LM model. Not supported yet!
  * @details Called by {@link set_model_option_list} to set the seabed stiffness
  *          MAP input file syntax:
@@ -674,7 +691,19 @@ MAP_ERROR_CODE expand_line_flag(const char* word, bstring line);
 
 MAP_ERROR_CODE set_vartype_ptr(const char* unit, bstring alias, const int num, VarTypePtr* type, bstring property);
 MAP_ERROR_CODE set_vartype(const char* unit, bstring alias, const int num, VarType* type, bstring property );
-MAP_ERROR_CODE compare_length(int a, int b);
+
+
+/**
+ * @brief   Compares two integers.
+ * @details Used in comparing the size of a MAP state against iteration count. 
+ *          Used in {@link set_node_list()}
+ * @param   a, an integer 
+ * @param   b, an integer
+ * @return  MAP_FATAL if a != b; otherwise safe
+ */
+MAP_ERROR_CODE compare_integer_length(const int a, const int b);
+
+
 // MAP_ERROR_CODE set_line_vartype(Line* line_ptr, const int i); @rm
 MAP_ERROR_CODE associate_line_with_cable_property(Line* line_ptr, Domain* domain, const char* word, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE associate_line_with_anchor_node(Line* line_ptr, Domain* domain, const int line_num, const char* word, char* map_msg, MAP_ERROR_CODE* ierr);
@@ -721,21 +750,33 @@ MAP_ERROR_CODE set_vartype_float(const char* unit, const char* alias, const int 
 
 
 /**
- * @see mapcall_msqs_init( )
- * @see mapcall_msqs_end( )
- * @see free_outer_solve_data( ) for where this data is deallocated
+ * @breif   Allocate outer solve data
+ * @param   ns, outer solve attributes; preserves l, jac, and u
+ * @param   size, matrix size
+ * @param   map_msg, error message
+ * @param   ierr, error code
+ * @see mapcall_msqs_init()
+ * @see mapcall_msqs_end()
+ * @see free_outer_solve_data() for data deallocation
+ * @return  MAP error code
  */
 MAP_ERROR_CODE allocate_outer_solve_data(OuterSolveAttributes* ns, const int size, char* map_msg, MAP_ERROR_CODE* ierr);
 
 
 /**
- * Initialized omega (weight per unit length) and cross-section area of a cable. The formula is 
- *
- *   A=\pi*\frac{radius^{2}}{4}
- *   \omega=g*(\mu-A*\rho_{seawater})
- *
- * @acceses: none
- * @calledby: mapcall_msqs_init( )
+ * @breif   Initialized omega (weight per unit length) and cross-section area of a cable. 
+ * @details Called by {@link map_init} to assign:
+ *          $A=\pi*\frac{radius^{2}}{4}$
+ *          and
+ *          $\omega=g*(\mu-A*\rho_{seawater})$ 
+ * @param   domain, mooring domain
+ * @param   p_type, parameter type
+ * @param   map_msg, error message
+ * @param   ierr, error code
+ * @see mapcall_msqs_init()
+ * @see mapcall_msqs_end()
+ * @see free_outer_solve_data() for data deallocation
+ * @return  MAP error code
  */
 MAP_ERROR_CODE initialize_cable_library_variables(Domain* domain, MAP_ParameterType_t* p_type, char* map_msg, MAP_ERROR_CODE* ierr);
 
@@ -790,6 +831,23 @@ MAP_ERROR_CODE first_solve(Domain* domain, MAP_ParameterType_t* p_type, MAP_Inpu
  * @see MAP_ERROR_CODE
  */
 MAP_ERROR_CODE is_numeric(const char* string);
+
+
+/**
+ * @breif   Write the map summary file
+ * @details Is called once in {@link map_init} to create the summary file post-solve.
+ *          Even if the solution is not solved, the summary file will be written. 
+ * @param   init_type, initialization type
+ * @param   p_type, parameter type
+ * @param   y_type, output type
+ * @param   other_type, oter state type
+ * @param   domain, mooring domain
+ * @param   map_msg, error message
+ * @param   ierr, error code
+ * @see mapcall_msqs_init()
+ */
+void log_initialization_information(MAP_InitInputType_t* init_type, MAP_ParameterType_t* p_type, MAP_OutputType_t* y_type, MAP_OtherStateType_t* other_type, Domain* domain, char* map_msg, MAP_ERROR_CODE* ierr);
+
 
 MAP_ERROR_CODE associate_vartype_ptr(VarTypePtr* type, double* arr, int index);
 void copy_target_string(char* target, unsigned char* source);

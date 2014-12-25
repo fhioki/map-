@@ -124,6 +124,12 @@ typedef enum MAP_ERROR_CODE {
   MAP_FATAL_88  , // Line failed
   MAP_FATAL_89  , // Input index array exceeded during UpdateStates. Inputs were not set correctly by the program
   MAP_FATAL_90  , // L^2 norm is too large. MAP may not have converged
+  MAP_FATAL_91  , // Krylov acceleration routine failure
+  MAP_FATAL_92  , // Failed inside Newton foot-finding iteration
+  MAP_FATAL_93  , // Newton failed to converge inside the node sequece. Try adjusting tolerance levels or change Krylov accelerator: option 'KRYLOV_ACCELERATOR <int>'",
+  MAP_FATAL_94  , // Krylov accelerator failed to converge inside the node solve sequence. Try adjusting tolerance levels or switch to the unmodified Newton step",
+  MAP_FATAL_95  , // Could not create the MAP initialization outpt file
+  MAP_FATAL_96  , // Atempting to run option KRYLOV_ACCELERATOR without LAPACK libraries compiled in. This option is not available without the LAPACK library
   MAP_ERROR_1   , // Line option 'DAMAGE_TIME' does not trail with a valid value. Ignoring this run-time flag. Chek the MAP input file
   MAP_ERROR_2   , // Value for 'INNER_FTOL' is not a valid numeric value. Using the default value <1e-6>
   MAP_ERROR_3   , // Value for 'OUTER_TOL' is not a valid numeric value. Using the default value <1e-6>
@@ -153,7 +159,8 @@ typedef enum MAP_ERROR_CODE {
   MAP_WARNING_9 , // Attemping to recover from fatal error by back tracking...
   MAP_WARNING_10, // Ignoring wave kinematic hydrodynamics. This feature is not available
   MAP_WARNING_11, // Could not enable the lumped-mass model during initialization
-  MAP_WARNING_12 ,
+  MAP_WARNING_12, // Line option 'KRYLOV_ACCELERATOR' does not trail with a valid integer. Defaulting to initialized MMAX value
+  MAP_WARNING_13, // Line options 'KRYLOV_ACCELERATOR' and 'PG_COOKED' are not compatible together. Disabling Krylov acceleration
 } MAP_ERROR_CODE ;
 
 

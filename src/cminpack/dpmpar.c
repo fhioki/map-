@@ -16,7 +16,7 @@
 #define _DPMPAR(type,X) type ## _ ## X
 
 __cminpack_attr__
-real __cminpack_func__(dpmpar)(int i)
+real_mp __cminpack_func__(dpmpar)(int i)
 {
 /*     ********** */
 
@@ -182,11 +182,11 @@ real __cminpack_func__(dpmpar)(int i)
 
     switch(i) {
         case 1:
-            return DPMPAR(real,EPSILON); /* 2.2204460492503131e-16 | 1.19209290e-07F */
+            return DPMPAR(real_mp,EPSILON); /* 2.2204460492503131e-16 | 1.19209290e-07F */
         case 2:
-            return DPMPAR(real,MIN);    /* 2.2250738585072014e-308 | 1.17549435e-38F */
+            return DPMPAR(real_mp,MIN);    /* 2.2250738585072014e-308 | 1.17549435e-38F */
         default:
-            return DPMPAR(real,MAX);    /* 1.7976931348623157e+308 | 3.40282347e+38F */
+            return DPMPAR(real_mp,MAX);    /* 1.7976931348623157e+308 | 3.40282347e+38F */
     }
 
 /*     Last card of function dpmpar. */

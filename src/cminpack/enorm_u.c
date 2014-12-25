@@ -5,7 +5,7 @@
 
 #include "minpack.h"
 #include <math.h>
-#define real __minpack_real__
+#define real_mp __minpack_real__
 
 /*
   About the values for rdwarf and rgiant.
@@ -35,19 +35,19 @@
 #define giant(type) _giant(type)
 #define _giant(type) type ## _giant
 
-#define rdwarf dwarf(real)
-#define rgiant giant(real)
+#define rdwarf dwarf(real_mp)
+#define rgiant giant(real_mp)
 
 __minpack_attr__
-real __minpack_func__(enorm)(const int *n, const real *x)
+real_mp __minpack_func__(enorm)(const int *n, const real_mp *x)
 {
     /* System generated locals */
     int i__1;
-    real ret_val, d__1;
+    real_mp ret_val, d__1;
 
     /* Local variables */
     int i__;
-    real s1, s2, s3, xabs, x1max, x3max, agiant, floatn;
+    real_mp s1, s2, s3, xabs, x1max, x3max, agiant, floatn;
 
 /*     ********** */
 
@@ -95,7 +95,7 @@ real __minpack_func__(enorm)(const int *n, const real *x)
     s3 = 0.;
     x1max = 0.;
     x3max = 0.;
-    floatn = (real) (*n);
+    floatn = (real_mp) (*n);
     agiant = rgiant / floatn;
     i__1 = *n;
     for (i__ = 1; i__ <= i__1; ++i__) {

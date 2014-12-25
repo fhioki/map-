@@ -247,10 +247,20 @@ class Map(object):
                              MapOutput_Type,
                              POINTER(c_int),
                              c_char_p]
+    
+
+    lib.map_initialize_msqs_base.argtypes = [MapInput_Type,
+                                             MapParameter_Type,
+                                             MapContinuous_Type,
+                                             MapConstraint_Type,
+                                             MapData_Type,
+                                             MapOutput_Type,
+                                             MapInitOut_Type]
+
 
     lib.map_size_lines.argtypes = [ MapData_Type,
-                                       POINTER(c_int),
-                                       c_char_p]
+                                    POINTER(c_int),
+                                    c_char_p]
 
 
     def __init__( self ) :
@@ -263,6 +273,7 @@ class Map(object):
         self.f_type_init    = self.CreateInitState( )
         self.f_type_initout = self.CreateInitoutState( )
         Map.lib.set_init_to_null(self.f_type_init, self.status, pointer(self.ierr) )
+        Map.lib.map_initialize_msqs_base(self.f_type_u, self.f_type_p, self.f_type_x, self.f_type_z, self.f_type_d, self.f_type_y, self.f_type_initout)
         self.summary_file("outlist.map.sum")
 
 

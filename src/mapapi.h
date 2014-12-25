@@ -24,6 +24,19 @@
 #ifndef _MAPAPI_H
 #define _MAPAPI_H
 
+
+/**
+ * @brief   Initalizes all MAP base types (including some internal state)
+ * @details The idea is to set variables to zero and null to prevent seg-faults in the case of 
+ *          early program termination before initialization (MAP_Init) is fully complete. 
+ *          {@link MAP_Init}
+ * @param   el, opaque object used in simclist
+ * @see     map_init()
+ * @return  Size of CableLibrary structure
+ */
+MAP_EXTERNCALL void map_initialize_msqs_base(MAP_InputType_t* u_type, MAP_ParameterType_t* p_type, MAP_ContinuousStateType_t* x_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type, MAP_InitOutputType_t* io_type);
+
+
 MAP_EXTERNCALL void set_init_to_null(MAP_InitInputType_t* init_type, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_EXTERNCALL void map_add_cable_library_input_text(MAP_InitInputType_t* init_type);
 MAP_EXTERNCALL void map_add_node_input_text(MAP_InitInputType_t* init_type);
@@ -32,7 +45,7 @@ MAP_EXTERNCALL void map_add_options_input_text(MAP_InitInputType_t* init_type);
 MAP_EXTERNCALL double* map_plot_x_array(MAP_OtherStateType_t* other_type, int i, int num_points, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_EXTERNCALL double* map_plot_y_array(MAP_OtherStateType_t* other_type, int i, int num_points, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_EXTERNCALL double* map_plot_z_array(MAP_OtherStateType_t* other_type, int i, int num_points, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_EXTERNCALL void map_plot_array_free(double * array) ;
+MAP_EXTERNCALL void map_plot_array_free(double* array) ;
 MAP_EXTERNCALL double map_residual_function_length(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_EXTERNCALL double map_residual_function_height(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_EXTERNCALL double map_jacobian_dxdh(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr);
@@ -245,7 +258,7 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
  * @param     map_msg error string
  * @see       {@link map_calc_output()}
  */
-MAP_EXTERNCALL void map_update_states(double t,
+MAP_EXTERNCALL void map_update_states(float t,
                                       int interval,
                                       MAP_InputType_t* u_type,
                                       MAP_ParameterType_t* p_type,
@@ -272,7 +285,7 @@ MAP_EXTERNCALL void map_update_states(double t,
  * @param     map_msg error string
  * @see       {@link map_update_states()}
  */
-MAP_EXTERNCALL void map_calc_output(double t,
+MAP_EXTERNCALL void map_calc_output(float t,
                                     MAP_InputType_t* u_type,
                                     MAP_ParameterType_t* p_type,
                                     MAP_ContinuousStateType_t* x_type,
@@ -402,6 +415,23 @@ MAP_EXTERNCALL void map_get_unit_string(int* n, char** str_array ,MAP_OtherState
 
 
 /**
+ * @brief   Allocate InitializationData
+ * @details Called by {@link  map_create_init_type} to allocate memory for the iinitialization
+ *          data type. The reason why a layer is added to the initialization data is due to 
+ *          Fortran interactions. It is straighforward to pass 1D character arrays between
+ *          Fortran and C instead of 2D arrays. 2D arrays would make more sense since multiple 
+ *          lines from the MAP input file can be packed in one step. {@link MAP_InitInputType_t}
+ *          in responsible for the 1D arrays. which are passed from Fortran to C. MAP then takes
+ *          the 1D aray and packs it into InitializationData. This is used to subsequently 
+ *          initialize the model. Structure is free'd by calling {@link MAP_InitInput_Delete}.
+ * @param   map_msg, error message
+ * @param   ierr, error code
+ * @return  instance of the packed initialization strings (different from the FAST-required derived types)  
+ */
+MAP_EXTERNCALL InitializationData* MAP_InitInput_Create(char* map_msg, MAP_ERROR_CODE* ierr);
+
+
+/**
  * @brief   Allocate MAP_InitInputType_t and InitializationData
  * @details Called to allocate memory for the initialzation data for both the Fortran
  *          derived data and internal state data. Following sucessful allocation, 
@@ -414,6 +444,23 @@ MAP_EXTERNCALL void map_get_unit_string(int* n, char** str_array ,MAP_OtherState
  * @return  initialization input type (equivalent C binding struct)  
  */
 MAP_EXTERNCALL MAP_InitInputType_t* map_create_init_type(char* map_msg, MAP_ERROR_CODE* ierr);
+
+
+/**
+ * @brief   Allocate Domain
+ * @details Called by {@link  map_create_other_type} to allocate memory for the internal 
+ *          state (model) data type. 'Other States', as FAST calls them, are states not 
+ *          fitting a regular role as a parameter, constraint, input, ect. Other states
+ *          contain information on the line connectivity matrix, how reference to poperties
+ *          for each line, buoyancy properties of the nodes, ect. Deallocated using
+ *          interaction with python and C based programs. Structure is free'd by calling
+ *          {@link MAP_OtherState_Delete}.
+ * @param   map_msg, error message
+ * @param   ierr, error code
+ * @see     map_create_other_type()
+ * @return  instance of the interal model struct (different from the FAST-required derived types)  
+ */
+MAP_EXTERNCALL Domain* MAP_OtherState_Create(char* map_msg, MAP_ERROR_CODE* ierr);
 
 
 /**

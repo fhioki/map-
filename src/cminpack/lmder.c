@@ -3,12 +3,12 @@
 #include "cminpackP.h"
 
 __cminpack_attr__
-int __cminpack_func__(lmder)(__cminpack_decl_fcnder_mn__ void *p, int m, int n, real *x, 
-	real *fvec, real *fjac, int ldfjac, real ftol,
-	real xtol, real gtol, int maxfev, real *
-	diag, int mode, real factor, int nprint,
-	int *nfev, int *njev, int *ipvt, real *qtf, 
-	real *wa1, real *wa2, real *wa3, real *wa4)
+int __cminpack_func__(lmder)(__cminpack_decl_fcnder_mn__ void *p, int m, int n, real_mp *x, 
+	real_mp *fvec, real_mp *fjac, int ldfjac, real_mp ftol,
+	real_mp xtol, real_mp gtol, int maxfev, real_mp *
+	diag, int mode, real_mp factor, int nprint,
+	int *nfev, int *njev, int *ipvt, real_mp *qtf, 
+	real_mp *wa1, real_mp *wa2, real_mp *wa3, real_mp *wa4)
 {
     /* Initialized data */
 
@@ -19,17 +19,17 @@ int __cminpack_func__(lmder)(__cminpack_decl_fcnder_mn__ void *p, int m, int n, 
 #define p0001 1e-4
 
     /* System generated locals */
-    real d1, d2;
+    real_mp d1, d2;
 
     /* Local variables */
     int i, j, l;
-    real par, sum;
+    real_mp par, sum;
     int iter;
-    real temp, temp1, temp2;
+    real_mp temp, temp1, temp2;
     int iflag;
-    real delta = 0.;
-    real ratio;
-    real fnorm, gnorm, pnorm, xnorm = 0., fnorm1, actred, dirder, 
+    real_mp delta = 0.;
+    real_mp ratio;
+    real_mp fnorm, gnorm, pnorm, xnorm = 0., fnorm1, actred, dirder, 
 	    epsmch, prered;
     int info;
 
@@ -338,7 +338,7 @@ int __cminpack_func__(lmder)(__cminpack_decl_fcnder_mn__ void *p, int m, int n, 
                     }
                     /* Computing MAX */
                     d1 = fabs(sum / wa2[l]);
-                    gnorm = max(gnorm,d1);
+                    gnorm = minpack_max(gnorm,d1);
                 }
             }
         }
@@ -358,7 +358,7 @@ int __cminpack_func__(lmder)(__cminpack_decl_fcnder_mn__ void *p, int m, int n, 
             for (j = 0; j < n; ++j) {
                 /* Computing MAX */
                 d1 = diag[j], d2 = wa2[j];
-                diag[j] = max(d1,d2);
+                diag[j] = minpack_max(d1,d2);
             }
         }
 
@@ -383,7 +383,7 @@ int __cminpack_func__(lmder)(__cminpack_decl_fcnder_mn__ void *p, int m, int n, 
 /*           on the first iteration, adjust the initial step bound. */
 
             if (iter == 1) {
-                delta = min(delta,pnorm);
+                delta = minpack_min(delta,pnorm);
             }
 
 /*           evaluate the function at x + p and calculate its norm. */
@@ -441,7 +441,7 @@ int __cminpack_func__(lmder)(__cminpack_decl_fcnder_mn__ void *p, int m, int n, 
                 }
                 /* Computing MIN */
                 d1 = pnorm / p1;
-                delta = temp * min(delta,d1);
+                delta = temp * minpack_min(delta,d1);
                 par /= temp;
             } else {
                 if (par == 0. || ratio >= p75) {

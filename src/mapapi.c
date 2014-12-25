@@ -30,9 +30,42 @@
 #include "mapinit.h"
 #include "outputstream.h"
 #include "numeric.h"
+#include "jacobian.h"
+#include "residual.h"
 
 
-extern const char MAP_ERROR_STRING[][1024];
+MAP_EXTERNCALL void map_initialize_msqs_base(MAP_InputType_t* u_type,
+                                             MAP_ParameterType_t* p_type, 
+                                             MAP_ContinuousStateType_t* x_type, 
+                                             MAP_ConstraintStateType_t* z_type, 
+                                             MAP_OtherStateType_t* other_type,
+                                             MAP_OutputType_t* y_type,
+                                             MAP_InitOutputType_t* io_type)
+{
+  Domain* domain = other_type->object;
+  MAP_ERROR_CODE success = MAP_SAFE;
+
+  /*  initialize types; set doubles to -999.9, int=0, pointers=NULL 
+   *  @todo: add other variables as neccessary. This needs to be fixed each time the registry
+   *         is run an new varaibles are introduced 
+   */  
+  success = initialize_fortran_types(u_type, p_type, x_type, z_type, other_type, y_type, io_type);
+
+  /* create a cable library link lists for:
+   *  - nodes
+   *  - lines
+   *  - cable library (properties)
+   * The following are simclist routines 
+   */
+  list_init(&domain->library); 
+  list_init(&domain->node); 
+  list_init(&domain->line);  
+  list_init(&domain->u_update_list);  
+  list_attributes_copy(&domain->library, cable_library_meter, 1); 
+  list_attributes_copy(&domain->node, node_meter, 1); 
+  list_attributes_copy(&domain->line, cable_line_meter, 1);    
+  list_attributes_copy(&domain->u_update_list, u_list_meter, 1);    
+};
 
 
 /**
@@ -57,101 +90,78 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
   Domain* domain = other_type->object;
   MAP_ERROR_CODE success = MAP_SAFE;
 
-  domain->HEAD_U_TYPE = u_type;  
   map_reset_universal_error(map_msg, ierr);
-  do { 
-    /*  initialize types; set doubles to -999.9, int=0, pointers=NULL 
-     *  @todo: add other variables as neccessary. This needs to be fixed each time the registry
-     *         is run an new varaibles are introduced 
-     */  
-    success = initialize_fortran_types(u_type, p_type, x_type, z_type, other_type, y_type, io_type);     
-    success = map_get_version(io_type);
-    
-    /* create a cable library link lists for:
-     *  - nodes
-     *  - lines
-     *  - cable library (properties)
-     * The following are simclist routines 
-     */
-    list_init(&domain->library); 
-    list_init(&domain->node); 
-    list_init(&domain->line);  
-    list_init(&domain->u_update_list);  
-    list_attributes_copy(&domain->library, cable_library_meter, 1); 
-    list_attributes_copy(&domain->node, node_meter, 1); 
-    list_attributes_copy(&domain->line, cable_line_meter, 1);    
-    list_attributes_copy(&domain->u_update_list, u_list_meter, 1);    
+  domain->HEAD_U_TYPE = u_type;  
 
-    success = allocate_outlist(domain, map_msg, ierr); CHECKERRQ(MAP_FATAL_47);
-    list_init(&domain->y_list->out_list); /* simclist routine */
-    list_init(&domain->y_list->out_list_ptr); /* simclist routine */
+  MAP_BEGIN_ERROR_LOG; 
 
-    /* The follow routines expand the input file contents based on the number of repeat
-     * angles. If not repeat angles are declared, then expanded_node_input_string=node_input_string
-     * and expanded_line_input_string=line_input_string. This is just a convenient way
-     * to duplicate lines if a symetric mooring is employed
-     */
-    success = set_model_options_list(domain, init_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_33);
-    success = set_cable_library_list(domain, init_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);
+  success = map_get_version(io_type);  
+  success = allocate_outlist(domain, map_msg, ierr); CHECKERRQ(MAP_FATAL_47);
+  list_init(&domain->y_list->out_list); /* simclist routine */
+  list_init(&domain->y_list->out_list_ptr); /* simclist routine */
 
-    success = repeat_nodes(domain, init_data, map_msg, ierr);
-    success = repeat_lines(domain, init_data, map_msg, ierr);
+  /* The follow routines expand the input file contents based on the number of repeat
+   * angles. If not repeat angles are declared, then expanded_node_input_string=node_input_string
+   * and expanded_line_input_string=line_input_string. This is just a convenient way
+   * to duplicate lines if a symetric mooring is employed
+   */
+  success = set_model_options_list(domain, init_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_33);
+  success = set_cable_library_list(domain, init_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);
+
+  success = repeat_nodes(domain, init_data, map_msg, ierr);
+  success = repeat_lines(domain, init_data, map_msg, ierr);
      
-    success = set_node_list(p_type, u_type, z_type, other_type, y_type, domain, init_data->expanded_node_input_string, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);    
-    success = set_line_list(z_type, domain, init_data->expanded_line_input_string, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);    
+  success = set_node_list(p_type, u_type, z_type, other_type, y_type, domain, init_data->expanded_node_input_string, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);    
+  success = set_line_list(z_type, domain, init_data->expanded_line_input_string, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);    
     
-    /* now create an output list to print to and output file. */
-    list_attributes_copy(&domain->y_list->out_list, vartype_meter, 1);  
-    list_attributes_copy(&domain->y_list->out_list_ptr, vartype_ptr_meter, 1);  
-    success = set_output_list(domain, io_type, map_msg, ierr); 
-    success = set_vessel(&domain->vessel, u_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_69);
-    
-    if (domain->model_options.lm_model) {
-      /* @todo: need to allocate LM-specific data */
-      domain->MAP_SOLVE_TYPE = LUMPED_MASS;            
-    } else if (z_type->x_Len!=0) { /* this means there are no connect nodes. This does NOT mean z_type->H_len==0 */
-      success = allocate_outer_solve_data(&domain->outer_loop, z_type->x_Len, map_msg, ierr); CHECKERRQ(MAP_FATAL_72);
-      domain->MAP_SOLVE_TYPE = PARTITIONED;      
-    } else {
-      domain->MAP_SOLVE_TYPE = MONOLITHIC;
-    };
+  /* now create an output list to print to and output file. */
+  list_attributes_copy(&domain->y_list->out_list, vartype_meter, 1);  
+  list_attributes_copy(&domain->y_list->out_list_ptr, vartype_ptr_meter, 1);  
+  success = set_output_list(domain, io_type, map_msg, ierr); 
+  success = set_vessel(&domain->vessel, u_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_69);
 
-    /* if DEBUG is raised in CCFLAGS, then MAP version number is printed to screen */    
-#   ifdef DEBUG
-    print_machine_name_to_screen( );
-#   endif 
+  if (domain->model_options.lm_model) {
+    /* @todo: need to allocate LM-specific data */
+    domain->MAP_SOLVE_TYPE = LUMPED_MASS;            
+  } else if (z_type->x_Len!=0) { /* this means there are no connect nodes. This does NOT mean z_type->H_len==0 */
+    success = allocate_outer_solve_data(&domain->outer_loop, z_type->x_Len, map_msg, ierr); CHECKERRQ(MAP_FATAL_72);
+    domain->MAP_SOLVE_TYPE = PARTITIONED;      
+  } else {
+    domain->MAP_SOLVE_TYPE = MONOLITHIC;
+  };
+
+  /* if DEBUG is raised in CCFLAGS, then MAP version number is printed to screen */    
+# ifdef DEBUG
+  print_machine_name_to_screen( );
+# endif 
      
-    printf("MAP environment properties (set externally)...\n");
-    printf("    Gravity constant          [m/s^2]  : %1.2f\n", p_type->g ); 
-    printf("    Sea density               [kg/m^3] : %1.2f\n", p_type->rho_sea );
-    printf("    Water depth               [m]      : %1.2f\n", p_type->depth );
-    printf("    Vessel reference position [m]      : %1.2f , %1.2f , %1.2f\n", domain->vessel.ref_origin.x.value, domain->vessel.ref_origin.y.value, domain->vessel.ref_origin.z.value); 
+  printf("MAP environment properties (set externally)...\n");
+  printf("    Gravity constant          [m/s^2]  : %1.2f\n", p_type->g ); 
+  printf("    Sea density               [kg/m^3] : %1.2f\n", p_type->rho_sea );
+  printf("    Water depth               [m]      : %1.2f\n", p_type->depth );
+  printf("    Vessel reference position [m]      : %1.2f , %1.2f , %1.2f\n", domain->vessel.ref_origin.x.value, domain->vessel.ref_origin.y.value, domain->vessel.ref_origin.z.value); 
    
-    success = initialize_cable_library_variables(domain, p_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_41);
-    success = set_line_variables_pre_solve(domain, map_msg, ierr); CHECKERRQ(MAP_FATAL_86);// @rm, not needed. This is called in line_solve_sequence
-    success = reset_node_force_to_zero(domain, map_msg, ierr); // @rm, not needed. This is called in line_solve_sequence
-    success = set_line_initial_guess(domain, map_msg, ierr);
-    success = first_solve(domain, p_type, u_type, z_type, other_type, y_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_39);
-    success = set_line_variables_post_solve(domain, map_msg, ierr);    // @rm, not needed. This is called in line_solve_sequence
-    success = write_summary_file(init_data, p_type, domain, map_msg, ierr); CHECKERRQ(MAP_FATAL_37);           
-    success = get_iteration_output_stream(y_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
-  } while (0);  
+  success = initialize_cable_library_variables(domain, p_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_41);
+  success = set_line_variables_pre_solve(domain, map_msg, ierr); CHECKERRQ(MAP_FATAL_86);// @rm, not needed. This is called in line_solve_sequence
+  success = reset_node_force_to_zero(domain, map_msg, ierr); // @rm, not needed. This is called in line_solve_sequence
+  success = set_line_initial_guess(domain, map_msg, ierr);
+  success = first_solve(domain, p_type, u_type, z_type, other_type, y_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_39);
+  success = set_line_variables_post_solve(domain, map_msg, ierr);    // @rm, not needed. This is called in line_solve_sequence
 
+  MAP_END_ERROR_LOG;  
+  
   /* the next functions are called in a seperate do-loop to log information to the 
    * summary file even if a fatal error is encountered. This guarantees the summary 
    * file is written even if garbage is recorded.
    */
-  do {
-    success = write_summary_file(init_data, p_type, domain, map_msg, ierr); CHECKERRQ(MAP_FATAL_37);           
-    success = get_iteration_output_stream(y_type, other_type, map_msg, ierr); // @todo CHECKERRQ()    
-  } while (0);
-
+  log_initialization_information(init_type, p_type, y_type, other_type, domain, map_msg, ierr);
+  
   free_init_data(init_data, map_msg, ierr); 
   MAP_InitInput_Delete(init_data);
 };
 
 
-MAP_EXTERNCALL void map_update_states(double t,
+MAP_EXTERNCALL void map_update_states(float t,
                                       int interval,
                                       MAP_InputType_t* u_type,
                                       MAP_ParameterType_t* p_type,
@@ -167,54 +177,56 @@ MAP_EXTERNCALL void map_update_states(double t,
    Node* node_iter = NULL;
    int i = 0;
    int j = 0;
-
    
    map_reset_universal_error(map_msg, ierr);
-   do {
-     /* If the reference to u_type changes, then we have to update the location MAP internal states are pointing 
-      * to. This is accomplished in the following code. The issue here is when this is called in Fortran:
-      *
-      *    CALL MAP_CopyInput(u(1), u_interp, MESH_NEWCOPY, ErrStat, ErrMsg)      
-      *
-      * u_interp is passed into into the argument for map_update_states(); however, the internal states are not
-      * pointing to data in u_interp. We address this below. Note that the initial reference for point_iter is set
-      * in set_node_list(...)
-      */
-     if (u_type!=domain->HEAD_U_TYPE) { /* this is intended to be triggered when couled to FAST */
-       list_iterator_start(&domain->u_update_list);  
-       while (list_iterator_hasnext(&domain->u_update_list)) { 
-         point_iter = (ReferencePoint*)list_iterator_next(&domain->u_update_list);               
-         point_iter->x->value = &(u_type->x[i]);
-         point_iter->y->value = &(u_type->y[i]);
-         point_iter->z->value = &(u_type->z[i]);                 
-         i++;
-       };
-       list_iterator_stop(&domain->u_update_list);
 
-       // /* This proves the node position is updated with the Fortran interpolated input */
-       // list_iterator_start(&domain->node);  
-       // while (list_iterator_hasnext(&domain->node)) { 
-       //   node_iter = (Node*)list_iterator_next(&domain->node);               
-       //   printf("After update>  %1.2f  %1.2f  %1.2f\n", *node_iter->position_ptr.x.value, *node_iter->position_ptr.y.value, *node_iter->position_ptr.z.value);
-       // };
-       // list_iterator_stop(&domain->node);
-       
-       if (i!=u_type->x_Len) { /* raise error if the input array are exceeded */
-         set_universal_error_with_message(map_msg, ierr, MAP_FATAL_89, "u_type range: <%d>. Updated array range: <%d>", u_type->x_Len, i);
-         break;
-       };
+   MAP_BEGIN_ERROR_LOG;
+
+   /* If the reference to u_type changes, then we have to update the location MAP internal states are pointing 
+    * to. This is accomplished in the following code. The issue here is when this is called in Fortran:
+    *
+    *    CALL MAP_CopyInput(u(1), u_interp, MESH_NEWCOPY, ErrStat, ErrMsg)      
+    *
+    * u_interp is passed into into the argument for map_update_states(); however, the internal states are not
+    * pointing to data in u_interp. We address this below. Note that the initial reference for point_iter is set
+    * in set_node_list(...)
+    */
+   if (u_type!=domain->HEAD_U_TYPE) { /* this is intended to be triggered when couled to FAST */
+     list_iterator_start(&domain->u_update_list);  
+     while (list_iterator_hasnext(&domain->u_update_list)) { 
+       point_iter = (ReferencePoint*)list_iterator_next(&domain->u_update_list);               
+       point_iter->x->value = &(u_type->x[i]);
+       point_iter->y->value = &(u_type->y[i]);
+       point_iter->z->value = &(u_type->z[i]);                 
+       i++;
      };
+     list_iterator_stop(&domain->u_update_list);
      
-     if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
-       success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
-     } else {
-       success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
-     };    
-   } while (0);
+     // /* This proves the node position is updated with the Fortran interpolated input */
+     // list_iterator_start(&domain->node);  
+     // while (list_iterator_hasnext(&domain->node)) { 
+     //   node_iter = (Node*)list_iterator_next(&domain->node);               
+     //   printf("After update>  %1.2f  %1.2f  %1.2f\n", *node_iter->position_ptr.x.value, *node_iter->position_ptr.y.value, *node_iter->position_ptr.z.value);
+     // };
+     // list_iterator_stop(&domain->node);
+     
+     if (i!=u_type->x_Len) { /* raise error if the input array are exceeded */
+       set_universal_error_with_message(map_msg, ierr, MAP_FATAL_89, "u_type range: <%d>. Updated array range: <%d>", u_type->x_Len, i);
+       break;
+     };
+   };
+   
+   if (domain->MAP_SOLVE_TYPE==MONOLITHIC) { /* if the line has no CONNECT object ... */
+     success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
+   } else { /* the line does have CONNECT object defined ... */
+     success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+   };    
+
+   MAP_END_ERROR_LOG;
 };    
 
 
-MAP_EXTERNCALL void map_calc_output(double t,
+MAP_EXTERNCALL void map_calc_output(float t,
                                     MAP_InputType_t* u_type,
                                     MAP_ParameterType_t* p_type,
                                     MAP_ContinuousStateType_t* x_type,
@@ -246,23 +258,26 @@ MAP_EXTERNCALL void map_end(MAP_InputType_t* u_type,
   MAP_ERROR_CODE success = MAP_SAFE;
 
   map_reset_universal_error(map_msg, ierr);  
-  do {
-    success = free_outer_solve_data(&domain->outer_loop, z_type->x_Len, map_msg, ierr); CHECKERRQ(MAP_FATAL_73);
-    success = map_free_types(u_type, p_type, x_type, z_type, other_type, y_type); 
-    success = free_outlist(domain,map_msg,ierr); CHECKERRQ(MAP_FATAL_47);//@rm, should be replaced with a MAPFREE(data->y_list)   
-    success = free_line(&domain->line);
-    success = free_node(&domain->node);
-    success = free_vessel(&domain->vessel);
-    success = free_cable_library(&domain->library);
-    success = free_update_list(&domain->u_update_list);
-     
-    list_destroy(&domain->line);
-    list_destroy(&domain->node);
-    list_destroy(&domain->library);
-    list_destroy(&domain->u_update_list);  
-    MAPFREE(domain->model_options.repeat_angle);
-    MAP_OtherState_Delete(domain);
-  } while (0);
+
+  MAP_BEGIN_ERROR_LOG;
+
+  success = free_outer_solve_data(&domain->outer_loop, z_type->x_Len, map_msg, ierr); CHECKERRQ(MAP_FATAL_73);
+  success = map_free_types(u_type, p_type, x_type, z_type, other_type, y_type); 
+  success = free_outlist(domain,map_msg,ierr); CHECKERRQ(MAP_FATAL_47);//@rm, should be replaced with a MAPFREE(data->y_list)   
+  success = free_line(&domain->line);
+  success = free_node(&domain->node);
+  success = free_vessel(&domain->vessel);
+  success = free_cable_library(&domain->library);
+  success = free_update_list(&domain->u_update_list);
+  
+  list_destroy(&domain->line);
+  list_destroy(&domain->node);
+  list_destroy(&domain->library);
+  list_destroy(&domain->u_update_list);  
+  MAPFREE(domain->model_options.repeat_angle);
+  MAP_OtherState_Delete(domain);
+
+  MAP_END_ERROR_LOG;
 };
 
 
@@ -344,18 +359,18 @@ MAP_EXTERNCALL double** map_linearize_matrix(MAP_InputType_t* u_type, MAP_Parame
     K[i][5] = 0.0;
   };
 
-   force.fx = malloc(n*sizeof(double));
-   force.fy = malloc(n*sizeof(double));
-   force.fz = malloc(n*sizeof(double));
-   force.mx = malloc(n*sizeof(double));
-   force.my = malloc(n*sizeof(double));
-   force.mz = malloc(n*sizeof(double));  
-   x_original = malloc(n*sizeof(double));
-   y_original = malloc(n*sizeof(double));
-   z_original = malloc(n*sizeof(double));
-   
-   /* initialize stuff allocated above to zero */
-   for (i=0 ; i<n ; i++) {
+  force.fx = malloc(n*sizeof(double));
+  force.fy = malloc(n*sizeof(double));
+  force.fz = malloc(n*sizeof(double));
+  force.mx = malloc(n*sizeof(double));
+  force.my = malloc(n*sizeof(double));
+  force.mz = malloc(n*sizeof(double));  
+  x_original = malloc(n*sizeof(double));
+  y_original = malloc(n*sizeof(double));
+  z_original = malloc(n*sizeof(double));
+  
+  /* initialize stuff allocated above to zero */
+  for (i=0 ; i<n ; i++) {
     force.fx[i] = 0.0;
     force.fy[i] = 0.0;
     force.fz[i] = 0.0;
@@ -365,46 +380,48 @@ MAP_EXTERNCALL double** map_linearize_matrix(MAP_InputType_t* u_type, MAP_Parame
     x_original[i] = 0.0;
     y_original[i] = 0.0;
     z_original[i] = 0.0;
-   };
+  };
     
-   do {    
-     /* first get the original values for the displacements */
-     for (k=0 ; k<n ; k++) {
-       x_original[k] = u_type->x[k];
-       y_original[k] = u_type->y[k];
-       z_original[k] = u_type->z[k];      
-     };
-    
-     for (i=0 ; i<SIX ; i++) { /* down, force direction changes */
-       success = reset_force_to_zero(force.fx, force.fy, force.fz, force.mx, force.my, force.mz, n);
-       if (i==0) {        
-         success = fd_x_sequence(other_type, p_type, u_type, y_type, z_type, &force, epsilon, n, x_original, map_msg, ierr); CHECKERRQ(MAP_FATAL_62);
-         success = calculate_stiffness(K[0], &force, epsilon, n); CHECKERRQ(MAP_FATAL_62);
-       } else if (i==1) {
-         success = fd_y_sequence(other_type, p_type, u_type, y_type, z_type, &force, epsilon, n, y_original, map_msg, ierr); CHECKERRQ(MAP_FATAL_63);
-         success = calculate_stiffness(K[1], &force, epsilon, n); CHECKERRQ(MAP_FATAL_63);
-       } else if (i==2) {
-         success = fd_z_sequence(other_type, p_type, u_type, y_type, z_type, &force, epsilon, n, z_original, map_msg, ierr); CHECKERRQ(MAP_FATAL_64);
-         success = calculate_stiffness(K[2], &force, epsilon, n); CHECKERRQ(MAP_FATAL_64);
-       } else if (i==3) {
-         success = fd_phi_sequence(other_type, p_type, u_type, y_type, z_type, &force, epsilon, n, x_original, y_original, z_original, map_msg, ierr); CHECKERRQ(MAP_FATAL_65);
-         success = calculate_stiffness(K[3], &force, epsilon, n); CHECKERRQ(MAP_FATAL_65);
-       } else if (i==4) {
-         success = fd_the_sequence(other_type, p_type, u_type, y_type, z_type, &force, epsilon, n, x_original, y_original, z_original, map_msg, ierr); CHECKERRQ(MAP_FATAL_66);
-         success = calculate_stiffness(K[4], &force, epsilon, n); CHECKERRQ(MAP_FATAL_66);
-       } else if (i==5) {
-         success = fd_psi_sequence(other_type, p_type, u_type, y_type, z_type, &force, epsilon, n, x_original, y_original, z_original, map_msg, ierr); CHECKERRQ(MAP_FATAL_67);
-         success = calculate_stiffness(K[5], &force, epsilon, n); CHECKERRQ(MAP_FATAL_67);
-       };
-     };
-   } while (0);  
- 
-   success = reset_force_to_zero(force.fx, force.fy, force.fz, force.mx, force.my, force.mz, n);
-   success = restore_original_displacement(u_type->x, x_original, n);
-   success = restore_original_displacement(u_type->y, y_original, n);
-   success = restore_original_displacement(u_type->z, z_original, n);
-   success = line_solve_sequence(data, p_type, 0.0, map_msg, ierr); 
-   
+  MAP_BEGIN_ERROR_LOG; 
+  
+  /* first get the original values for the displacements */
+  for (k=0 ; k<n ; k++) {
+    x_original[k] = u_type->x[k];
+    y_original[k] = u_type->y[k];
+    z_original[k] = u_type->z[k];      
+  };
+  
+  for (i=0 ; i<SIX ; i++) { /* down, force direction changes */
+    success = reset_force_to_zero(force.fx, force.fy, force.fz, force.mx, force.my, force.mz, n);
+    if (i==0) {        
+      success = fd_x_sequence(other_type, p_type, u_type, y_type, z_type, &force, epsilon, n, x_original, map_msg, ierr); CHECKERRQ(MAP_FATAL_62);
+      success = calculate_stiffness(K[0], &force, epsilon, n); CHECKERRQ(MAP_FATAL_62);
+    } else if (i==1) {
+      success = fd_y_sequence(other_type, p_type, u_type, y_type, z_type, &force, epsilon, n, y_original, map_msg, ierr); CHECKERRQ(MAP_FATAL_63);
+      success = calculate_stiffness(K[1], &force, epsilon, n); CHECKERRQ(MAP_FATAL_63);
+    } else if (i==2) {
+      success = fd_z_sequence(other_type, p_type, u_type, y_type, z_type, &force, epsilon, n, z_original, map_msg, ierr); CHECKERRQ(MAP_FATAL_64);
+      success = calculate_stiffness(K[2], &force, epsilon, n); CHECKERRQ(MAP_FATAL_64);
+    } else if (i==3) {
+      success = fd_phi_sequence(other_type, p_type, u_type, y_type, z_type, &force, epsilon, n, x_original, y_original, z_original, map_msg, ierr); CHECKERRQ(MAP_FATAL_65);
+      success = calculate_stiffness(K[3], &force, epsilon, n); CHECKERRQ(MAP_FATAL_65);
+    } else if (i==4) {
+      success = fd_the_sequence(other_type, p_type, u_type, y_type, z_type, &force, epsilon, n, x_original, y_original, z_original, map_msg, ierr); CHECKERRQ(MAP_FATAL_66);
+      success = calculate_stiffness(K[4], &force, epsilon, n); CHECKERRQ(MAP_FATAL_66);
+    } else if (i==5) {
+      success = fd_psi_sequence(other_type, p_type, u_type, y_type, z_type, &force, epsilon, n, x_original, y_original, z_original, map_msg, ierr); CHECKERRQ(MAP_FATAL_67);
+      success = calculate_stiffness(K[5], &force, epsilon, n); CHECKERRQ(MAP_FATAL_67);
+    };
+  };
+  
+  MAP_END_ERROR_LOG; 
+  
+  success = reset_force_to_zero(force.fx, force.fy, force.fz, force.mx, force.my, force.mz, n);
+  success = restore_original_displacement(u_type->x, x_original, n);
+  success = restore_original_displacement(u_type->y, y_original, n);
+  success = restore_original_displacement(u_type->z, z_original, n);
+  success = line_solve_sequence(data, p_type, 0.0, map_msg, ierr); 
+  
   MAPFREE(force.fx);
   MAPFREE(force.fy);
   MAPFREE(force.fz);
@@ -414,6 +431,7 @@ MAP_EXTERNCALL double** map_linearize_matrix(MAP_InputType_t* u_type, MAP_Parame
   MAPFREE(x_original);
   MAPFREE(y_original);
   MAPFREE(z_original);  
+   
   return K;
 };
 
@@ -892,11 +910,12 @@ MAP_EXTERNCALL void map_get_fairlead_force_2d(double* H, double* V, MAP_OtherSta
 {
   Line* iter_line = NULL;
   Domain* domain = other_type->object;
+  const unsigned int i = index;
 
   map_reset_universal_error(map_msg, ierr);  
 
-  if (index<=list_size(&domain->line)-1) {
-    iter_line = (Line*)list_get_at(&domain->line, index);
+  if (i<=list_size(&domain->line)-1) {
+    iter_line = (Line*)list_get_at(&domain->line, i);
     *H = *(iter_line->H.value);
     *V = *(iter_line->V.value);
   } else {
@@ -911,9 +930,10 @@ MAP_EXTERNCALL void map_get_fairlead_force_3d(double* fx, double* fy, double* fz
   Line* iter_line = NULL;
   Domain* domain = other_type->object;
   double psi = 0.0;
+  const unsigned int i = index;
 
-  if (index<=list_size(&domain->line)-1) {
-    iter_line = (Line*)list_get_at(&domain->line, index);
+  if (i<=list_size(&domain->line)-1) {
+    iter_line = (Line*)list_get_at(&domain->line, i);
     psi = iter_line->psi;
     *fx = *(iter_line->H.value)*cos(psi);
     *fy = *(iter_line->H.value)*sin(psi);
@@ -933,9 +953,10 @@ MAP_EXTERNCALL int map_size_lines(MAP_OtherStateType_t* other_type, MAP_ERROR_CO
 };
 
 
-MAP_EXTERNCALL void map_set_summary_file_name(MAP_InitInputType_t* init_type, char *map_msg, MAP_ERROR_CODE *ierr) 
+MAP_EXTERNCALL void map_set_summary_file_name(MAP_InitInputType_t* init_type, char* map_msg, MAP_ERROR_CODE* ierr) 
 {  
   InitializationData* init_data = init_type->object;   
+  map_reset_universal_error(map_msg, ierr);
   init_data->summary_file_name = bformat("%s", init_type->summary_file_name);
 };
 
@@ -950,7 +971,7 @@ MAP_EXTERNCALL void map_get_header_string(int* n, char** str_array, MAP_OtherSta
   list_iterator_start(&domain->y_list->out_list_ptr);
   while (list_iterator_hasnext(&domain->y_list->out_list_ptr)) { 
     vartype_ptr = (VarTypePtr*)list_iterator_next(&domain->y_list->out_list_ptr);
-    strcpy(str_array[count],vartype_ptr->name->data);
+    MAP_STRCPY(str_array[count], 16, vartype_ptr->name->data);
     count++;
   };
   list_iterator_stop(&domain->y_list->out_list_ptr);     
@@ -958,7 +979,7 @@ MAP_EXTERNCALL void map_get_header_string(int* n, char** str_array, MAP_OtherSta
   list_iterator_start(&domain->y_list->out_list);
   while (list_iterator_hasnext(&domain->y_list->out_list)) { 
     vartype = (VarType*)list_iterator_next(&domain->y_list->out_list);
-    strcpy(str_array[count],vartype->name->data);
+    MAP_STRCPY(str_array[count], 16, vartype->name->data);
     count++;
   };
   list_iterator_stop(&domain->y_list->out_list);     
@@ -976,7 +997,7 @@ MAP_EXTERNCALL void map_get_unit_string(int* n, char** str_array, MAP_OtherState
   list_iterator_start(&domain->y_list->out_list_ptr);
   while (list_iterator_hasnext(&domain->y_list->out_list_ptr)) { 
     vartype_ptr = (VarTypePtr*)list_iterator_next(&domain->y_list->out_list_ptr );
-    strcpy(str_array[count],vartype_ptr->units->data);
+    MAP_STRCPY(str_array[count], 15, vartype_ptr->units->data);
     count++;
   };
   list_iterator_stop(&domain->y_list->out_list_ptr);     
@@ -984,7 +1005,7 @@ MAP_EXTERNCALL void map_get_unit_string(int* n, char** str_array, MAP_OtherState
   list_iterator_start(&domain->y_list->out_list);
   while (list_iterator_hasnext(&domain->y_list->out_list)) { 
     vartype = (VarType*)list_iterator_next(&domain->y_list->out_list );
-    strcpy(str_array[count],vartype->units->data);
+    MAP_STRCPY(str_array[count], 15, vartype->units->data);
     count++;
   };
   list_iterator_stop(&domain->y_list->out_list);     
@@ -1003,9 +1024,6 @@ MAP_EXTERNCALL void set_init_to_null(MAP_InitInputType_t* init_type, char* map_m
   init->summary_file_name = NULL;  
 };
 
-
-/** @addtogroup FortranCall */
-/* @{ */
 MAP_EXTERNCALL void map_set_sea_depth(MAP_ParameterType_t* p_type, const double depth)
 {
   p_type->depth = depth;
@@ -1018,11 +1036,10 @@ MAP_EXTERNCALL void map_set_sea_density(MAP_ParameterType_t* p_type, const doubl
 };
 
 
-MAP_EXTERNCALL void map_set_gravity(MAP_ParameterType_t* p_type, double gravity)
+MAP_EXTERNCALL void map_set_gravity(MAP_ParameterType_t* p_type, const double gravity)
 {
   p_type->g = gravity;
 };
-/* @} */
 
 
 MAP_EXTERNCALL void map_add_cable_library_input_text(MAP_InitInputType_t* init_type)
@@ -1030,10 +1047,12 @@ MAP_EXTERNCALL void map_add_cable_library_input_text(MAP_InitInputType_t* init_t
   InitializationData* init_data = init_type->object; 
   const int n = init_data->library_input_string->qty;
   int ret = 0;
-  
+
   ret = bstrListAlloc(init_data->library_input_string, n+1);
   init_data->library_input_string->entry[n] = bfromcstr(init_type->library_input_str);
   init_data->library_input_string->qty++;
+
+  // printf("::: <%s>\n",init_data->library_input_string->entry[n]->data);
 };
 
 
@@ -1046,6 +1065,8 @@ MAP_EXTERNCALL void map_add_node_input_text(MAP_InitInputType_t* init_type)
   ret = bstrListAlloc(init_data->node_input_string, n+1);
   init_data->node_input_string->entry[n] = bfromcstr(init_type->node_input_str);
   init_data->node_input_string->qty++;
+
+  // printf("::: <%s>\n",init_data->node_input_string->entry[n]->data);
 };
 
 
@@ -1054,10 +1075,12 @@ MAP_EXTERNCALL void map_add_line_input_text(MAP_InitInputType_t* init_type)
   InitializationData* init_data = init_type->object; 
   const int n = init_data->line_input_string->qty;
   int ret = 0;
-  
+
   ret = bstrListAlloc(init_data->line_input_string, n+1);
   init_data->line_input_string->entry[n] = bfromcstr(init_type->line_input_str);
   init_data->line_input_string->qty++;
+
+  // printf("::: <%s>\n",init_data->line_input_string->entry[n]->data);
 };
 
 
@@ -1070,6 +1093,8 @@ MAP_EXTERNCALL void map_add_options_input_text(MAP_InitInputType_t* init_type)
   ret = bstrListAlloc(init_data->solver_options_string, n+1);
   init_data->solver_options_string->entry[n] = bfromcstr(init_type->option_input_str);
   init_data->solver_options_string->qty++;
+
+  // printf("::: <%s>\n",init_data->solver_options_string->entry[n]->data);
 };
 
 
@@ -1227,12 +1252,6 @@ MAP_EXTERNCALL MAP_ContinuousStateType_t* map_create_continuous_type(char* map_m
 };
 
 
-MAP_EXTERNCALL void MAP_InitInput_Delete(InitializationData* init_data)
-{
-  MAPFREE(init_data); 
-};
-
-
 MAP_EXTERNCALL int free_init_data(InitializationData* init_data, char* map_msg, MAP_ERROR_CODE* ierr) 
 {
   int ret = 0;
@@ -1244,7 +1263,6 @@ MAP_EXTERNCALL int free_init_data(InitializationData* init_data, char* map_msg, 
   ret = bstrListDestroy(init_data->node_input_string);
   ret = bstrListDestroy(init_data->line_input_string);
   ret = bstrListDestroy(init_data->solver_options_string);
-
 
   return MAP_SAFE;
 };

@@ -38,21 +38,18 @@
 #endif
 
 
-#ifdef _WIN64 
+#if defined(_MSC_VER)
 #  include "stdbool.h"
 #  define map_snprintf _snprintf
 #  define map_strcat(a,b,c) strcat_s(a,b,c)
 #  define MAP_EXTERNCALL __declspec( dllexport )
-#elif _WIN32 
-#  include "stdbool.h"
-#  define map_snprintf _snprintf
-#  define map_strcat(a,b,c) strcat_s(a,b,c)
-#  define MAP_EXTERNCALL __declspec( dllexport )
+#  define MAP_STRCPY(a,b,c) strcpy_s(a,b,c)
 #else
 #  include <stdbool.h>
 #  define map_snprintf snprintf
 #  define map_strcat(a,b,c) strncat(a,c,b)
 #  define MAP_EXTERNCALL 
+#  define MAP_STRCPY(a,b,c) strcpy(a,c)
 #endif
 
 
@@ -106,7 +103,17 @@
 #define ARCSINH(x) log(x+sqrt(1+x*x))
 #define SPACE_LENGTH 12
 #define MACHINE_EPSILON 1e-16
-#define MAP_RETURN if(*ierr==MAP_FATAL) { return MAP_FATAL; }; return MAP_SAFE;
+#define MAP_BEGIN_ERROR_LOG do{ \
+  ; 
+#define MAP_END_ERROR_LOG } while(0);
+#define MAP_RETURN_STATUS(x) \
+  if (x==MAP_SAFE) {         \
+    return MAP_SAFE;         \
+  } else if (x==MAP_ERROR) { \
+    return MAP_ERROR;        \
+  } else {                   \
+    return MAP_FATAL;        \
+  };                             
 
 
 /* Text Coloring (OS dependant)

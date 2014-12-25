@@ -25,8 +25,8 @@ gen_f2c_interface( FILE         *fp        , // *.f90 file we are writting to
                    const node_t *ModName   , // module name
                    char         *inout     , // character string written out
                    char         *inoutlong , // not sure what this is used for
-                   int          sw         , // sw=0 f2c, sw=1 c2f
-                   FILE         *fpIntf    ) // *.f90 interface file we are writting to (for dummy .f90 code)
+                   int          sw      /*   , // sw=0 f2c, sw=1 c2f
+                   FILE         *fpIntf   */ ) // *.f90 interface file we are writting to (for dummy .f90 code)
 {
   char tmp[NAMELEN], tmp2[NAMELEN], addnick[NAMELEN], nonick[NAMELEN] ;
   node_t *q, * r ;
@@ -71,54 +71,54 @@ gen_f2c_interface( FILE         *fp        , // *.f90 file we are writting to
 
               if ( strncmp( r->type->mapsto,"CHARACTER",9   )!=0 ) { // DON'T CREATE AN INTERFACE BLOCK FOR C_CHARS!!!!
 
-                // Because the C derived types name does not match between what is defined in the MAP_C_Types.f90 file and
-                // what can be produced by this function, we have to modify the name...
-                //
-                // @see   :  Template_C_Types.c. c_type_alias should match the match the name of a BIND(C)
-                //           derived type.
-                // @tdod  :  This should be changed so that the c_type_alias name is now part of the
-                //           "node_t" struct
-                if ( strcmp( nonick, "OtherState" )==0 ) strcat( modified_mod_name, "OtherState"      ) ;
-                if ( strcmp( nonick, "ConstrState")==0 ) strcat( modified_mod_name, "ConstraintState" ) ;
-                if ( strcmp( nonick, "Param"      )==0 ) strcat( modified_mod_name, "Parameter"       ) ;
-                if ( strcmp( nonick, "Input"      )==0 ) strcat( modified_mod_name, "Input"           ) ;
-                if ( strcmp( nonick, "Output"     )==0 ) strcat( modified_mod_name, "Output"          ) ;
-
-                // Now create the interface block and write it to the file fp
-                fprintf(fp,"\n  INTERFACE\n");
-                fprintf(fp,"     SUBROUTINE %s_F2C_%s_%s( Object, arr, len) BIND(C,name='%s_F2C_%s_%s_C') \n",
-                        ModName->nickname ,
-                        nonick            ,
-                        r->name           ,
-                        ModName->nickname ,
-                        nonick            ,
-                        r->name           );
-                fprintf(fp,"       IMPORT\n");
-                fprintf(fp,"       IMPLICIT NONE\n");
-                fprintf(fp,"       TYPE( %s_%sType_C ) Object\n"       , ModName->nickname, modified_mod_name );
-                fprintf(fp,"       %s(KIND=%s), DIMENSION(*) :: arr\n" , var_type, c_var_type                 );
-                fprintf(fp,"       INTEGER(KIND=C_INT), VALUE :: len\n"                                       );
-                fprintf(fp,"     END SUBROUTINE %s_F2C_%s_%s\n"        , ModName->nickname, nonick,r->name    );
-                fprintf(fp,"  END INTERFACE\n"                                                                 );
+                // // Because the C derived types name does not match between what is defined in the MAP_C_Types.f90 file and
+                // // what can be produced by this function, we have to modify the name...
+                // //
+                // // @see   :  Template_C_Types.c. c_type_alias should match the match the name of a BIND(C)
+                // //           derived type.
+                // // @tdod  :  This should be changed so that the c_type_alias name is now part of the
+                // //           "node_t" struct
+                // if ( strcmp( nonick, "OtherState" )==0 ) strcat( modified_mod_name, "OtherState"      ) ;
+                // if ( strcmp( nonick, "ConstrState")==0 ) strcat( modified_mod_name, "ConstraintState" ) ;
+                // if ( strcmp( nonick, "Param"      )==0 ) strcat( modified_mod_name, "Parameter"       ) ;
+                // if ( strcmp( nonick, "Input"      )==0 ) strcat( modified_mod_name, "Input"           ) ;
+                // if ( strcmp( nonick, "Output"     )==0 ) strcat( modified_mod_name, "Output"          ) ;
+                // 
+                // // Now create the interface block and write it to the file fp
+                // fprintf(fp,"\n  INTERFACE\n");
+                // fprintf(fp,"     SUBROUTINE %s_F2C_%s_%s( Object, arr, len) BIND(C,name='%s_F2C_%s_%s_C') \n",
+                //         ModName->nickname ,
+                //         nonick            ,
+                //         r->name           ,
+                //         ModName->nickname ,
+                //         nonick            ,
+                //         r->name           );
+                // fprintf(fp,"       IMPORT\n");
+                // fprintf(fp,"       IMPLICIT NONE\n");
+                // fprintf(fp,"       TYPE( %s_%sType_C ) Object\n"       , ModName->nickname, modified_mod_name );
+                // fprintf(fp,"       %s(KIND=%s), DIMENSION(*) :: arr\n" , var_type, c_var_type                 );
+                // fprintf(fp,"       INTEGER(KIND=C_INT), VALUE :: len\n"                                       );
+                // fprintf(fp,"     END SUBROUTINE %s_F2C_%s_%s\n"        , ModName->nickname, nonick,r->name    );
+                // fprintf(fp,"  END INTERFACE\n"                                                                 );
 
 
                 // bjj: duplicate this in a fortran file (for dummy .f90 file)
-                fprintf(fpIntf,"SUBROUTINE %s_F2C_%s_%s( Object, arr, len) BIND(C,name='%s_F2C_%s_%s_C') \n",
-                        ModName->nickname ,
-                        nonick            ,
-                        r->name           ,
-                        ModName->nickname ,
-                        nonick            ,
-                        r->name           );
-                fprintf(fpIntf,"!DEC$ ATTRIBUTES DLLEXPORT:: %s_F2C_%s_%s\n", ModName->nickname ,nonick,r->name   );
-                fprintf(fpIntf,"       USE MAP_Types, only : %s_%sType_C\n", ModName->nickname, modified_mod_name );
-                fprintf(fpIntf,"       USE , INTRINSIC :: ISO_C_Binding\n"   );
-                fprintf(fpIntf,"       IMPLICIT NONE\n");
-                fprintf(fpIntf,"!GCC$ ATTRIBUTES DLLEXPORT ::%s_F2C_%s_%s\n", ModName->nickname ,nonick,r->name   );
-                fprintf(fpIntf,"       TYPE( %s_%sType_C ) Object\n"       , ModName->nickname, modified_mod_name );
-                fprintf(fpIntf,"       %s(KIND=%s), DIMENSION(*) :: arr\n" , var_type, c_var_type                 );
-                fprintf(fpIntf,"       INTEGER(KIND=C_INT), VALUE :: len\n"                                       );
-                fprintf(fpIntf,"END SUBROUTINE %s_F2C_%s_%s\n"        , ModName->nickname, nonick,r->name    );
+                // fprintf(fpIntf,"SUBROUTINE %s_F2C_%s_%s( Object, arr, len) BIND(C,name='%s_F2C_%s_%s_C') \n",
+                //         ModName->nickname ,
+                //         nonick            ,
+                //         r->name           ,
+                //         ModName->nickname ,
+                //         nonick            ,
+                //         r->name           );
+                // fprintf(fpIntf,"!DEC$ ATTRIBUTES DLLEXPORT:: %s_F2C_%s_%s\n", ModName->nickname ,nonick,r->name   );
+                // fprintf(fpIntf,"       USE MAP_Types, only : %s_%sType_C\n", ModName->nickname, modified_mod_name );
+                // fprintf(fpIntf,"       USE , INTRINSIC :: ISO_C_Binding\n"   );
+                // fprintf(fpIntf,"       IMPLICIT NONE\n");
+                // fprintf(fpIntf,"!GCC$ ATTRIBUTES DLLEXPORT ::%s_F2C_%s_%s\n", ModName->nickname ,nonick,r->name   );
+                // fprintf(fpIntf,"       TYPE( %s_%sType_C ) Object\n"       , ModName->nickname, modified_mod_name );
+                // fprintf(fpIntf,"       %s(KIND=%s), DIMENSION(*) :: arr\n" , var_type, c_var_type                 );
+                // fprintf(fpIntf,"       INTEGER(KIND=C_INT), VALUE :: len\n"                                       );
+                // fprintf(fpIntf,"END SUBROUTINE %s_F2C_%s_%s\n"        , ModName->nickname, nonick,r->name    );
               }
             }
           }
@@ -1662,7 +1662,7 @@ gen_modname_unpack( FILE *fp , const node_t * ModName )
 
 
 int
-gen_module( FILE * fp , node_t * ModName, char * prog_ver, FILE * fpIntf )
+gen_module( FILE * fp , node_t * ModName, char * prog_ver/*, FILE * fpIntf */)
 {
   node_t * p, * q, * r ;
   int i ;
@@ -1758,7 +1758,13 @@ gen_module( FILE * fp , node_t * ModName, char * prog_ver, FILE * fpIntf )
         fprintf(fp,"  TYPE, %s :: %s%s\n",(ipass==0)?"BIND(C)":"PUBLIC",q->mapsto,(ipass==0)?"_C":"") ;
         if ( sw_ccode ) {
           if ( ipass == 0 ) {
-            fprintf(fp,"    TYPE( %s_%s_C ) :: object\n",ModName->nickname,fast_interface_type_shortname(nonick)) ;
+            if (strcmp(fast_interface_type_shortname(nonick), "OtherState" )==0 || 
+                strcmp(fast_interface_type_shortname(nonick), "InitInput" )==0) {
+              /* @mdm */
+              fprintf(fp,"   TYPE( %s_%s_C ) :: object\n",ModName->nickname,fast_interface_type_shortname(nonick)) ;
+            } else {
+              fprintf(fp,"   TYPE(C_PTR) :: object\n") ;
+            };
           } else {
             fprintf(fp,"    TYPE( c_ptr ) :: %s_UserData = C_NULL_ptr\n",ModName->nickname) ;
             fprintf(fp,"    TYPE( %s_C ) :: C_obj\n",q->mapsto) ;
@@ -1873,7 +1879,7 @@ gen_module( FILE * fp , node_t * ModName, char * prog_ver, FILE * fpIntf )
                ddtnamelong = ddtname ;
             }
 
-            gen_f2c_interface( fp, ModName, ddtname, ddtnamelong, 0 , fpIntf) ;
+            gen_f2c_interface( fp, ModName, ddtname, ddtnamelong, 0 /*, fpIntf*/ ) ;
          }
       }
     } // sw_ccode
@@ -1901,8 +1907,8 @@ gen_module( FILE * fp , node_t * ModName, char * prog_ver, FILE * fpIntf )
         }
 
         if ( sw_ccode ) {
-          gen_copy_f2c_c2f( fp, ModName, ddtname, ddtnamelong, 0 ) ;
-          gen_copy_f2c_c2f( fp, ModName, ddtname, ddtnamelong, 1 ) ;
+          // gen_copy_f2c_c2f( fp, ModName, ddtname, ddtnamelong, 0 ) ;
+          // gen_copy_f2c_c2f( fp, ModName, ddtname, ddtnamelong, 1 ) ;
         }
         gen_copy( fp, ModName, ddtname, ddtnamelong ) ;
         gen_destroy( fp, ModName, ddtname, ddtnamelong ) ;
@@ -1926,7 +1932,7 @@ gen_module( FILE * fp , node_t * ModName, char * prog_ver, FILE * fpIntf )
 int
 gen_module_files ( char * dirname, char * prog_ver )
 {
-  FILE * fp, *fpc, *fph, *fpIntf ;
+  FILE * fp, *fpc, *fph/*, *fpIntf */ ;
   char  fname[NAMELEN], fname2[NAMELEN] ;
   char * fn ;
 
@@ -1937,7 +1943,7 @@ gen_module_files ( char * dirname, char * prog_ver )
     if ( strlen( p->nickname ) > 0  && ! p->usefrom ) {
       fp = NULL ;
       fpc = NULL ;
-      fpIntf = NULL;
+      // fpIntf = NULL;
       if ( strlen(dirname) > 0 )
         { sprintf(fname,"%s/%s_Types.f90",dirname,p->name) ; }
       else
@@ -1948,12 +1954,12 @@ gen_module_files ( char * dirname, char * prog_ver )
       print_warning(fp,fname, "") ;
 
       if ( sw_ccode == 1 ) {
-        if ( strlen(dirname) > 0 )
-          { sprintf(fname,"%s/%s_Types_Intf.f90",dirname,p->name) ; }
-        else
-          { sprintf(fname,"%s_Types_Intf.f90",p->name) ; }
-        if ((fpIntf = fopen( fname , "w" )) == NULL ) return(1) ;
-        print_warning(fpIntf,fname, "") ;
+        // if ( strlen(dirname) > 0 )
+        //   { sprintf(fname,"%s/%s_Types_Intf.f90",dirname,p->name) ; }
+        // else
+        //   { sprintf(fname,"%s_Types_Intf.f90",p->name) ; }
+        // if ((fpIntf = fopen( fname , "w" )) == NULL ) return(1) ;
+        // print_warning(fpIntf,fname, "") ;
 
         if ( strlen(dirname) > 0 )
           { sprintf(fname,"%s/%s_Types.c",dirname,p->name) ; }
@@ -2000,15 +2006,15 @@ gen_module_files ( char * dirname, char * prog_ver )
         fprintf(fph,"#  define CALL \n");
         fprintf(fph,"#endif\n\n\n");
       }
-      gen_module ( fp , p, prog_ver, fpIntf ) ;
+      gen_module ( fp , p, prog_ver/*, fpIntf*/ ) ;
       close_the_file( fp, "" ) ;
       if ( sw_ccode ) {
-        gen_c_module ( fpc , fph , p, fpIntf ) ;
+        gen_c_module ( fpc , fph , p/*, fpIntf */) ;
         
         fprintf(fph,"\n#endif // _%s_TYPES_H\n\n\n",p->name);
         close_the_file( fpc,"//") ;
         close_the_file( fph,"//") ;
-        close_the_file( fpIntf,"") ;
+        // close_the_file( fpIntf,"") ;
 
       }
     }
