@@ -469,7 +469,7 @@ MAP_ERROR_CODE krylov_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type
     for (i=0 ; i<z_size ; i++) {
       error += (pow(other_type->Fx_connect[i],2)+ pow(other_type->Fy_connect[i],2) + pow(other_type->Fz_connect[i],2));
     }
-    // printf("error %f\n",error);    
+     printf("error %f\n",error);    
     dim++;
     
     ns->iteration_count++;
