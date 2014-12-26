@@ -484,7 +484,7 @@ return(0) ;
 #include "Template_c2f_helpers.c"
 
 int
-gen_c_module( FILE * fpc , FILE * fph, node_t * ModName, FILE * fpIntf )
+gen_c_module( /*FILE * fpc ,*/ FILE * fph, node_t * ModName, FILE * fpIntf )
 {
   node_t * p, * q, * r ;
   int i ;
@@ -563,85 +563,85 @@ gen_c_module( FILE * fpc , FILE * fph, node_t * ModName, FILE * fpIntf )
     }
     fprintf(fph,"  } %s_t ;\n", ModName->nickname ) ;
 
-    fprintf(fpc,"//#define CALL __attribute__((dllexport) )\n") ;
-    for ( q = ModName->module_ddt_list ; q ; q = q->next )
-    {
-      if ( q->usefrom == 0 ) {
-
-        char * ddtname, * ddtnamelong, nonick[NAMELEN] ;
-        ddtname = q->name ;
-
-        remove_nickname(ModName->nickname,ddtname,nonick) ;
-
-        if ( is_a_fast_interface_type( nonick ) ) {
-          ddtnamelong = std_case( nonick ) ;
-          ddtname = fast_interface_type_shortname( nonick ) ;
-        } else {
-          ddtnamelong = ddtname ;
-        }
-//        fprintf(fpc,"extern \"C\" %s_%s_t* CALL %s_%s_Create() { return new %s_%s_t() ; } ;\n",
-        if(!strcmp("InitInputType",ddtnamelong) || !strcmp("OtherStateType",ddtnamelong)) {
-        fprintf(fpc,"//%s_%s_t* CALL %s_%s_Create() { return ((%s_%s_t*) malloc( sizeof(%s_%s_t()))) ; } ;\n",
-                        ModName->nickname,
-                        ddtnamelong,
-                        ModName->nickname,
-                        ddtname,
-                        ModName->nickname,
-                        ddtnamelong,
-                        ModName->nickname,
-                        ddtnamelong ) ;
-        
-        fprintf(fpc,"//void CALL %s_%s_Delete(%s_%s_t *This) { free(This) ; } ;\n",
-                        ModName->nickname,
-                        ddtname,
-                        ModName->nickname,
-                        ddtnamelong ) ;
-        } else {
-        fprintf(fpc,"void CALL %s_%s_Create() { } ;\n",
-                        ModName->nickname,
-                        ddtname ) ;
-        
-        fprintf(fpc,"void CALL %s_%s_Delete(void* none) { } ;\n",
-                        ModName->nickname,
-                        ddtname ) ;
-        }
-      }
-    }
-
-    for ( q = ModName->module_ddt_list ; q ; q = q->next )
-    {
-      if ( q->usefrom == 0 ) {
-
-        char * ddtname, * ddtnamelong, nonick[NAMELEN] ;
-        ddtname = q->name ;
-
-        remove_nickname(ModName->nickname,ddtname,nonick) ;
-
-        if ( is_a_fast_interface_type( nonick ) ) {
-          ddtnamelong = std_case( nonick ) ;
-          ddtname = fast_interface_type_shortname( nonick ) ;
-        } else {
-          ddtnamelong = ddtname ;
-        }
-
-  //      gen_copy( fpc, ModName, ddtname, ddtnamelong ) ;
-  //      gen_destroy( fpc, ModName, ddtname, ddtnamelong ) ;
-        gen_c_pack( fpc, ModName, ddtname, ddtnamelong ) ;
-        gen_c_unpack( fpc, ModName, ddtname, ddtnamelong ) ;
-        gen_c_helpers( fpc, ModName, ddtname, ddtnamelong ) ;
-      }
-    }
-#if 0
-    if ( sw_ccode ) {
-      char ** p ;
-      char tmp1[NAMELEN], tmp2[NAMELEN], tmp3[NAMELEN] ;
-      for ( p = template_c2f_helpers ; *p ; p++ ) {
-        strcpy(tmp1,*p) ;
-        substitute(tmp1,"ModName",ModName->nickname,tmp2) ;
-        fprintf(fpc,"%s\n",tmp2) ;
-      }
-    }
-#endif
+//     fprintf(fpc,"//#define CALL __attribute__((dllexport) )\n") ;
+//     for ( q = ModName->module_ddt_list ; q ; q = q->next )
+//     {
+//       if ( q->usefrom == 0 ) {
+// 
+//         char * ddtname, * ddtnamelong, nonick[NAMELEN] ;
+//         ddtname = q->name ;
+// 
+//         remove_nickname(ModName->nickname,ddtname,nonick) ;
+// 
+//         if ( is_a_fast_interface_type( nonick ) ) {
+//           ddtnamelong = std_case( nonick ) ;
+//           ddtname = fast_interface_type_shortname( nonick ) ;
+//         } else {
+//           ddtnamelong = ddtname ;
+//         }
+// //        fprintf(fpc,"extern \"C\" %s_%s_t* CALL %s_%s_Create() { return new %s_%s_t() ; } ;\n",
+//         if(!strcmp("InitInputType",ddtnamelong) || !strcmp("OtherStateType",ddtnamelong)) {
+//         fprintf(fpc,"//%s_%s_t* CALL %s_%s_Create() { return ((%s_%s_t*) malloc( sizeof(%s_%s_t()))) ; } ;\n",
+//                         ModName->nickname,
+//                         ddtnamelong,
+//                         ModName->nickname,
+//                         ddtname,
+//                         ModName->nickname,
+//                         ddtnamelong,
+//                         ModName->nickname,
+//                         ddtnamelong ) ;
+//         
+//         fprintf(fpc,"//void CALL %s_%s_Delete(%s_%s_t *This) { free(This) ; } ;\n",
+//                         ModName->nickname,
+//                         ddtname,
+//                         ModName->nickname,
+//                         ddtnamelong ) ;
+//         } else {
+//         fprintf(fpc,"void CALL %s_%s_Create() { } ;\n",
+//                         ModName->nickname,
+//                         ddtname ) ;
+//         
+//         fprintf(fpc,"void CALL %s_%s_Delete(void* none) { } ;\n",
+//                         ModName->nickname,
+//                         ddtname ) ;
+//         }
+//       }
+//     }
+// 
+//     for ( q = ModName->module_ddt_list ; q ; q = q->next )
+//     {
+//       if ( q->usefrom == 0 ) {
+// 
+//         char * ddtname, * ddtnamelong, nonick[NAMELEN] ;
+//         ddtname = q->name ;
+// 
+//         remove_nickname(ModName->nickname,ddtname,nonick) ;
+// 
+//         if ( is_a_fast_interface_type( nonick ) ) {
+//           ddtnamelong = std_case( nonick ) ;
+//           ddtname = fast_interface_type_shortname( nonick ) ;
+//         } else {
+//           ddtnamelong = ddtname ;
+//         }
+// 
+//   //      gen_copy( fpc, ModName, ddtname, ddtnamelong ) ;
+//   //      gen_destroy( fpc, ModName, ddtname, ddtnamelong ) ;
+//         gen_c_pack( fpc, ModName, ddtname, ddtnamelong ) ;
+//         gen_c_unpack( fpc, ModName, ddtname, ddtnamelong ) ;
+//         gen_c_helpers( fpc, ModName, ddtname, ddtnamelong ) ;
+//       }
+//     }
+// #if 0
+//     if ( sw_ccode ) {
+//       char ** p ;
+//       char tmp1[NAMELEN], tmp2[NAMELEN], tmp3[NAMELEN] ;
+//       for ( p = template_c2f_helpers ; *p ; p++ ) {
+//         strcpy(tmp1,*p) ;
+//         substitute(tmp1,"ModName",ModName->nickname,tmp2) ;
+//         fprintf(fpc,"%s\n",tmp2) ;
+//       }
+//     }
+// #endif
 
     if ( sw_ccode ) {
       FILE *fpt ;

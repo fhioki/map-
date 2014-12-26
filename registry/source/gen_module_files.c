@@ -1942,7 +1942,7 @@ gen_module_files ( char * dirname, char * prog_ver )
   {
     if ( strlen( p->nickname ) > 0  && ! p->usefrom ) {
       fp = NULL ;
-      fpc = NULL ;
+      // fpc = NULL ;
       // fpIntf = NULL;
       if ( strlen(dirname) > 0 )
         { sprintf(fname,"%s/%s_Types.f90",dirname,p->name) ; }
@@ -1961,13 +1961,13 @@ gen_module_files ( char * dirname, char * prog_ver )
         // if ((fpIntf = fopen( fname , "w" )) == NULL ) return(1) ;
         // print_warning(fpIntf,fname, "") ;
 
-        if ( strlen(dirname) > 0 )
-          { sprintf(fname,"%s/%s_Types.c",dirname,p->name) ; }
-        else
-          { sprintf(fname,"%s_Types.c",p->name) ; }
-        if ((fpc = fopen( fname , "w" )) == NULL ) return(1) ;
+        // if ( strlen(dirname) > 0 )
+        //   { sprintf(fname,"%s/%s_Types.c",dirname,p->name) ; }
+        // else
+        //   { sprintf(fname,"%s_Types.c",p->name) ; }
+        // if ((fpc = fopen( fname , "w" )) == NULL ) return(1) ;
+        // print_warning(fpc,fname, "//") ;
 
-        print_warning(fpc,fname, "//") ;
         if ( strlen(dirname) > 0 )
           { sprintf(fname,"%s/%s_Types.h",dirname,p->name) ; }
         else
@@ -1975,21 +1975,21 @@ gen_module_files ( char * dirname, char * prog_ver )
         sprintf(fname2,"%s_Types.h",p->name) ;
         if ((fph = fopen( fname , "w" )) == NULL ) return(1) ;
 
-        fprintf(fpc,"#include <stdio.h>\n") ;
-        fprintf(fpc,"#include <stdlib.h>\n") ;
-        fprintf(fpc,"#include <string.h>\n") ;
-        fprintf(fpc,"#include \"%s\"\n\n",fname2) ;
-        
-        fprintf(fpc,"\n#ifdef _WIN32 //define something for Windows (32-bit)\n");
-        fprintf(fpc,"#  include \"stdbool.h\"\n");
-        fprintf(fpc,"#  define CALL __declspec( dllexport )\n");
-        fprintf(fpc,"#elif _WIN64 //define something for Windows (64-bit)\n");
-        fprintf(fpc,"#  include \"stdbool.h\"\n");
-        fprintf(fpc,"#  define CALL __declspec( dllexport ) \n");
-        fprintf(fpc,"#else\n");
-        fprintf(fpc,"#  include <stdbool.h>\n");
-        fprintf(fpc,"#  define CALL \n");
-        fprintf(fpc,"#endif\n\n\n");
+        // fprintf(fpc,"#include <stdio.h>\n") ;
+        // fprintf(fpc,"#include <stdlib.h>\n") ;
+        // fprintf(fpc,"#include <string.h>\n") ;
+        // fprintf(fpc,"#include \"%s\"\n\n",fname2) ;
+        // 
+        // fprintf(fpc,"\n#ifdef _WIN32 //define something for Windows (32-bit)\n");
+        // fprintf(fpc,"#  include \"stdbool.h\"\n");
+        // fprintf(fpc,"#  define CALL __declspec( dllexport )\n");
+        // fprintf(fpc,"#elif _WIN64 //define something for Windows (64-bit)\n");
+        // fprintf(fpc,"#  include \"stdbool.h\"\n");
+        // fprintf(fpc,"#  define CALL __declspec( dllexport ) \n");
+        // fprintf(fpc,"#else\n");
+        // fprintf(fpc,"#  include <stdbool.h>\n");
+        // fprintf(fpc,"#  define CALL \n");
+        // fprintf(fpc,"#endif\n\n\n");
 
         print_warning(fph,fname, "//") ;
 
@@ -2009,10 +2009,10 @@ gen_module_files ( char * dirname, char * prog_ver )
       gen_module ( fp , p, prog_ver/*, fpIntf*/ ) ;
       close_the_file( fp, "" ) ;
       if ( sw_ccode ) {
-        gen_c_module ( fpc , fph , p/*, fpIntf */) ;
+        gen_c_module ( /* fpc ,*/  fph , p/*, fpIntf */) ;
         
         fprintf(fph,"\n#endif // _%s_TYPES_H\n\n\n",p->name);
-        close_the_file( fpc,"//") ;
+        // close_the_file( fpc,"//") ;
         close_the_file( fph,"//") ;
         // close_the_file( fpIntf,"") ;
 
