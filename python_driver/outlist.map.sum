@@ -1,6 +1,6 @@
-Outputs were generated using MAP++ 131e.
+Outputs were generated using MAP++ 4630-dirty.
 
-    Thursday December 25-2014 at 15:10:05 PM
+    Friday December 26-2014 at 09:30:59 AM
 
     Gravity constant          [m/s^2]  : 9.81
     Sea density               [kg/m^3] : 1020.00
@@ -28,7 +28,7 @@ Outputs were generated using MAP++ 131e.
     omega        [N/m]  : 1905.22
     CB                  : 1.00
 
-          | Node 1 Data            Node 2 Data
+          | Node 1 Data            Node 2 Data            Node 3 Data            Node 4 Data
           | -------------------------------------------------------------------------------------------
 Type      |  FIX                    CONNECT                CONNECT                VESSEL
 X  [m]    |  -300.000              (-173.598)             (-64.068)               -25.000
