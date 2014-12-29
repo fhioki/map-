@@ -353,31 +353,6 @@ MAP_ERROR_CODE line_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type, 
 };    
 
 
-
-
-/* Auxiliary routine: printing a matrix */
-void print_matrix_rowmajor( char* desc, lapack_int m, lapack_int n, double* mat, lapack_int ldm ) {
-        lapack_int i, j;
-        printf( "\n %s\n", desc );
-        
-        for( i = 0; i < m; i++ ) {
-                for( j = 0; j < n; j++ ) printf( " %6.5f", mat[i*ldm+j] );
-                printf( "\n" );
-        }
-}
-
-/* Auxiliary routine: printing a matrix */
-void print_matrix_colmajor( char* desc, lapack_int m, lapack_int n, double* mat, lapack_int ldm ) {
-        lapack_int i, j;
-        printf( "\n %s\n", desc );
-        
-        for( i = 0; i < m; i++ ) {
-                for( j = 0; j < n; j++ ) printf( " %6.5f", mat[i+j*ldm] );
-                printf( "\n" );
-        }
-}
-
-
 MAP_ERROR_CODE krylov_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type, MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, char* map_msg, MAP_ERROR_CODE* ierr) 
 {
   OuterSolveAttributes* ns = &domain->outer_loop;
@@ -469,7 +444,7 @@ MAP_ERROR_CODE krylov_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type
     for (i=0 ; i<z_size ; i++) {
       error += (pow(other_type->Fx_connect[i],2)+ pow(other_type->Fy_connect[i],2) + pow(other_type->Fz_connect[i],2));
     }
-     printf("error %f\n",error);    
+    // printf("error %f\n",error);    
     dim++;
     
     ns->iteration_count++;
