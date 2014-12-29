@@ -18,6 +18,9 @@
 #include "data.h"
 #include "sym.h"
 
+void output_template( char * sw_modname_subst, char * sw_modnickname_subst, int force, int sw  );
+int matches( char * str , char * match );
+
 int
 main( int argc, char *argv[], char *env[] )
 {
@@ -39,6 +42,7 @@ main( int argc, char *argv[], char *env[] )
   sw_output_template_force = 0 ;
   sw_norealloc_lsh   = 1 ;
   sw_ccode           = 0 ;
+  sw_noextrap        = 0 ;
   sw_embed_class_ptr = 0 ;
   sw_shownodes       = 0 ;
   strcpy( fname_in , "" ) ;
@@ -50,24 +54,25 @@ main( int argc, char *argv[], char *env[] )
   setrlimit ( RLIMIT_STACK , &rlim ) ;
 #endif
 
-   thisprog_ver = "FAST Registry (v2.03.00, 2-May-2014)";
+   thisprog_ver = "FAST Registry (v2.04.01, 8-Dec-2014)";
 
   fprintf(stderr,"\n") ;
   fprintf(stderr,"----- %s --------------\n", thisprog_ver) ;
-//  fprintf(stderr,"Revision $Rev: 683 $\n") ;
-//  fprintf(stderr,"Date $LastChangedDate: 2014-05-02 10:22:17 -0600 (Fri, 02 May 2014) $ \n" ) ;
+//  fprintf(stderr,"Revision $Rev: 829 $\n") ;
+//  fprintf(stderr,"Date $LastChangedDate: 2014-12-08 20:30:53 -0700 (Mon, 08 Dec 2014) $ \n" ) ;
   fprintf(stderr,"URL  $URL: https://windsvn.nrel.gov/FAST/branches/FAST_Registry/source/registry.c $\n" ) ;
   fprintf(stderr,"----------------------------------------------------------\n") ;
 
   sym_forget() ;
-//  thisprog = *argv ;
-  thisprog = "registry.exe" ;
+ //thisprog = *argv ;
+ // strcpy(thisprog, thiscom);
+  thisprog = "registry.exe";
   strcpy(fname_in,"") ;
   wrote_template = 0 ;
 
-
   while (*argv) {
-      if (!strncmp(*argv,"-D",2)) {
+
+     if (!strncmp(*argv,"-D",2)) {
         char * p ;
         p = *argv ;
         sym_add(p+2) ;
@@ -86,6 +91,10 @@ main( int argc, char *argv[], char *env[] )
       if (!strcmp(*argv,"-ccode")) {
         sw_ccode = 1 ;
       } else
+      if (!strcmp(*argv, "-noextrap")) {
+          sw_noextrap = 1;
+      } else
+
       if (!strncmp(*argv,"-shownodes",4)) {
         sw_shownodes = 1 ;
       } else
@@ -118,7 +127,8 @@ main( int argc, char *argv[], char *env[] )
       } else
       if (!strcmp(*argv,"-h") || !strcmp(*argv,"/h")) {
 usage:
-        fprintf(stderr,"Usage: %s [options] registryfile -or- \n",thisprog) ;
+//        fprintf(stderr,"Usage: %s [options] registryfile -or- \n",thisprog) ;
+        fprintf(stderr,"Usage: %s [options] registryfile -or- \n",thiscom) ;
         fprintf(stderr,"          [-force] [-template|-registry] ModuleName ModName \n") ;
         fprintf(stderr,"    -h        this summary\n") ;
         fprintf(stderr,"    -D<SYM>   define symbol for conditional evaluation inside registry file\n") ;
@@ -223,7 +233,8 @@ cleanup:
 #include "Template_data.c"
 #include "Template_registry.c"
 
-output_template( char * sw_modname_subst, char * sw_modnickname_subst, int * force, int sw  ) // sw = 0, template; 1 = registry
+void
+output_template( char * sw_modname_subst, char * sw_modnickname_subst, int force, int sw  ) // sw = 0, template; 1 = registry
 {
     char ** p ;
     FILE *fp ;
@@ -264,7 +275,7 @@ output_template( char * sw_modname_subst, char * sw_modnickname_subst, int * for
 
 // would use regex for this but it does not seem to be uniformly or universally supported
 
-int
+void
 substitute( char * str , char * match , char * replace, char * result )
 {
    char * p, *q ;
@@ -322,7 +333,7 @@ matches( char * str , char * match )   // both must be null terminated
    return(1) ;
 }
 
-int
+void
 make_fortran_callable( char *str )     // make a generated C subroutine name callable by Fortran
 {
    char *p, tmp[NAMELEN] ;

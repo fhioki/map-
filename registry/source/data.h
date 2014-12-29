@@ -91,6 +91,7 @@ EXTERN int sw_unidir_shift_halo ;  /* 20100210 JM assume that halo to shift is s
 EXTERN int sw_new_with_old_bdys ;  /* 20070207 JM for debugging interim phase, new comms w/ old data structs */
 EXTERN int sw_norealloc_lsh;  /* 20070207 addresses compilers like gfortran that do not /assume:realloc_lhs */
 EXTERN int sw_ccode ;           /* 20130523 generate C code too */
+EXTERN int sw_noextrap;
 EXTERN int sw_embed_class_ptr ; /* 20130523 for C code generation too */
 EXTERN char sw_c2f_underscore[NAMELEN] ;
 EXTERN char sw_shownodes ;
@@ -109,11 +110,11 @@ EXTERN node_t * ModNames ;
 EXTERN node_t Domain ;
 
 EXTERN char t1[NAMELEN], t2[NAMELEN], t3[NAMELEN], t4[NAMELEN], t5[NAMELEN], t6[NAMELEN] ;
-EXTERN char thiscom[4*NAMELEN] ;
+EXTERN char thiscom[NAMELEN] ;
 
 EXTERN int max_time_level  ;  /* Maximum number of time levels of any state variable */
 
-#define MAXINCLDIRS 10 
+#define MAXINCLDIRS 50 
 EXTERN int   nincldirs ;
 EXTERN char IncludeDirs[MAXINCLDIRS][NAMELEN] ;
 

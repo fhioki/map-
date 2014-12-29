@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #ifdef _WIN32
 # define rindex(X,Y) strrchr(X,Y)
 # define index(X,Y) strchr(X,Y)
@@ -101,11 +102,11 @@ c_types_binding( char *s )
         p++;
       }
     }    
-    char *str_to_return = "CHARACTER(KIND=C_CHAR), DIMENSION(";    
-    //char *str_to_return = "CHARACTER(KIND=C_CHAR,LEN=";    
+    char *str_to_return = "CHARACTER(KIND=C_CHAR,LEN=";    
     char* name_with_extension;
     
-    name_with_extension = malloc(strlen(str_to_return)+2); // memory leak 
+    name_with_extension = malloc(strlen(str_to_return)+2); // memory leak that I really don't care about. Any decent OS
+                                                           // should take care of this.
     strcpy(name_with_extension, str_to_return); 
     strcat(name_with_extension, buf); 
     strcat(name_with_extension, ")"); 
@@ -269,7 +270,7 @@ get_entry ( char * name , node_t * node )
   if ( name == NULL ) return (NULL)  ;
   if ( node == NULL ) return (NULL)  ;
   strcpy( tmp, name ) ;
-  make_lower(tmp) ;
+  make_lower_temp(tmp) ;
   for ( p = node ; p != NULL ; p = p->next )
   {
     if ( !strncmp( name , "character", 9 ) )
