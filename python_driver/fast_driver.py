@@ -35,8 +35,10 @@ if __name__ == '__main__':
         reader = csv.reader(csv_file,delimiter='\t')
         table = list(reader)
 
-    # time marching, vessel is displaced here
+    # time marching, vessel displacement based on FAST output file is set here
     vessel = set_vessel_prescribed_motion(table,index)
+
+    # now displace the vessel for each time step and calculate the fairlead tension
     tension = [get_line_tension(mooring,vessel,i) for i in range(0,len(vessel.time))]
 
     mooring.end()
