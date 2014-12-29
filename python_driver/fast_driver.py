@@ -37,6 +37,17 @@ import numpy as np
 import csv
 
 
+class Vessel:
+    time = []
+    x = []
+    y = []
+    z = []
+    phi = []
+    the = []
+    psi = []
+    out = []
+
+
 def get_vessel_column_index(name,out_chanel):
     index = [0,0,0,0,0,0,0]
     fp = open(name) 
@@ -62,33 +73,38 @@ def get_vessel_column_index(name,out_chanel):
     return index
 
 
-def get_fast_prescribed_motion(table,index):
+def set_vessel_prescribed_motion(table,index):
+    vessel = Vessel()
     N = len(table)
-    time = [float(table[i][0]) for i in range(8,N)]
-    x = [float(table[i][index[0]]) for i in range(8,N)]
-    y = [float(table[i][index[1]]) for i in range(8,N)]
-    z = [float(table[i][index[2]]) for i in range(8,N)]
-    phi = [float(table[i][index[3]]) for i in range(8,N)]
-    the = [float(table[i][index[4]]) for i in range(8,N)]
-    psi = [float(table[i][index[5]]) for i in range(8,N)]    
-    out = [float(table[i][index[6]]) for i in range(8,N)]    
-    return time,x,y,z,phi,the,psi,out
+    vessel.time = [float(table[i][0]) for i in range(8,N)]
+    vessel.x = [float(table[i][index[0]]) for i in range(8,N)]
+    vessel.y = [float(table[i][index[1]]) for i in range(8,N)]
+    vessel.z = [float(table[i][index[2]]) for i in range(8,N)]
+    vessel.phi = [float(table[i][index[3]]) for i in range(8,N)]
+    vessel.the = [float(table[i][index[4]]) for i in range(8,N)]
+    vessel.psi = [float(table[i][index[5]]) for i in range(8,N)]    
+    vessel.out = [float(table[i][index[6]]) for i in range(8,N)]    
+    return vessel
+
+
+def get_line_tension(mooring, vessel, i):
+    mooring.displace_vessel(vessel.x[i],vessel.y[i],vessel.z[i],vessel.phi[i],vessel.the[i],vessel.psi[i])
+    mooring.update_states(vessel.time[i],0)
+    fx,fy,fz = mooring.get_fairlead_force_3d(4)
+    return np.sqrt(fx**2 + fy**2 + fz**2)
+
 
 
 if __name__ == '__main__':      
+    # command line argument processing
     usage = 'usage: %prog [options]'
     parser = OptionParser(usage)
     parser.add_option('-f', '--file', dest='file_name', help='read data from FILENAME')
     parser.add_option('-n', '--output stream', dest='chanel', help='read output stream from file')
     (options, args) = parser.parse_args()
 
-    index = get_vessel_column_index(options.file_name,options.chanel) # index is the surge, ... , yaw solumn number in the FAST output file
-
-    with open(options.file_name, 'rb') as csv_file:        
-        reader = csv.reader(csv_file,delimiter='\t')
-        table = list(reader)
-
-    time,x,y,z,phi,the,psi,out = get_fast_prescribed_motion(table,index)
+    # index is the surge, ... , yaw column number in the FAST output file
+    index = get_vessel_column_index(options.file_name,options.chanel) 
 
     mooring = Map()
     mooring.map_set_sea_depth(150) # 150 for barge
@@ -98,20 +114,22 @@ if __name__ == '__main__':
     mooring.summary_file('barge.sum.txt')
     mooring.init()
 
-    T1 = []
-    for i in range(0,len(time)):
-        mooring.displace_vessel(x[i],y[i],z[i],phi[i],the[i],psi[i])
-        mooring.update_states(time[i],0)
-        fx,fy,fz = mooring.get_fairlead_force_3d(7)
-        T1.append(np.sqrt(fx**2 + fy**2 + fz**2))
+    # read column data
+    with open(options.file_name, 'rb') as csv_file:        
+        reader = csv.reader(csv_file,delimiter='\t')
+        table = list(reader)
+
+    # time marching, vessel is displaced here
+    vessel = set_vessel_prescribed_motion(table,index)
+    tension = [get_line_tension(mooring,vessel,i) for i in range(0,len(vessel.time))]
 
     mooring.end()
 
-    plt.figure(2)
-    plt.title('Tention T[8]')
+    plt.figure(1)
+    plt.title('Tension T[5]')
     plt.xlabel('Time [sec]')
     plt.ylabel('Force [kN]')
-    plt.plot(time,out,'b',lw=3,alpha=0.5,label='FAST Output')
-    plt.plot(time,T1,'k',label='MAP++ Python Driver')
+    plt.plot(vessel.time,vessel.out,'b',lw=3,alpha=0.5,label='FAST Output')
+    plt.plot(vessel.time,tension,'k',label='MAP++ Python Driver')
     plt.legend(loc=2)
     plt.show()    
