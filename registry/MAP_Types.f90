@@ -3,7 +3,7 @@
 ! WARNING This file is generated automatically by the FAST registry
 ! Do not edit.  Your changes to this file will be lost.
 !
-! FAST Registry (v2.03.00, 2-May-2014)
+! FAST Registry (v2.04.01, 8-Dec-2014)
 !*********************************************************************************************************************************
 ! MAP_Types
 !.................................................................................................................................
@@ -245,8 +245,8 @@ IMPLICIT NONE
 ! =======================
 CONTAINS
  SUBROUTINE MAP_CopyInitInput( SrcInitInputData, DstInitInputData, CtrlCode, ErrStat, ErrMsg )
-   TYPE(MAP_initinputtype), INTENT(INOUT) :: SrcInitInputData
-   TYPE(MAP_initinputtype), INTENT(INOUT) :: DstInitInputData
+   TYPE(MAP_InitInputType), INTENT(INOUT) :: SrcInitInputData
+   TYPE(MAP_InitInputType), INTENT(INOUT) :: DstInitInputData
    INTEGER(IntKi),  INTENT(IN   ) :: CtrlCode
    INTEGER(IntKi),  INTENT(  OUT) :: ErrStat
    CHARACTER(*),    INTENT(  OUT) :: ErrMsg
@@ -254,6 +254,8 @@ CONTAINS
    INTEGER(IntKi)                 :: i,i1,i2,i3,i4,i5,j,k
    INTEGER(IntKi)                 :: i1_l,i2_l,i3_l,i4_l,i5_l  ! lower bounds for an array dimension
    INTEGER(IntKi)                 :: i1_u,i2_u,i3_u,i4_u,i5_u  ! upper bounds for an array dimension
+   INTEGER(IntKi)                 :: ErrStat2
+   CHARACTER(1024)                :: ErrMsg2
 ! 
    ErrStat = ErrID_None
    ErrMsg  = ""
@@ -269,7 +271,7 @@ CONTAINS
  END SUBROUTINE MAP_CopyInitInput
 
  SUBROUTINE MAP_DestroyInitInput( InitInputData, ErrStat, ErrMsg )
-  TYPE(MAP_initinputtype), INTENT(INOUT) :: InitInputData
+  TYPE(MAP_InitInputType), INTENT(INOUT) :: InitInputData
   INTEGER(IntKi),  INTENT(  OUT) :: ErrStat
   CHARACTER(*),    INTENT(  OUT) :: ErrMsg
   INTEGER(IntKi)                 :: i, i1, i2, i3, i4, i5 
@@ -282,7 +284,7 @@ CONTAINS
   REAL(ReKi),       ALLOCATABLE, INTENT(  OUT) :: ReKiBuf(:)
   REAL(DbKi),       ALLOCATABLE, INTENT(  OUT) :: DbKiBuf(:)
   INTEGER(IntKi),   ALLOCATABLE, INTENT(  OUT) :: IntKiBuf(:)
-  TYPE(MAP_initinputtype),  INTENT(INOUT) :: InData
+  TYPE(MAP_InitInputType),  INTENT(INOUT) :: InData
   INTEGER(IntKi),   INTENT(  OUT) :: ErrStat
   CHARACTER(*),     INTENT(  OUT) :: ErrMsg
   LOGICAL,OPTIONAL, INTENT(IN   ) :: SizeOnly
@@ -315,6 +317,12 @@ CONTAINS
   Db_BufSz   = Db_BufSz   + 1  ! gravity
   Db_BufSz   = Db_BufSz   + 1  ! sea_density
   Db_BufSz   = Db_BufSz   + 1  ! depth
+!  missing buffer for file_name
+!  missing buffer for summary_file_name
+!  missing buffer for library_input_str
+!  missing buffer for node_input_str
+!  missing buffer for line_input_str
+!  missing buffer for option_input_str
   IF ( Re_BufSz  .GT. 0 ) ALLOCATE( ReKiBuf(  Re_BufSz  ) )
   IF ( Db_BufSz  .GT. 0 ) ALLOCATE( DbKiBuf(  Db_BufSz  ) )
   IF ( Int_BufSz .GT. 0 ) ALLOCATE( IntKiBuf( Int_BufSz ) )
@@ -330,7 +338,7 @@ CONTAINS
   REAL(ReKi),      ALLOCATABLE, INTENT(IN   ) :: ReKiBuf(:)
   REAL(DbKi),      ALLOCATABLE, INTENT(IN   ) :: DbKiBuf(:)
   INTEGER(IntKi),  ALLOCATABLE, INTENT(IN   ) :: IntKiBuf(:)
-  TYPE(MAP_initinputtype), INTENT(INOUT) :: OutData
+  TYPE(MAP_InitInputType), INTENT(INOUT) :: OutData
   INTEGER(IntKi),  INTENT(  OUT) :: ErrStat
   CHARACTER(*),    INTENT(  OUT) :: ErrMsg
     ! Local variables
@@ -371,8 +379,8 @@ CONTAINS
  END SUBROUTINE MAP_UnPackInitInput
 
  SUBROUTINE MAP_CopyInitOutput( SrcInitOutputData, DstInitOutputData, CtrlCode, ErrStat, ErrMsg )
-   TYPE(MAP_initoutputtype), INTENT(INOUT) :: SrcInitOutputData
-   TYPE(MAP_initoutputtype), INTENT(INOUT) :: DstInitOutputData
+   TYPE(MAP_InitOutputType), INTENT(INOUT) :: SrcInitOutputData
+   TYPE(MAP_InitOutputType), INTENT(INOUT) :: DstInitOutputData
    INTEGER(IntKi),  INTENT(IN   ) :: CtrlCode
    INTEGER(IntKi),  INTENT(  OUT) :: ErrStat
    CHARACTER(*),    INTENT(  OUT) :: ErrMsg
@@ -380,6 +388,8 @@ CONTAINS
    INTEGER(IntKi)                 :: i,i1,i2,i3,i4,i5,j,k
    INTEGER(IntKi)                 :: i1_l,i2_l,i3_l,i4_l,i5_l  ! lower bounds for an array dimension
    INTEGER(IntKi)                 :: i1_u,i2_u,i3_u,i4_u,i5_u  ! upper bounds for an array dimension
+   INTEGER(IntKi)                 :: ErrStat2
+   CHARACTER(1024)                :: ErrMsg2
 ! 
    ErrStat = ErrID_None
    ErrMsg  = ""
@@ -390,10 +400,9 @@ IF (ALLOCATED(SrcInitOutputData%writeOutputHdr)) THEN
    i1_l = LBOUND(SrcInitOutputData%writeOutputHdr,1)
    i1_u = UBOUND(SrcInitOutputData%writeOutputHdr,1)
    IF (.NOT. ALLOCATED(DstInitOutputData%writeOutputHdr)) THEN 
-      ALLOCATE(DstInitOutputData%writeOutputHdr(i1_l:i1_u),STAT=ErrStat)
-      IF (ErrStat /= 0) THEN 
-         ErrStat = ErrID_Fatal 
-         ErrMsg = 'MAP_CopyInitOutput: Error allocating DstInitOutputData%writeOutputHdr.'
+      ALLOCATE(DstInitOutputData%writeOutputHdr(i1_l:i1_u),STAT=ErrStat2)
+      IF (ErrStat2 /= 0) THEN 
+         CALL SetErrStat(ErrID_Fatal, 'Error allocating DstInitOutputData%writeOutputHdr.', ErrStat, ErrMsg,'MAP_CopyInitOutput')
          RETURN
       END IF
    END IF
@@ -403,33 +412,41 @@ IF (ALLOCATED(SrcInitOutputData%writeOutputUnt)) THEN
    i1_l = LBOUND(SrcInitOutputData%writeOutputUnt,1)
    i1_u = UBOUND(SrcInitOutputData%writeOutputUnt,1)
    IF (.NOT. ALLOCATED(DstInitOutputData%writeOutputUnt)) THEN 
-      ALLOCATE(DstInitOutputData%writeOutputUnt(i1_l:i1_u),STAT=ErrStat)
-      IF (ErrStat /= 0) THEN 
-         ErrStat = ErrID_Fatal 
-         ErrMsg = 'MAP_CopyInitOutput: Error allocating DstInitOutputData%writeOutputUnt.'
+      ALLOCATE(DstInitOutputData%writeOutputUnt(i1_l:i1_u),STAT=ErrStat2)
+      IF (ErrStat2 /= 0) THEN 
+         CALL SetErrStat(ErrID_Fatal, 'Error allocating DstInitOutputData%writeOutputUnt.', ErrStat, ErrMsg,'MAP_CopyInitOutput')
          RETURN
       END IF
    END IF
    DstInitOutputData%writeOutputUnt = SrcInitOutputData%writeOutputUnt
 ENDIF
-      CALL NWTC_Library_Copyprogdesc( SrcInitOutputData%Ver, DstInitOutputData%Ver, CtrlCode, ErrStat, ErrMsg )
+      CALL NWTC_Library_Copyprogdesc( SrcInitOutputData%Ver, DstInitOutputData%Ver, CtrlCode, ErrStat2, ErrMsg2 )
+         CALL SetErrStat(ErrStat2, ErrMsg2, ErrStat, ErrMsg,'MAP_CopyInitOutput:Ver')
+         IF (ErrStat>=AbortErrLev) RETURN
  END SUBROUTINE MAP_CopyInitOutput
 
  SUBROUTINE MAP_DestroyInitOutput( InitOutputData, ErrStat, ErrMsg )
-  TYPE(MAP_initoutputtype), INTENT(INOUT) :: InitOutputData
+  TYPE(MAP_InitOutputType), INTENT(INOUT) :: InitOutputData
   INTEGER(IntKi),  INTENT(  OUT) :: ErrStat
   CHARACTER(*),    INTENT(  OUT) :: ErrMsg
   INTEGER(IntKi)                 :: i, i1, i2, i3, i4, i5 
 ! 
   ErrStat = ErrID_None
   ErrMsg  = ""
+IF (ALLOCATED(InitOutputData%writeOutputHdr)) THEN
+   DEALLOCATE(InitOutputData%writeOutputHdr)
+ENDIF
+IF (ALLOCATED(InitOutputData%writeOutputUnt)) THEN
+   DEALLOCATE(InitOutputData%writeOutputUnt)
+ENDIF
+  CALL NWTC_Library_Destroyprogdesc( InitOutputData%Ver, ErrStat, ErrMsg )
  END SUBROUTINE MAP_DestroyInitOutput
 
  SUBROUTINE MAP_PackInitOutput( ReKiBuf, DbKiBuf, IntKiBuf, Indata, ErrStat, ErrMsg, SizeOnly )
   REAL(ReKi),       ALLOCATABLE, INTENT(  OUT) :: ReKiBuf(:)
   REAL(DbKi),       ALLOCATABLE, INTENT(  OUT) :: DbKiBuf(:)
   INTEGER(IntKi),   ALLOCATABLE, INTENT(  OUT) :: IntKiBuf(:)
-  TYPE(MAP_initoutputtype),  INTENT(INOUT) :: InData
+  TYPE(MAP_InitOutputType),  INTENT(INOUT) :: InData
   INTEGER(IntKi),   INTENT(  OUT) :: ErrStat
   CHARACTER(*),     INTENT(  OUT) :: ErrMsg
   LOGICAL,OPTIONAL, INTENT(IN   ) :: SizeOnly
@@ -462,6 +479,11 @@ ENDIF
   Re_BufSz  = 0
   Db_BufSz  = 0
   Int_BufSz  = 0
+!  missing buffer for progName
+!  missing buffer for version
+!  missing buffer for compilingData
+!  missing buffer for writeOutputHdr
+!  missing buffer for writeOutputUnt
   CALL NWTC_Library_Packprogdesc( Re_Ver_Buf, Db_Ver_Buf, Int_Ver_Buf, InData%Ver, ErrStat, ErrMsg, .TRUE. ) ! Ver 
   IF(ALLOCATED(Re_Ver_Buf)) Re_BufSz  = Re_BufSz  + SIZE( Re_Ver_Buf  ) ! Ver
   IF(ALLOCATED(Db_Ver_Buf)) Db_BufSz  = Db_BufSz  + SIZE( Db_Ver_Buf  ) ! Ver
@@ -494,7 +516,7 @@ ENDIF
   REAL(ReKi),      ALLOCATABLE, INTENT(IN   ) :: ReKiBuf(:)
   REAL(DbKi),      ALLOCATABLE, INTENT(IN   ) :: DbKiBuf(:)
   INTEGER(IntKi),  ALLOCATABLE, INTENT(IN   ) :: IntKiBuf(:)
-  TYPE(MAP_initoutputtype), INTENT(INOUT) :: OutData
+  TYPE(MAP_InitOutputType), INTENT(INOUT) :: OutData
   INTEGER(IntKi),  INTENT(  OUT) :: ErrStat
   CHARACTER(*),    INTENT(  OUT) :: ErrMsg
     ! Local variables
@@ -547,8 +569,8 @@ ENDIF
  END SUBROUTINE MAP_UnPackInitOutput
 
  SUBROUTINE MAP_CopyContState( SrcContStateData, DstContStateData, CtrlCode, ErrStat, ErrMsg )
-   TYPE(MAP_continuousstatetype), INTENT(INOUT) :: SrcContStateData
-   TYPE(MAP_continuousstatetype), INTENT(INOUT) :: DstContStateData
+   TYPE(MAP_ContinuousStateType), INTENT(INOUT) :: SrcContStateData
+   TYPE(MAP_ContinuousStateType), INTENT(INOUT) :: DstContStateData
    INTEGER(IntKi),  INTENT(IN   ) :: CtrlCode
    INTEGER(IntKi),  INTENT(  OUT) :: ErrStat
    CHARACTER(*),    INTENT(  OUT) :: ErrMsg
@@ -556,6 +578,8 @@ ENDIF
    INTEGER(IntKi)                 :: i,i1,i2,i3,i4,i5,j,k
    INTEGER(IntKi)                 :: i1_l,i2_l,i3_l,i4_l,i5_l  ! lower bounds for an array dimension
    INTEGER(IntKi)                 :: i1_u,i2_u,i3_u,i4_u,i5_u  ! upper bounds for an array dimension
+   INTEGER(IntKi)                 :: ErrStat2
+   CHARACTER(1024)                :: ErrMsg2
 ! 
    ErrStat = ErrID_None
    ErrMsg  = ""
@@ -563,7 +587,7 @@ ENDIF
  END SUBROUTINE MAP_CopyContState
 
  SUBROUTINE MAP_DestroyContState( ContStateData, ErrStat, ErrMsg )
-  TYPE(MAP_continuousstatetype), INTENT(INOUT) :: ContStateData
+  TYPE(MAP_ContinuousStateType), INTENT(INOUT) :: ContStateData
   INTEGER(IntKi),  INTENT(  OUT) :: ErrStat
   CHARACTER(*),    INTENT(  OUT) :: ErrMsg
   INTEGER(IntKi)                 :: i, i1, i2, i3, i4, i5 
@@ -576,7 +600,7 @@ ENDIF
   REAL(ReKi),       ALLOCATABLE, INTENT(  OUT) :: ReKiBuf(:)
   REAL(DbKi),       ALLOCATABLE, INTENT(  OUT) :: DbKiBuf(:)
   INTEGER(IntKi),   ALLOCATABLE, INTENT(  OUT) :: IntKiBuf(:)
-  TYPE(MAP_continuousstatetype),  INTENT(INOUT) :: InData
+  TYPE(MAP_ContinuousStateType),  INTENT(INOUT) :: InData
   INTEGER(IntKi),   INTENT(  OUT) :: ErrStat
   CHARACTER(*),     INTENT(  OUT) :: ErrMsg
   LOGICAL,OPTIONAL, INTENT(IN   ) :: SizeOnly
@@ -618,7 +642,7 @@ ENDIF
   REAL(ReKi),      ALLOCATABLE, INTENT(IN   ) :: ReKiBuf(:)
   REAL(DbKi),      ALLOCATABLE, INTENT(IN   ) :: DbKiBuf(:)
   INTEGER(IntKi),  ALLOCATABLE, INTENT(IN   ) :: IntKiBuf(:)
-  TYPE(MAP_continuousstatetype), INTENT(INOUT) :: OutData
+  TYPE(MAP_ContinuousStateType), INTENT(INOUT) :: OutData
   INTEGER(IntKi),  INTENT(  OUT) :: ErrStat
   CHARACTER(*),    INTENT(  OUT) :: ErrMsg
     ! Local variables
@@ -655,8 +679,8 @@ ENDIF
  END SUBROUTINE MAP_UnPackContState
 
  SUBROUTINE MAP_CopyDiscState( SrcDiscStateData, DstDiscStateData, CtrlCode, ErrStat, ErrMsg )
-   TYPE(MAP_discretestatetype), INTENT(INOUT) :: SrcDiscStateData
-   TYPE(MAP_discretestatetype), INTENT(INOUT) :: DstDiscStateData
+   TYPE(MAP_DiscreteStateType), INTENT(INOUT) :: SrcDiscStateData
+   TYPE(MAP_DiscreteStateType), INTENT(INOUT) :: DstDiscStateData
    INTEGER(IntKi),  INTENT(IN   ) :: CtrlCode
    INTEGER(IntKi),  INTENT(  OUT) :: ErrStat
    CHARACTER(*),    INTENT(  OUT) :: ErrMsg
@@ -664,6 +688,8 @@ ENDIF
    INTEGER(IntKi)                 :: i,i1,i2,i3,i4,i5,j,k
    INTEGER(IntKi)                 :: i1_l,i2_l,i3_l,i4_l,i5_l  ! lower bounds for an array dimension
    INTEGER(IntKi)                 :: i1_u,i2_u,i3_u,i4_u,i5_u  ! upper bounds for an array dimension
+   INTEGER(IntKi)                 :: ErrStat2
+   CHARACTER(1024)                :: ErrMsg2
 ! 
    ErrStat = ErrID_None
    ErrMsg  = ""
@@ -671,7 +697,7 @@ ENDIF
  END SUBROUTINE MAP_CopyDiscState
 
  SUBROUTINE MAP_DestroyDiscState( DiscStateData, ErrStat, ErrMsg )
-  TYPE(MAP_discretestatetype), INTENT(INOUT) :: DiscStateData
+  TYPE(MAP_DiscreteStateType), INTENT(INOUT) :: DiscStateData
   INTEGER(IntKi),  INTENT(  OUT) :: ErrStat
   CHARACTER(*),    INTENT(  OUT) :: ErrMsg
   INTEGER(IntKi)                 :: i, i1, i2, i3, i4, i5 
@@ -684,7 +710,7 @@ ENDIF
   REAL(ReKi),       ALLOCATABLE, INTENT(  OUT) :: ReKiBuf(:)
   REAL(DbKi),       ALLOCATABLE, INTENT(  OUT) :: DbKiBuf(:)
   INTEGER(IntKi),   ALLOCATABLE, INTENT(  OUT) :: IntKiBuf(:)
-  TYPE(MAP_discretestatetype),  INTENT(INOUT) :: InData
+  TYPE(MAP_DiscreteStateType),  INTENT(INOUT) :: InData
   INTEGER(IntKi),   INTENT(  OUT) :: ErrStat
   CHARACTER(*),     INTENT(  OUT) :: ErrMsg
   LOGICAL,OPTIONAL, INTENT(IN   ) :: SizeOnly
@@ -726,7 +752,7 @@ ENDIF
   REAL(ReKi),      ALLOCATABLE, INTENT(IN   ) :: ReKiBuf(:)
   REAL(DbKi),      ALLOCATABLE, INTENT(IN   ) :: DbKiBuf(:)
   INTEGER(IntKi),  ALLOCATABLE, INTENT(IN   ) :: IntKiBuf(:)
-  TYPE(MAP_discretestatetype), INTENT(INOUT) :: OutData
+  TYPE(MAP_DiscreteStateType), INTENT(INOUT) :: OutData
   INTEGER(IntKi),  INTENT(  OUT) :: ErrStat
   CHARACTER(*),    INTENT(  OUT) :: ErrMsg
     ! Local variables
@@ -763,8 +789,8 @@ ENDIF
  END SUBROUTINE MAP_UnPackDiscState
 
  SUBROUTINE MAP_CopyOtherState( SrcOtherStateData, DstOtherStateData, CtrlCode, ErrStat, ErrMsg )
-   TYPE(MAP_otherstatetype), INTENT(INOUT) :: SrcOtherStateData
-   TYPE(MAP_otherstatetype), INTENT(INOUT) :: DstOtherStateData
+   TYPE(MAP_OtherStateType), INTENT(INOUT) :: SrcOtherStateData
+   TYPE(MAP_OtherStateType), INTENT(INOUT) :: DstOtherStateData
    INTEGER(IntKi),  INTENT(IN   ) :: CtrlCode
    INTEGER(IntKi),  INTENT(  OUT) :: ErrStat
    CHARACTER(*),    INTENT(  OUT) :: ErrMsg
@@ -772,6 +798,8 @@ ENDIF
    INTEGER(IntKi)                 :: i,i1,i2,i3,i4,i5,j,k
    INTEGER(IntKi)                 :: i1_l,i2_l,i3_l,i4_l,i5_l  ! lower bounds for an array dimension
    INTEGER(IntKi)                 :: i1_u,i2_u,i3_u,i4_u,i5_u  ! upper bounds for an array dimension
+   INTEGER(IntKi)                 :: ErrStat2
+   CHARACTER(1024)                :: ErrMsg2
 ! 
    ErrStat = ErrID_None
    ErrMsg  = ""
@@ -779,10 +807,9 @@ IF (ASSOCIATED(SrcOtherStateData%H)) THEN
    i1_l = LBOUND(SrcOtherStateData%H,1)
    i1_u = UBOUND(SrcOtherStateData%H,1)
    IF (.NOT. ASSOCIATED(DstOtherStateData%H)) THEN 
-      ALLOCATE(DstOtherStateData%H(i1_l:i1_u),STAT=ErrStat)
-      IF (ErrStat /= 0) THEN 
-         ErrStat = ErrID_Fatal 
-         ErrMsg = 'MAP_CopyOtherState: Error allocating DstOtherStateData%H.'
+      ALLOCATE(DstOtherStateData%H(i1_l:i1_u),STAT=ErrStat2)
+      IF (ErrStat2 /= 0) THEN 
+         CALL SetErrStat(ErrID_Fatal, 'Error allocating DstOtherStateData%H.', ErrStat, ErrMsg,'MAP_CopyOtherState')
          RETURN
       END IF
    END IF
@@ -792,10 +819,9 @@ IF (ASSOCIATED(SrcOtherStateData%V)) THEN
    i1_l = LBOUND(SrcOtherStateData%V,1)
    i1_u = UBOUND(SrcOtherStateData%V,1)
    IF (.NOT. ASSOCIATED(DstOtherStateData%V)) THEN 
-      ALLOCATE(DstOtherStateData%V(i1_l:i1_u),STAT=ErrStat)
-      IF (ErrStat /= 0) THEN 
-         ErrStat = ErrID_Fatal 
-         ErrMsg = 'MAP_CopyOtherState: Error allocating DstOtherStateData%V.'
+      ALLOCATE(DstOtherStateData%V(i1_l:i1_u),STAT=ErrStat2)
+      IF (ErrStat2 /= 0) THEN 
+         CALL SetErrStat(ErrID_Fatal, 'Error allocating DstOtherStateData%V.', ErrStat, ErrMsg,'MAP_CopyOtherState')
          RETURN
       END IF
    END IF
@@ -805,10 +831,9 @@ IF (ASSOCIATED(SrcOtherStateData%Ha)) THEN
    i1_l = LBOUND(SrcOtherStateData%Ha,1)
    i1_u = UBOUND(SrcOtherStateData%Ha,1)
    IF (.NOT. ASSOCIATED(DstOtherStateData%Ha)) THEN 
-      ALLOCATE(DstOtherStateData%Ha(i1_l:i1_u),STAT=ErrStat)
-      IF (ErrStat /= 0) THEN 
-         ErrStat = ErrID_Fatal 
-         ErrMsg = 'MAP_CopyOtherState: Error allocating DstOtherStateData%Ha.'
+      ALLOCATE(DstOtherStateData%Ha(i1_l:i1_u),STAT=ErrStat2)
+      IF (ErrStat2 /= 0) THEN 
+         CALL SetErrStat(ErrID_Fatal, 'Error allocating DstOtherStateData%Ha.', ErrStat, ErrMsg,'MAP_CopyOtherState')
          RETURN
       END IF
    END IF
@@ -818,10 +843,9 @@ IF (ASSOCIATED(SrcOtherStateData%Va)) THEN
    i1_l = LBOUND(SrcOtherStateData%Va,1)
    i1_u = UBOUND(SrcOtherStateData%Va,1)
    IF (.NOT. ASSOCIATED(DstOtherStateData%Va)) THEN 
-      ALLOCATE(DstOtherStateData%Va(i1_l:i1_u),STAT=ErrStat)
-      IF (ErrStat /= 0) THEN 
-         ErrStat = ErrID_Fatal 
-         ErrMsg = 'MAP_CopyOtherState: Error allocating DstOtherStateData%Va.'
+      ALLOCATE(DstOtherStateData%Va(i1_l:i1_u),STAT=ErrStat2)
+      IF (ErrStat2 /= 0) THEN 
+         CALL SetErrStat(ErrID_Fatal, 'Error allocating DstOtherStateData%Va.', ErrStat, ErrMsg,'MAP_CopyOtherState')
          RETURN
       END IF
    END IF
@@ -831,10 +855,9 @@ IF (ASSOCIATED(SrcOtherStateData%x)) THEN
    i1_l = LBOUND(SrcOtherStateData%x,1)
    i1_u = UBOUND(SrcOtherStateData%x,1)
    IF (.NOT. ASSOCIATED(DstOtherStateData%x)) THEN 
-      ALLOCATE(DstOtherStateData%x(i1_l:i1_u),STAT=ErrStat)
-      IF (ErrStat /= 0) THEN 
-         ErrStat = ErrID_Fatal 
-         ErrMsg = 'MAP_CopyOtherState: Error allocating DstOtherStateData%x.'
+      ALLOCATE(DstOtherStateData%x(i1_l:i1_u),STAT=ErrStat2)
+      IF (ErrStat2 /= 0) THEN 
+         CALL SetErrStat(ErrID_Fatal, 'Error allocating DstOtherStateData%x.', ErrStat, ErrMsg,'MAP_CopyOtherState')
          RETURN
       END IF
    END IF
@@ -844,10 +867,9 @@ IF (ASSOCIATED(SrcOtherStateData%y)) THEN
    i1_l = LBOUND(SrcOtherStateData%y,1)
    i1_u = UBOUND(SrcOtherStateData%y,1)
    IF (.NOT. ASSOCIATED(DstOtherStateData%y)) THEN 
-      ALLOCATE(DstOtherStateData%y(i1_l:i1_u),STAT=ErrStat)
-      IF (ErrStat /= 0) THEN 
-         ErrStat = ErrID_Fatal 
-         ErrMsg = 'MAP_CopyOtherState: Error allocating DstOtherStateData%y.'
+      ALLOCATE(DstOtherStateData%y(i1_l:i1_u),STAT=ErrStat2)
+      IF (ErrStat2 /= 0) THEN 
+         CALL SetErrStat(ErrID_Fatal, 'Error allocating DstOtherStateData%y.', ErrStat, ErrMsg,'MAP_CopyOtherState')
          RETURN
       END IF
    END IF
@@ -857,10 +879,9 @@ IF (ASSOCIATED(SrcOtherStateData%z)) THEN
    i1_l = LBOUND(SrcOtherStateData%z,1)
    i1_u = UBOUND(SrcOtherStateData%z,1)
    IF (.NOT. ASSOCIATED(DstOtherStateData%z)) THEN 
-      ALLOCATE(DstOtherStateData%z(i1_l:i1_u),STAT=ErrStat)
-      IF (ErrStat /= 0) THEN 
-         ErrStat = ErrID_Fatal 
-         ErrMsg = 'MAP_CopyOtherState: Error allocating DstOtherStateData%z.'
+      ALLOCATE(DstOtherStateData%z(i1_l:i1_u),STAT=ErrStat2)
+      IF (ErrStat2 /= 0) THEN 
+         CALL SetErrStat(ErrID_Fatal, 'Error allocating DstOtherStateData%z.', ErrStat, ErrMsg,'MAP_CopyOtherState')
          RETURN
       END IF
    END IF
@@ -870,10 +891,9 @@ IF (ASSOCIATED(SrcOtherStateData%xa)) THEN
    i1_l = LBOUND(SrcOtherStateData%xa,1)
    i1_u = UBOUND(SrcOtherStateData%xa,1)
    IF (.NOT. ASSOCIATED(DstOtherStateData%xa)) THEN 
-      ALLOCATE(DstOtherStateData%xa(i1_l:i1_u),STAT=ErrStat)
-      IF (ErrStat /= 0) THEN 
-         ErrStat = ErrID_Fatal 
-         ErrMsg = 'MAP_CopyOtherState: Error allocating DstOtherStateData%xa.'
+      ALLOCATE(DstOtherStateData%xa(i1_l:i1_u),STAT=ErrStat2)
+      IF (ErrStat2 /= 0) THEN 
+         CALL SetErrStat(ErrID_Fatal, 'Error allocating DstOtherStateData%xa.', ErrStat, ErrMsg,'MAP_CopyOtherState')
          RETURN
       END IF
    END IF
@@ -883,10 +903,9 @@ IF (ASSOCIATED(SrcOtherStateData%ya)) THEN
    i1_l = LBOUND(SrcOtherStateData%ya,1)
    i1_u = UBOUND(SrcOtherStateData%ya,1)
    IF (.NOT. ASSOCIATED(DstOtherStateData%ya)) THEN 
-      ALLOCATE(DstOtherStateData%ya(i1_l:i1_u),STAT=ErrStat)
-      IF (ErrStat /= 0) THEN 
-         ErrStat = ErrID_Fatal 
-         ErrMsg = 'MAP_CopyOtherState: Error allocating DstOtherStateData%ya.'
+      ALLOCATE(DstOtherStateData%ya(i1_l:i1_u),STAT=ErrStat2)
+      IF (ErrStat2 /= 0) THEN 
+         CALL SetErrStat(ErrID_Fatal, 'Error allocating DstOtherStateData%ya.', ErrStat, ErrMsg,'MAP_CopyOtherState')
          RETURN
       END IF
    END IF
@@ -896,10 +915,9 @@ IF (ASSOCIATED(SrcOtherStateData%za)) THEN
    i1_l = LBOUND(SrcOtherStateData%za,1)
    i1_u = UBOUND(SrcOtherStateData%za,1)
    IF (.NOT. ASSOCIATED(DstOtherStateData%za)) THEN 
-      ALLOCATE(DstOtherStateData%za(i1_l:i1_u),STAT=ErrStat)
-      IF (ErrStat /= 0) THEN 
-         ErrStat = ErrID_Fatal 
-         ErrMsg = 'MAP_CopyOtherState: Error allocating DstOtherStateData%za.'
+      ALLOCATE(DstOtherStateData%za(i1_l:i1_u),STAT=ErrStat2)
+      IF (ErrStat2 /= 0) THEN 
+         CALL SetErrStat(ErrID_Fatal, 'Error allocating DstOtherStateData%za.', ErrStat, ErrMsg,'MAP_CopyOtherState')
          RETURN
       END IF
    END IF
@@ -909,10 +927,9 @@ IF (ASSOCIATED(SrcOtherStateData%Fx_connect)) THEN
    i1_l = LBOUND(SrcOtherStateData%Fx_connect,1)
    i1_u = UBOUND(SrcOtherStateData%Fx_connect,1)
    IF (.NOT. ASSOCIATED(DstOtherStateData%Fx_connect)) THEN 
-      ALLOCATE(DstOtherStateData%Fx_connect(i1_l:i1_u),STAT=ErrStat)
-      IF (ErrStat /= 0) THEN 
-         ErrStat = ErrID_Fatal 
-         ErrMsg = 'MAP_CopyOtherState: Error allocating DstOtherStateData%Fx_connect.'
+      ALLOCATE(DstOtherStateData%Fx_connect(i1_l:i1_u),STAT=ErrStat2)
+      IF (ErrStat2 /= 0) THEN 
+         CALL SetErrStat(ErrID_Fatal, 'Error allocating DstOtherStateData%Fx_connect.', ErrStat, ErrMsg,'MAP_CopyOtherState')
          RETURN
       END IF
    END IF
@@ -922,10 +939,9 @@ IF (ASSOCIATED(SrcOtherStateData%Fy_connect)) THEN
    i1_l = LBOUND(SrcOtherStateData%Fy_connect,1)
    i1_u = UBOUND(SrcOtherStateData%Fy_connect,1)
    IF (.NOT. ASSOCIATED(DstOtherStateData%Fy_connect)) THEN 
-      ALLOCATE(DstOtherStateData%Fy_connect(i1_l:i1_u),STAT=ErrStat)
-      IF (ErrStat /= 0) THEN 
-         ErrStat = ErrID_Fatal 
-         ErrMsg = 'MAP_CopyOtherState: Error allocating DstOtherStateData%Fy_connect.'
+      ALLOCATE(DstOtherStateData%Fy_connect(i1_l:i1_u),STAT=ErrStat2)
+      IF (ErrStat2 /= 0) THEN 
+         CALL SetErrStat(ErrID_Fatal, 'Error allocating DstOtherStateData%Fy_connect.', ErrStat, ErrMsg,'MAP_CopyOtherState')
          RETURN
       END IF
    END IF
@@ -935,10 +951,9 @@ IF (ASSOCIATED(SrcOtherStateData%Fz_connect)) THEN
    i1_l = LBOUND(SrcOtherStateData%Fz_connect,1)
    i1_u = UBOUND(SrcOtherStateData%Fz_connect,1)
    IF (.NOT. ASSOCIATED(DstOtherStateData%Fz_connect)) THEN 
-      ALLOCATE(DstOtherStateData%Fz_connect(i1_l:i1_u),STAT=ErrStat)
-      IF (ErrStat /= 0) THEN 
-         ErrStat = ErrID_Fatal 
-         ErrMsg = 'MAP_CopyOtherState: Error allocating DstOtherStateData%Fz_connect.'
+      ALLOCATE(DstOtherStateData%Fz_connect(i1_l:i1_u),STAT=ErrStat2)
+      IF (ErrStat2 /= 0) THEN 
+         CALL SetErrStat(ErrID_Fatal, 'Error allocating DstOtherStateData%Fz_connect.', ErrStat, ErrMsg,'MAP_CopyOtherState')
          RETURN
       END IF
    END IF
@@ -948,10 +963,9 @@ IF (ASSOCIATED(SrcOtherStateData%Fx_anchor)) THEN
    i1_l = LBOUND(SrcOtherStateData%Fx_anchor,1)
    i1_u = UBOUND(SrcOtherStateData%Fx_anchor,1)
    IF (.NOT. ASSOCIATED(DstOtherStateData%Fx_anchor)) THEN 
-      ALLOCATE(DstOtherStateData%Fx_anchor(i1_l:i1_u),STAT=ErrStat)
-      IF (ErrStat /= 0) THEN 
-         ErrStat = ErrID_Fatal 
-         ErrMsg = 'MAP_CopyOtherState: Error allocating DstOtherStateData%Fx_anchor.'
+      ALLOCATE(DstOtherStateData%Fx_anchor(i1_l:i1_u),STAT=ErrStat2)
+      IF (ErrStat2 /= 0) THEN 
+         CALL SetErrStat(ErrID_Fatal, 'Error allocating DstOtherStateData%Fx_anchor.', ErrStat, ErrMsg,'MAP_CopyOtherState')
          RETURN
       END IF
    END IF
@@ -961,10 +975,9 @@ IF (ASSOCIATED(SrcOtherStateData%Fy_anchor)) THEN
    i1_l = LBOUND(SrcOtherStateData%Fy_anchor,1)
    i1_u = UBOUND(SrcOtherStateData%Fy_anchor,1)
    IF (.NOT. ASSOCIATED(DstOtherStateData%Fy_anchor)) THEN 
-      ALLOCATE(DstOtherStateData%Fy_anchor(i1_l:i1_u),STAT=ErrStat)
-      IF (ErrStat /= 0) THEN 
-         ErrStat = ErrID_Fatal 
-         ErrMsg = 'MAP_CopyOtherState: Error allocating DstOtherStateData%Fy_anchor.'
+      ALLOCATE(DstOtherStateData%Fy_anchor(i1_l:i1_u),STAT=ErrStat2)
+      IF (ErrStat2 /= 0) THEN 
+         CALL SetErrStat(ErrID_Fatal, 'Error allocating DstOtherStateData%Fy_anchor.', ErrStat, ErrMsg,'MAP_CopyOtherState')
          RETURN
       END IF
    END IF
@@ -974,10 +987,9 @@ IF (ASSOCIATED(SrcOtherStateData%Fz_anchor)) THEN
    i1_l = LBOUND(SrcOtherStateData%Fz_anchor,1)
    i1_u = UBOUND(SrcOtherStateData%Fz_anchor,1)
    IF (.NOT. ASSOCIATED(DstOtherStateData%Fz_anchor)) THEN 
-      ALLOCATE(DstOtherStateData%Fz_anchor(i1_l:i1_u),STAT=ErrStat)
-      IF (ErrStat /= 0) THEN 
-         ErrStat = ErrID_Fatal 
-         ErrMsg = 'MAP_CopyOtherState: Error allocating DstOtherStateData%Fz_anchor.'
+      ALLOCATE(DstOtherStateData%Fz_anchor(i1_l:i1_u),STAT=ErrStat2)
+      IF (ErrStat2 /= 0) THEN 
+         CALL SetErrStat(ErrID_Fatal, 'Error allocating DstOtherStateData%Fz_anchor.', ErrStat, ErrMsg,'MAP_CopyOtherState')
          RETURN
       END IF
    END IF
@@ -986,20 +998,84 @@ ENDIF
  END SUBROUTINE MAP_CopyOtherState
 
  SUBROUTINE MAP_DestroyOtherState( OtherStateData, ErrStat, ErrMsg )
-  TYPE(MAP_otherstatetype), INTENT(INOUT) :: OtherStateData
+  TYPE(MAP_OtherStateType), INTENT(INOUT) :: OtherStateData
   INTEGER(IntKi),  INTENT(  OUT) :: ErrStat
   CHARACTER(*),    INTENT(  OUT) :: ErrMsg
   INTEGER(IntKi)                 :: i, i1, i2, i3, i4, i5 
 ! 
   ErrStat = ErrID_None
   ErrMsg  = ""
+IF (ASSOCIATED(OtherStateData%H)) THEN
+   DEALLOCATE(OtherStateData%H)
+   OtherStateData%H => NULL()
+ENDIF
+IF (ASSOCIATED(OtherStateData%V)) THEN
+   DEALLOCATE(OtherStateData%V)
+   OtherStateData%V => NULL()
+ENDIF
+IF (ASSOCIATED(OtherStateData%Ha)) THEN
+   DEALLOCATE(OtherStateData%Ha)
+   OtherStateData%Ha => NULL()
+ENDIF
+IF (ASSOCIATED(OtherStateData%Va)) THEN
+   DEALLOCATE(OtherStateData%Va)
+   OtherStateData%Va => NULL()
+ENDIF
+IF (ASSOCIATED(OtherStateData%x)) THEN
+   DEALLOCATE(OtherStateData%x)
+   OtherStateData%x => NULL()
+ENDIF
+IF (ASSOCIATED(OtherStateData%y)) THEN
+   DEALLOCATE(OtherStateData%y)
+   OtherStateData%y => NULL()
+ENDIF
+IF (ASSOCIATED(OtherStateData%z)) THEN
+   DEALLOCATE(OtherStateData%z)
+   OtherStateData%z => NULL()
+ENDIF
+IF (ASSOCIATED(OtherStateData%xa)) THEN
+   DEALLOCATE(OtherStateData%xa)
+   OtherStateData%xa => NULL()
+ENDIF
+IF (ASSOCIATED(OtherStateData%ya)) THEN
+   DEALLOCATE(OtherStateData%ya)
+   OtherStateData%ya => NULL()
+ENDIF
+IF (ASSOCIATED(OtherStateData%za)) THEN
+   DEALLOCATE(OtherStateData%za)
+   OtherStateData%za => NULL()
+ENDIF
+IF (ASSOCIATED(OtherStateData%Fx_connect)) THEN
+   DEALLOCATE(OtherStateData%Fx_connect)
+   OtherStateData%Fx_connect => NULL()
+ENDIF
+IF (ASSOCIATED(OtherStateData%Fy_connect)) THEN
+   DEALLOCATE(OtherStateData%Fy_connect)
+   OtherStateData%Fy_connect => NULL()
+ENDIF
+IF (ASSOCIATED(OtherStateData%Fz_connect)) THEN
+   DEALLOCATE(OtherStateData%Fz_connect)
+   OtherStateData%Fz_connect => NULL()
+ENDIF
+IF (ASSOCIATED(OtherStateData%Fx_anchor)) THEN
+   DEALLOCATE(OtherStateData%Fx_anchor)
+   OtherStateData%Fx_anchor => NULL()
+ENDIF
+IF (ASSOCIATED(OtherStateData%Fy_anchor)) THEN
+   DEALLOCATE(OtherStateData%Fy_anchor)
+   OtherStateData%Fy_anchor => NULL()
+ENDIF
+IF (ASSOCIATED(OtherStateData%Fz_anchor)) THEN
+   DEALLOCATE(OtherStateData%Fz_anchor)
+   OtherStateData%Fz_anchor => NULL()
+ENDIF
  END SUBROUTINE MAP_DestroyOtherState
 
  SUBROUTINE MAP_PackOtherState( ReKiBuf, DbKiBuf, IntKiBuf, Indata, ErrStat, ErrMsg, SizeOnly )
   REAL(ReKi),       ALLOCATABLE, INTENT(  OUT) :: ReKiBuf(:)
   REAL(DbKi),       ALLOCATABLE, INTENT(  OUT) :: DbKiBuf(:)
   INTEGER(IntKi),   ALLOCATABLE, INTENT(  OUT) :: IntKiBuf(:)
-  TYPE(MAP_otherstatetype),  INTENT(INOUT) :: InData
+  TYPE(MAP_OtherStateType),  INTENT(INOUT) :: InData
   INTEGER(IntKi),   INTENT(  OUT) :: ErrStat
   CHARACTER(*),     INTENT(  OUT) :: ErrMsg
   LOGICAL,OPTIONAL, INTENT(IN   ) :: SizeOnly
@@ -1029,22 +1105,22 @@ ENDIF
   Re_BufSz  = 0
   Db_BufSz  = 0
   Int_BufSz  = 0
-  Db_BufSz    = Db_BufSz    + SIZE( InData%H )  ! H 
-  Db_BufSz    = Db_BufSz    + SIZE( InData%V )  ! V 
-  Db_BufSz    = Db_BufSz    + SIZE( InData%Ha )  ! Ha 
-  Db_BufSz    = Db_BufSz    + SIZE( InData%Va )  ! Va 
-  Db_BufSz    = Db_BufSz    + SIZE( InData%x )  ! x 
-  Db_BufSz    = Db_BufSz    + SIZE( InData%y )  ! y 
-  Db_BufSz    = Db_BufSz    + SIZE( InData%z )  ! z 
-  Db_BufSz    = Db_BufSz    + SIZE( InData%xa )  ! xa 
-  Db_BufSz    = Db_BufSz    + SIZE( InData%ya )  ! ya 
-  Db_BufSz    = Db_BufSz    + SIZE( InData%za )  ! za 
-  Db_BufSz    = Db_BufSz    + SIZE( InData%Fx_connect )  ! Fx_connect 
-  Db_BufSz    = Db_BufSz    + SIZE( InData%Fy_connect )  ! Fy_connect 
-  Db_BufSz    = Db_BufSz    + SIZE( InData%Fz_connect )  ! Fz_connect 
-  Db_BufSz    = Db_BufSz    + SIZE( InData%Fx_anchor )  ! Fx_anchor 
-  Db_BufSz    = Db_BufSz    + SIZE( InData%Fy_anchor )  ! Fy_anchor 
-  Db_BufSz    = Db_BufSz    + SIZE( InData%Fz_anchor )  ! Fz_anchor 
+  IF ( ASSOCIATED(InData%H) )   Db_BufSz    = Db_BufSz    + SIZE( InData%H )  ! H 
+  IF ( ASSOCIATED(InData%V) )   Db_BufSz    = Db_BufSz    + SIZE( InData%V )  ! V 
+  IF ( ASSOCIATED(InData%Ha) )   Db_BufSz    = Db_BufSz    + SIZE( InData%Ha )  ! Ha 
+  IF ( ASSOCIATED(InData%Va) )   Db_BufSz    = Db_BufSz    + SIZE( InData%Va )  ! Va 
+  IF ( ASSOCIATED(InData%x) )   Db_BufSz    = Db_BufSz    + SIZE( InData%x )  ! x 
+  IF ( ASSOCIATED(InData%y) )   Db_BufSz    = Db_BufSz    + SIZE( InData%y )  ! y 
+  IF ( ASSOCIATED(InData%z) )   Db_BufSz    = Db_BufSz    + SIZE( InData%z )  ! z 
+  IF ( ASSOCIATED(InData%xa) )   Db_BufSz    = Db_BufSz    + SIZE( InData%xa )  ! xa 
+  IF ( ASSOCIATED(InData%ya) )   Db_BufSz    = Db_BufSz    + SIZE( InData%ya )  ! ya 
+  IF ( ASSOCIATED(InData%za) )   Db_BufSz    = Db_BufSz    + SIZE( InData%za )  ! za 
+  IF ( ASSOCIATED(InData%Fx_connect) )   Db_BufSz    = Db_BufSz    + SIZE( InData%Fx_connect )  ! Fx_connect 
+  IF ( ASSOCIATED(InData%Fy_connect) )   Db_BufSz    = Db_BufSz    + SIZE( InData%Fy_connect )  ! Fy_connect 
+  IF ( ASSOCIATED(InData%Fz_connect) )   Db_BufSz    = Db_BufSz    + SIZE( InData%Fz_connect )  ! Fz_connect 
+  IF ( ASSOCIATED(InData%Fx_anchor) )   Db_BufSz    = Db_BufSz    + SIZE( InData%Fx_anchor )  ! Fx_anchor 
+  IF ( ASSOCIATED(InData%Fy_anchor) )   Db_BufSz    = Db_BufSz    + SIZE( InData%Fy_anchor )  ! Fy_anchor 
+  IF ( ASSOCIATED(InData%Fz_anchor) )   Db_BufSz    = Db_BufSz    + SIZE( InData%Fz_anchor )  ! Fz_anchor 
   IF ( Re_BufSz  .GT. 0 ) ALLOCATE( ReKiBuf(  Re_BufSz  ) )
   IF ( Db_BufSz  .GT. 0 ) ALLOCATE( DbKiBuf(  Db_BufSz  ) )
   IF ( Int_BufSz .GT. 0 ) ALLOCATE( IntKiBuf( Int_BufSz ) )
@@ -1118,7 +1194,7 @@ ENDIF
   REAL(ReKi),      ALLOCATABLE, INTENT(IN   ) :: ReKiBuf(:)
   REAL(DbKi),      ALLOCATABLE, INTENT(IN   ) :: DbKiBuf(:)
   INTEGER(IntKi),  ALLOCATABLE, INTENT(IN   ) :: IntKiBuf(:)
-  TYPE(MAP_otherstatetype), INTENT(INOUT) :: OutData
+  TYPE(MAP_OtherStateType), INTENT(INOUT) :: OutData
   INTEGER(IntKi),  INTENT(  OUT) :: ErrStat
   CHARACTER(*),    INTENT(  OUT) :: ErrMsg
     ! Local variables
@@ -1148,98 +1224,114 @@ ENDIF
   Db_BufSz  = 0
   Int_BufSz  = 0
   IF ( ASSOCIATED(OutData%H) ) THEN
-  ALLOCATE(mask1(SIZE(OutData%H,1))); mask1 = .TRUE.
-    OutData%H = UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%H))-1 ),mask1,OutData%H)
+  ALLOCATE(mask1(SIZE(OutData%H,1)))
+  mask1 = .TRUE.
+    OutData%H = REAL( UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%H))-1 ),mask1,REAL(OutData%H,DbKi)), C_DOUBLE)
   DEALLOCATE(mask1)
     Db_Xferred   = Db_Xferred   + SIZE(OutData%H)
   ENDIF
   IF ( ASSOCIATED(OutData%V) ) THEN
-  ALLOCATE(mask1(SIZE(OutData%V,1))); mask1 = .TRUE.
-    OutData%V = UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%V))-1 ),mask1,OutData%V)
+  ALLOCATE(mask1(SIZE(OutData%V,1)))
+  mask1 = .TRUE.
+    OutData%V = REAL( UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%V))-1 ),mask1,REAL(OutData%V,DbKi)), C_DOUBLE)
   DEALLOCATE(mask1)
     Db_Xferred   = Db_Xferred   + SIZE(OutData%V)
   ENDIF
   IF ( ASSOCIATED(OutData%Ha) ) THEN
-  ALLOCATE(mask1(SIZE(OutData%Ha,1))); mask1 = .TRUE.
-    OutData%Ha = UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%Ha))-1 ),mask1,OutData%Ha)
+  ALLOCATE(mask1(SIZE(OutData%Ha,1)))
+  mask1 = .TRUE.
+    OutData%Ha = REAL( UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%Ha))-1 ),mask1,REAL(OutData%Ha,DbKi)), C_DOUBLE)
   DEALLOCATE(mask1)
     Db_Xferred   = Db_Xferred   + SIZE(OutData%Ha)
   ENDIF
   IF ( ASSOCIATED(OutData%Va) ) THEN
-  ALLOCATE(mask1(SIZE(OutData%Va,1))); mask1 = .TRUE.
-    OutData%Va = UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%Va))-1 ),mask1,OutData%Va)
+  ALLOCATE(mask1(SIZE(OutData%Va,1)))
+  mask1 = .TRUE.
+    OutData%Va = REAL( UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%Va))-1 ),mask1,REAL(OutData%Va,DbKi)), C_DOUBLE)
   DEALLOCATE(mask1)
     Db_Xferred   = Db_Xferred   + SIZE(OutData%Va)
   ENDIF
   IF ( ASSOCIATED(OutData%x) ) THEN
-  ALLOCATE(mask1(SIZE(OutData%x,1))); mask1 = .TRUE.
-    OutData%x = UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%x))-1 ),mask1,OutData%x)
+  ALLOCATE(mask1(SIZE(OutData%x,1)))
+  mask1 = .TRUE.
+    OutData%x = REAL( UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%x))-1 ),mask1,REAL(OutData%x,DbKi)), C_DOUBLE)
   DEALLOCATE(mask1)
     Db_Xferred   = Db_Xferred   + SIZE(OutData%x)
   ENDIF
   IF ( ASSOCIATED(OutData%y) ) THEN
-  ALLOCATE(mask1(SIZE(OutData%y,1))); mask1 = .TRUE.
-    OutData%y = UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%y))-1 ),mask1,OutData%y)
+  ALLOCATE(mask1(SIZE(OutData%y,1)))
+  mask1 = .TRUE.
+    OutData%y = REAL( UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%y))-1 ),mask1,REAL(OutData%y,DbKi)), C_DOUBLE)
   DEALLOCATE(mask1)
     Db_Xferred   = Db_Xferred   + SIZE(OutData%y)
   ENDIF
   IF ( ASSOCIATED(OutData%z) ) THEN
-  ALLOCATE(mask1(SIZE(OutData%z,1))); mask1 = .TRUE.
-    OutData%z = UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%z))-1 ),mask1,OutData%z)
+  ALLOCATE(mask1(SIZE(OutData%z,1)))
+  mask1 = .TRUE.
+    OutData%z = REAL( UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%z))-1 ),mask1,REAL(OutData%z,DbKi)), C_DOUBLE)
   DEALLOCATE(mask1)
     Db_Xferred   = Db_Xferred   + SIZE(OutData%z)
   ENDIF
   IF ( ASSOCIATED(OutData%xa) ) THEN
-  ALLOCATE(mask1(SIZE(OutData%xa,1))); mask1 = .TRUE.
-    OutData%xa = UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%xa))-1 ),mask1,OutData%xa)
+  ALLOCATE(mask1(SIZE(OutData%xa,1)))
+  mask1 = .TRUE.
+    OutData%xa = REAL( UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%xa))-1 ),mask1,REAL(OutData%xa,DbKi)), C_DOUBLE)
   DEALLOCATE(mask1)
     Db_Xferred   = Db_Xferred   + SIZE(OutData%xa)
   ENDIF
   IF ( ASSOCIATED(OutData%ya) ) THEN
-  ALLOCATE(mask1(SIZE(OutData%ya,1))); mask1 = .TRUE.
-    OutData%ya = UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%ya))-1 ),mask1,OutData%ya)
+  ALLOCATE(mask1(SIZE(OutData%ya,1)))
+  mask1 = .TRUE.
+    OutData%ya = REAL( UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%ya))-1 ),mask1,REAL(OutData%ya,DbKi)), C_DOUBLE)
   DEALLOCATE(mask1)
     Db_Xferred   = Db_Xferred   + SIZE(OutData%ya)
   ENDIF
   IF ( ASSOCIATED(OutData%za) ) THEN
-  ALLOCATE(mask1(SIZE(OutData%za,1))); mask1 = .TRUE.
-    OutData%za = UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%za))-1 ),mask1,OutData%za)
+  ALLOCATE(mask1(SIZE(OutData%za,1)))
+  mask1 = .TRUE.
+    OutData%za = REAL( UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%za))-1 ),mask1,REAL(OutData%za,DbKi)), C_DOUBLE)
   DEALLOCATE(mask1)
     Db_Xferred   = Db_Xferred   + SIZE(OutData%za)
   ENDIF
   IF ( ASSOCIATED(OutData%Fx_connect) ) THEN
-  ALLOCATE(mask1(SIZE(OutData%Fx_connect,1))); mask1 = .TRUE.
-    OutData%Fx_connect = UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%Fx_connect))-1 ),mask1,OutData%Fx_connect)
+  ALLOCATE(mask1(SIZE(OutData%Fx_connect,1)))
+  mask1 = .TRUE.
+    OutData%Fx_connect = REAL( UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%Fx_connect))-1 ),mask1,REAL(OutData%Fx_connect,DbKi)), C_DOUBLE)
   DEALLOCATE(mask1)
     Db_Xferred   = Db_Xferred   + SIZE(OutData%Fx_connect)
   ENDIF
   IF ( ASSOCIATED(OutData%Fy_connect) ) THEN
-  ALLOCATE(mask1(SIZE(OutData%Fy_connect,1))); mask1 = .TRUE.
-    OutData%Fy_connect = UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%Fy_connect))-1 ),mask1,OutData%Fy_connect)
+  ALLOCATE(mask1(SIZE(OutData%Fy_connect,1)))
+  mask1 = .TRUE.
+    OutData%Fy_connect = REAL( UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%Fy_connect))-1 ),mask1,REAL(OutData%Fy_connect,DbKi)), C_DOUBLE)
   DEALLOCATE(mask1)
     Db_Xferred   = Db_Xferred   + SIZE(OutData%Fy_connect)
   ENDIF
   IF ( ASSOCIATED(OutData%Fz_connect) ) THEN
-  ALLOCATE(mask1(SIZE(OutData%Fz_connect,1))); mask1 = .TRUE.
-    OutData%Fz_connect = UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%Fz_connect))-1 ),mask1,OutData%Fz_connect)
+  ALLOCATE(mask1(SIZE(OutData%Fz_connect,1)))
+  mask1 = .TRUE.
+    OutData%Fz_connect = REAL( UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%Fz_connect))-1 ),mask1,REAL(OutData%Fz_connect,DbKi)), C_DOUBLE)
   DEALLOCATE(mask1)
     Db_Xferred   = Db_Xferred   + SIZE(OutData%Fz_connect)
   ENDIF
   IF ( ASSOCIATED(OutData%Fx_anchor) ) THEN
-  ALLOCATE(mask1(SIZE(OutData%Fx_anchor,1))); mask1 = .TRUE.
-    OutData%Fx_anchor = UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%Fx_anchor))-1 ),mask1,OutData%Fx_anchor)
+  ALLOCATE(mask1(SIZE(OutData%Fx_anchor,1)))
+  mask1 = .TRUE.
+    OutData%Fx_anchor = REAL( UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%Fx_anchor))-1 ),mask1,REAL(OutData%Fx_anchor,DbKi)), C_DOUBLE)
   DEALLOCATE(mask1)
     Db_Xferred   = Db_Xferred   + SIZE(OutData%Fx_anchor)
   ENDIF
   IF ( ASSOCIATED(OutData%Fy_anchor) ) THEN
-  ALLOCATE(mask1(SIZE(OutData%Fy_anchor,1))); mask1 = .TRUE.
-    OutData%Fy_anchor = UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%Fy_anchor))-1 ),mask1,OutData%Fy_anchor)
+  ALLOCATE(mask1(SIZE(OutData%Fy_anchor,1)))
+  mask1 = .TRUE.
+    OutData%Fy_anchor = REAL( UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%Fy_anchor))-1 ),mask1,REAL(OutData%Fy_anchor,DbKi)), C_DOUBLE)
   DEALLOCATE(mask1)
     Db_Xferred   = Db_Xferred   + SIZE(OutData%Fy_anchor)
   ENDIF
   IF ( ASSOCIATED(OutData%Fz_anchor) ) THEN
-  ALLOCATE(mask1(SIZE(OutData%Fz_anchor,1))); mask1 = .TRUE.
-    OutData%Fz_anchor = UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%Fz_anchor))-1 ),mask1,OutData%Fz_anchor)
+  ALLOCATE(mask1(SIZE(OutData%Fz_anchor,1)))
+  mask1 = .TRUE.
+    OutData%Fz_anchor = REAL( UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%Fz_anchor))-1 ),mask1,REAL(OutData%Fz_anchor,DbKi)), C_DOUBLE)
   DEALLOCATE(mask1)
     Db_Xferred   = Db_Xferred   + SIZE(OutData%Fz_anchor)
   ENDIF
@@ -1249,8 +1341,8 @@ ENDIF
  END SUBROUTINE MAP_UnPackOtherState
 
  SUBROUTINE MAP_CopyConstrState( SrcConstrStateData, DstConstrStateData, CtrlCode, ErrStat, ErrMsg )
-   TYPE(MAP_constraintstatetype), INTENT(INOUT) :: SrcConstrStateData
-   TYPE(MAP_constraintstatetype), INTENT(INOUT) :: DstConstrStateData
+   TYPE(MAP_ConstraintStateType), INTENT(INOUT) :: SrcConstrStateData
+   TYPE(MAP_ConstraintStateType), INTENT(INOUT) :: DstConstrStateData
    INTEGER(IntKi),  INTENT(IN   ) :: CtrlCode
    INTEGER(IntKi),  INTENT(  OUT) :: ErrStat
    CHARACTER(*),    INTENT(  OUT) :: ErrMsg
@@ -1258,6 +1350,8 @@ ENDIF
    INTEGER(IntKi)                 :: i,i1,i2,i3,i4,i5,j,k
    INTEGER(IntKi)                 :: i1_l,i2_l,i3_l,i4_l,i5_l  ! lower bounds for an array dimension
    INTEGER(IntKi)                 :: i1_u,i2_u,i3_u,i4_u,i5_u  ! upper bounds for an array dimension
+   INTEGER(IntKi)                 :: ErrStat2
+   CHARACTER(1024)                :: ErrMsg2
 ! 
    ErrStat = ErrID_None
    ErrMsg  = ""
@@ -1265,10 +1359,9 @@ IF (ASSOCIATED(SrcConstrStateData%H)) THEN
    i1_l = LBOUND(SrcConstrStateData%H,1)
    i1_u = UBOUND(SrcConstrStateData%H,1)
    IF (.NOT. ASSOCIATED(DstConstrStateData%H)) THEN 
-      ALLOCATE(DstConstrStateData%H(i1_l:i1_u),STAT=ErrStat)
-      IF (ErrStat /= 0) THEN 
-         ErrStat = ErrID_Fatal 
-         ErrMsg = 'MAP_CopyConstrState: Error allocating DstConstrStateData%H.'
+      ALLOCATE(DstConstrStateData%H(i1_l:i1_u),STAT=ErrStat2)
+      IF (ErrStat2 /= 0) THEN 
+         CALL SetErrStat(ErrID_Fatal, 'Error allocating DstConstrStateData%H.', ErrStat, ErrMsg,'MAP_CopyConstrState')
          RETURN
       END IF
    END IF
@@ -1278,10 +1371,9 @@ IF (ASSOCIATED(SrcConstrStateData%V)) THEN
    i1_l = LBOUND(SrcConstrStateData%V,1)
    i1_u = UBOUND(SrcConstrStateData%V,1)
    IF (.NOT. ASSOCIATED(DstConstrStateData%V)) THEN 
-      ALLOCATE(DstConstrStateData%V(i1_l:i1_u),STAT=ErrStat)
-      IF (ErrStat /= 0) THEN 
-         ErrStat = ErrID_Fatal 
-         ErrMsg = 'MAP_CopyConstrState: Error allocating DstConstrStateData%V.'
+      ALLOCATE(DstConstrStateData%V(i1_l:i1_u),STAT=ErrStat2)
+      IF (ErrStat2 /= 0) THEN 
+         CALL SetErrStat(ErrID_Fatal, 'Error allocating DstConstrStateData%V.', ErrStat, ErrMsg,'MAP_CopyConstrState')
          RETURN
       END IF
    END IF
@@ -1291,10 +1383,9 @@ IF (ASSOCIATED(SrcConstrStateData%x)) THEN
    i1_l = LBOUND(SrcConstrStateData%x,1)
    i1_u = UBOUND(SrcConstrStateData%x,1)
    IF (.NOT. ASSOCIATED(DstConstrStateData%x)) THEN 
-      ALLOCATE(DstConstrStateData%x(i1_l:i1_u),STAT=ErrStat)
-      IF (ErrStat /= 0) THEN 
-         ErrStat = ErrID_Fatal 
-         ErrMsg = 'MAP_CopyConstrState: Error allocating DstConstrStateData%x.'
+      ALLOCATE(DstConstrStateData%x(i1_l:i1_u),STAT=ErrStat2)
+      IF (ErrStat2 /= 0) THEN 
+         CALL SetErrStat(ErrID_Fatal, 'Error allocating DstConstrStateData%x.', ErrStat, ErrMsg,'MAP_CopyConstrState')
          RETURN
       END IF
    END IF
@@ -1304,10 +1395,9 @@ IF (ASSOCIATED(SrcConstrStateData%y)) THEN
    i1_l = LBOUND(SrcConstrStateData%y,1)
    i1_u = UBOUND(SrcConstrStateData%y,1)
    IF (.NOT. ASSOCIATED(DstConstrStateData%y)) THEN 
-      ALLOCATE(DstConstrStateData%y(i1_l:i1_u),STAT=ErrStat)
-      IF (ErrStat /= 0) THEN 
-         ErrStat = ErrID_Fatal 
-         ErrMsg = 'MAP_CopyConstrState: Error allocating DstConstrStateData%y.'
+      ALLOCATE(DstConstrStateData%y(i1_l:i1_u),STAT=ErrStat2)
+      IF (ErrStat2 /= 0) THEN 
+         CALL SetErrStat(ErrID_Fatal, 'Error allocating DstConstrStateData%y.', ErrStat, ErrMsg,'MAP_CopyConstrState')
          RETURN
       END IF
    END IF
@@ -1317,10 +1407,9 @@ IF (ASSOCIATED(SrcConstrStateData%z)) THEN
    i1_l = LBOUND(SrcConstrStateData%z,1)
    i1_u = UBOUND(SrcConstrStateData%z,1)
    IF (.NOT. ASSOCIATED(DstConstrStateData%z)) THEN 
-      ALLOCATE(DstConstrStateData%z(i1_l:i1_u),STAT=ErrStat)
-      IF (ErrStat /= 0) THEN 
-         ErrStat = ErrID_Fatal 
-         ErrMsg = 'MAP_CopyConstrState: Error allocating DstConstrStateData%z.'
+      ALLOCATE(DstConstrStateData%z(i1_l:i1_u),STAT=ErrStat2)
+      IF (ErrStat2 /= 0) THEN 
+         CALL SetErrStat(ErrID_Fatal, 'Error allocating DstConstrStateData%z.', ErrStat, ErrMsg,'MAP_CopyConstrState')
          RETURN
       END IF
    END IF
@@ -1329,20 +1418,40 @@ ENDIF
  END SUBROUTINE MAP_CopyConstrState
 
  SUBROUTINE MAP_DestroyConstrState( ConstrStateData, ErrStat, ErrMsg )
-  TYPE(MAP_constraintstatetype), INTENT(INOUT) :: ConstrStateData
+  TYPE(MAP_ConstraintStateType), INTENT(INOUT) :: ConstrStateData
   INTEGER(IntKi),  INTENT(  OUT) :: ErrStat
   CHARACTER(*),    INTENT(  OUT) :: ErrMsg
   INTEGER(IntKi)                 :: i, i1, i2, i3, i4, i5 
 ! 
   ErrStat = ErrID_None
   ErrMsg  = ""
+IF (ASSOCIATED(ConstrStateData%H)) THEN
+   DEALLOCATE(ConstrStateData%H)
+   ConstrStateData%H => NULL()
+ENDIF
+IF (ASSOCIATED(ConstrStateData%V)) THEN
+   DEALLOCATE(ConstrStateData%V)
+   ConstrStateData%V => NULL()
+ENDIF
+IF (ASSOCIATED(ConstrStateData%x)) THEN
+   DEALLOCATE(ConstrStateData%x)
+   ConstrStateData%x => NULL()
+ENDIF
+IF (ASSOCIATED(ConstrStateData%y)) THEN
+   DEALLOCATE(ConstrStateData%y)
+   ConstrStateData%y => NULL()
+ENDIF
+IF (ASSOCIATED(ConstrStateData%z)) THEN
+   DEALLOCATE(ConstrStateData%z)
+   ConstrStateData%z => NULL()
+ENDIF
  END SUBROUTINE MAP_DestroyConstrState
 
  SUBROUTINE MAP_PackConstrState( ReKiBuf, DbKiBuf, IntKiBuf, Indata, ErrStat, ErrMsg, SizeOnly )
   REAL(ReKi),       ALLOCATABLE, INTENT(  OUT) :: ReKiBuf(:)
   REAL(DbKi),       ALLOCATABLE, INTENT(  OUT) :: DbKiBuf(:)
   INTEGER(IntKi),   ALLOCATABLE, INTENT(  OUT) :: IntKiBuf(:)
-  TYPE(MAP_constraintstatetype),  INTENT(INOUT) :: InData
+  TYPE(MAP_ConstraintStateType),  INTENT(INOUT) :: InData
   INTEGER(IntKi),   INTENT(  OUT) :: ErrStat
   CHARACTER(*),     INTENT(  OUT) :: ErrMsg
   LOGICAL,OPTIONAL, INTENT(IN   ) :: SizeOnly
@@ -1372,11 +1481,11 @@ ENDIF
   Re_BufSz  = 0
   Db_BufSz  = 0
   Int_BufSz  = 0
-  Db_BufSz    = Db_BufSz    + SIZE( InData%H )  ! H 
-  Db_BufSz    = Db_BufSz    + SIZE( InData%V )  ! V 
-  Db_BufSz    = Db_BufSz    + SIZE( InData%x )  ! x 
-  Db_BufSz    = Db_BufSz    + SIZE( InData%y )  ! y 
-  Db_BufSz    = Db_BufSz    + SIZE( InData%z )  ! z 
+  IF ( ASSOCIATED(InData%H) )   Db_BufSz    = Db_BufSz    + SIZE( InData%H )  ! H 
+  IF ( ASSOCIATED(InData%V) )   Db_BufSz    = Db_BufSz    + SIZE( InData%V )  ! V 
+  IF ( ASSOCIATED(InData%x) )   Db_BufSz    = Db_BufSz    + SIZE( InData%x )  ! x 
+  IF ( ASSOCIATED(InData%y) )   Db_BufSz    = Db_BufSz    + SIZE( InData%y )  ! y 
+  IF ( ASSOCIATED(InData%z) )   Db_BufSz    = Db_BufSz    + SIZE( InData%z )  ! z 
   IF ( Re_BufSz  .GT. 0 ) ALLOCATE( ReKiBuf(  Re_BufSz  ) )
   IF ( Db_BufSz  .GT. 0 ) ALLOCATE( DbKiBuf(  Db_BufSz  ) )
   IF ( Int_BufSz .GT. 0 ) ALLOCATE( IntKiBuf( Int_BufSz ) )
@@ -1406,7 +1515,7 @@ ENDIF
   REAL(ReKi),      ALLOCATABLE, INTENT(IN   ) :: ReKiBuf(:)
   REAL(DbKi),      ALLOCATABLE, INTENT(IN   ) :: DbKiBuf(:)
   INTEGER(IntKi),  ALLOCATABLE, INTENT(IN   ) :: IntKiBuf(:)
-  TYPE(MAP_constraintstatetype), INTENT(INOUT) :: OutData
+  TYPE(MAP_ConstraintStateType), INTENT(INOUT) :: OutData
   INTEGER(IntKi),  INTENT(  OUT) :: ErrStat
   CHARACTER(*),    INTENT(  OUT) :: ErrMsg
     ! Local variables
@@ -1436,32 +1545,37 @@ ENDIF
   Db_BufSz  = 0
   Int_BufSz  = 0
   IF ( ASSOCIATED(OutData%H) ) THEN
-  ALLOCATE(mask1(SIZE(OutData%H,1))); mask1 = .TRUE.
-    OutData%H = UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%H))-1 ),mask1,OutData%H)
+  ALLOCATE(mask1(SIZE(OutData%H,1)))
+  mask1 = .TRUE.
+    OutData%H = REAL( UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%H))-1 ),mask1,REAL(OutData%H,DbKi)), C_DOUBLE)
   DEALLOCATE(mask1)
     Db_Xferred   = Db_Xferred   + SIZE(OutData%H)
   ENDIF
   IF ( ASSOCIATED(OutData%V) ) THEN
-  ALLOCATE(mask1(SIZE(OutData%V,1))); mask1 = .TRUE.
-    OutData%V = UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%V))-1 ),mask1,OutData%V)
+  ALLOCATE(mask1(SIZE(OutData%V,1)))
+  mask1 = .TRUE.
+    OutData%V = REAL( UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%V))-1 ),mask1,REAL(OutData%V,DbKi)), C_DOUBLE)
   DEALLOCATE(mask1)
     Db_Xferred   = Db_Xferred   + SIZE(OutData%V)
   ENDIF
   IF ( ASSOCIATED(OutData%x) ) THEN
-  ALLOCATE(mask1(SIZE(OutData%x,1))); mask1 = .TRUE.
-    OutData%x = UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%x))-1 ),mask1,OutData%x)
+  ALLOCATE(mask1(SIZE(OutData%x,1)))
+  mask1 = .TRUE.
+    OutData%x = REAL( UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%x))-1 ),mask1,REAL(OutData%x,DbKi)), C_DOUBLE)
   DEALLOCATE(mask1)
     Db_Xferred   = Db_Xferred   + SIZE(OutData%x)
   ENDIF
   IF ( ASSOCIATED(OutData%y) ) THEN
-  ALLOCATE(mask1(SIZE(OutData%y,1))); mask1 = .TRUE.
-    OutData%y = UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%y))-1 ),mask1,OutData%y)
+  ALLOCATE(mask1(SIZE(OutData%y,1)))
+  mask1 = .TRUE.
+    OutData%y = REAL( UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%y))-1 ),mask1,REAL(OutData%y,DbKi)), C_DOUBLE)
   DEALLOCATE(mask1)
     Db_Xferred   = Db_Xferred   + SIZE(OutData%y)
   ENDIF
   IF ( ASSOCIATED(OutData%z) ) THEN
-  ALLOCATE(mask1(SIZE(OutData%z,1))); mask1 = .TRUE.
-    OutData%z = UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%z))-1 ),mask1,OutData%z)
+  ALLOCATE(mask1(SIZE(OutData%z,1)))
+  mask1 = .TRUE.
+    OutData%z = REAL( UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%z))-1 ),mask1,REAL(OutData%z,DbKi)), C_DOUBLE)
   DEALLOCATE(mask1)
     Db_Xferred   = Db_Xferred   + SIZE(OutData%z)
   ENDIF
@@ -1471,8 +1585,8 @@ ENDIF
  END SUBROUTINE MAP_UnPackConstrState
 
  SUBROUTINE MAP_CopyParam( SrcParamData, DstParamData, CtrlCode, ErrStat, ErrMsg )
-   TYPE(MAP_parametertype), INTENT(INOUT) :: SrcParamData
-   TYPE(MAP_parametertype), INTENT(INOUT) :: DstParamData
+   TYPE(MAP_ParameterType), INTENT(INOUT) :: SrcParamData
+   TYPE(MAP_ParameterType), INTENT(INOUT) :: DstParamData
    INTEGER(IntKi),  INTENT(IN   ) :: CtrlCode
    INTEGER(IntKi),  INTENT(  OUT) :: ErrStat
    CHARACTER(*),    INTENT(  OUT) :: ErrMsg
@@ -1480,6 +1594,8 @@ ENDIF
    INTEGER(IntKi)                 :: i,i1,i2,i3,i4,i5,j,k
    INTEGER(IntKi)                 :: i1_l,i2_l,i3_l,i4_l,i5_l  ! lower bounds for an array dimension
    INTEGER(IntKi)                 :: i1_u,i2_u,i3_u,i4_u,i5_u  ! upper bounds for an array dimension
+   INTEGER(IntKi)                 :: ErrStat2
+   CHARACTER(1024)                :: ErrMsg2
 ! 
    ErrStat = ErrID_None
    ErrMsg  = ""
@@ -1489,7 +1605,7 @@ ENDIF
  END SUBROUTINE MAP_CopyParam
 
  SUBROUTINE MAP_DestroyParam( ParamData, ErrStat, ErrMsg )
-  TYPE(MAP_parametertype), INTENT(INOUT) :: ParamData
+  TYPE(MAP_ParameterType), INTENT(INOUT) :: ParamData
   INTEGER(IntKi),  INTENT(  OUT) :: ErrStat
   CHARACTER(*),    INTENT(  OUT) :: ErrMsg
   INTEGER(IntKi)                 :: i, i1, i2, i3, i4, i5 
@@ -1502,7 +1618,7 @@ ENDIF
   REAL(ReKi),       ALLOCATABLE, INTENT(  OUT) :: ReKiBuf(:)
   REAL(DbKi),       ALLOCATABLE, INTENT(  OUT) :: DbKiBuf(:)
   INTEGER(IntKi),   ALLOCATABLE, INTENT(  OUT) :: IntKiBuf(:)
-  TYPE(MAP_parametertype),  INTENT(INOUT) :: InData
+  TYPE(MAP_ParameterType),  INTENT(INOUT) :: InData
   INTEGER(IntKi),   INTENT(  OUT) :: ErrStat
   CHARACTER(*),     INTENT(  OUT) :: ErrMsg
   LOGICAL,OPTIONAL, INTENT(IN   ) :: SizeOnly
@@ -1550,7 +1666,7 @@ ENDIF
   REAL(ReKi),      ALLOCATABLE, INTENT(IN   ) :: ReKiBuf(:)
   REAL(DbKi),      ALLOCATABLE, INTENT(IN   ) :: DbKiBuf(:)
   INTEGER(IntKi),  ALLOCATABLE, INTENT(IN   ) :: IntKiBuf(:)
-  TYPE(MAP_parametertype), INTENT(INOUT) :: OutData
+  TYPE(MAP_ParameterType), INTENT(INOUT) :: OutData
   INTEGER(IntKi),  INTENT(  OUT) :: ErrStat
   CHARACTER(*),    INTENT(  OUT) :: ErrMsg
     ! Local variables
@@ -1591,8 +1707,8 @@ ENDIF
  END SUBROUTINE MAP_UnPackParam
 
  SUBROUTINE MAP_CopyInput( SrcInputData, DstInputData, CtrlCode, ErrStat, ErrMsg )
-   TYPE(MAP_inputtype), INTENT(INOUT) :: SrcInputData
-   TYPE(MAP_inputtype), INTENT(INOUT) :: DstInputData
+   TYPE(MAP_InputType), INTENT(INOUT) :: SrcInputData
+   TYPE(MAP_InputType), INTENT(INOUT) :: DstInputData
    INTEGER(IntKi),  INTENT(IN   ) :: CtrlCode
    INTEGER(IntKi),  INTENT(  OUT) :: ErrStat
    CHARACTER(*),    INTENT(  OUT) :: ErrMsg
@@ -1600,6 +1716,8 @@ ENDIF
    INTEGER(IntKi)                 :: i,i1,i2,i3,i4,i5,j,k
    INTEGER(IntKi)                 :: i1_l,i2_l,i3_l,i4_l,i5_l  ! lower bounds for an array dimension
    INTEGER(IntKi)                 :: i1_u,i2_u,i3_u,i4_u,i5_u  ! upper bounds for an array dimension
+   INTEGER(IntKi)                 :: ErrStat2
+   CHARACTER(1024)                :: ErrMsg2
 ! 
    ErrStat = ErrID_None
    ErrMsg  = ""
@@ -1607,10 +1725,9 @@ IF (ASSOCIATED(SrcInputData%x)) THEN
    i1_l = LBOUND(SrcInputData%x,1)
    i1_u = UBOUND(SrcInputData%x,1)
    IF (.NOT. ASSOCIATED(DstInputData%x)) THEN 
-      ALLOCATE(DstInputData%x(i1_l:i1_u),STAT=ErrStat)
-      IF (ErrStat /= 0) THEN 
-         ErrStat = ErrID_Fatal 
-         ErrMsg = 'MAP_CopyInput: Error allocating DstInputData%x.'
+      ALLOCATE(DstInputData%x(i1_l:i1_u),STAT=ErrStat2)
+      IF (ErrStat2 /= 0) THEN 
+         CALL SetErrStat(ErrID_Fatal, 'Error allocating DstInputData%x.', ErrStat, ErrMsg,'MAP_CopyInput')
          RETURN
       END IF
    END IF
@@ -1620,10 +1737,9 @@ IF (ASSOCIATED(SrcInputData%y)) THEN
    i1_l = LBOUND(SrcInputData%y,1)
    i1_u = UBOUND(SrcInputData%y,1)
    IF (.NOT. ASSOCIATED(DstInputData%y)) THEN 
-      ALLOCATE(DstInputData%y(i1_l:i1_u),STAT=ErrStat)
-      IF (ErrStat /= 0) THEN 
-         ErrStat = ErrID_Fatal 
-         ErrMsg = 'MAP_CopyInput: Error allocating DstInputData%y.'
+      ALLOCATE(DstInputData%y(i1_l:i1_u),STAT=ErrStat2)
+      IF (ErrStat2 /= 0) THEN 
+         CALL SetErrStat(ErrID_Fatal, 'Error allocating DstInputData%y.', ErrStat, ErrMsg,'MAP_CopyInput')
          RETURN
       END IF
    END IF
@@ -1633,27 +1749,40 @@ IF (ASSOCIATED(SrcInputData%z)) THEN
    i1_l = LBOUND(SrcInputData%z,1)
    i1_u = UBOUND(SrcInputData%z,1)
    IF (.NOT. ASSOCIATED(DstInputData%z)) THEN 
-      ALLOCATE(DstInputData%z(i1_l:i1_u),STAT=ErrStat)
-      IF (ErrStat /= 0) THEN 
-         ErrStat = ErrID_Fatal 
-         ErrMsg = 'MAP_CopyInput: Error allocating DstInputData%z.'
+      ALLOCATE(DstInputData%z(i1_l:i1_u),STAT=ErrStat2)
+      IF (ErrStat2 /= 0) THEN 
+         CALL SetErrStat(ErrID_Fatal, 'Error allocating DstInputData%z.', ErrStat, ErrMsg,'MAP_CopyInput')
          RETURN
       END IF
    END IF
    DstInputData%z = SrcInputData%z
 ENDIF
   DstInputData%C_obj = SrcInputData%C_obj
-     CALL MeshCopy( SrcInputData%PtFairDisplacement, DstInputData%PtFairDisplacement, CtrlCode, ErrStat, ErrMsg )
+     CALL MeshCopy( SrcInputData%PtFairDisplacement, DstInputData%PtFairDisplacement, CtrlCode, ErrStat2, ErrMsg2 )
+         CALL SetErrStat(ErrStat2, ErrMsg2, ErrStat, ErrMsg,'MAP_CopyInput:PtFairDisplacement')
+         IF (ErrStat>=AbortErrLev) RETURN
  END SUBROUTINE MAP_CopyInput
 
  SUBROUTINE MAP_DestroyInput( InputData, ErrStat, ErrMsg )
-  TYPE(MAP_inputtype), INTENT(INOUT) :: InputData
+  TYPE(MAP_InputType), INTENT(INOUT) :: InputData
   INTEGER(IntKi),  INTENT(  OUT) :: ErrStat
   CHARACTER(*),    INTENT(  OUT) :: ErrMsg
   INTEGER(IntKi)                 :: i, i1, i2, i3, i4, i5 
 ! 
   ErrStat = ErrID_None
   ErrMsg  = ""
+IF (ASSOCIATED(InputData%x)) THEN
+   DEALLOCATE(InputData%x)
+   InputData%x => NULL()
+ENDIF
+IF (ASSOCIATED(InputData%y)) THEN
+   DEALLOCATE(InputData%y)
+   InputData%y => NULL()
+ENDIF
+IF (ASSOCIATED(InputData%z)) THEN
+   DEALLOCATE(InputData%z)
+   InputData%z => NULL()
+ENDIF
   CALL MeshDestroy( InputData%PtFairDisplacement, ErrStat, ErrMsg )
  END SUBROUTINE MAP_DestroyInput
 
@@ -1661,7 +1790,7 @@ ENDIF
   REAL(ReKi),       ALLOCATABLE, INTENT(  OUT) :: ReKiBuf(:)
   REAL(DbKi),       ALLOCATABLE, INTENT(  OUT) :: DbKiBuf(:)
   INTEGER(IntKi),   ALLOCATABLE, INTENT(  OUT) :: IntKiBuf(:)
-  TYPE(MAP_inputtype),  INTENT(INOUT) :: InData
+  TYPE(MAP_InputType),  INTENT(INOUT) :: InData
   INTEGER(IntKi),   INTENT(  OUT) :: ErrStat
   CHARACTER(*),     INTENT(  OUT) :: ErrMsg
   LOGICAL,OPTIONAL, INTENT(IN   ) :: SizeOnly
@@ -1694,9 +1823,9 @@ ENDIF
   Re_BufSz  = 0
   Db_BufSz  = 0
   Int_BufSz  = 0
-  Db_BufSz    = Db_BufSz    + SIZE( InData%x )  ! x 
-  Db_BufSz    = Db_BufSz    + SIZE( InData%y )  ! y 
-  Db_BufSz    = Db_BufSz    + SIZE( InData%z )  ! z 
+  IF ( ASSOCIATED(InData%x) )   Db_BufSz    = Db_BufSz    + SIZE( InData%x )  ! x 
+  IF ( ASSOCIATED(InData%y) )   Db_BufSz    = Db_BufSz    + SIZE( InData%y )  ! y 
+  IF ( ASSOCIATED(InData%z) )   Db_BufSz    = Db_BufSz    + SIZE( InData%z )  ! z 
  ! Allocate mesh buffers, if any (we'll also get sizes from these) 
   CALL MeshPack( InData%PtFairDisplacement, Re_PtFairDisplacement_Buf, Db_PtFairDisplacement_Buf, Int_PtFairDisplacement_Buf, ErrStat, ErrMsg, .TRUE. ) ! PtFairDisplacement 
   IF(ALLOCATED(Re_PtFairDisplacement_Buf)) Re_BufSz  = Re_BufSz  + SIZE( Re_PtFairDisplacement_Buf  ) ! PtFairDisplacement
@@ -1742,7 +1871,7 @@ ENDIF
   REAL(ReKi),      ALLOCATABLE, INTENT(IN   ) :: ReKiBuf(:)
   REAL(DbKi),      ALLOCATABLE, INTENT(IN   ) :: DbKiBuf(:)
   INTEGER(IntKi),  ALLOCATABLE, INTENT(IN   ) :: IntKiBuf(:)
-  TYPE(MAP_inputtype), INTENT(INOUT) :: OutData
+  TYPE(MAP_InputType), INTENT(INOUT) :: OutData
   INTEGER(IntKi),  INTENT(  OUT) :: ErrStat
   CHARACTER(*),    INTENT(  OUT) :: ErrMsg
     ! Local variables
@@ -1775,20 +1904,23 @@ ENDIF
   Db_BufSz  = 0
   Int_BufSz  = 0
   IF ( ASSOCIATED(OutData%x) ) THEN
-  ALLOCATE(mask1(SIZE(OutData%x,1))); mask1 = .TRUE.
-    OutData%x = UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%x))-1 ),mask1,OutData%x)
+  ALLOCATE(mask1(SIZE(OutData%x,1)))
+  mask1 = .TRUE.
+    OutData%x = REAL( UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%x))-1 ),mask1,REAL(OutData%x,DbKi)), C_DOUBLE)
   DEALLOCATE(mask1)
     Db_Xferred   = Db_Xferred   + SIZE(OutData%x)
   ENDIF
   IF ( ASSOCIATED(OutData%y) ) THEN
-  ALLOCATE(mask1(SIZE(OutData%y,1))); mask1 = .TRUE.
-    OutData%y = UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%y))-1 ),mask1,OutData%y)
+  ALLOCATE(mask1(SIZE(OutData%y,1)))
+  mask1 = .TRUE.
+    OutData%y = REAL( UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%y))-1 ),mask1,REAL(OutData%y,DbKi)), C_DOUBLE)
   DEALLOCATE(mask1)
     Db_Xferred   = Db_Xferred   + SIZE(OutData%y)
   ENDIF
   IF ( ASSOCIATED(OutData%z) ) THEN
-  ALLOCATE(mask1(SIZE(OutData%z,1))); mask1 = .TRUE.
-    OutData%z = UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%z))-1 ),mask1,OutData%z)
+  ALLOCATE(mask1(SIZE(OutData%z,1)))
+  mask1 = .TRUE.
+    OutData%z = REAL( UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%z))-1 ),mask1,REAL(OutData%z,DbKi)), C_DOUBLE)
   DEALLOCATE(mask1)
     Db_Xferred   = Db_Xferred   + SIZE(OutData%z)
   ENDIF
@@ -1816,8 +1948,8 @@ ENDIF
  END SUBROUTINE MAP_UnPackInput
 
  SUBROUTINE MAP_CopyOutput( SrcOutputData, DstOutputData, CtrlCode, ErrStat, ErrMsg )
-   TYPE(MAP_outputtype), INTENT(INOUT) :: SrcOutputData
-   TYPE(MAP_outputtype), INTENT(INOUT) :: DstOutputData
+   TYPE(MAP_OutputType), INTENT(INOUT) :: SrcOutputData
+   TYPE(MAP_OutputType), INTENT(INOUT) :: DstOutputData
    INTEGER(IntKi),  INTENT(IN   ) :: CtrlCode
    INTEGER(IntKi),  INTENT(  OUT) :: ErrStat
    CHARACTER(*),    INTENT(  OUT) :: ErrMsg
@@ -1825,6 +1957,8 @@ ENDIF
    INTEGER(IntKi)                 :: i,i1,i2,i3,i4,i5,j,k
    INTEGER(IntKi)                 :: i1_l,i2_l,i3_l,i4_l,i5_l  ! lower bounds for an array dimension
    INTEGER(IntKi)                 :: i1_u,i2_u,i3_u,i4_u,i5_u  ! upper bounds for an array dimension
+   INTEGER(IntKi)                 :: ErrStat2
+   CHARACTER(1024)                :: ErrMsg2
 ! 
    ErrStat = ErrID_None
    ErrMsg  = ""
@@ -1832,10 +1966,9 @@ IF (ASSOCIATED(SrcOutputData%Fx)) THEN
    i1_l = LBOUND(SrcOutputData%Fx,1)
    i1_u = UBOUND(SrcOutputData%Fx,1)
    IF (.NOT. ASSOCIATED(DstOutputData%Fx)) THEN 
-      ALLOCATE(DstOutputData%Fx(i1_l:i1_u),STAT=ErrStat)
-      IF (ErrStat /= 0) THEN 
-         ErrStat = ErrID_Fatal 
-         ErrMsg = 'MAP_CopyOutput: Error allocating DstOutputData%Fx.'
+      ALLOCATE(DstOutputData%Fx(i1_l:i1_u),STAT=ErrStat2)
+      IF (ErrStat2 /= 0) THEN 
+         CALL SetErrStat(ErrID_Fatal, 'Error allocating DstOutputData%Fx.', ErrStat, ErrMsg,'MAP_CopyOutput')
          RETURN
       END IF
    END IF
@@ -1845,10 +1978,9 @@ IF (ASSOCIATED(SrcOutputData%Fy)) THEN
    i1_l = LBOUND(SrcOutputData%Fy,1)
    i1_u = UBOUND(SrcOutputData%Fy,1)
    IF (.NOT. ASSOCIATED(DstOutputData%Fy)) THEN 
-      ALLOCATE(DstOutputData%Fy(i1_l:i1_u),STAT=ErrStat)
-      IF (ErrStat /= 0) THEN 
-         ErrStat = ErrID_Fatal 
-         ErrMsg = 'MAP_CopyOutput: Error allocating DstOutputData%Fy.'
+      ALLOCATE(DstOutputData%Fy(i1_l:i1_u),STAT=ErrStat2)
+      IF (ErrStat2 /= 0) THEN 
+         CALL SetErrStat(ErrID_Fatal, 'Error allocating DstOutputData%Fy.', ErrStat, ErrMsg,'MAP_CopyOutput')
          RETURN
       END IF
    END IF
@@ -1858,10 +1990,9 @@ IF (ASSOCIATED(SrcOutputData%Fz)) THEN
    i1_l = LBOUND(SrcOutputData%Fz,1)
    i1_u = UBOUND(SrcOutputData%Fz,1)
    IF (.NOT. ASSOCIATED(DstOutputData%Fz)) THEN 
-      ALLOCATE(DstOutputData%Fz(i1_l:i1_u),STAT=ErrStat)
-      IF (ErrStat /= 0) THEN 
-         ErrStat = ErrID_Fatal 
-         ErrMsg = 'MAP_CopyOutput: Error allocating DstOutputData%Fz.'
+      ALLOCATE(DstOutputData%Fz(i1_l:i1_u),STAT=ErrStat2)
+      IF (ErrStat2 /= 0) THEN 
+         CALL SetErrStat(ErrID_Fatal, 'Error allocating DstOutputData%Fz.', ErrStat, ErrMsg,'MAP_CopyOutput')
          RETURN
       END IF
    END IF
@@ -1871,27 +2002,44 @@ IF (ASSOCIATED(SrcOutputData%wrtOutput)) THEN
    i1_l = LBOUND(SrcOutputData%wrtOutput,1)
    i1_u = UBOUND(SrcOutputData%wrtOutput,1)
    IF (.NOT. ASSOCIATED(DstOutputData%wrtOutput)) THEN 
-      ALLOCATE(DstOutputData%wrtOutput(i1_l:i1_u),STAT=ErrStat)
-      IF (ErrStat /= 0) THEN 
-         ErrStat = ErrID_Fatal 
-         ErrMsg = 'MAP_CopyOutput: Error allocating DstOutputData%wrtOutput.'
+      ALLOCATE(DstOutputData%wrtOutput(i1_l:i1_u),STAT=ErrStat2)
+      IF (ErrStat2 /= 0) THEN 
+         CALL SetErrStat(ErrID_Fatal, 'Error allocating DstOutputData%wrtOutput.', ErrStat, ErrMsg,'MAP_CopyOutput')
          RETURN
       END IF
    END IF
    DstOutputData%wrtOutput = SrcOutputData%wrtOutput
 ENDIF
   DstOutputData%C_obj = SrcOutputData%C_obj
-     CALL MeshCopy( SrcOutputData%ptFairleadLoad, DstOutputData%ptFairleadLoad, CtrlCode, ErrStat, ErrMsg )
+     CALL MeshCopy( SrcOutputData%ptFairleadLoad, DstOutputData%ptFairleadLoad, CtrlCode, ErrStat2, ErrMsg2 )
+         CALL SetErrStat(ErrStat2, ErrMsg2, ErrStat, ErrMsg,'MAP_CopyOutput:ptFairleadLoad')
+         IF (ErrStat>=AbortErrLev) RETURN
  END SUBROUTINE MAP_CopyOutput
 
  SUBROUTINE MAP_DestroyOutput( OutputData, ErrStat, ErrMsg )
-  TYPE(MAP_outputtype), INTENT(INOUT) :: OutputData
+  TYPE(MAP_OutputType), INTENT(INOUT) :: OutputData
   INTEGER(IntKi),  INTENT(  OUT) :: ErrStat
   CHARACTER(*),    INTENT(  OUT) :: ErrMsg
   INTEGER(IntKi)                 :: i, i1, i2, i3, i4, i5 
 ! 
   ErrStat = ErrID_None
   ErrMsg  = ""
+IF (ASSOCIATED(OutputData%Fx)) THEN
+   DEALLOCATE(OutputData%Fx)
+   OutputData%Fx => NULL()
+ENDIF
+IF (ASSOCIATED(OutputData%Fy)) THEN
+   DEALLOCATE(OutputData%Fy)
+   OutputData%Fy => NULL()
+ENDIF
+IF (ASSOCIATED(OutputData%Fz)) THEN
+   DEALLOCATE(OutputData%Fz)
+   OutputData%Fz => NULL()
+ENDIF
+IF (ASSOCIATED(OutputData%wrtOutput)) THEN
+   DEALLOCATE(OutputData%wrtOutput)
+   OutputData%wrtOutput => NULL()
+ENDIF
   CALL MeshDestroy( OutputData%ptFairleadLoad, ErrStat, ErrMsg )
  END SUBROUTINE MAP_DestroyOutput
 
@@ -1899,7 +2047,7 @@ ENDIF
   REAL(ReKi),       ALLOCATABLE, INTENT(  OUT) :: ReKiBuf(:)
   REAL(DbKi),       ALLOCATABLE, INTENT(  OUT) :: DbKiBuf(:)
   INTEGER(IntKi),   ALLOCATABLE, INTENT(  OUT) :: IntKiBuf(:)
-  TYPE(MAP_outputtype),  INTENT(INOUT) :: InData
+  TYPE(MAP_OutputType),  INTENT(INOUT) :: InData
   INTEGER(IntKi),   INTENT(  OUT) :: ErrStat
   CHARACTER(*),     INTENT(  OUT) :: ErrMsg
   LOGICAL,OPTIONAL, INTENT(IN   ) :: SizeOnly
@@ -1932,10 +2080,10 @@ ENDIF
   Re_BufSz  = 0
   Db_BufSz  = 0
   Int_BufSz  = 0
-  Db_BufSz    = Db_BufSz    + SIZE( InData%Fx )  ! Fx 
-  Db_BufSz    = Db_BufSz    + SIZE( InData%Fy )  ! Fy 
-  Db_BufSz    = Db_BufSz    + SIZE( InData%Fz )  ! Fz 
-  Db_BufSz    = Db_BufSz    + SIZE( InData%wrtOutput )  ! wrtOutput 
+  IF ( ASSOCIATED(InData%Fx) )   Db_BufSz    = Db_BufSz    + SIZE( InData%Fx )  ! Fx 
+  IF ( ASSOCIATED(InData%Fy) )   Db_BufSz    = Db_BufSz    + SIZE( InData%Fy )  ! Fy 
+  IF ( ASSOCIATED(InData%Fz) )   Db_BufSz    = Db_BufSz    + SIZE( InData%Fz )  ! Fz 
+  IF ( ASSOCIATED(InData%wrtOutput) )   Db_BufSz    = Db_BufSz    + SIZE( InData%wrtOutput )  ! wrtOutput 
  ! Allocate mesh buffers, if any (we'll also get sizes from these) 
   CALL MeshPack( InData%ptFairleadLoad, Re_ptFairleadLoad_Buf, Db_ptFairleadLoad_Buf, Int_ptFairleadLoad_Buf, ErrStat, ErrMsg, .TRUE. ) ! ptFairleadLoad 
   IF(ALLOCATED(Re_ptFairleadLoad_Buf)) Re_BufSz  = Re_BufSz  + SIZE( Re_ptFairleadLoad_Buf  ) ! ptFairleadLoad
@@ -1985,7 +2133,7 @@ ENDIF
   REAL(ReKi),      ALLOCATABLE, INTENT(IN   ) :: ReKiBuf(:)
   REAL(DbKi),      ALLOCATABLE, INTENT(IN   ) :: DbKiBuf(:)
   INTEGER(IntKi),  ALLOCATABLE, INTENT(IN   ) :: IntKiBuf(:)
-  TYPE(MAP_outputtype), INTENT(INOUT) :: OutData
+  TYPE(MAP_OutputType), INTENT(INOUT) :: OutData
   INTEGER(IntKi),  INTENT(  OUT) :: ErrStat
   CHARACTER(*),    INTENT(  OUT) :: ErrMsg
     ! Local variables
@@ -2018,26 +2166,30 @@ ENDIF
   Db_BufSz  = 0
   Int_BufSz  = 0
   IF ( ASSOCIATED(OutData%Fx) ) THEN
-  ALLOCATE(mask1(SIZE(OutData%Fx,1))); mask1 = .TRUE.
-    OutData%Fx = UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%Fx))-1 ),mask1,OutData%Fx)
+  ALLOCATE(mask1(SIZE(OutData%Fx,1)))
+  mask1 = .TRUE.
+    OutData%Fx = REAL( UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%Fx))-1 ),mask1,REAL(OutData%Fx,DbKi)), C_DOUBLE)
   DEALLOCATE(mask1)
     Db_Xferred   = Db_Xferred   + SIZE(OutData%Fx)
   ENDIF
   IF ( ASSOCIATED(OutData%Fy) ) THEN
-  ALLOCATE(mask1(SIZE(OutData%Fy,1))); mask1 = .TRUE.
-    OutData%Fy = UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%Fy))-1 ),mask1,OutData%Fy)
+  ALLOCATE(mask1(SIZE(OutData%Fy,1)))
+  mask1 = .TRUE.
+    OutData%Fy = REAL( UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%Fy))-1 ),mask1,REAL(OutData%Fy,DbKi)), C_DOUBLE)
   DEALLOCATE(mask1)
     Db_Xferred   = Db_Xferred   + SIZE(OutData%Fy)
   ENDIF
   IF ( ASSOCIATED(OutData%Fz) ) THEN
-  ALLOCATE(mask1(SIZE(OutData%Fz,1))); mask1 = .TRUE.
-    OutData%Fz = UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%Fz))-1 ),mask1,OutData%Fz)
+  ALLOCATE(mask1(SIZE(OutData%Fz,1)))
+  mask1 = .TRUE.
+    OutData%Fz = REAL( UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%Fz))-1 ),mask1,REAL(OutData%Fz,DbKi)), C_DOUBLE)
   DEALLOCATE(mask1)
     Db_Xferred   = Db_Xferred   + SIZE(OutData%Fz)
   ENDIF
   IF ( ASSOCIATED(OutData%wrtOutput) ) THEN
-  ALLOCATE(mask1(SIZE(OutData%wrtOutput,1))); mask1 = .TRUE.
-    OutData%wrtOutput = UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%wrtOutput))-1 ),mask1,OutData%wrtOutput)
+  ALLOCATE(mask1(SIZE(OutData%wrtOutput,1)))
+  mask1 = .TRUE.
+    OutData%wrtOutput = REAL( UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%wrtOutput))-1 ),mask1,REAL(OutData%wrtOutput,DbKi)), C_DOUBLE)
   DEALLOCATE(mask1)
     Db_Xferred   = Db_Xferred   + SIZE(OutData%wrtOutput)
   ENDIF
@@ -2103,6 +2255,8 @@ ENDIF
  REAL(DbKi),ALLOCATABLE,DIMENSION(:,:,:,:)  :: c4       ! temporary for extrapolation/interpolation
  REAL(DbKi),ALLOCATABLE,DIMENSION(:,:,:,:,:):: b5       ! temporary for extrapolation/interpolation
  REAL(DbKi),ALLOCATABLE,DIMENSION(:,:,:,:,:):: c5       ! temporary for extrapolation/interpolation
+ INTEGER(IntKi)                             :: ErrStat2 ! local errors
+ CHARACTER(1024)                            :: ErrMsg2  ! local errors
  INTEGER                                    :: i01    ! dim1 level 0 counter variable for arrays of ddts
  INTEGER                                    :: i11    ! dim1 level 1 counter variable for arrays of ddts
  INTEGER                                    :: i21    ! dim1 level 2 counter variable for arrays of ddts
@@ -2182,7 +2336,9 @@ END IF ! check if allocated
 IF (ASSOCIATED(u_out%z) .AND. ASSOCIATED(u(1)%z)) THEN
   u_out%z = u(1)%z
 END IF ! check if allocated
-  CALL MeshCopy(u(1)%PtFairDisplacement, u_out%PtFairDisplacement, MESH_UPDATECOPY, ErrStat, ErrMsg )
+  CALL MeshCopy(u(1)%PtFairDisplacement, u_out%PtFairDisplacement, MESH_UPDATECOPY, ErrStat2, ErrMsg2 )
+         CALL SetErrStat(ErrStat2, ErrMsg2, ErrStat, ErrMsg,'MAP_Input_ExtrapInterp:%PtFairDisplacement')
+         IF (ErrStat>=AbortErrLev) RETURN
  ELSE IF ( order .eq. 1 ) THEN
   IF ( EqualRealNos( t(1), t(2) ) ) THEN
     ErrStat = ErrID_Fatal
@@ -2213,7 +2369,9 @@ IF (ASSOCIATED(u_out%z) .AND. ASSOCIATED(u(1)%z)) THEN
   DEALLOCATE(b1)
   DEALLOCATE(c1)
 END IF ! check if allocated
-  CALL MeshExtrapInterp1(u(1)%PtFairDisplacement, u(2)%PtFairDisplacement, tin, u_out%PtFairDisplacement, tin_out, ErrStat, ErrMsg )
+  CALL MeshExtrapInterp1(u(1)%PtFairDisplacement, u(2)%PtFairDisplacement, tin, u_out%PtFairDisplacement, tin_out, ErrStat2, ErrMsg2 )
+         CALL SetErrStat(ErrStat2, ErrMsg2, ErrStat, ErrMsg,'MAP_Input_ExtrapInterp:%PtFairDisplacement')
+         IF (ErrStat>=AbortErrLev) RETURN
  ELSE IF ( order .eq. 2 ) THEN
   IF ( EqualRealNos( t(1), t(2) ) ) THEN
     ErrStat = ErrID_Fatal
@@ -2257,7 +2415,9 @@ IF (ASSOCIATED(u_out%z) .AND. ASSOCIATED(u(1)%z)) THEN
   DEALLOCATE(b1)
   DEALLOCATE(c1)
 END IF ! check if allocated
-  CALL MeshExtrapInterp2(u(1)%PtFairDisplacement, u(2)%PtFairDisplacement, u(3)%PtFairDisplacement, tin, u_out%PtFairDisplacement, tin_out, ErrStat, ErrMsg )
+  CALL MeshExtrapInterp2(u(1)%PtFairDisplacement, u(2)%PtFairDisplacement, u(3)%PtFairDisplacement, tin, u_out%PtFairDisplacement, tin_out, ErrStat2, ErrMsg2 )
+         CALL SetErrStat(ErrStat2, ErrMsg2, ErrStat, ErrMsg,'MAP_Input_ExtrapInterp:%PtFairDisplacement')
+         IF (ErrStat>=AbortErrLev) RETURN
  ELSE 
    ErrStat = ErrID_Fatal
    ErrMsg = ' order must be less than 3 in MAP_Input_ExtrapInterp '
@@ -2304,6 +2464,8 @@ END IF ! check if allocated
  REAL(DbKi),ALLOCATABLE,DIMENSION(:,:,:,:)  :: c4       ! temporary for extrapolation/interpolation
  REAL(DbKi),ALLOCATABLE,DIMENSION(:,:,:,:,:):: b5       ! temporary for extrapolation/interpolation
  REAL(DbKi),ALLOCATABLE,DIMENSION(:,:,:,:,:):: c5       ! temporary for extrapolation/interpolation
+ INTEGER(IntKi)                             :: ErrStat2 ! local errors
+ CHARACTER(1024)                            :: ErrMsg2  ! local errors
  INTEGER                                    :: i01    ! dim1 level 0 counter variable for arrays of ddts
  INTEGER                                    :: i11    ! dim1 level 1 counter variable for arrays of ddts
  INTEGER                                    :: i21    ! dim1 level 2 counter variable for arrays of ddts
@@ -2386,7 +2548,9 @@ END IF ! check if allocated
 IF (ASSOCIATED(u_out%wrtOutput) .AND. ASSOCIATED(u(1)%wrtOutput)) THEN
   u_out%wrtOutput = u(1)%wrtOutput
 END IF ! check if allocated
-  CALL MeshCopy(u(1)%ptFairleadLoad, u_out%ptFairleadLoad, MESH_UPDATECOPY, ErrStat, ErrMsg )
+  CALL MeshCopy(u(1)%ptFairleadLoad, u_out%ptFairleadLoad, MESH_UPDATECOPY, ErrStat2, ErrMsg2 )
+         CALL SetErrStat(ErrStat2, ErrMsg2, ErrStat, ErrMsg,'MAP_Output_ExtrapInterp:%ptFairleadLoad')
+         IF (ErrStat>=AbortErrLev) RETURN
  ELSE IF ( order .eq. 1 ) THEN
   IF ( EqualRealNos( t(1), t(2) ) ) THEN
     ErrStat = ErrID_Fatal
@@ -2425,7 +2589,9 @@ IF (ASSOCIATED(u_out%wrtOutput) .AND. ASSOCIATED(u(1)%wrtOutput)) THEN
   DEALLOCATE(b1)
   DEALLOCATE(c1)
 END IF ! check if allocated
-  CALL MeshExtrapInterp1(u(1)%ptFairleadLoad, u(2)%ptFairleadLoad, tin, u_out%ptFairleadLoad, tin_out, ErrStat, ErrMsg )
+  CALL MeshExtrapInterp1(u(1)%ptFairleadLoad, u(2)%ptFairleadLoad, tin, u_out%ptFairleadLoad, tin_out, ErrStat2, ErrMsg2 )
+         CALL SetErrStat(ErrStat2, ErrMsg2, ErrStat, ErrMsg,'MAP_Output_ExtrapInterp:%ptFairleadLoad')
+         IF (ErrStat>=AbortErrLev) RETURN
  ELSE IF ( order .eq. 2 ) THEN
   IF ( EqualRealNos( t(1), t(2) ) ) THEN
     ErrStat = ErrID_Fatal
@@ -2478,7 +2644,9 @@ IF (ASSOCIATED(u_out%wrtOutput) .AND. ASSOCIATED(u(1)%wrtOutput)) THEN
   DEALLOCATE(b1)
   DEALLOCATE(c1)
 END IF ! check if allocated
-  CALL MeshExtrapInterp2(u(1)%ptFairleadLoad, u(2)%ptFairleadLoad, u(3)%ptFairleadLoad, tin, u_out%ptFairleadLoad, tin_out, ErrStat, ErrMsg )
+  CALL MeshExtrapInterp2(u(1)%ptFairleadLoad, u(2)%ptFairleadLoad, u(3)%ptFairleadLoad, tin, u_out%ptFairleadLoad, tin_out, ErrStat2, ErrMsg2 )
+         CALL SetErrStat(ErrStat2, ErrMsg2, ErrStat, ErrMsg,'MAP_Output_ExtrapInterp:%ptFairleadLoad')
+         IF (ErrStat>=AbortErrLev) RETURN
  ELSE 
    ErrStat = ErrID_Fatal
    ErrMsg = ' order must be less than 3 in MAP_Output_ExtrapInterp '

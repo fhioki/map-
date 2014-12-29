@@ -10,7 +10,7 @@
 #include "registry.h"
 #include "data.h"
 
-void gen_c_module_subs( FILE * fpIntf, node_t * ModName, char typeNamelong[], char typeName[], char CreateDestroy[] );
+// void gen_c_module_subs( FILE * fpIntf, node_t * ModName, char typeNamelong[], char typeName[], char CreateDestroy[] );
 
 void
 gen_c_helpers( FILE * fp, const node_t * ModName, char * inout, char * inoutlong )
@@ -436,64 +436,64 @@ fprintf(fp,"}\n") ;
 return;//(0) ;
 }
 
-void
-gen_c_module_intf( FILE * fpIntf , node_t * ModName )
-{
-//Marco put these in a template file (Template_c_Types.c) and created interfaces; 
-// I'm putting them here:
-gen_c_module_subs(fpIntf, ModName, "InitInput",  "InitInput",  "Create");
-gen_c_module_subs(fpIntf, ModName, "InitInput",  "InitInput",  "Delete");
-gen_c_module_subs(fpIntf, ModName, "InitOutput", "InitOutput", "Create");
-gen_c_module_subs(fpIntf, ModName, "InitOutput", "InitOutput", "Delete");
-gen_c_module_subs(fpIntf, ModName, "Input",      "Input",      "Create");
-gen_c_module_subs(fpIntf, ModName, "Input",      "Input",      "Delete");
-gen_c_module_subs(fpIntf, ModName, "Parameter",  "Param",      "Create");
-gen_c_module_subs(fpIntf, ModName, "Parameter",  "Param",      "Delete");
-gen_c_module_subs(fpIntf, ModName, "Continuous", "ContState",  "Create");
-gen_c_module_subs(fpIntf, ModName, "Continuous", "ContState",  "Delete");
-gen_c_module_subs(fpIntf, ModName, "Discrete",   "DiscState",  "Create");
-gen_c_module_subs(fpIntf, ModName, "Discrete",   "DiscState",  "Delete");
-gen_c_module_subs(fpIntf, ModName, "Constraint", "ConstrState","Create");
-gen_c_module_subs(fpIntf, ModName, "Constraint", "ConstrState","Delete");
-gen_c_module_subs(fpIntf, ModName, "Other",      "OtherState", "Create");
-gen_c_module_subs(fpIntf, ModName, "Other",      "OtherState", "Delete");
-gen_c_module_subs(fpIntf, ModName, "Output",     "Output",     "Create");
-gen_c_module_subs(fpIntf, ModName, "Output",     "Output",     "Delete");
-//note: these should really be updated to use code instead of Marco's template.
-}
-
-
-void
-gen_c_module_subs( FILE * fpIntf, node_t * ModName, char typeNamelong[], char typeName[], char CreateDestroy[] )
-{
-                   
-   fprintf(fpIntf,"FUNCTION C_%s_%s_%s( ) RESULT( this ) BIND(C,name='%s_%s_%s') \n",
-         CreateDestroy     ,   
-         ModName->nickname ,
-         typeNamelong      ,
-         ModName->nickname ,
-         typeName          ,
-         CreateDestroy     );
-   fprintf(fpIntf,"!DEC$ ATTRIBUTES DLLEXPORT:: C_%s_%s_%s\n", CreateDestroy,ModName->nickname ,typeNamelong   );
-   fprintf(fpIntf,"       USE , INTRINSIC :: ISO_C_Binding\n");
-   fprintf(fpIntf,"       IMPLICIT NONE\n");
-   fprintf(fpIntf,"!GCC$ ATTRIBUTES DLLEXPORT ::C_%s_%s_%s\n", CreateDestroy,ModName->nickname ,typeNamelong   );
-   fprintf(fpIntf,"        TYPE(C_ptr) :: this\n"       );
-   fprintf(fpIntf,"END FUNCTION C_%s_%s_%s\n", CreateDestroy, ModName->nickname ,typeNamelong  );
-}
+// void
+// gen_c_module_intf( FILE * fpIntf , node_t * ModName )
+// {
+// //Marco put these in a template file (Template_c_Types.c) and created interfaces; 
+// // I'm putting them here:
+// gen_c_module_subs(fpIntf, ModName, "InitInput",  "InitInput",  "Create");
+// gen_c_module_subs(fpIntf, ModName, "InitInput",  "InitInput",  "Delete");
+// gen_c_module_subs(fpIntf, ModName, "InitOutput", "InitOutput", "Create");
+// gen_c_module_subs(fpIntf, ModName, "InitOutput", "InitOutput", "Delete");
+// gen_c_module_subs(fpIntf, ModName, "Input",      "Input",      "Create");
+// gen_c_module_subs(fpIntf, ModName, "Input",      "Input",      "Delete");
+// gen_c_module_subs(fpIntf, ModName, "Parameter",  "Param",      "Create");
+// gen_c_module_subs(fpIntf, ModName, "Parameter",  "Param",      "Delete");
+// gen_c_module_subs(fpIntf, ModName, "Continuous", "ContState",  "Create");
+// gen_c_module_subs(fpIntf, ModName, "Continuous", "ContState",  "Delete");
+// gen_c_module_subs(fpIntf, ModName, "Discrete",   "DiscState",  "Create");
+// gen_c_module_subs(fpIntf, ModName, "Discrete",   "DiscState",  "Delete");
+// gen_c_module_subs(fpIntf, ModName, "Constraint", "ConstrState","Create");
+// gen_c_module_subs(fpIntf, ModName, "Constraint", "ConstrState","Delete");
+// gen_c_module_subs(fpIntf, ModName, "Other",      "OtherState", "Create");
+// gen_c_module_subs(fpIntf, ModName, "Other",      "OtherState", "Delete");
+// gen_c_module_subs(fpIntf, ModName, "Output",     "Output",     "Create");
+// gen_c_module_subs(fpIntf, ModName, "Output",     "Output",     "Delete");
+// //note: these should really be updated to use code instead of Marco's template.
+// }
+// 
+// 
+// void
+// gen_c_module_subs( FILE * fpIntf, node_t * ModName, char typeNamelong[], char typeName[], char CreateDestroy[] )
+// {
+//                    
+//    fprintf(fpIntf,"FUNCTION C_%s_%s_%s( ) RESULT( this ) BIND(C,name='%s_%s_%s') \n",
+//          CreateDestroy     ,   
+//          ModName->nickname ,
+//          typeNamelong      ,
+//          ModName->nickname ,
+//          typeName          ,
+//          CreateDestroy     );
+//    fprintf(fpIntf,"!DEC$ ATTRIBUTES DLLEXPORT:: C_%s_%s_%s\n", CreateDestroy,ModName->nickname ,typeNamelong   );
+//    fprintf(fpIntf,"       USE , INTRINSIC :: ISO_C_Binding\n");
+//    fprintf(fpIntf,"       IMPLICIT NONE\n");
+//    fprintf(fpIntf,"!GCC$ ATTRIBUTES DLLEXPORT ::C_%s_%s_%s\n", CreateDestroy,ModName->nickname ,typeNamelong   );
+//    fprintf(fpIntf,"        TYPE(C_ptr) :: this\n"       );
+//    fprintf(fpIntf,"END FUNCTION C_%s_%s_%s\n", CreateDestroy, ModName->nickname ,typeNamelong  );
+// }
 
 
 #include "Template_C_Types.c"
 #include "Template_c2f_helpers.c"
 
 void
-gen_c_module( FILE * fpc , FILE * fph, node_t * ModName, FILE * fpIntf )
+gen_c_module( /*FILE * fpc ,*/ FILE * fph, node_t * ModName /*, FILE * fpIntf */)
 {
   node_t * p, * q, * r ;
   int i ;
   char nonick[NAMELEN], star ;
 
-  gen_c_module_intf( fpIntf , ModName );
+  // gen_c_module_intf( fpIntf , ModName );
 
   if ( strlen(ModName->nickname) > 0 ) {
 // generate each derived data type
@@ -566,85 +566,85 @@ gen_c_module( FILE * fpc , FILE * fph, node_t * ModName, FILE * fpIntf )
     }
     fprintf(fph,"  } %s_t ;\n", ModName->nickname ) ;
 
-    fprintf(fpc,"//#define CALL __attribute__((dllexport) )\n") ;
-    for ( q = ModName->module_ddt_list ; q ; q = q->next )
-    {
-      if ( q->usefrom == 0 ) {
-
-        char * ddtname, * ddtnamelong, nonick[NAMELEN] ;
-        ddtname = q->name ;
-
-        remove_nickname(ModName->nickname,ddtname,nonick) ;
-
-        if ( is_a_fast_interface_type( nonick ) ) {
-          ddtnamelong = std_case( nonick ) ;
-          ddtname = fast_interface_type_shortname( nonick ) ;
-        } else {
-          ddtnamelong = ddtname ;
-        }
-//        fprintf(fpc,"extern \"C\" %s_%s_t* CALL %s_%s_Create() { return new %s_%s_t() ; } ;\n",
-        if(!strcmp("InitInputType",ddtnamelong) || !strcmp("OtherStateType",ddtnamelong)) {
-        fprintf(fpc,"//%s_%s_t* CALL %s_%s_Create() { return ((%s_%s_t*) malloc( sizeof(%s_%s_t()))) ; } ;\n",
-                        ModName->nickname,
-                        ddtnamelong,
-                        ModName->nickname,
-                        ddtname,
-                        ModName->nickname,
-                        ddtnamelong,
-                        ModName->nickname,
-                        ddtnamelong ) ;
-        
-        fprintf(fpc,"//void CALL %s_%s_Delete(%s_%s_t *This) { free(This) ; } ;\n",
-                        ModName->nickname,
-                        ddtname,
-                        ModName->nickname,
-                        ddtnamelong ) ;
-        } else {
-        fprintf(fpc,"void CALL %s_%s_Create() { } ;\n",
-                        ModName->nickname,
-                        ddtname ) ;
-        
-        fprintf(fpc,"void CALL %s_%s_Delete(void* none) { } ;\n",
-                        ModName->nickname,
-                        ddtname ) ;
-        }
-      }
-    }
-
-    for ( q = ModName->module_ddt_list ; q ; q = q->next )
-    {
-      if ( q->usefrom == 0 ) {
-
-        char * ddtname, * ddtnamelong, nonick[NAMELEN] ;
-        ddtname = q->name ;
-
-        remove_nickname(ModName->nickname,ddtname,nonick) ;
-
-        if ( is_a_fast_interface_type( nonick ) ) {
-          ddtnamelong = std_case( nonick ) ;
-          ddtname = fast_interface_type_shortname( nonick ) ;
-        } else {
-          ddtnamelong = ddtname ;
-        }
-
-  //      gen_copy( fpc, ModName, ddtname, ddtnamelong ) ;
-  //      gen_destroy( fpc, ModName, ddtname, ddtnamelong ) ;
-        gen_c_pack( fpc, ModName, ddtname, ddtnamelong ) ;
-        gen_c_unpack( fpc, ModName, ddtname, ddtnamelong ) ;
-        gen_c_helpers( fpc, ModName, ddtname, ddtnamelong ) ;
-      }
-    }
-#if 0
-    if ( sw_ccode ) {
-      char ** p ;
-      char tmp1[NAMELEN], tmp2[NAMELEN], tmp3[NAMELEN] ;
-      for ( p = template_c2f_helpers ; *p ; p++ ) {
-        strcpy(tmp1,*p) ;
-        substitute(tmp1,"ModName",ModName->nickname,tmp2) ;
-        fprintf(fpc,"%s\n",tmp2) ;
-      }
-    }
-#endif
+//     fprintf(fpc,"//#define CALL __attribute__((dllexport) )\n") ;
+//     for ( q = ModName->module_ddt_list ; q ; q = q->next )
+//     {
+//       if ( q->usefrom == 0 ) {
+// 
+//         char * ddtname, * ddtnamelong, nonick[NAMELEN] ;
+//         ddtname = q->name ;
+// 
+//         remove_nickname(ModName->nickname,ddtname,nonick) ;
+// 
+//         if ( is_a_fast_interface_type( nonick ) ) {
+//           ddtnamelong = std_case( nonick ) ;
+//           ddtname = fast_interface_type_shortname( nonick ) ;
+//         } else {
+//           ddtnamelong = ddtname ;
+//         }
+// //        fprintf(fpc,"extern \"C\" %s_%s_t* CALL %s_%s_Create() { return new %s_%s_t() ; } ;\n",
+//         if(!strcmp("InitInputType",ddtnamelong) || !strcmp("OtherStateType",ddtnamelong)) {
+//         fprintf(fpc,"//%s_%s_t* CALL %s_%s_Create() { return ((%s_%s_t*) malloc( sizeof(%s_%s_t()))) ; } ;\n",
+//                         ModName->nickname,
+//                         ddtnamelong,
+//                         ModName->nickname,
+//                         ddtname,
+//                         ModName->nickname,
+//                         ddtnamelong,
+//                         ModName->nickname,
+//                         ddtnamelong ) ;
+//         
+//         fprintf(fpc,"//void CALL %s_%s_Delete(%s_%s_t *This) { free(This) ; } ;\n",
+//                         ModName->nickname,
+//                         ddtname,
+//                         ModName->nickname,
+//                         ddtnamelong ) ;
+//         } else {
+//         fprintf(fpc,"void CALL %s_%s_Create() { } ;\n",
+//                         ModName->nickname,
+//                         ddtname ) ;
+//         
+//         fprintf(fpc,"void CALL %s_%s_Delete(void* none) { } ;\n",
+//                         ModName->nickname,
+//                         ddtname ) ;
+//         }
+//       }
+//     }
+// 
+//     for ( q = ModName->module_ddt_list ; q ; q = q->next )
+//     {
+//       if ( q->usefrom == 0 ) {
+// 
+//         char * ddtname, * ddtnamelong, nonick[NAMELEN] ;
+//         ddtname = q->name ;
+// 
+//         remove_nickname(ModName->nickname,ddtname,nonick) ;
+// 
+//         if ( is_a_fast_interface_type( nonick ) ) {
+//           ddtnamelong = std_case( nonick ) ;
+//           ddtname = fast_interface_type_shortname( nonick ) ;
+//         } else {
+//           ddtnamelong = ddtname ;
+//         }
+// 
+//   //      gen_copy( fpc, ModName, ddtname, ddtnamelong ) ;
+//   //      gen_destroy( fpc, ModName, ddtname, ddtnamelong ) ;
+//         gen_c_pack( fpc, ModName, ddtname, ddtnamelong ) ;
+//         gen_c_unpack( fpc, ModName, ddtname, ddtnamelong ) ;
+//         gen_c_helpers( fpc, ModName, ddtname, ddtnamelong ) ;
+//       }
+//     }
+// #if 0
+//     if ( sw_ccode ) {
+//       char ** p ;
+//       char tmp1[NAMELEN], tmp2[NAMELEN], tmp3[NAMELEN] ;
+//       for ( p = template_c2f_helpers ; *p ; p++ ) {
+//         strcpy(tmp1,*p) ;
+//         substitute(tmp1,"ModName",ModName->nickname,tmp2) ;
+//         fprintf(fpc,"%s\n",tmp2) ;
+//       }
+//     }
+// #endif
 
     if ( sw_ccode ) {
       FILE *fpt ;

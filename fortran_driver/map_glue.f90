@@ -281,7 +281,7 @@ PROGRAM Main
    IF (ErrStat.NE.0) THEN
       WRITE(*,*) ErrMsg 
    END IF  
-
+   
    CALL MAP_DestroyInput(u_MAP, ErrStat, ErrMsg)
    IF (ErrStat/=ErrID_None) CALL WrScr(TRIM(ErrMsg))  
    IF (ALLOCATED(MAP_Input)) THEN
@@ -293,7 +293,7 @@ PROGRAM Main
    END IF
    IF (ALLOCATED(MAP_Input)) DEALLOCATE(MAP_Input)      
    IF (ALLOCATED(MAP_InputTimes)) DEALLOCATE(MAP_InputTimes)
-
+   
    CALL MAP_DestroyContState(x_MAP_pred, ErrStat, ErrMsg); IF (ErrStat/= ErrID_None) CALL WrScr(TRIM(ErrMsg))
    CALL MAP_DestroyDiscState(xd_MAP_pred, ErrStat, ErrMsg); IF (ErrStat/= ErrID_None) CALL WrScr(TRIM(ErrMsg))  
    CALL MAP_DestroyConstrState(z_MAP_pred, ErrStat, ErrMsg); IF (ErrStat/= ErrID_None) CALL WrScr(TRIM(ErrMsg))  

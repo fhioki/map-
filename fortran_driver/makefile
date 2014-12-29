@@ -87,7 +87,6 @@ map.o : map.f90
 	$(FC) $(OPT) $(FCFLAGS) -c map.f90
 
 
-
 clean:		
 	rm -f *.o map_driver *.*~ *.*# Makefile~ *.mod *.valgrind baseline.sum*
 
