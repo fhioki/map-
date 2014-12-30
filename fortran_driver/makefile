@@ -17,13 +17,14 @@
 #  ============================================================================
 
 NWTC_LIB = ./nwtc_lib/src
+NWTC_NUM = ./nwtc_lib/src/NetLib
 
 PREC        = SingPrec
 SYS_FILE    = SysGnuLinux
 
 FC       = gfortran
 FCFLAGS  = -O0 -fbacktrace -fbounds-check -x f95-cpp-input -ffree-line-length-none
-OPT      = -fmax-errors=20 
+OPT      = -fmax-errors=20
 
 OBJ = $(PREC).o              \
 	NWTC_Base.o          \
@@ -31,6 +32,7 @@ OBJ = $(PREC).o              \
 	NWTC_Library_Types.o \
 	NWTC_IO.o            \
 	NWTC_Num.o           \
+	NWTC_LAPACK.o        \
 	ModMesh_Types.o      \
 	ModMesh.o            \
 	ModMesh_Mapping.o    \
@@ -42,7 +44,7 @@ OBJ = $(PREC).o              \
 
 
 all : $(OBJ)
-	$(FC) $(OPT) -o f_driver $(OBJ) -L. ../src/libmap-1.00.01.so
+	$(FC) $(OPT) -o f_driver $(OBJ) -L. ../src/libmap-1.00.01.so -lblas -llapack
 
 map_glue.o : map_glue.f90
 	$(FC) $(OPT) $(FCFLAGS) -c map_glue.f90
@@ -55,6 +57,9 @@ $(SYS_FILE).o : $(NWTC_LIB)/$(SYS_FILE).f90
 
 NWTC_Base.o : $(NWTC_LIB)/NWTC_Base.f90
 	$(FC) $(OPT) $(FCFLAGS) -c $(NWTC_LIB)/NWTC_Base.f90 
+
+NWTC_LAPACK.o : $(NWTC_NUM)/NWTC_LAPACK.f90
+	$(FC) $(OPT) $(FCFLAGS) -c $(NWTC_NUM)/NWTC_LAPACK.f90 
 
 NWTC_IO.o : $(NWTC_LIB)/NWTC_IO.f90
 	$(FC) $(OPT) $(FCFLAGS) -c $(NWTC_LIB)/NWTC_IO.f90 
@@ -86,30 +91,8 @@ MAP_Types.o : ../registry/MAP_Types.f90
 map.o : map.f90
 	$(FC) $(OPT) $(FCFLAGS) -c map.f90
 
-
 clean:		
 	rm -f *.o map_driver *.*~ *.*# Makefile~ *.mod *.valgrind baseline.sum*
 
 memcheck:
 	valgrind  --tool=memcheck --leak-check=yes --show-reachable=yes --track-origins=yes ./f_driver
-
-map_registry:
-	$(REGISTRY) -ccode MAP_Registry.txt
-
-
-
-
-#all : MAP_C_Types.o MAP_Types.o MAP_Glue.o .o 
-#	gfortran $(OPT) -o prog MAP_C_Types.o MAP_Types.o MAP.o Driver.o -L. /media/sf_Virtual_Machine/MAP/MSQS/MSQS_Program/MAP_PETSc/MAP.so
-#
-#MAP_Glue.o : MAP_Glue.f90
-#	gfortran $(OPT) $(FCFLAGS) -c MAP_Glue.f90
-#
-#MAP_Types.o : MAP_Types.f90
-#	gfortran $(OPT) $(FCFLAGS) -c MAP_Types.f90
-#
-#MAP_C_Types.o : MAP_C_Types.f90
-#	gfortran $(OPT) $(FCFLAGS) -c MAP_C_Types.f90
-#
-#MAP.o : MAP.f90
-#	gfortran $(OPT) $(FCFLAGS) -c MAP.f90
