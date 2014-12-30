@@ -1046,34 +1046,36 @@ gen_destroy( FILE * fp, const node_t * ModName, char * inout, char * inoutlong )
           char nonick2[NAMELEN] ;
           remove_nickname(r->type->module->nickname,r->type->name,nonick2) ;
           for ( d = r->ndims ; d >= 1 ; d-- ) {
-//  if (r->dims[0]->deferred) {
-//  fprintf(fp,"IF (%s(%sData%%%s)) THEN\n",assoc_or_allocated(r),nonick,r->name) ;
-//  }
+  // if (r->dims[0]->deferred) {
+  // fprintf(fp,"IF (%s(%sData%%%s)) THEN\n",assoc_or_allocated(r),nonick,r->name) ;
+  // }
   fprintf(fp,"DO i%d = LBOUND(%sData%%%s,%d), UBOUND(%sData%%%s,%d)\n",d,nonick,r->name,d,nonick,r->name,d  ) ;
           }
           fprintf(fp,"  CALL %s_Destroy%s( %sData%%%s%s, ErrStat, ErrMsg )\n",
                           r->type->module->nickname,fast_interface_type_shortname(nonick2),nonick,r->name,dimstr(r->ndims)) ;
           for ( d = r->ndims ; d >= 1 ; d-- ) {
   fprintf(fp,"ENDDO\n") ;
-//  if (r->dims[0]->deferred) {
-//  fprintf(fp,"DEALLOCATE(%sData%%%s)\n",nonick,r->name) ;
-//  fprintf(fp,"ENDIF\n") ;
-//  }
+  // if (r->dims[0]->deferred) {
+  // fprintf(fp,"DEALLOCATE(%sData%%%s)\n",nonick,r->name) ;
+  // fprintf(fp,"ENDIF\n") ;
+  // }
           }
         } else if ( r->ndims > 0 ) {
-//        if ( r->dims[0]->deferred )     // if one dim is they all have to be; see check in type.c
-//        {
-//            if ( r->ndims == 1 ) {
-//  fprintf(fp,"DO i = 1, SIZE(%sData%%%s)\n",nonick,r->name  ) ;
-//            }
-//            fprintf(fp,"  IF ( ALLOCATED(%sData%%%s) ) DEALLOCATE(%sData%%%s)\n",nonick,r->name,nonick,r->name) ;
-//            if ( r->ndims == 1 ) {
-//  fprintf(fp,"ENDDO\n") ;
-//            }
-//          }
+  //       if ( r->dims[0]->deferred )     // if one dim is they all have to be; see check in type.c
+  //       {
+  //           if ( r->ndims == 1 ) {
+  // fprintf(fp,"DO i = 1, SIZE(%sData%%%s)\n",nonick,r->name  ) ;
+  //           }
+  //           fprintf(fp,"  IF ( ALLOCATED(%sData%%%s) ) DEALLOCATE(%sData%%%s)\n",nonick,r->name,nonick,r->name) ;
+  //           if ( r->ndims == 1 ) {
+  // fprintf(fp,"ENDDO\n") ;
+  //           }
+  //         }
         }
   if ( r->ndims > 0 && has_deferred_dim(r,0) ) {
+    if (!sw_ccode) {
   fprintf(fp,"   DEALLOCATE(%sData%%%s)\n",nonick,r->name) ;
+    };
   if ( is_pointer(r) ) {
   fprintf(fp,"   %sData%%%s => NULL()\n",nonick,r->name) ;
   }
@@ -1082,19 +1084,6 @@ gen_destroy( FILE * fp, const node_t * ModName, char * inout, char * inoutlong )
       }
     }
   }
-//bjj removed marco's change: } else {
-//bjj removed marco's change:   if (( q = get_entry( make_lower_temp(tmp),ModName->module_ddt_list ) ) == NULL )
-//bjj removed marco's change:   {
-//bjj removed marco's change:     fprintf(stderr,"Registry warning: generating %s_Destroy%s: cannot find definition for %s\n",ModName->nickname,nonick,tmp) ;
-//bjj removed marco's change:   } else {
-//bjj removed marco's change:     for ( r = q->fields ; r ; r = r->next ){
-//bjj removed marco's change:       if ( !strcmp( r->type->name, "meshtype" ) ) {
-//bjj removed marco's change:         fprintf(fp,"  CALL MeshDestroy( %sData%%%s%s, ErrStat, ErrMsg )\n",nonick,r->name,dimstr(r->ndims)) ;
-//bjj removed marco's change:       }
-//bjj removed marco's change:     };
-//bjj removed marco's change:   };
-//bjj removed marco's change: };
-
 
   fprintf(fp," END SUBROUTINE %s_Destroy%s\n\n", ModName->nickname,nonick ) ;
   return(0) ;

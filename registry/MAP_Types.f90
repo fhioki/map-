@@ -434,10 +434,8 @@ ENDIF
   ErrStat = ErrID_None
   ErrMsg  = ""
 IF (ALLOCATED(InitOutputData%writeOutputHdr)) THEN
-   DEALLOCATE(InitOutputData%writeOutputHdr)
 ENDIF
 IF (ALLOCATED(InitOutputData%writeOutputUnt)) THEN
-   DEALLOCATE(InitOutputData%writeOutputUnt)
 ENDIF
   CALL NWTC_Library_Destroyprogdesc( InitOutputData%Ver, ErrStat, ErrMsg )
  END SUBROUTINE MAP_DestroyInitOutput
@@ -1006,67 +1004,51 @@ ENDIF
   ErrStat = ErrID_None
   ErrMsg  = ""
 IF (ASSOCIATED(OtherStateData%H)) THEN
-   DEALLOCATE(OtherStateData%H)
    OtherStateData%H => NULL()
 ENDIF
 IF (ASSOCIATED(OtherStateData%V)) THEN
-   DEALLOCATE(OtherStateData%V)
    OtherStateData%V => NULL()
 ENDIF
 IF (ASSOCIATED(OtherStateData%Ha)) THEN
-   DEALLOCATE(OtherStateData%Ha)
    OtherStateData%Ha => NULL()
 ENDIF
 IF (ASSOCIATED(OtherStateData%Va)) THEN
-   DEALLOCATE(OtherStateData%Va)
    OtherStateData%Va => NULL()
 ENDIF
 IF (ASSOCIATED(OtherStateData%x)) THEN
-   DEALLOCATE(OtherStateData%x)
    OtherStateData%x => NULL()
 ENDIF
 IF (ASSOCIATED(OtherStateData%y)) THEN
-   DEALLOCATE(OtherStateData%y)
    OtherStateData%y => NULL()
 ENDIF
 IF (ASSOCIATED(OtherStateData%z)) THEN
-   DEALLOCATE(OtherStateData%z)
    OtherStateData%z => NULL()
 ENDIF
 IF (ASSOCIATED(OtherStateData%xa)) THEN
-   DEALLOCATE(OtherStateData%xa)
    OtherStateData%xa => NULL()
 ENDIF
 IF (ASSOCIATED(OtherStateData%ya)) THEN
-   DEALLOCATE(OtherStateData%ya)
    OtherStateData%ya => NULL()
 ENDIF
 IF (ASSOCIATED(OtherStateData%za)) THEN
-   DEALLOCATE(OtherStateData%za)
    OtherStateData%za => NULL()
 ENDIF
 IF (ASSOCIATED(OtherStateData%Fx_connect)) THEN
-   DEALLOCATE(OtherStateData%Fx_connect)
    OtherStateData%Fx_connect => NULL()
 ENDIF
 IF (ASSOCIATED(OtherStateData%Fy_connect)) THEN
-   DEALLOCATE(OtherStateData%Fy_connect)
    OtherStateData%Fy_connect => NULL()
 ENDIF
 IF (ASSOCIATED(OtherStateData%Fz_connect)) THEN
-   DEALLOCATE(OtherStateData%Fz_connect)
    OtherStateData%Fz_connect => NULL()
 ENDIF
 IF (ASSOCIATED(OtherStateData%Fx_anchor)) THEN
-   DEALLOCATE(OtherStateData%Fx_anchor)
    OtherStateData%Fx_anchor => NULL()
 ENDIF
 IF (ASSOCIATED(OtherStateData%Fy_anchor)) THEN
-   DEALLOCATE(OtherStateData%Fy_anchor)
    OtherStateData%Fy_anchor => NULL()
 ENDIF
 IF (ASSOCIATED(OtherStateData%Fz_anchor)) THEN
-   DEALLOCATE(OtherStateData%Fz_anchor)
    OtherStateData%Fz_anchor => NULL()
 ENDIF
  END SUBROUTINE MAP_DestroyOtherState
@@ -1426,23 +1408,18 @@ ENDIF
   ErrStat = ErrID_None
   ErrMsg  = ""
 IF (ASSOCIATED(ConstrStateData%H)) THEN
-   DEALLOCATE(ConstrStateData%H)
    ConstrStateData%H => NULL()
 ENDIF
 IF (ASSOCIATED(ConstrStateData%V)) THEN
-   DEALLOCATE(ConstrStateData%V)
    ConstrStateData%V => NULL()
 ENDIF
 IF (ASSOCIATED(ConstrStateData%x)) THEN
-   DEALLOCATE(ConstrStateData%x)
    ConstrStateData%x => NULL()
 ENDIF
 IF (ASSOCIATED(ConstrStateData%y)) THEN
-   DEALLOCATE(ConstrStateData%y)
    ConstrStateData%y => NULL()
 ENDIF
 IF (ASSOCIATED(ConstrStateData%z)) THEN
-   DEALLOCATE(ConstrStateData%z)
    ConstrStateData%z => NULL()
 ENDIF
  END SUBROUTINE MAP_DestroyConstrState
@@ -1772,15 +1749,12 @@ ENDIF
   ErrStat = ErrID_None
   ErrMsg  = ""
 IF (ASSOCIATED(InputData%x)) THEN
-   DEALLOCATE(InputData%x)
    InputData%x => NULL()
 ENDIF
 IF (ASSOCIATED(InputData%y)) THEN
-   DEALLOCATE(InputData%y)
    InputData%y => NULL()
 ENDIF
 IF (ASSOCIATED(InputData%z)) THEN
-   DEALLOCATE(InputData%z)
    InputData%z => NULL()
 ENDIF
   CALL MeshDestroy( InputData%PtFairDisplacement, ErrStat, ErrMsg )
@@ -2025,19 +1999,15 @@ ENDIF
   ErrStat = ErrID_None
   ErrMsg  = ""
 IF (ASSOCIATED(OutputData%Fx)) THEN
-   DEALLOCATE(OutputData%Fx)
    OutputData%Fx => NULL()
 ENDIF
 IF (ASSOCIATED(OutputData%Fy)) THEN
-   DEALLOCATE(OutputData%Fy)
    OutputData%Fy => NULL()
 ENDIF
 IF (ASSOCIATED(OutputData%Fz)) THEN
-   DEALLOCATE(OutputData%Fz)
    OutputData%Fz => NULL()
 ENDIF
 IF (ASSOCIATED(OutputData%wrtOutput)) THEN
-   DEALLOCATE(OutputData%wrtOutput)
    OutputData%wrtOutput => NULL()
 ENDIF
   CALL MeshDestroy( OutputData%ptFairleadLoad, ErrStat, ErrMsg )
