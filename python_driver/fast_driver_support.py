@@ -55,11 +55,4 @@ def set_vessel_prescribed_motion(table,index):
     return vessel
 
 
-def get_line_tension(mooring, vessel, i):
-    mooring.displace_vessel(vessel.x[i],vessel.y[i],vessel.z[i],vessel.phi[i],vessel.the[i],vessel.psi[i])
-    mooring.update_states(vessel.time[i],0)
-    fx,fy,fz = mooring.get_fairlead_force_3d(4)
-    return np.sqrt(fx**2 + fy**2 + fz**2)
-
-
 

@@ -6,10 +6,19 @@
   http://www.apache.org/licenses/LICENSE-2.0                 
 
   use like this:
-  $ ./fast_driver.py -f ../test/Test22.out -n T[1]
+  $ ./fast_driver.py -f ../test/Test22.out -n T[5]
 '''  
 
 from fast_driver_support import *
+
+
+def get_line_tension(mooring, vessel, i):
+    fairlead_number = 4
+    mooring.displace_vessel(vessel.x[i], vessel.y[i], vessel.z[i], vessel.phi[i], vessel.the[i], vessel.psi[i])
+    mooring.update_states(vessel.time[i], 0)
+    fx,fy,fz = mooring.get_fairlead_force_3d(fairlead_number)
+    return np.sqrt(fx**2 + fy**2 + fz**2)
+
 
 if __name__ == '__main__':      
     # command line argument processing
@@ -30,15 +39,17 @@ if __name__ == '__main__':
     mooring.summary_file('barge.sum.txt')
     mooring.init()
 
-    # read column data
+    # read column data in FAST output file
     with open(options.file_name, 'rb') as csv_file:        
         reader = csv.reader(csv_file,delimiter='\t')
         table = list(reader)
 
-    # time marching, vessel displacement based on FAST output file is set here
+    # Set vessel displacement time series based on FAST output file
     vessel = set_vessel_prescribed_motion(table,index)
 
-    # now displace the vessel for each time step and calculate the fairlead tension
+    # Now displace the vessel for each time step and calculate the fairlead tension.
+    # This is looped over the entire vessel-displacement time series. Tension is an
+    # array. 
     tension = [get_line_tension(mooring,vessel,i) for i in range(0,len(vessel.time))]
 
     mooring.end()
