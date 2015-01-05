@@ -94,6 +94,7 @@
     double * Fx ;     int Fx_Len ;
     double * Fy ;     int Fy_Len ;
     double * Fz ;     int Fz_Len ;
+    float * WriteOutput ;     int WriteOutput_Len ;
     double * wrtOutput ;     int wrtOutput_Len ;
 
   } MAP_OutputType_t ;

@@ -230,6 +230,8 @@ IMPLICIT NONE
     INTEGER(C_int) :: Fy_Len = 0 
     TYPE(C_ptr) :: Fz = C_NULL_PTR 
     INTEGER(C_int) :: Fz_Len = 0 
+    TYPE(C_ptr) :: WriteOutput = C_NULL_PTR 
+    INTEGER(C_int) :: WriteOutput_Len = 0 
     TYPE(C_ptr) :: wrtOutput = C_NULL_PTR 
     INTEGER(C_int) :: wrtOutput_Len = 0 
   END TYPE MAP_OutputType_C
@@ -239,6 +241,7 @@ IMPLICIT NONE
     REAL(KIND=C_DOUBLE) , DIMENSION(:), POINTER  :: Fx => NULL()      ! horizontal line force [[N]]
     REAL(KIND=C_DOUBLE) , DIMENSION(:), POINTER  :: Fy => NULL()      ! Vertical line force [[N]]
     REAL(KIND=C_DOUBLE) , DIMENSION(:), POINTER  :: Fz => NULL()      ! horizontal line force at anchor [[N]]
+    REAL(ReKi) , DIMENSION(:), ALLOCATABLE  :: WriteOutput      ! outpur vector []
     REAL(KIND=C_DOUBLE) , DIMENSION(:), POINTER  :: wrtOutput => NULL()      ! outpur vector []
     TYPE(MeshType)  :: ptFairleadLoad      ! point mesh for forces in X,Y,Z [[N]]
   END TYPE MAP_OutputType
@@ -434,8 +437,10 @@ ENDIF
   ErrStat = ErrID_None
   ErrMsg  = ""
 IF (ALLOCATED(InitOutputData%writeOutputHdr)) THEN
+   DEALLOCATE(InitOutputData%writeOutputHdr)
 ENDIF
 IF (ALLOCATED(InitOutputData%writeOutputUnt)) THEN
+   DEALLOCATE(InitOutputData%writeOutputUnt)
 ENDIF
   CALL NWTC_Library_Destroyprogdesc( InitOutputData%Ver, ErrStat, ErrMsg )
  END SUBROUTINE MAP_DestroyInitOutput
@@ -1004,51 +1009,67 @@ ENDIF
   ErrStat = ErrID_None
   ErrMsg  = ""
 IF (ASSOCIATED(OtherStateData%H)) THEN
+   DEALLOCATE(OtherStateData%H)
    OtherStateData%H => NULL()
 ENDIF
 IF (ASSOCIATED(OtherStateData%V)) THEN
+   DEALLOCATE(OtherStateData%V)
    OtherStateData%V => NULL()
 ENDIF
 IF (ASSOCIATED(OtherStateData%Ha)) THEN
+   DEALLOCATE(OtherStateData%Ha)
    OtherStateData%Ha => NULL()
 ENDIF
 IF (ASSOCIATED(OtherStateData%Va)) THEN
+   DEALLOCATE(OtherStateData%Va)
    OtherStateData%Va => NULL()
 ENDIF
 IF (ASSOCIATED(OtherStateData%x)) THEN
+   DEALLOCATE(OtherStateData%x)
    OtherStateData%x => NULL()
 ENDIF
 IF (ASSOCIATED(OtherStateData%y)) THEN
+   DEALLOCATE(OtherStateData%y)
    OtherStateData%y => NULL()
 ENDIF
 IF (ASSOCIATED(OtherStateData%z)) THEN
+   DEALLOCATE(OtherStateData%z)
    OtherStateData%z => NULL()
 ENDIF
 IF (ASSOCIATED(OtherStateData%xa)) THEN
+   DEALLOCATE(OtherStateData%xa)
    OtherStateData%xa => NULL()
 ENDIF
 IF (ASSOCIATED(OtherStateData%ya)) THEN
+   DEALLOCATE(OtherStateData%ya)
    OtherStateData%ya => NULL()
 ENDIF
 IF (ASSOCIATED(OtherStateData%za)) THEN
+   DEALLOCATE(OtherStateData%za)
    OtherStateData%za => NULL()
 ENDIF
 IF (ASSOCIATED(OtherStateData%Fx_connect)) THEN
+   DEALLOCATE(OtherStateData%Fx_connect)
    OtherStateData%Fx_connect => NULL()
 ENDIF
 IF (ASSOCIATED(OtherStateData%Fy_connect)) THEN
+   DEALLOCATE(OtherStateData%Fy_connect)
    OtherStateData%Fy_connect => NULL()
 ENDIF
 IF (ASSOCIATED(OtherStateData%Fz_connect)) THEN
+   DEALLOCATE(OtherStateData%Fz_connect)
    OtherStateData%Fz_connect => NULL()
 ENDIF
 IF (ASSOCIATED(OtherStateData%Fx_anchor)) THEN
+   DEALLOCATE(OtherStateData%Fx_anchor)
    OtherStateData%Fx_anchor => NULL()
 ENDIF
 IF (ASSOCIATED(OtherStateData%Fy_anchor)) THEN
+   DEALLOCATE(OtherStateData%Fy_anchor)
    OtherStateData%Fy_anchor => NULL()
 ENDIF
 IF (ASSOCIATED(OtherStateData%Fz_anchor)) THEN
+   DEALLOCATE(OtherStateData%Fz_anchor)
    OtherStateData%Fz_anchor => NULL()
 ENDIF
  END SUBROUTINE MAP_DestroyOtherState
@@ -1408,18 +1429,23 @@ ENDIF
   ErrStat = ErrID_None
   ErrMsg  = ""
 IF (ASSOCIATED(ConstrStateData%H)) THEN
+   DEALLOCATE(ConstrStateData%H)
    ConstrStateData%H => NULL()
 ENDIF
 IF (ASSOCIATED(ConstrStateData%V)) THEN
+   DEALLOCATE(ConstrStateData%V)
    ConstrStateData%V => NULL()
 ENDIF
 IF (ASSOCIATED(ConstrStateData%x)) THEN
+   DEALLOCATE(ConstrStateData%x)
    ConstrStateData%x => NULL()
 ENDIF
 IF (ASSOCIATED(ConstrStateData%y)) THEN
+   DEALLOCATE(ConstrStateData%y)
    ConstrStateData%y => NULL()
 ENDIF
 IF (ASSOCIATED(ConstrStateData%z)) THEN
+   DEALLOCATE(ConstrStateData%z)
    ConstrStateData%z => NULL()
 ENDIF
  END SUBROUTINE MAP_DestroyConstrState
@@ -1749,12 +1775,15 @@ ENDIF
   ErrStat = ErrID_None
   ErrMsg  = ""
 IF (ASSOCIATED(InputData%x)) THEN
+   DEALLOCATE(InputData%x)
    InputData%x => NULL()
 ENDIF
 IF (ASSOCIATED(InputData%y)) THEN
+   DEALLOCATE(InputData%y)
    InputData%y => NULL()
 ENDIF
 IF (ASSOCIATED(InputData%z)) THEN
+   DEALLOCATE(InputData%z)
    InputData%z => NULL()
 ENDIF
   CALL MeshDestroy( InputData%PtFairDisplacement, ErrStat, ErrMsg )
@@ -1972,6 +2001,18 @@ IF (ASSOCIATED(SrcOutputData%Fz)) THEN
    END IF
    DstOutputData%Fz = SrcOutputData%Fz
 ENDIF
+IF (ALLOCATED(SrcOutputData%WriteOutput)) THEN
+   i1_l = LBOUND(SrcOutputData%WriteOutput,1)
+   i1_u = UBOUND(SrcOutputData%WriteOutput,1)
+   IF (.NOT. ALLOCATED(DstOutputData%WriteOutput)) THEN 
+      ALLOCATE(DstOutputData%WriteOutput(i1_l:i1_u),STAT=ErrStat2)
+      IF (ErrStat2 /= 0) THEN 
+         CALL SetErrStat(ErrID_Fatal, 'Error allocating DstOutputData%WriteOutput.', ErrStat, ErrMsg,'MAP_CopyOutput')
+         RETURN
+      END IF
+   END IF
+   DstOutputData%WriteOutput = SrcOutputData%WriteOutput
+ENDIF
 IF (ASSOCIATED(SrcOutputData%wrtOutput)) THEN
    i1_l = LBOUND(SrcOutputData%wrtOutput,1)
    i1_u = UBOUND(SrcOutputData%wrtOutput,1)
@@ -1999,15 +2040,22 @@ ENDIF
   ErrStat = ErrID_None
   ErrMsg  = ""
 IF (ASSOCIATED(OutputData%Fx)) THEN
+   DEALLOCATE(OutputData%Fx)
    OutputData%Fx => NULL()
 ENDIF
 IF (ASSOCIATED(OutputData%Fy)) THEN
+   DEALLOCATE(OutputData%Fy)
    OutputData%Fy => NULL()
 ENDIF
 IF (ASSOCIATED(OutputData%Fz)) THEN
+   DEALLOCATE(OutputData%Fz)
    OutputData%Fz => NULL()
 ENDIF
+IF (ALLOCATED(OutputData%WriteOutput)) THEN
+   DEALLOCATE(OutputData%WriteOutput)
+ENDIF
 IF (ASSOCIATED(OutputData%wrtOutput)) THEN
+   DEALLOCATE(OutputData%wrtOutput)
    OutputData%wrtOutput => NULL()
 ENDIF
   CALL MeshDestroy( OutputData%ptFairleadLoad, ErrStat, ErrMsg )
@@ -2053,6 +2101,7 @@ ENDIF
   IF ( ASSOCIATED(InData%Fx) )   Db_BufSz    = Db_BufSz    + SIZE( InData%Fx )  ! Fx 
   IF ( ASSOCIATED(InData%Fy) )   Db_BufSz    = Db_BufSz    + SIZE( InData%Fy )  ! Fy 
   IF ( ASSOCIATED(InData%Fz) )   Db_BufSz    = Db_BufSz    + SIZE( InData%Fz )  ! Fz 
+  IF ( ALLOCATED(InData%WriteOutput) )   Re_BufSz    = Re_BufSz    + SIZE( InData%WriteOutput )  ! WriteOutput 
   IF ( ASSOCIATED(InData%wrtOutput) )   Db_BufSz    = Db_BufSz    + SIZE( InData%wrtOutput )  ! wrtOutput 
  ! Allocate mesh buffers, if any (we'll also get sizes from these) 
   CALL MeshPack( InData%ptFairleadLoad, Re_ptFairleadLoad_Buf, Db_ptFairleadLoad_Buf, Int_ptFairleadLoad_Buf, ErrStat, ErrMsg, .TRUE. ) ! ptFairleadLoad 
@@ -2076,6 +2125,10 @@ ENDIF
   IF ( ASSOCIATED(InData%Fz) ) THEN
     IF ( .NOT. OnlySize ) DbKiBuf ( Db_Xferred:Db_Xferred+(SIZE(InData%Fz))-1 ) =  PACK(InData%Fz ,.TRUE.)
     Db_Xferred   = Db_Xferred   + SIZE(InData%Fz)
+  ENDIF
+  IF ( ALLOCATED(InData%WriteOutput) ) THEN
+    IF ( .NOT. OnlySize ) ReKiBuf ( Re_Xferred:Re_Xferred+(SIZE(InData%WriteOutput))-1 ) =  PACK(InData%WriteOutput ,.TRUE.)
+    Re_Xferred   = Re_Xferred   + SIZE(InData%WriteOutput)
   ENDIF
   IF ( ASSOCIATED(InData%wrtOutput) ) THEN
     IF ( .NOT. OnlySize ) DbKiBuf ( Db_Xferred:Db_Xferred+(SIZE(InData%wrtOutput))-1 ) =  PACK(InData%wrtOutput ,.TRUE.)
@@ -2155,6 +2208,13 @@ ENDIF
     OutData%Fz = REAL( UNPACK(DbKiBuf( Db_Xferred:Re_Xferred+(SIZE(OutData%Fz))-1 ),mask1,REAL(OutData%Fz,DbKi)), C_DOUBLE)
   DEALLOCATE(mask1)
     Db_Xferred   = Db_Xferred   + SIZE(OutData%Fz)
+  ENDIF
+  IF ( ALLOCATED(OutData%WriteOutput) ) THEN
+  ALLOCATE(mask1(SIZE(OutData%WriteOutput,1)))
+  mask1 = .TRUE.
+    OutData%WriteOutput = UNPACK(ReKiBuf( Re_Xferred:Re_Xferred+(SIZE(OutData%WriteOutput))-1 ),mask1,OutData%WriteOutput)
+  DEALLOCATE(mask1)
+    Re_Xferred   = Re_Xferred   + SIZE(OutData%WriteOutput)
   ENDIF
   IF ( ASSOCIATED(OutData%wrtOutput) ) THEN
   ALLOCATE(mask1(SIZE(OutData%wrtOutput,1)))
@@ -2515,6 +2575,9 @@ END IF ! check if allocated
 IF (ASSOCIATED(u_out%Fz) .AND. ASSOCIATED(u(1)%Fz)) THEN
   u_out%Fz = u(1)%Fz
 END IF ! check if allocated
+IF (ALLOCATED(u_out%WriteOutput) .AND. ALLOCATED(u(1)%WriteOutput)) THEN
+  u_out%WriteOutput = u(1)%WriteOutput
+END IF ! check if allocated
 IF (ASSOCIATED(u_out%wrtOutput) .AND. ASSOCIATED(u(1)%wrtOutput)) THEN
   u_out%wrtOutput = u(1)%wrtOutput
 END IF ! check if allocated
@@ -2548,6 +2611,14 @@ IF (ASSOCIATED(u_out%Fz) .AND. ASSOCIATED(u(1)%Fz)) THEN
   ALLOCATE(c1(SIZE(u_out%Fz,1)))
   b1 = -(u(1)%Fz - u(2)%Fz)/t(2)
   u_out%Fz = u(1)%Fz + b1 * t_out
+  DEALLOCATE(b1)
+  DEALLOCATE(c1)
+END IF ! check if allocated
+IF (ALLOCATED(u_out%WriteOutput) .AND. ALLOCATED(u(1)%WriteOutput)) THEN
+  ALLOCATE(b1(SIZE(u_out%WriteOutput,1)))
+  ALLOCATE(c1(SIZE(u_out%WriteOutput,1)))
+  b1 = -(u(1)%WriteOutput - u(2)%WriteOutput)/t(2)
+  u_out%WriteOutput = u(1)%WriteOutput + b1 * t_out
   DEALLOCATE(b1)
   DEALLOCATE(c1)
 END IF ! check if allocated
@@ -2602,6 +2673,15 @@ IF (ASSOCIATED(u_out%Fz) .AND. ASSOCIATED(u(1)%Fz)) THEN
   b1 = (t(3)**2*(u(1)%Fz - u(2)%Fz) + t(2)**2*(-u(1)%Fz + u(3)%Fz))/(t(2)*t(3)*(t(2) - t(3)))
   c1 = ( (t(2)-t(3))*u(1)%Fz + t(3)*u(2)%Fz - t(2)*u(3)%Fz ) / (t(2)*t(3)*(t(2) - t(3)))
   u_out%Fz = u(1)%Fz + b1 * t_out + c1 * t_out**2
+  DEALLOCATE(b1)
+  DEALLOCATE(c1)
+END IF ! check if allocated
+IF (ALLOCATED(u_out%WriteOutput) .AND. ALLOCATED(u(1)%WriteOutput)) THEN
+  ALLOCATE(b1(SIZE(u_out%WriteOutput,1)))
+  ALLOCATE(c1(SIZE(u_out%WriteOutput,1)))
+  b1 = (t(3)**2*(u(1)%WriteOutput - u(2)%WriteOutput) + t(2)**2*(-u(1)%WriteOutput + u(3)%WriteOutput))/(t(2)*t(3)*(t(2) - t(3)))
+  c1 = ( (t(2)-t(3))*u(1)%WriteOutput + t(3)*u(2)%WriteOutput - t(2)*u(3)%WriteOutput ) / (t(2)*t(3)*(t(2) - t(3)))
+  u_out%WriteOutput = u(1)%WriteOutput + b1 * t_out + c1 * t_out**2
   DEALLOCATE(b1)
   DEALLOCATE(c1)
 END IF ! check if allocated

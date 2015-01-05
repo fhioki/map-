@@ -268,6 +268,7 @@ MAP_ERROR_CODE map_free_types(MAP_InputType_t* u_type, MAP_ParameterType_t* p_ty
   MAPFREE(y_type->Fy);    
   MAPFREE(y_type->Fz);    
   MAPFREE(y_type->wrtOutput);
+  MAPFREE(y_type->WriteOutput);
   
   return MAP_SAFE;
 };

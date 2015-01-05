@@ -92,6 +92,7 @@ typedef	        ^       ^                   MeshType         PtFairDisplacement 
 typedef	       ^        OutputType          DbKi             Fx                 {:}        -                   -            "horizontal line force"   "[N]"	
 typedef	       ^        ^                   DbKi             Fy                 {:}        -                   -            "Vertical line force"     "[N]"
 typedef	       ^        ^                   DbKi             Fz                 {:}        -                   -            "horizontal line force at anchor"   "[N]"	
+typedef	       ^        ^                   ReKi             WriteOutput        {:}        -                   -            "outpur vector" ""
 typedef	       ^        ^                   DbKi             wrtOutput          {:}        -                   -            "outpur vector" ""
 typedef	       ^        ^                   MeshType         ptFairleadLoad      -         -                   -            "point mesh for forces in X,Y,Z"         "[N]"
 

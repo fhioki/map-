@@ -1073,9 +1073,9 @@ gen_destroy( FILE * fp, const node_t * ModName, char * inout, char * inoutlong )
   //         }
         }
   if ( r->ndims > 0 && has_deferred_dim(r,0) ) {
-    if (!sw_ccode) {
+//    if (!sw_ccode) {
   fprintf(fp,"   DEALLOCATE(%sData%%%s)\n",nonick,r->name) ;
-    };
+//    };
   if ( is_pointer(r) ) {
   fprintf(fp,"   %sData%%%s => NULL()\n",nonick,r->name) ;
   }

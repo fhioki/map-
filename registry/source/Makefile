@@ -9,8 +9,7 @@ else
 endif
 .SUFFIXES: .c .o
 
-# i586-mingw32msvc-gcc
-#CC_TOOLS = i586-mingw32msvc-gcc
+# CC_TOOLS = i686-w64-mingw32-gcc
 CC_TOOLS = gcc
 DEST_DIR = ..
 CFLAGS = #-ansi

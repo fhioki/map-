@@ -39,7 +39,7 @@ OBJ = $(PREC).o              \
 	NWTC_Library.o       \
 	MAP_C_Types.o        \
 	MAP_Types.o          \
-	map.o 	             \
+	map_changes.o 	             \
 	map_glue.o
 
 
@@ -88,8 +88,8 @@ MAP_C_Types.o : ../registry/MAP_C_Types.f90
 MAP_Types.o : ../registry/MAP_Types.f90
 	$(FC) $(OPT) $(FCFLAGS) -c ../registry/MAP_Types.f90
 
-map.o : map.f90
-	$(FC) $(OPT) $(FCFLAGS) -c map.f90
+map_changes.o : map_changes.f90
+	$(FC) $(OPT) $(FCFLAGS) -c map_changes.f90
 
 clean:		
 	rm -f *.o map_driver *.*~ *.*# Makefile~ *.mod *.valgrind baseline.sum*

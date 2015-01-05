@@ -79,6 +79,7 @@ MAP_ERROR_CODE initialize_fortran_types(MAP_InputType_t* u_type,
   y_type->Fy = NULL;              y_type->Fy_Len = 0;
   y_type->Fz = NULL;              y_type->Fz_Len = 0;
   y_type->wrtOutput = NULL;       y_type->wrtOutput_Len = 0;
+  y_type->WriteOutput = NULL;     y_type->WriteOutput_Len = 0;
   
   /* init outputs */
   initout_type->progName[0] = '\0' ;
