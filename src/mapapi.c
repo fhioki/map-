@@ -79,7 +79,7 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
                              MAP_InputType_t* u_type,
                              MAP_ParameterType_t* p_type,
                              MAP_ContinuousStateType_t* x_type,
-                             void* none,
+							 MAP_DiscreteStateType_t* xd_type,
                              MAP_ConstraintStateType_t* z_type,
                              MAP_OtherStateType_t* other_type,
                              MAP_OutputType_t* y_type,
@@ -105,15 +105,16 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
    * and expanded_line_input_string=line_input_string. This is just a convenient way
    * to duplicate lines if a symetric mooring is employed
    */
+
   success = set_model_options_list(domain, init_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_33);
   success = set_cable_library_list(domain, init_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);
 
   success = repeat_nodes(domain, init_data, map_msg, ierr);
   success = repeat_lines(domain, init_data, map_msg, ierr);
-     
-  success = set_node_list(p_type, u_type, z_type, other_type, y_type, domain, init_data->expanded_node_input_string, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);    
-  success = set_line_list(z_type, domain, init_data->expanded_line_input_string, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);    
-    
+
+  success = set_node_list(p_type, u_type, z_type, other_type, y_type, domain, init_data->expanded_node_input_string, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);
+  success = set_line_list(z_type, domain, init_data->expanded_line_input_string, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);
+
   /* now create an output list to print to and output file. */
   list_attributes_copy(&domain->y_list->out_list, vartype_meter, 1);  
   list_attributes_copy(&domain->y_list->out_list_ptr, vartype_ptr_meter, 1);  
@@ -140,7 +141,7 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
   printf("    Sea density               [kg/m^3] : %1.2f\n", p_type->rho_sea );
   printf("    Water depth               [m]      : %1.2f\n", p_type->depth );
   printf("    Vessel reference position [m]      : %1.2f , %1.2f , %1.2f\n", domain->vessel.ref_origin.x.value, domain->vessel.ref_origin.y.value, domain->vessel.ref_origin.z.value); 
-   
+
   success = initialize_cable_library_variables(domain, p_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_41);
   success = set_line_variables_pre_solve(domain, map_msg, ierr); CHECKERRQ(MAP_FATAL_86);// @rm, not needed. This is called in line_solve_sequence
   success = reset_node_force_to_zero(domain, map_msg, ierr); // @rm, not needed. This is called in line_solve_sequence
@@ -166,7 +167,7 @@ MAP_EXTERNCALL void map_update_states(float t,
                                       MAP_InputType_t* u_type,
                                       MAP_ParameterType_t* p_type,
                                       MAP_ContinuousStateType_t* x_type,
-                                      void* none,
+									  MAP_DiscreteStateType_t* xd_type,
                                       MAP_ConstraintStateType_t* z_type,
                                       MAP_OtherStateType_t* other_type,
                                       MAP_ERROR_CODE* ierr,
@@ -214,10 +215,10 @@ MAP_EXTERNCALL void map_update_states(float t,
        set_universal_error_with_message(map_msg, ierr, MAP_FATAL_89, "u_type range: <%d>. Updated array range: <%d>", u_type->x_Len, i);
        break;
      };
-   };
+   }
    
    if (domain->MAP_SOLVE_TYPE==MONOLITHIC) { /* if the line has no CONNECT object ... */
-     success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
+     success = line_solve_sequence(domain, p_type, t, map_msg, ierr);
    } else { /* the line does have CONNECT object defined ... */
      success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
    };    
@@ -230,7 +231,7 @@ MAP_EXTERNCALL void map_calc_output(float t,
                                     MAP_InputType_t* u_type,
                                     MAP_ParameterType_t* p_type,
                                     MAP_ContinuousStateType_t* x_type,
-                                    void* none,
+									MAP_DiscreteStateType_t* xd_type,
                                     MAP_ConstraintStateType_t* z_type,
                                     MAP_OtherStateType_t* other_type,
                                     MAP_OutputType_t* y_type,
@@ -246,7 +247,7 @@ MAP_EXTERNCALL void map_calc_output(float t,
 MAP_EXTERNCALL void map_end(MAP_InputType_t* u_type,
                             MAP_ParameterType_t* p_type,
                             MAP_ContinuousStateType_t* x_type,
-                            void* none,
+							MAP_DiscreteStateType_t* xd_type,
                             MAP_ConstraintStateType_t* z_type,
                             MAP_OtherStateType_t* other_type,
                             MAP_OutputType_t* y_type,                                                                           

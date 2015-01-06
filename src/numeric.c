@@ -58,12 +58,12 @@ MAP_ERROR_CODE root_finding_step(OuterSolveAttributes* ns, const int n, MAP_Cons
 int inner_function_evals(void* line_ptr, int m, int n, const __cminpack_real__* x, __cminpack_real__* fvec, __cminpack_real__* fjac, int ldfjac, int iflag) 
 {
   Line* line = (Line*)line_ptr;
-  double Fh = x[0]; /* Fh is not const because it is artificially set to epsilon when the line is perfectly vertical */
+  const double Fh = fabs(x[0]) > MAP_HORIZONTAL_TOL ? x[0] : MAP_HORIZONTAL_TOL;
   const double Fv = x[1];  
   const double EA = line->line_property->EA;
   const double Lu = line->Lu.value;
-  const double height = line->h;
-  const double length = line->l;
+  const double height = line->h > MAP_HORIZONTAL_TOL ? line->h : MAP_HORIZONTAL_TOL;
+  const double length = line->l > MAP_HORIZONTAL_TOL ? line->l : MAP_HORIZONTAL_TOL;
   const double omega = line->line_property->omega;
   const double cb = line->line_property->cb;
   const bool contactFlag = line->options.omit_contact;
@@ -72,9 +72,21 @@ int inner_function_evals(void* line_ptr, int m, int n, const __cminpack_real__* 
     return 0;
   };
  
-  if (Fh<MAP_HORIZONTAL_TOL) { /* perfectly vertical case */
-    Fh = MAP_HORIZONTAL_TOL;
-  };
+  /* Taken from the preceeding FAST 7 HydroDyn.f90 source (verbatim): 
+   * To avoid an ill - conditioned situation, ensure that the initial guess for HF is not less than or equal to zero.Similarly, avoid the problems
+   * associated with having exactly vertical(so that HF is zero) or exactly horizontal(so that VF is zero) lines by setting the minimum values
+   * equal to the tolerance.This prevents us from needing to implement the known limiting solutions for vertical or horizontal lines(and thus
+   * complicating this routine):
+   *
+   * HF = MAX(HF, Tol)
+   * XF = MAX(XF, Tol)
+   * ZF = MAX(ZF, TOl)
+   */  
+
+  //if (Fh<MAP_HORIZONTAL_TOL) { /* perfectly vertical case */
+  //  checkpoint();
+  //  Fh = MAP_HORIZONTAL_TOL;
+  //};
 
   if (iflag!=2) {
     if (contactFlag==true || omega<0.0 || (Fv-omega*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
@@ -165,7 +177,7 @@ MAP_ERROR_CODE lu_back_substitution(OuterSolveAttributes* ns, const int n, char*
 };
 
 
-MAP_ERROR_CODE call_minpack_lmder(Line* line, InnerSolveAttributes* inner_opt, const int line_num, const double time, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE call_minpack_lmder(Line* line, InnerSolveAttributes* inner_opt, const int line_num, const float time, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_ERROR_CODE success = MAP_SAFE;
 
@@ -203,12 +215,16 @@ MAP_ERROR_CODE call_minpack_lmder(Line* line, InnerSolveAttributes* inner_opt, c
   
   line->residual_norm = (double)__minpack_func__(enorm)(&inner_opt->m, inner_opt->fvec);
   
-  if (line->options.diagnostics_flag && (double)line->diagnostic_type>time ) { 
-    printf("\n      %4.3f [sec]  Line %d\n",time, line_num+1);
+  if (line->options.diagnostics_flag && (double)line->diagnostic_type>time || line->residual_norm>inner_opt->f_tol) {
+  // if (line->options.diagnostics_flag && (double)line->diagnostic_type>time ) { 
+    printf("\n      %4.3f [sec]  Line %d\n",time, line_num);
     printf("      ----------------------------------------------------\n");
     printf("      Residual l2 norm at solution:  %15.7g\n", line->residual_norm);
     printf("      Function evaluations:         %10i\n", line->evals);
     printf("      Jacobian evaluations:         %10i\n", line->njac_evals);
+	if (line->residual_norm>inner_opt->f_tol) {
+		printf("      WARNING: l2 norm is much larger than f_tol. Premature convergence is likely\n");
+	}
     printf("      Exit parameter                %10i\n\n", inner_opt->info);
   };
   

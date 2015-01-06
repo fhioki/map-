@@ -2769,7 +2769,7 @@ MAP_ERROR_CODE print_help_to_screen()
   printf("      -omit_contact,       --Ignore cable/seabed contact\n");
   printf("      -seg_size <10>,      --Number of discrete lines in line\n");
   printf("      -damage_time <NULL>, --Line breakage occurs at specified time [s]\n");
-  printf("      -diagnostic,         --Run line solver diagnostics until specified time [s]\n");
+  printf("      -diagnostic <TIME>,  --Run line solver diagnostics until specified time [s] is reached\n");
   printf("\n");
   printf("  Model option definitions\n");
   printf("    General model features:\n");

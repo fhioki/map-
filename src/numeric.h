@@ -84,7 +84,7 @@ MAP_ERROR_CODE root_finding_step(OuterSolveAttributes* ns, const int n, MAP_Cons
  * @see     solve_line()
  * @return  MAP error code
  */
-MAP_ERROR_CODE call_minpack_lmder(Line* line, InnerSolveAttributes* inner_opt, const int line_num, const double time, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE call_minpack_lmder(Line* line, InnerSolveAttributes* inner_opt, const int line_num, const float time, char* map_msg, MAP_ERROR_CODE* ierr);
 
 
 /**

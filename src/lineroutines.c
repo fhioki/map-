@@ -24,8 +24,9 @@
 #include "lineroutines.h"
 #include "numeric.h"
 #include "jacobian.h"
+# ifdef WITH_LAPACK 
 #include "lapack\lapacke.h"
-
+#endif
 
 MAP_ERROR_CODE reset_node_force_to_zero(Domain* domain, char* map_msg, MAP_ERROR_CODE* ierr)
 {
@@ -327,7 +328,7 @@ MAP_ERROR_CODE set_line_initial_guess(Domain* domain, char* map_msg, MAP_ERROR_C
 };
 
 
-MAP_ERROR_CODE line_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type, double t, char* map_msg, MAP_ERROR_CODE* ierr) 
+MAP_ERROR_CODE line_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type, const float t, char* map_msg, MAP_ERROR_CODE* ierr) 
 {
   MAP_ERROR_CODE success = MAP_SAFE;
   
@@ -543,7 +544,7 @@ MAP_ERROR_CODE node_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type, 
 };
 
 
-MAP_ERROR_CODE solve_line(Domain* domain, double time, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE solve_line(Domain* domain, const float time, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_ERROR_CODE success = MAP_SAFE;
   Line* line_iter = NULL;
@@ -569,6 +570,7 @@ MAP_ERROR_CODE solve_line(Domain* domain, double time, char* map_msg, MAP_ERROR_
         break;
       };
     };    
+
     if (line_iter->options.linear_spring) {
       success = solve_linear_spring_cable(line_iter, map_msg, ierr); CHECKERRQ(MAP_FATAL_87);
     } else {
@@ -586,6 +588,9 @@ MAP_ERROR_CODE solve_line(Domain* domain, double time, char* map_msg, MAP_ERROR_
     n++;
   };
   list_iterator_stop(&domain->line); /* ending the iteration "session" */    
+
+  //line_iter = (Line*)list_get_at(&domain->line, 0);
+  //printf("line 1 norm: %f\n", line_iter->residual_norm);
 
   if (*ierr==MAP_SAFE) {
     return MAP_SAFE;
