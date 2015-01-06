@@ -58,11 +58,14 @@ MAP_ERROR_CODE root_finding_step(OuterSolveAttributes* ns, const int n, MAP_Cons
 int inner_function_evals(void* line_ptr, int m, int n, const __cminpack_real__* x, __cminpack_real__* fvec, __cminpack_real__* fjac, int ldfjac, int iflag) 
 {
   Line* line = (Line*)line_ptr;
-  const double Fh = fabs(x[0]) > MAP_HORIZONTAL_TOL ? x[0] : MAP_HORIZONTAL_TOL;
+  // double Fh = x[0];
+  const double Fh = x[0] > MAP_HORIZONTAL_TOL ? x[0] : MAP_HORIZONTAL_TOL;
   const double Fv = x[1];  
   const double EA = line->line_property->EA;
   const double Lu = line->Lu.value;
-  const double height = line->h > MAP_HORIZONTAL_TOL ? line->h : MAP_HORIZONTAL_TOL;
+  const double height = line->h;
+  // const double length = line->l;
+  // const double height = line->h > MAP_HORIZONTAL_TOL ? line->h : MAP_HORIZONTAL_TOL;
   const double length = line->l > MAP_HORIZONTAL_TOL ? line->l : MAP_HORIZONTAL_TOL;
   const double omega = line->line_property->omega;
   const double cb = line->line_property->cb;
@@ -72,7 +75,7 @@ int inner_function_evals(void* line_ptr, int m, int n, const __cminpack_real__* 
     return 0;
   };
  
-  /* Taken from the preceeding FAST 7 HydroDyn.f90 source (verbatim): 
+  /* Taken from the preceeding FAST 7 HydroDyn.f90 source (verbatim):
    * To avoid an ill - conditioned situation, ensure that the initial guess for HF is not less than or equal to zero.Similarly, avoid the problems
    * associated with having exactly vertical(so that HF is zero) or exactly horizontal(so that VF is zero) lines by setting the minimum values
    * equal to the tolerance.This prevents us from needing to implement the known limiting solutions for vertical or horizontal lines(and thus
@@ -83,10 +86,11 @@ int inner_function_evals(void* line_ptr, int m, int n, const __cminpack_real__* 
    * ZF = MAX(ZF, TOl)
    */  
 
-  //if (Fh<MAP_HORIZONTAL_TOL) { /* perfectly vertical case */
-  //  checkpoint();
-  //  Fh = MAP_HORIZONTAL_TOL;
-  //};
+  // if (Fh<MAP_HORIZONTAL_TOL) { /* perfectly vertical case */
+  //   printf("%f ",Fh);
+  //   checkpoint();
+  //   Fh = MAP_HORIZONTAL_TOL;
+  // };
 
   if (iflag!=2) {
     if (contactFlag==true || omega<0.0 || (Fv-omega*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
