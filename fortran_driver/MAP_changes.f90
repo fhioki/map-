@@ -399,6 +399,7 @@ CONTAINS
     CALL map_read_input_file_contents(InitInp%file_name , InitInp, ErrStat)
     MAP_CHECKERRQ("MAP_ERROR[FORT]: cannot read the MAP input file.")
 
+    write(*,*) ">>>>>>>>>>>>here"
     ! This binds MSQS_Init function in C++ with Fortran
     CALL MSQS_Init(InitInp%C_obj   , &
                    u%C_obj         , &
@@ -411,6 +412,7 @@ CONTAINS
                    InitOut%C_obj   , &
                    status_from_MAP , &
                    message_from_MAP )
+    write(*,*) ">>>>>>>>>>>> there"
     MAP_CHECKERR()
 
     ! ==========   MAP F2C (literally, Fortran to C) conversion   ===========================================

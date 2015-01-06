@@ -23,7 +23,7 @@ PREC        = SingPrec
 SYS_FILE    = SysGnuLinux
 
 FC       = gfortran
-FCFLAGS  = -O0 -fbacktrace -fbounds-check -x f95-cpp-input -ffree-line-length-none
+FCFLAGS  = -g -O0 -fbacktrace -fbounds-check -x f95-cpp-input -ffree-line-length-none
 OPT      = -fmax-errors=20
 
 OBJ = $(PREC).o              \
@@ -95,4 +95,4 @@ clean:
 	rm -f *.o map_driver *.*~ *.*# Makefile~ *.mod *.valgrind baseline.sum*
 
 memcheck:
-	valgrind  --tool=memcheck --leak-check=yes --show-reachable=yes --track-origins=yes ./f_driver
+	valgrind  -v --tool=memcheck --leak-check=yes --show-reachable=yes --track-origins=yes ./f_driver
