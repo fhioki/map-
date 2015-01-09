@@ -6,6 +6,8 @@ MODULE MAP
   USE MAP_Types
   USE NWTC_Library
 
+  IMPLICIT NONE
+  
   PRIVATE
  
   PUBLIC :: MAP_Init
@@ -271,21 +273,21 @@ MODULE MAP
   ! Calls C function "MAPCALL_MSQS_CalcOutput(...)" in MAP_FortranBinding.cpp.                   !          |
   ! Calculates the outputs                                                                       !          |
   INTERFACE                                                                                      !          |
-     SUBROUTINE MSQS_CalcOutput(time , &                                                         !          |
-                                FC_u , &                                                         !          |
-                                FC_p , &                                                         !          |
-                                FC_x , &                                                         !          |
-                                FC_xd, &                                                         !          |
-                                FC_z , &                                                         !          |
-                                FC_O , &                                                         !          |
-                                FC_y , &                                                         !          |
-                                err  , &                                                         !          |
-                                msg )  &                                                         !          |
+     SUBROUTINE map_calc_output( time  , &                                                       !          |
+                                 FC_u  , &                                                       !          |
+                                 FC_p  , &                                                       !          |
+                                 FC_x  , &                                                       !          |
+                                 FC_xd , &                                                       !          |
+                                 FC_z  , &                                                       !          |
+                                 FC_O  , &                                                       !          |
+                                 FC_y  , &                                                       !          |
+                                 err   , &                                                       !          |
+                                 msg )   &                                                       !          |
                                 BIND(C,name='map_calc_output')                                   !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
-       REAL(KIND=C_FLOAT) , VALUE              :: time                                           !          |
-       INTEGER(KIND=C_INT)                     :: err                                            !          |
+       REAL(KIND=C_FLOAT) , VALUE :: time                                                        !          |
+       INTEGER(KIND=C_INT) :: err                                                                !          |
        CHARACTER(KIND=C_CHAR), DIMENSION(1024) :: msg                                            !          |
        TYPE(MAP_InputType_C)                   :: FC_u                                           !          |
        TYPE(MAP_ParameterType_C)               :: FC_p                                           !          |
@@ -294,7 +296,7 @@ MODULE MAP
        TYPE(MAP_ConstraintStateType_C)         :: FC_z                                           !          |
        TYPE(MAP_OtherStateType_C)              :: FC_O                                           !          |
        TYPE(MAP_OutputType_C)                  :: FC_y                                           !          |
-     END SUBROUTINE MSQS_CalcOutput                                                              !          |
+     END SUBROUTINE map_calc_output !MSQS_CalcOutput                                                              !          |
   END INTERFACE                                                                                  !   -------+
   !==========================================================================================================
   
@@ -304,15 +306,15 @@ MODULE MAP
   ! Calls C function "MAPCALL_MSQS_Init(...)" in MAP_FortranBinding.cpp.                         !          |
   ! Initializes the model                                                                        !          |
   INTERFACE                                                                                      !          |
-     SUBROUTINE MSQS_End(FC_u , &                                                                !          |
-                         FC_p , &                                                                !          |
-                         FC_x , &                                                                !          |
-                         FC_xd, &                                                                !          |
-                         FC_z , &                                                                !          |
-                         FC_O , &                                                                !          |
-                         FC_y , &                                                                !          |
-                         err  , &                                                                !          |
-                         msg)   &                                                                !          |
+     SUBROUTINE MSQS_End( FC_u       , &                                                         !          |
+                          FC_p       , &                                                         !          |
+                          FC_x       , &                                                         !          |
+                          FC_xd      , &                                                         !          |
+                          FC_z       , &                                                         !          |
+                          FC_O       , &                                                         !          |
+                          FC_y       , &                                                         !          |
+                          err        , &                                                         !          |
+                          msg )        &                                                         !          |
                          BIND(C,name='map_end')                                                  !          |
        IMPORT                                                                                    !          |
        IMPLICIT NONE                                                                             !          |
@@ -346,21 +348,29 @@ CONTAINS
     REAL(DbKi),                      INTENT(INOUT)  :: Interval    ! Coupling interval in seconds: the rate that Output is the actual coupling interval 
     TYPE( MAP_InitOutputType ),      INTENT(INOUT)  :: InitOut     ! Output for initialization routine
     INTEGER(IntKi),                  INTENT(  OUT)  :: ErrStat     ! Error status of the operation
-    CHARACTER(1024),                 INTENT(INOUT)  :: ErrMsg      ! Error message if ErrStat /= ErrID_None
-    INTEGER                                         :: N = 0
-    
+    CHARACTER(*),                    INTENT(  OUT)  :: ErrMsg      ! Error message if ErrStat /= ErrID_None
+
     ! Local variables
-    INTEGER(KIND=C_INT)                             :: status_from_MAP = 0
-    CHARACTER(KIND=C_CHAR), DIMENSION(1024)         :: message_from_MAP = ' '
+    INTEGER(KIND=C_INT)                             :: status_from_MAP 
+    CHARACTER(KIND=C_CHAR), DIMENSION(1024)         :: message_from_MAP
     
-    INTEGER(IntKi)                                  :: i = 0
+    INTEGER(IntKi)                                  :: i
+    INTEGER(IntKi)                                  :: n
     REAL(ReKi)                                      :: Pos(3)
-    INTEGER(IntKi)                                  :: NumNodes = 0
+    INTEGER(IntKi)                                  :: NumNodes
 
     ErrStat = ErrID_None
     ErrMsg  = "" 
-    
-    CALL NWTC_Init() ! Initialize the NWTC Subroutine Library    
+ 
+    status_from_MAP = 0
+    message_from_MAP =  " "
+    i = 0
+    N = 0
+    NumNodes = 0
+    p%dt = interval 
+    p%C_obj%dt = p%dt
+
+    CALL NWTC_Init( )  ! Initialize the NWTC Subroutine Library     
     CALL MAP_InitInput_Initialize(InitInp%C_obj%object, message_from_MAP, status_from_MAP); MAP_CHECKERR() ! Call the constructor for each MAP class to create and instance of each C++ object        
     CALL MAP_Other_Initialize(other%C_obj%object, message_from_MAP, status_from_MAP); MAP_CHECKERR() 
     CALL MAP_Initialize_Base(u%C_obj, p%C_obj, x%C_obj, z%C_obj, other%C_obj, y%C_obj, InitOut%C_obj)
@@ -372,37 +382,37 @@ CONTAINS
     !   coupled_to_FAST = flag letting MAP know it is coupled to FAST. MAP won't create the output file when .TRUE.
     InitInp%C_Obj%gravity           =  InitInp%gravity
     InitInp%C_Obj%sea_density       =  InitInp%sea_density
-    InitInp%C_Obj%depth             = -InitInp%depth
-
+    InitInp%C_Obj%depth             = -InitInp%depth  !BJJ: Why is this the negative? I have to put a negative in the glue code, too. Let's get rid of both of them
+    
     N = LEN_TRIM(InitInp%summary_file_name)
     DO i = 1,N
        InitInp%C_Obj%summary_file_name(i) = InitInp%summary_file_name(i:i)  
-    END DO
-
+    END DO !bjj: add C_NULL_CHAR???
+   
     ! Set the gravity constant, water depth, and sea density in MAP.
     ! This calls functions in MAP_FortranBinding.cpp
     CALL MAP_set_gravity(p%C_obj, InitInp%C_Obj%gravity)
     CALL MAP_set_depth(p%C_obj, InitInp%C_Obj%depth)
     CALL MAP_set_density(p%C_obj, InitInp%C_Obj%sea_density)
     CALL MAP_set_summary_file_name(InitInp%C_obj, message_from_map, status_from_MAP); MAP_CHECKERR()
-       
+
     ! Read the MAP input file, and pass the arguments to the C++ sructures. 
     ! @note : this call the following C function in MAP_FortranBinding.cpp
     CALL map_read_input_file_contents(InitInp%file_name , InitInp, ErrStat)
     MAP_CHECKERRQ("MAP_ERROR[FORT]: cannot read the MAP input file.")
-    
+
     ! This binds MSQS_Init function in C++ with Fortran
-    CALL MSQS_Init(InitInp%C_obj  , &
-                   u%C_obj        , &
-                   p%C_obj        , &
-                   x%C_obj        , &
-                   xd%C_obj       , &
-                   z%C_obj        , &
-                   other%C_obj    , &
-                   y%C_obj        , &
-                   InitOut%C_obj  , &
-                   status_from_MAP, &
-                   message_from_MAP)
+    CALL MSQS_Init(InitInp%C_obj   , &
+                   u%C_obj         , &
+                   p%C_obj         , &
+                   x%C_obj         , &
+                   xd%C_obj        , &
+                   z%C_obj         , &
+                   other%C_obj     , &
+                   y%C_obj         , &
+                   InitOut%C_obj   , &
+                   status_from_MAP , &
+                   message_from_MAP )
     MAP_CHECKERR()
 
     ! ==========   MAP F2C (literally, Fortran to C) conversion   ===========================================
@@ -440,20 +450,20 @@ CONTAINS
     CALL MeshCommit ( u%PtFairDisplacement, ErrStat, ErrMsg )          !          |
     IF (ErrStat /= ErrID_None) CALL WrScr(TRIM(ErrMsg))                !          |
                                                                        !          |
-    ! now, copy the input PtFairleadDisplacement to output             !          |
+    ! now, copy the input PtFairDisplacement to output                 !          |
     ! PtFairleadLoad to complete this                                  !          |
     CALL MeshCopy ( SrcMesh  = u%PtFairDisplacement , &                !          |
                     DestMesh = y%PtFairleadLoad     , &                !          |
                     CtrlCode = MESH_SIBLING         , &                !          |
+                    IOS      = COMPONENT_OUTPUT     , &                !          |
                     Force    = .TRUE.               , &                !          |
                     ErrStat  = ErrStat              , &                !          |
                     ErrMess  = ErrMsg                 )                !          |
     IF (ErrStat /= ErrID_None) CALL WrScr(TRIM(ErrMsg))                !          |
                                                                        !          |
-    y%PtFairleadLoad%IOS = COMPONENT_OUTPUT                            !          |
     ! End mesh initialization                                          !   -------+
     !==============================================================================
-
+         
     ! Program version
     N = LEN(InitOut%version)
     DO i=1,N
@@ -464,7 +474,7 @@ CONTAINS
           InitOut%version(i:i)  = InitOut%C_obj%version(i)
        END IF
     END DO
-
+    
     ! Program compiling data
     N = LEN(InitOut%compilingData)
     DO i=1,N
@@ -475,11 +485,16 @@ CONTAINS
           InitOut%compilingData(i:i)  = InitOut%C_obj%compilingData(i)
        END IF
     END DO
-
+    
     InitOut%Ver = ProgDesc('MAP++',TRIM(InitOut%version),TRIM(InitOut%compilingData))
-     
-    WRITE(*,*) InitOut%WriteOutputHdr ! @bonnie : this is artificial. Remove.
-    WRITE(*,*) InitOut%WriteOutputUnt ! @bonnie : this is artificial. Remove.
+!IF (ALLOCATED(InitOut%WriteOutputHdr)) WRITE(*,*) InitOut%WriteOutputHdr ! @bonnie : this is artificial. Remove.
+!IF (ALLOCATED(InitOut%WriteOutputUnt)) WRITE(*,*) InitOut%WriteOutputUnt ! @bonnie : this is artificial. Remove.
+
+   IF ( ALLOCATED(InitOut%WriteOutputHdr) ) THEN
+      ALLOCATE( y%WriteOutput(SIZE(InitOut%WriteOutputHdr)), STAT=n)
+      IF (N/=0) CALL SetErrStat(ErrID_Fatal, 'Failed to allocate y%WriteOutput',ErrStat, ErrMsg, 'MAP_Init')
+   END IF
+  
   END SUBROUTINE MAP_Init                                                                        !   -------+
   !==========================================================================================================
 
@@ -509,7 +524,7 @@ CONTAINS
     
     ! create space for arrays/meshes in u_interp
     CALL MAP_CopyInput(u(1), u_interp, MESH_NEWCOPY, ErrStat, ErrMsg)          
-    CALL MAP_Input_ExtrapInterp(u, utimes, u_interp, t, ErrStat, ErrMsg)
+    CALL MAP_Input_ExtrapInterp(u, utimes, u_interp, t+p%dt, ErrStat, ErrMsg)
     !CALL CheckError(ErrStat2,ErrMsg2)
     !IF ( ErrStat >= AbortErrLev ) RETURN
     
@@ -520,7 +535,7 @@ CONTAINS
     
     ! Copy the mesh input to the MAP C types
     ! @marco: the Position field is fixed in the initialization routine. TranslationDisp is the displacement from the original position.
-    !         if you need the absolute position, add them: u_interp%PtFairleadDisplacement(1)%TranslationDisp(1,i) + u_interp%PtFairleadDisplacement(1)%Pos
+    !         if you need the absolute position, add them: u_interp%PtFairDisplacement(1)%TranslationDisp(1,i) + u_interp%PtFairleadDisplacement(1)%Pos
     ! Copy the mesh input to the MAP C types
     DO i = 1,u_interp%PtFairDisplacement%NNodes
        u_interp%X(i) = u_interp%PtFairDisplacement%Position(1,i) + u_interp%PtFairDisplacement%TranslationDisp(1,i)
@@ -537,18 +552,18 @@ CONTAINS
     !          that u_interp is setup in a way to be handled by the C code -> this is why the states are not updated when 
     !          UpdateStates is called. I think there is a discrepancy here because the arrays are allocated/deallocation in C. 
     !          I think MAP_Input_ExtrapInterp neglected this detail? If so, this might also explain the memory leaks.     
-    CALL MSQS_UpdateStates( time           , &
-                            interval       , & 
-                            u_interp%C_obj , &
-                            p%C_obj        , &
-                            x%C_obj        , &
-                            xd%C_obj       , &
-                            z%C_obj        , &
-                            O%C_obj        , &
-                            status_from_MAP, &
-                            message_from_MAP)
+    CALL MSQS_UpdateStates( time            , &
+                            interval        , & 
+                            u_interp%C_obj  , &
+                            p%C_obj         , &
+                            x%C_obj         , &
+                            xd%C_obj        , &
+                            z%C_obj         , &
+                            O%C_obj         , &
+                            status_from_MAP , &
+                            message_from_MAP  )
     MAP_CHECKERR()
-  
+    
     ! delete the temporary input arrays/meshes 
     CALL deallocate_primitives_for_c(u_interp, ErrStat, ErrMsg)
     CALL MAP_DestroyInput(u_interp, ErrStat, ErrMsg)        
@@ -558,7 +573,7 @@ CONTAINS
    
   !==========   MAP_CalcOutput   ======     <---------------------------------------------------------------+  
   SUBROUTINE MAP_CalcOutput( t, u, p, x, xd, z, O, y, ErrStat, ErrMsg )    
-    REAL(DbKi)                      , INTENT(INOUT) :: t
+    REAL(DbKi)                      , INTENT(IN   ) :: t
     TYPE( MAP_InputType )           , INTENT(INOUT) :: u       ! INTENT(IN   )
     TYPE( MAP_ParameterType )       , INTENT(INOUT) :: p       ! INTENT(IN   )
     TYPE( MAP_ContinuousStateType ) , INTENT(INOUT) :: x       ! INTENT(IN   )
@@ -573,16 +588,17 @@ CONTAINS
     INTEGER(KIND=C_INT)                             :: status_from_MAP
     CHARACTER(KIND=C_CHAR), DIMENSION(1024)         :: message_from_MAP = ' '
     REAL(KIND=C_FLOAT)                              :: time = 0
+    integer                                         :: i
   
     time = t
-
+    
     DO i = 1,u%PtFairDisplacement%NNodes
        u%X(i) = u%PtFairDisplacement%Position(1,i) + u%PtFairDisplacement%TranslationDisp(1,i)
        u%Y(i) = u%PtFairDisplacement%Position(2,i) + u%PtFairDisplacement%TranslationDisp(2,i)
        u%Z(i) = u%PtFairDisplacement%Position(3,i) + u%PtFairDisplacement%TranslationDisp(3,i)
     END DO
-
-    CALL MSQS_CalcOutput(time            , & 
+  
+    CALL map_calc_output(time            , & 
                          u%C_obj         , &
                          p%C_obj         , &
                          x%C_obj         , &
@@ -591,11 +607,15 @@ CONTAINS
                          O%C_obj         , &
                          y%C_obj         , &
                          status_from_MAP , &
-                         message_from_MAP) 
+                         message_from_MAP ) 
     MAP_CHECKERR()
   
-    WRITE(*,*) y%wrtOutput ! @bonnie : remove
-    write(*,*)
+  !BJJ: Why doesn't this work? 
+
+   IF (ALLOCATED(y%WriteOutput) .AND. ASSOCIATED(y%WrtOutput) ) y%WriteOutput = REAL( y%WrtOutput, ReKi ) 
+   ! IF (ALLOCATED(y%WriteOutput)) WRITE(*,*) y%WriteOutput ! @bonnie : remove
+  !  WRITE(*,*) y%wrtOutput ! @bonnie : remove
+  !  write(*,*)
     ! Copy the MAP C output types to the native Fortran mesh output types
     DO i = 1,y%ptFairleadLoad%NNodes
        y%ptFairleadLoad%Force(1,i) = -y%FX(i) 
@@ -634,9 +654,41 @@ CONTAINS
                    other%C_obj     , &                                                   
                    y%C_obj         , &                                                   
                    status_from_MAP , &                                                   
-                   message_from_MAP)                                                    
+                   message_from_MAP  )                                                    
     MAP_CHECKERR()
-  
+
+    ! bjj: we need to nullify Fortran pointers that were associated with C_F_POINTER in the Init routine:
+    ! 
+        
+    IF (.NOT. C_ASSOCIATED( u%C_obj%x              ) ) NULLIFY( u%x              )
+    IF (.NOT. C_ASSOCIATED( u%C_obj%y              ) ) NULLIFY( u%y              )
+    IF (.NOT. C_ASSOCIATED( u%C_obj%z              ) ) NULLIFY( u%z              )
+                                                                                 
+    IF (.NOT. C_ASSOCIATED( z%C_obj%H              ) ) NULLIFY( z%H              )
+    IF (.NOT. C_ASSOCIATED( z%C_obj%V              ) ) NULLIFY( z%V              )
+    IF (.NOT. C_ASSOCIATED( z%C_obj%x              ) ) NULLIFY( z%x              )
+    IF (.NOT. C_ASSOCIATED( z%C_obj%y              ) ) NULLIFY( z%y              )
+    IF (.NOT. C_ASSOCIATED( z%C_obj%z              ) ) NULLIFY( z%z              )
+                                                                                 
+    IF (.NOT. C_ASSOCIATED( y%C_obj%Fx             ) ) NULLIFY( y%Fx             )
+    IF (.NOT. C_ASSOCIATED( y%C_obj%Fy             ) ) NULLIFY( y%Fy             )
+    IF (.NOT. C_ASSOCIATED( y%C_obj%Fz             ) ) NULLIFY( y%Fz             )
+    IF (.NOT. C_ASSOCIATED( y%C_obj%wrtOutput      ) ) NULLIFY( y%wrtOutput      )    
+    
+    IF (.NOT. C_ASSOCIATED( other%C_obj%x          ) ) NULLIFY( other%x          )
+    IF (.NOT. C_ASSOCIATED( other%C_obj%y          ) ) NULLIFY( other%y          )
+    IF (.NOT. C_ASSOCIATED( other%C_obj%z          ) ) NULLIFY( other%z          )
+    IF (.NOT. C_ASSOCIATED( other%C_obj%Fx_connect ) ) NULLIFY( other%Fx_connect )
+    IF (.NOT. C_ASSOCIATED( other%C_obj%Fy_connect ) ) NULLIFY( other%Fy_connect )
+    IF (.NOT. C_ASSOCIATED( other%C_obj%Fz_connect ) ) NULLIFY( other%Fz_connect )
+    IF (.NOT. C_ASSOCIATED( other%C_obj%Fx_anchor  ) ) NULLIFY( other%Fx_anchor  )
+    IF (.NOT. C_ASSOCIATED( other%C_obj%Fy_anchor  ) ) NULLIFY( other%Fy_anchor  )
+    IF (.NOT. C_ASSOCIATED( other%C_obj%Fz_anchor  ) ) NULLIFY( other%Fz_anchor  )
+    
+
+    
+    
+    
     ! Destroy Fortran MAP types
     ! Anything allocated in C should be destroyed in C. Calling these functions only destroys mesh types. 
     CALL MAP_DestroyInput(u, ErrStat, ErrMsg)
@@ -650,8 +702,8 @@ CONTAINS
   !==========================================================================================================
 
 
-  ! ==========   MAP_ReadInputFileContents   ======     <---------------------------------------------------+
-  !                                                                                              !          |
+ ! ==========   MAP_ReadInputFileContents   ======     <---------------------------------------------------+
+ !                                                                                              !          |
   ! Reads the MAP input files. Assumes the MAP input file is formated as demonstrated with the 
   !   MAP distruction archives. Any changes to the format, and this read function may fail.    
   SUBROUTINE map_read_input_file_contents(file, InitInp, ErrStat)                              
@@ -667,79 +719,87 @@ CONTAINS
     INTEGER                                :: i = 0
     INTEGER                                :: N = 0
     CHARACTER(255)                         :: line
-
-    ! Open the MAP input file                                                      
-    OPEN(UNIT=1, FILE=file)                                                        
+   
+    INTEGER                                :: Un
+    CHARACTER(1024)                        :: ErrMsg
+                                                                                                 
+    ErrStat = ErrID_None  
+    
+    ! Open the MAP input file
+    Un = -1  
+    CALL GetNewUnit( Un, ErrStat, ErrMsg )
+    CALL OpenFInpFile ( Un, file, ErrStat, ErrMsg )
+    IF ( ErrStat >= AbortErrLev )RETURN
 
     ! Read the contents of the MAP input file                                     
     DO                                          
-       READ(1 ,'(A)', IOSTAT=success) line                   
-
-       ! we are no longer reading the MAP input file if we   
-       !   reached the end                                   
-       IF(success.NE.0) EXIT                                 
-
-       ! populate the cable library parameter                
-       IF ( index_begn.EQ.1 ) THEN                           
-          index_cabl = index_cabl + 1                        
-          IF ( index_cabl.GE.4 ) THEN                        
+       READ( Un , '(A)' , IOSTAT=success ) line ! read one line of the MAP input file
+                                                                   
+      ! we are no longer reading the MAP input file if we          
+      !   reached the end                                          
+      IF ( success.NE.0 ) EXIT                                     
+                                                                   
+      ! populate the cable library parameter                       
+      IF ( index_begn.EQ.1 ) THEN                                  
+         index_cabl = index_cabl + 1                               
+         IF ( index_cabl.GE.4 ) THEN                               
              IF ( line(1:1).EQ."-" ) THEN                    
-                index_begn=2                                 
-             ELSE
+               index_begn=2                                        
+            ELSE                                                   
                 N = LEN_TRIM(line)
                 DO i = 1,N
                    InitInp%C_obj%library_input_str(i) = line(i:i)   
                 END DO
                 InitInp%C_obj%library_input_str(N+1) = ' ' 
                 InitInp%C_obj%library_input_str(N+2) = C_NULL_CHAR
-                CALL MAP_SetCableLibraryData(InitInp%C_obj)                 
-             END IF
-          END IF
-       END IF
-
-
-       ! populate the node parameter               
-       IF ( index_begn.EQ.2 ) THEN                 
-          index_node = index_node + 1              
-          IF ( index_node.GE.4 ) THEN              
+               CALL MAP_SetCableLibraryData(InitInp%C_obj)         
+            END IF                                                 
+         END IF                                                    
+      END IF                                                       
+                                                                   
+                                                                   
+      ! populate the node parameter                                
+      IF ( index_begn.EQ.2 ) THEN                                  
+         index_node = index_node + 1                               
+         IF ( index_node.GE.4 ) THEN                               
              IF ( line(1:1).EQ."-" ) THEN          
-                index_begn=3                       
-             ELSE
+               index_begn=3                                        
+            ELSE                                                   
                 N = LEN_TRIM(line)
                 DO i = 1,N
                    InitInp%C_obj%node_input_str(i) = line(i:i)   
                 END DO
                 InitInp%C_obj%node_input_str(N+1) = ' '
                 InitInp%C_obj%node_input_str(N+2) = C_NULL_CHAR
-                CALL MAP_SetNodeData(InitInp%C_obj)
-             END IF
-          END IF
-       END IF
-
-
-       ! populate the element parameter                 
-       IF ( index_begn.EQ.3 ) THEN                      
-          index_elem = index_elem + 1                   
-          IF ( index_elem.GE.4 ) THEN                   
+               CALL MAP_SetNodeData(InitInp%C_obj)                 
+            END IF                                                 
+         END IF                                                    
+      END IF                                                       
+                                                                   
+                                                                   
+      ! populate the element parameter                             
+      IF ( index_begn.EQ.3 ) THEN                                  
+         index_elem = index_elem + 1                               
+         IF ( index_elem.GE.4 ) THEN                               
              IF ( line(1:1).EQ."-" ) THEN               
-                index_begn=4                            
-             ELSE
+               index_begn=4                                        
+            ELSE                                                   
                 N = LEN_TRIM(line)
                 DO i = 1,N
                    InitInp%C_obj%line_input_str(i) = line(i:i)   
                 END DO
                 InitInp%C_obj%line_input_str(N+1) = ' '
                 InitInp%C_obj%line_input_str(N+2) = C_NULL_CHAR
-                CALL MAP_SetElementData(InitInp%C_obj) 
-             END IF
-          END IF
-       END IF
-
-
-       ! populate the solver options                    
-       IF ( index_begn.EQ.4 ) THEN                      
-          index_optn = index_optn + 1                   
-          IF ( index_optn.GE.4 ) THEN                   
+                CALL MAP_SetElementData(InitInp%C_obj)             
+            END IF                                                 
+         END IF                                                    
+      END IF                                                       
+                                                                   
+                                                                   
+      ! populate the solver options                                
+      IF ( index_begn.EQ.4 ) THEN                                  
+         index_optn = index_optn + 1                               
+         IF ( index_optn.GE.4 ) THEN                               
              IF ( line(1:1).NE."!" )  THEN              
                 N = LEN_TRIM(line)
                 DO i = 1,N
@@ -747,16 +807,16 @@ CONTAINS
                 END DO
                 InitInp%C_obj%option_input_str(N+1) = ' '
                 InitInp%C_obj%option_input_str(N+2) = C_NULL_CHAR
-                CALL MAP_SetSolverOptions(InitInp%C_obj)
-             END IF
-          END IF
-       END IF
-    END DO
-
+               CALL MAP_SetSolverOptions(InitInp%C_obj)            
+            END IF                                                 
+         END IF                                                    
+      END IF                                                       
+   END DO                                                          
+                                                                               
     ! Close the MAP input file                                                                   !          |
-    CLOSE( 1 )                                                                                   !          |  
+    CLOSE( Un )                                                                
   END SUBROUTINE map_read_input_file_contents                                                    !   -------+
-  !==========================================================================================================
+ !==========================================================================================================
 
 
   ! ==========   MAP_ERROR   ======     <-------------------------------------------------------------------+
@@ -765,9 +825,9 @@ CONTAINS
   ! the former checks errors in the MAP DLL.
   LOGICAL FUNCTION MAP_ERROR(ErrMsg, ErrStat, string)
     CHARACTER(1024), INTENT(INOUT) :: ErrMsg 
-    INTEGER(IntKi),  INTENT(  OUT) :: ErrStat 
+    INTEGER(IntKi),  INTENT(INOUT) :: ErrStat 
     CHARACTER(*),    INTENT(IN   ) :: string    
-    
+
     MAP_ERROR = .FALSE.
 
     IF (ErrStat.NE.ErrID_None) THEN
@@ -777,7 +837,7 @@ CONTAINS
   END FUNCTION MAP_ERROR                                                                         !   -------+
   !==========================================================================================================
 
-  
+   
   ! ==========   MAP_ERROR_CHECKER   ======     <-----------------------------------------------------------+
   !                                                                                              !          |
   ! A convenient way to convert C-character arrays into a fortran string. The return argustment 
@@ -790,6 +850,9 @@ CONTAINS
     INTEGER                                                :: i = 0                                             
 
     MAP_ERROR_CHECKER = .FALSE. ! default warning; does not throw a RETURN
+    ErrStat = ErrID_None
+    ErrMsg  = ""
+    
     IF (stat.NE.0) THEN
        DO i = 1,1024 ! convert c-character array to a fortran character array
           IF(msg(i).NE.C_NULL_CHAR) THEN
@@ -851,7 +914,9 @@ CONTAINS
     
     DO i = 1, numHeaderStr                        
        InitOut%WriteOutputHdr(i) = strHdrArray(i) 
+       CALL RemoveNullChar( InitOut%WriteOutputHdr(i) ) 
        InitOut%WriteOutputUnt(i) = strUntArray(i) 
+       CALL RemoveNullChar( InitOut%WriteOutputUnt(i) ) 
     END DO                   
                              
     DEALLOCATE(strHdrArray)
@@ -868,9 +933,9 @@ CONTAINS
   ! Done just once for other states.
   SUBROUTINE MAP_C2F_OtherState_Array_Allocation(other, ErrStat, ErrMsg) 
     ! Passed arguments
-    TYPE(MAP_OtherStateType), INTENT(INOUT)  :: other
-    INTEGER(IntKi),           INTENT(INOUT)  :: ErrStat     ! Error status of the operation
-    CHARACTER(*),             INTENT(INOUT)  :: ErrMsg      ! Error message if ErrStat /= ErrID_None
+    TYPE( MAP_OtherStateType ), INTENT(INOUT)  :: other
+    INTEGER(IntKi),             INTENT(INOUT)  :: ErrStat     ! Error status of the operation
+    CHARACTER(*),               INTENT(INOUT)  :: ErrMsg      ! Error message if ErrStat /= ErrID_None
 
     CALL C_F_POINTER(other%C_obj%x, other%x, (/other%C_obj%x_Len/))  
     CALL C_F_POINTER(other%C_obj%y, other%y, (/other%C_obj%y_Len/))  
@@ -892,9 +957,9 @@ CONTAINS
   ! Done just once for output states.
   SUBROUTINE MAP_C2F_Output_Array_Allocation(y, ErrStat, ErrMsg) 
     ! Passed arguments
-    TYPE(MAP_OutputType), INTENT(INOUT)  :: y
-    INTEGER(IntKi),       INTENT(INOUT)  :: ErrStat     ! Error status of the operation
-    CHARACTER(*),         INTENT(INOUT)  :: ErrMsg      ! Error message if ErrStat /= ErrID_None
+    TYPE( MAP_OutputType ), INTENT(INOUT)  :: y
+    INTEGER(IntKi),         INTENT(INOUT)  :: ErrStat     ! Error status of the operation
+    CHARACTER(*),           INTENT(INOUT)  :: ErrMsg      ! Error message if ErrStat /= ErrID_None
 
     CALL C_F_POINTER(y%C_obj%Fx, y%Fx, (/y%C_obj%Fx_Len/))  
     CALL C_F_POINTER(y%C_obj%Fy, y%Fy, (/y%C_obj%Fy_Len/))  
@@ -911,9 +976,9 @@ CONTAINS
   ! Done just once for constraint states.  
   SUBROUTINE MAP_C2F_ConstrState_Array_Allocation(z, ErrStat, ErrMsg) 
     ! Passed arguments
-    TYPE(MAP_ConstraintStateType), INTENT(INOUT)  :: z
-    INTEGER(IntKi),                INTENT(INOUT)  :: ErrStat     ! Error status of the operation
-    CHARACTER(*),                  INTENT(INOUT)  :: ErrMsg      ! Error message if ErrStat /= ErrID_None
+    TYPE( MAP_ConstraintStateType ), INTENT(INOUT)  :: z
+    INTEGER(IntKi),                  INTENT(INOUT)  :: ErrStat     ! Error status of the operation
+    CHARACTER(*),                    INTENT(INOUT)  :: ErrMsg      ! Error message if ErrStat /= ErrID_None
 
     CALL C_F_POINTER(z%C_obj%H, z%H, (/z%C_obj%H_Len/))  
     CALL C_F_POINTER(z%C_obj%V, z%V, (/z%C_obj%V_Len/))  
@@ -931,9 +996,9 @@ CONTAINS
   ! Done just once for input states.  
   SUBROUTINE MAP_C2F_Input_Array_Allocation(u, ErrStat, ErrMsg) 
     ! Passed arguments
-    TYPE(MAP_InputType), INTENT(INOUT)  :: u
-    INTEGER(IntKi),      INTENT(INOUT)  :: ErrStat     ! Error status of the operation
-    CHARACTER(*),        INTENT(INOUT)  :: ErrMsg      ! Error message if ErrStat /= ErrID_None
+    TYPE( MAP_InputType ), INTENT(INOUT)  :: u
+    INTEGER(IntKi),        INTENT(INOUT)  :: ErrStat     ! Error status of the operation
+    CHARACTER(*),          INTENT(INOUT)  :: ErrMsg      ! Error message if ErrStat /= ErrID_None
 
     CALL C_F_POINTER(u%C_obj%x, u%x, (/u%C_obj%x_Len/))  
     CALL C_F_POINTER(u%C_obj%y, u%y, (/u%C_obj%y_Len/))  
