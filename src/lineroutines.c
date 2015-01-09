@@ -367,7 +367,7 @@ MAP_ERROR_CODE line_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type, 
 };    
 
 
-MAP_ERROR_CODE krylov_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type, MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, char* map_msg, MAP_ERROR_CODE* ierr) 
+MAP_ERROR_CODE krylov_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type, MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, const float time, char* map_msg, MAP_ERROR_CODE* ierr) 
 {
   OuterSolveAttributes* ns = &domain->outer_loop;
   MAP_ERROR_CODE success = MAP_SAFE;
@@ -412,7 +412,7 @@ MAP_ERROR_CODE krylov_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type
         success = forward_difference_jacobian(other_type, p_type, z_type, domain, map_msg, ierr); CHECKERRQ(MAP_FATAL_77);
         break;
       };
-      success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr); CHECKERRQ(MAP_FATAL_78);
+      success = line_solve_sequence(domain, p_type, time, map_msg, ierr); CHECKERRQ(MAP_FATAL_78);
       success = lu(ns, rows, map_msg, ierr); CHECKERRQ(MAP_FATAL_74);
     };
     
@@ -451,7 +451,7 @@ MAP_ERROR_CODE krylov_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type
     };
     
     success = update_outer_loop_inputs(ns->x, z_type, z_size, map_msg, ierr);
-    success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr); 
+    success = line_solve_sequence(domain, p_type, time, map_msg, ierr); 
     success = update_outer_loop_residuals(ns->b, other_type, z_size, map_msg, ierr);
     
     error = 0.0;
@@ -496,7 +496,7 @@ MAP_ERROR_CODE update_outer_loop_inputs(double* input, MAP_ConstraintStateType_t
 };
 
 
-MAP_ERROR_CODE newton_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type, MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, char* map_msg, MAP_ERROR_CODE* ierr) 
+MAP_ERROR_CODE newton_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type, MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, const float time, char* map_msg, MAP_ERROR_CODE* ierr) 
 {
   OuterSolveAttributes* ns = &domain->outer_loop;
   MAP_ERROR_CODE success = MAP_SAFE;
@@ -508,7 +508,7 @@ MAP_ERROR_CODE newton_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type
   ns->iteration_count = 1;
   do {
     error = 0.0;
-    success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr); CHECKERRQ(MAP_FATAL_79);
+    success = line_solve_sequence(domain, p_type, time, map_msg, ierr); CHECKERRQ(MAP_FATAL_79);
     switch (ns->fd) {
     case BACKWARD_DIFFERENCE :
       success = backward_difference_jacobian(other_type, p_type, z_type, domain, map_msg, ierr); CHECKERRQ(MAP_FATAL_75);
@@ -521,7 +521,7 @@ MAP_ERROR_CODE newton_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type
       break;
     };
     
-    success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr); CHECKERRQ(MAP_FATAL_78);
+    success = line_solve_sequence(domain, p_type, time, map_msg, ierr); CHECKERRQ(MAP_FATAL_78);
     success = root_finding_step(ns, SIZE, z_type, other_type, &error, map_msg, ierr); CHECKERRQ(MAP_FATAL_92);
     
     ns->iteration_count++;
@@ -539,16 +539,16 @@ MAP_ERROR_CODE newton_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type
 };
 
 
-MAP_ERROR_CODE node_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type, MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE node_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type, MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, const float time, char* map_msg, MAP_ERROR_CODE* ierr)
 {  
   MAP_ERROR_CODE success = MAP_SAFE;
 
   MAP_BEGIN_ERROR_LOG;
 
   if (domain->outer_loop.krylov_accelerator) {
-    success = krylov_solve_sequence(domain, p_type, u_type, z_type, other_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_94);
+    success = krylov_solve_sequence(domain, p_type, u_type, z_type, other_type, time, map_msg, ierr); CHECKERRQ(MAP_FATAL_94);
   } else {
-    success = newton_solve_sequence(domain, p_type, u_type, z_type, other_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_93);
+    success = newton_solve_sequence(domain, p_type, u_type, z_type, other_type, time, map_msg, ierr); CHECKERRQ(MAP_FATAL_93);
   };    
 
   MAP_END_ERROR_LOG;
@@ -893,7 +893,7 @@ MAP_ERROR_CODE fd_x_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterType
   if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
     success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
   } else {
-    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, -999.9, map_msg, ierr); // @todo CHECKERRQ()
   };    
   success = set_force_plus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
   success = set_force_plus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
@@ -906,7 +906,7 @@ MAP_ERROR_CODE fd_x_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterType
   if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
     success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
   } else {
-    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, -999.9, map_msg, ierr); // @todo CHECKERRQ()
   };    
   success = set_force_minus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
   success = set_force_minus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
@@ -933,7 +933,7 @@ MAP_ERROR_CODE fd_y_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterType
   if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
     success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
   } else {
-    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, -999.9, map_msg, ierr); // @todo CHECKERRQ()
   };    
   success = set_force_plus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
   success = set_force_plus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
@@ -946,7 +946,7 @@ MAP_ERROR_CODE fd_y_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterType
   if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
     success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
   } else {
-    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, -999.9, map_msg, ierr); // @todo CHECKERRQ()
   };    
   success = set_force_minus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
   success = set_force_minus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
@@ -973,7 +973,7 @@ MAP_ERROR_CODE fd_z_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterType
   if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
     success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
   } else {
-    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, -999.9, map_msg, ierr); // @todo CHECKERRQ()
   };    
   success = set_force_plus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
   success = set_force_plus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
@@ -986,7 +986,7 @@ MAP_ERROR_CODE fd_z_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterType
   if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
     success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
   } else {
-    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, -999.9, map_msg, ierr); // @todo CHECKERRQ()
   };    
   success = set_force_minus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
   success = set_force_minus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
@@ -1013,7 +1013,7 @@ MAP_ERROR_CODE fd_phi_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterTy
   if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
     success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
   } else {
-    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, -999.9, map_msg, ierr); // @todo CHECKERRQ()
   };    
   success = set_force_plus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
   success = set_force_plus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
@@ -1028,7 +1028,7 @@ MAP_ERROR_CODE fd_phi_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterTy
   if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
     success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
   } else {
-    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, -999.9, map_msg, ierr); // @todo CHECKERRQ()
   };    
   success = set_force_minus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
   success = set_force_minus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
@@ -1057,7 +1057,7 @@ MAP_ERROR_CODE fd_the_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterTy
   if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
     success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
   } else {
-    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, -999.9, map_msg, ierr); // @todo CHECKERRQ()
   };    
   success = set_force_plus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
   success = set_force_plus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
@@ -1072,7 +1072,7 @@ MAP_ERROR_CODE fd_the_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterTy
   if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
     success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
   } else {
-    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, -999.9, map_msg, ierr); // @todo CHECKERRQ()
   };    
   success = set_force_minus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
   success = set_force_minus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
@@ -1101,7 +1101,7 @@ MAP_ERROR_CODE fd_psi_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterTy
   if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
     success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
   } else {
-    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, -999.9, map_msg, ierr); // @todo CHECKERRQ()
   };    
   success = set_force_plus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
   success = set_force_plus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
@@ -1116,7 +1116,7 @@ MAP_ERROR_CODE fd_psi_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterTy
   if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
     success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
   } else {
-    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, -999.9, map_msg, ierr); // @todo CHECKERRQ()
   };    
   success = set_force_minus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
   success = set_force_minus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);

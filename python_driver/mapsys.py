@@ -227,7 +227,7 @@ class Map(object):
                               c_char_p]
 
 
-    lib.map_update_states.argtypes = [ c_double,
+    lib.map_update_states.argtypes = [ c_float,
                                        c_int,
                                        MapInput_Type,
                                        MapParameter_Type,
@@ -291,7 +291,7 @@ class Map(object):
 
 
     def update_states(self, t, interval):
-        Map.lib.map_update_states(t, interval, self.f_type_u, self.f_type_p, self.f_type_x, None, self.f_type_z, self.f_type_d, pointer(self.ierr), self.status )
+        Map.lib.map_update_states(c_float(t), interval, self.f_type_u, self.f_type_p, self.f_type_x, None, self.f_type_z, self.f_type_d, pointer(self.ierr), self.status )
         if self.ierr.value != 0 :
             print self.status.value        
 

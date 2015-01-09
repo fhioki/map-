@@ -323,7 +323,7 @@ MAP_ERROR_CODE first_solve(Domain* domain, MAP_ParameterType_t* p_type, MAP_Inpu
   if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
     success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr); /* @todo CHECKERRQ() */
   } else {
-    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, map_msg, ierr); /* @todo CHECKERRQ() */
+    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, 0.0, map_msg, ierr); /* @todo CHECKERRQ() */
   };
   
   MAP_RETURN_STATUS(success);

@@ -51,18 +51,30 @@ if __name__ == '__main__':
 
     # mooring_1.summary_file('name_me.txt')
     mooring_1.init( )
-    
-    # mooring_1.displace_vessel(-25.0, -20.0, 0.0, 10.0, 0.0, 0.0)
-    # mooring_1.update_states(0.0, 0)
+
+    x_plat = np.linspace(0.0,-25.0,20)
+    y_plat = np.linspace(0.0,-20.0,20)
+    phi_plat = np.linspace(0.0,10.0,20)
+
+#    for i in range(0,len(x_plat)) :
+#        mooring_1.displace_vessel(x_plat[i], y_plat[i], 0.0, phi_plat[i], 0.0, 0.0)
+#        mooring_1.update_states(float(i), 0)
     # mooring_1.displace_vessel(5.0, 0.0, 0.0, 0.0, 0.0, 10.0)
     # mooring_1.update_states(0.0, 0)
-    # mooring_1.displace_vessel(15.0, 0.0, 0.0, 0.0, 0.0, 10.0)
+    # mooring_1.displace_vessel(-25.0, -20.0, 0.0, 10.0, 0.0, 0.0)
     # mooring_1.update_states(0.0, 0)
-    
-    epsilon = 1e-3
-    K = mooring_1.linear(epsilon)    
-    print "\nHere is the linearized stiffness matrix with zero vessel displacement:"
-    print np.array(K)
+
+    print "\n\n\n\n\n\n\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n\n\n\n"
+    print "\n\n\n\n\n\n\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n\n\n\n"
+    print "\n\n\n\n\n\n\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n\n\n\n"
+    print "\n\n\n\n\n\n\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n\n\n\n"
+
+    mooring_1.update_states(4.0, 0)
+    print "\n\n\n\n\n\n\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n\n\n\n"    
+    # epsilon = 1e-3
+    # K = mooring_1.linear(epsilon)    
+    # print "\nHere is the linearized stiffness matrix with zero vessel displacement:"
+    # print np.array(K)
     
     # H,V = mooring_1.get_fairlead_force_2d(0)    
     # print H, "  ", V

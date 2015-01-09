@@ -153,10 +153,10 @@ MAP_ERROR_CODE solve_linear_spring_cable(Line* line, char* map_msg, MAP_ERROR_CO
  * MAP_OtherStateType_t* otherType,
  * MAP_OutputType_t* yType,
  */
-MAP_ERROR_CODE node_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type, MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE node_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type, MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, const float time, char* map_msg, MAP_ERROR_CODE* ierr);
 
-MAP_ERROR_CODE newton_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type, MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE krylov_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type, MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE newton_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type, MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, const float time, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE krylov_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type, MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, const float time, char* map_msg, MAP_ERROR_CODE* ierr);
 
 MAP_ERROR_CODE line_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type, const float time, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE solve_line(Domain* domain, const float time, char* map_msg, MAP_ERROR_CODE* ierr);
