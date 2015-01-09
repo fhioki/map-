@@ -193,6 +193,7 @@ IMPLICIT NONE
     REAL(KIND=C_DOUBLE) :: g 
     REAL(KIND=C_DOUBLE) :: depth 
     REAL(KIND=C_DOUBLE) :: rho_sea 
+    REAL(KIND=C_DOUBLE) :: dt 
   END TYPE MAP_ParameterType_C
   TYPE, PUBLIC :: MAP_ParameterType
     TYPE( c_ptr ) :: MAP_UserData = C_NULL_ptr
@@ -200,6 +201,7 @@ IMPLICIT NONE
     REAL(DbKi)  :: g      ! gravitational constant [[kg/m^2]]
     REAL(DbKi)  :: depth      ! distance to seabed [[m]]
     REAL(DbKi)  :: rho_sea      ! density of seawater [[m]]
+    REAL(DbKi)  :: dt      ! time step coupling interval [[sec]]
   END TYPE MAP_ParameterType
 ! =======================
 ! =========  MAP_InputType  =======
@@ -1605,6 +1607,7 @@ ENDIF
    DstParamData%g = SrcParamData%g
    DstParamData%depth = SrcParamData%depth
    DstParamData%rho_sea = SrcParamData%rho_sea
+   DstParamData%dt = SrcParamData%dt
  END SUBROUTINE MAP_CopyParam
 
  SUBROUTINE MAP_DestroyParam( ParamData, ErrStat, ErrMsg )
@@ -1654,6 +1657,7 @@ ENDIF
   Db_BufSz   = Db_BufSz   + 1  ! g
   Db_BufSz   = Db_BufSz   + 1  ! depth
   Db_BufSz   = Db_BufSz   + 1  ! rho_sea
+  Db_BufSz   = Db_BufSz   + 1  ! dt
   IF ( Re_BufSz  .GT. 0 ) ALLOCATE( ReKiBuf(  Re_BufSz  ) )
   IF ( Db_BufSz  .GT. 0 ) ALLOCATE( DbKiBuf(  Db_BufSz  ) )
   IF ( Int_BufSz .GT. 0 ) ALLOCATE( IntKiBuf( Int_BufSz ) )
@@ -1662,6 +1666,8 @@ ENDIF
   IF ( .NOT. OnlySize ) DbKiBuf ( Db_Xferred:Db_Xferred+(1)-1 ) =  (InData%depth )
   Db_Xferred   = Db_Xferred   + 1
   IF ( .NOT. OnlySize ) DbKiBuf ( Db_Xferred:Db_Xferred+(1)-1 ) =  (InData%rho_sea )
+  Db_Xferred   = Db_Xferred   + 1
+  IF ( .NOT. OnlySize ) DbKiBuf ( Db_Xferred:Db_Xferred+(1)-1 ) =  (InData%dt )
   Db_Xferred   = Db_Xferred   + 1
  END SUBROUTINE MAP_PackParam
 
@@ -1703,6 +1709,8 @@ ENDIF
   OutData%depth = DbKiBuf ( Db_Xferred )
   Db_Xferred   = Db_Xferred   + 1
   OutData%rho_sea = DbKiBuf ( Db_Xferred )
+  Db_Xferred   = Db_Xferred   + 1
+  OutData%dt = DbKiBuf ( Db_Xferred )
   Db_Xferred   = Db_Xferred   + 1
   Re_Xferred   = Re_Xferred-1
   Db_Xferred   = Db_Xferred-1

@@ -74,6 +74,7 @@ typedef	       ^        ^                   DbKi             z                 {
 typedef         ^        ParameterType       DbKi             g                  -         -                   -            "gravitational constant"                          "[kg/m^2]"
 typedef         ^        ^                   DbKi             depth              -         -                   -            "distance to seabed"                              "[m]"
 typedef         ^        ^                   DbKi             rho_sea            -         -                   -            "density of seawater"                             "[m]"
+typedef         ^        ^                   DbKi             dt                 -         -                   -            "time step coupling interval"                     "[sec]"
 #typedef         ^       ^                   DbKi             Lu                 -         -                   -            "unstretched cable length"                        "[m]"
 #typedef         ^       ^                   DbKi             EA                 -         -                   -            "Axial stiffness"                                 "[N]"
 #typedef         ^       ^                   DbKi             diam               -         -                   -            "cable diameter"                                  "[m]"
