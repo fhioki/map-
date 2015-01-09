@@ -94,7 +94,7 @@
 #define MAP_HORIZONTAL_TOL 1E-2
 
 #define PROGNAME "MAP++ (Mooring Analysis Program++)"
-#define PROGVERSION "1.00.01a"
+#define PROGVERSION "1.10.0rc"
 #define CHECKERRQ(code) if(success!=MAP_SAFE) {set_universal_error(map_msg, ierr, code); break;} 
 #define CHECKERRK(code) if(success!=MAP_SAFE) {set_universal_error(map_msg, ierr, code);} 
 #define MAPFREE(obj) if(obj!=NULL) {free(obj); obj=NULL;} 
