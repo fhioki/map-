@@ -367,6 +367,8 @@ CONTAINS
     i = 0
     N = 0
     NumNodes = 0
+    p%dt = interval 
+    p%C_obj%dt = p%dt
 
     CALL NWTC_Init( )  ! Initialize the NWTC Subroutine Library     
     CALL MAP_InitInput_Initialize(InitInp%C_obj%object, message_from_MAP, status_from_MAP); MAP_CHECKERR() ! Call the constructor for each MAP class to create and instance of each C++ object        
@@ -448,12 +450,12 @@ CONTAINS
     CALL MeshCommit ( u%PtFairDisplacement, ErrStat, ErrMsg )          !          |
     IF (ErrStat /= ErrID_None) CALL WrScr(TRIM(ErrMsg))                !          |
                                                                        !          |
-    ! now, copy the input PtFairDisplacement to output             !          |
+    ! now, copy the input PtFairDisplacement to output                 !          |
     ! PtFairleadLoad to complete this                                  !          |
     CALL MeshCopy ( SrcMesh  = u%PtFairDisplacement , &                !          |
                     DestMesh = y%PtFairleadLoad     , &                !          |
                     CtrlCode = MESH_SIBLING         , &                !          |
-                    IOS      = COMPONENT_OUTPUT     , &
+                    IOS      = COMPONENT_OUTPUT     , &                !          |
                     Force    = .TRUE.               , &                !          |
                     ErrStat  = ErrStat              , &                !          |
                     ErrMess  = ErrMsg                 )                !          |
@@ -522,7 +524,7 @@ CONTAINS
     
     ! create space for arrays/meshes in u_interp
     CALL MAP_CopyInput(u(1), u_interp, MESH_NEWCOPY, ErrStat, ErrMsg)          
-    CALL MAP_Input_ExtrapInterp(u, utimes, u_interp, t, ErrStat, ErrMsg)
+    CALL MAP_Input_ExtrapInterp(u, utimes, u_interp, t+p%dt, ErrStat, ErrMsg)
     !CALL CheckError(ErrStat2,ErrMsg2)
     !IF ( ErrStat >= AbortErrLev ) RETURN
     
