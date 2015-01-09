@@ -192,7 +192,7 @@ MAP_EXTERNCALL void map_update_states(float t,
     * pointing to data in u_interp. We address this below. Note that the initial reference for point_iter is set
     * in set_node_list(...)
     */
-   if (u_type!=domain->HEAD_U_TYPE) { /* this is intended to be triggered when couled to FAST */
+  // if (u_type!=domain->HEAD_U_TYPE) { /* this is intended to be triggered when couled to FAST */
      list_iterator_start(&domain->u_update_list);  
      while (list_iterator_hasnext(&domain->u_update_list)) { 
        point_iter = (ReferencePoint*)list_iterator_next(&domain->u_update_list);               
@@ -203,19 +203,11 @@ MAP_EXTERNCALL void map_update_states(float t,
      };
      list_iterator_stop(&domain->u_update_list);
      
-     // /* This proves the node position is updated with the Fortran interpolated input */
-     // list_iterator_start(&domain->node);  
-     // while (list_iterator_hasnext(&domain->node)) { 
-     //   node_iter = (Node*)list_iterator_next(&domain->node);               
-     //   printf("After update>  %1.2f  %1.2f  %1.2f\n", *node_iter->position_ptr.x.value, *node_iter->position_ptr.y.value, *node_iter->position_ptr.z.value);
-     // };
-     // list_iterator_stop(&domain->node);
-     
      if (i!=u_type->x_Len) { /* raise error if the input array are exceeded */
        set_universal_error_with_message(map_msg, ierr, MAP_FATAL_89, "u_type range: <%d>. Updated array range: <%d>", u_type->x_Len, i);
        break;
      };
-   }
+  // }
    
    if (domain->MAP_SOLVE_TYPE==MONOLITHIC) { /* if the line has no CONNECT object ... */
      success = line_solve_sequence(domain, p_type, t, map_msg, ierr);
@@ -239,7 +231,49 @@ MAP_EXTERNCALL void map_calc_output(float t,
                                     char* map_msg ) {
    Domain* domain = other_type->object;
    MAP_ERROR_CODE success = MAP_SAFE;
+   ReferencePoint* point_iter = NULL;
+   Node* node_iter = NULL;
+   int i = 0;
+   int j = 0;
+
    map_reset_universal_error(map_msg, ierr);
+
+   MAP_BEGIN_ERROR_LOG;
+
+   /* If the reference to u_type changes, then we have to update the location MAP internal states are pointing
+   * to. This is accomplished in the following code. The issue here is when this is called in Fortran:
+   *
+   *    CALL MAP_CopyInput(u(1), u_interp, MESH_NEWCOPY, ErrStat, ErrMsg)
+   *
+   * u_interp is passed into into the argument for map_update_states(); however, the internal states are not
+   * pointing to data in u_interp. We address this below. Note that the initial reference for point_iter is set
+   * in set_node_list(...)
+   */
+   // if (u_type!=domain->HEAD_U_TYPE) { /* this is intended to be triggered when couled to FAST */
+   list_iterator_start(&domain->u_update_list);
+   while (list_iterator_hasnext(&domain->u_update_list)) {
+	   point_iter = (ReferencePoint*)list_iterator_next(&domain->u_update_list);
+	   point_iter->x->value = &(u_type->x[i]);
+	   point_iter->y->value = &(u_type->y[i]);
+	   point_iter->z->value = &(u_type->z[i]);
+	   i++;
+   };
+   list_iterator_stop(&domain->u_update_list);
+
+   if (i != u_type->x_Len) { /* raise error if the input array are exceeded */
+	   set_universal_error_with_message(map_msg, ierr, MAP_FATAL_89, "u_type range: <%d>. Updated array range: <%d>", u_type->x_Len, i);
+	   break;
+   };
+   // }
+
+   if (domain->MAP_SOLVE_TYPE == MONOLITHIC) { /* if the line has no CONNECT object ... */
+	   success = line_solve_sequence(domain, p_type, t, map_msg, ierr);
+   }
+   else { /* the line does have CONNECT object defined ... */
+	   success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, map_msg, ierr); // @todo CHECKERRQ()
+   };
+
+   MAP_END_ERROR_LOG;
    success = get_iteration_output_stream(y_type, other_type, map_msg, ierr); // @todo: CHECKERRQ();
 };
 
@@ -683,7 +717,7 @@ MAP_EXTERNCALL double* map_plot_z_array(MAP_OtherStateType_t* other_type, int i,
 MAP_EXTERNCALL void map_plot_array_free(double* array) 
 {
   MAPFREE(array);
-}
+};
 
 
 MAP_EXTERNCALL double map_residual_function_length(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr)
@@ -1052,8 +1086,6 @@ MAP_EXTERNCALL void map_add_cable_library_input_text(MAP_InitInputType_t* init_t
   ret = bstrListAlloc(init_data->library_input_string, n+1);
   init_data->library_input_string->entry[n] = bfromcstr(init_type->library_input_str);
   init_data->library_input_string->qty++;
-
-  // printf("::: <%s>\n",init_data->library_input_string->entry[n]->data);
 };
 
 
@@ -1066,8 +1098,6 @@ MAP_EXTERNCALL void map_add_node_input_text(MAP_InitInputType_t* init_type)
   ret = bstrListAlloc(init_data->node_input_string, n+1);
   init_data->node_input_string->entry[n] = bfromcstr(init_type->node_input_str);
   init_data->node_input_string->qty++;
-
-  // printf("::: <%s>\n",init_data->node_input_string->entry[n]->data);
 };
 
 
@@ -1080,8 +1110,6 @@ MAP_EXTERNCALL void map_add_line_input_text(MAP_InitInputType_t* init_type)
   ret = bstrListAlloc(init_data->line_input_string, n+1);
   init_data->line_input_string->entry[n] = bfromcstr(init_type->line_input_str);
   init_data->line_input_string->qty++;
-
-  // printf("::: <%s>\n",init_data->line_input_string->entry[n]->data);
 };
 
 
@@ -1094,8 +1122,6 @@ MAP_EXTERNCALL void map_add_options_input_text(MAP_InitInputType_t* init_type)
   ret = bstrListAlloc(init_data->solver_options_string, n+1);
   init_data->solver_options_string->entry[n] = bfromcstr(init_type->option_input_str);
   init_data->solver_options_string->qty++;
-
-  // printf("::: <%s>\n",init_data->solver_options_string->entry[n]->data);
 };
 
 

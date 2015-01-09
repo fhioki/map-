@@ -25,7 +25,7 @@
 #include "numeric.h"
 #include "jacobian.h"
 # ifdef WITH_LAPACK 
-#include "lapack\lapacke.h"
+#  include "lapack\lapacke.h"
 #endif
 
 MAP_ERROR_CODE reset_node_force_to_zero(Domain* domain, char* map_msg, MAP_ERROR_CODE* ierr)
@@ -232,25 +232,37 @@ MAP_ERROR_CODE set_line_variables_post_solve(Domain* domain, char* map_msg, MAP_
 
 MAP_ERROR_CODE set_psi(Line* line, char* map_msg, MAP_ERROR_CODE* ierr)
 {
-  double overlap_value = 0.0;
   const double x_fair = *(line->fairlead->position_ptr.x.value);
   const double y_fair = *(line->fairlead->position_ptr.y.value);
   const double z_fair = *(line->fairlead->position_ptr.z.value);
   const double x_anch = *(line->anchor->position_ptr.x.value);
   const double y_anch = *(line->anchor->position_ptr.y.value);
   const double z_anch = *(line->anchor->position_ptr.z.value);
-
-  overlap_value = sqrt(pow((x_fair-x_anch),2) + pow((y_fair-y_anch),2) +  pow((z_fair-z_anch),2));
-  
+  const double overlap_value = sqrt(pow((x_fair-x_anch), 2) + pow((y_fair-y_anch), 2) + pow((z_fair-z_anch), 2));
+  double norm = sqrt(pow((x_fair-x_anch), 2) + pow((y_fair-y_anch), 2));
+    
   /* make sure the demoninator is not zero (or close to it) */
   if (overlap_value<=1e-2) {    
     // @todo: what happens when this returns prematurely?
     return MAP_WARNING;
   };
   
+  if (norm<=1e-2) { 
+    norm = 1e-2; 
+  };
+
   /* find the angle psi line simply finds the angle psi between the local and global reference frames simply by 
    * evaluating trig relationships
    */
+  if ((y_fair-y_anch)>=0) {
+    /* this simply finds the angle psi between the local and
+     * global reference frames simply by evaluation trig relationships
+     */
+    line->psi = acos((x_fair-x_anch)/norm);
+  } else {
+    line->psi = -acos((x_fair-x_anch)/norm);
+  };
+  // printf("%2.3f   %2.3f\n", line->psi, atan2((y_fair - y_anch), (x_fair - x_anch)));
   line->psi = atan2((y_fair-y_anch), (x_fair-x_anch));
   return MAP_SAFE;
 };
@@ -262,8 +274,9 @@ double set_horizontal_excursion(Line* line)
   const double y_fair = *(line->fairlead->position_ptr.y.value);
   const double x_anch = *(line->anchor->position_ptr.x.value);
   const double y_anch = *(line->anchor->position_ptr.y.value);  
-
-  return sqrt(pow((x_fair-x_anch),2) + pow((y_fair-y_anch),2));
+  const double length = sqrt(pow((x_fair-x_anch),2) + pow((y_fair-y_anch),2));
+  
+  return length > MAP_HORIZONTAL_TOL ? length : MAP_HORIZONTAL_TOL;
 };
 
 
@@ -554,10 +567,11 @@ MAP_ERROR_CODE solve_line(Domain* domain, const float time, char* map_msg, MAP_E
   while (list_iterator_hasnext(&domain->line)) { /* tell whether more values available */ 
     line_iter = (Line*)list_iterator_next(&domain->line);
 
-    if (line_iter->l<MAP_HORIZONTAL_TOL && line_iter->l>=0.0) { /* perfectly vertical */
-      /* this should be triggered for  perfectly vertical cable */
-      line_iter->l = MAP_HORIZONTAL_TOL;
-    } else if (line_iter->l<0.0) {
+    // if (line_iter->l<MAP_HORIZONTAL_TOL && line_iter->l>=0.0) { /* perfectly vertical */
+    //   /* this should be triggered for  perfectly vertical cable */
+    //   line_iter->l = MAP_HORIZONTAL_TOL;
+    // } else if (line_iter->l<0.0) {
+	if (line_iter->l<0.0) {
       set_universal_error_with_message(map_msg, ierr, MAP_FATAL_54, "Line segment %d, l = %d [m].", n, line_iter->l);
       break; 
     } else if (line_iter->h<=-MACHINE_EPSILON) {
@@ -588,9 +602,6 @@ MAP_ERROR_CODE solve_line(Domain* domain, const float time, char* map_msg, MAP_E
     n++;
   };
   list_iterator_stop(&domain->line); /* ending the iteration "session" */    
-
-  //line_iter = (Line*)list_get_at(&domain->line, 0);
-  //printf("line 1 norm: %f\n", line_iter->residual_norm);
 
   if (*ierr==MAP_SAFE) {
     return MAP_SAFE;
@@ -711,7 +722,6 @@ MAP_ERROR_CODE reset_force_to_zero(double* fx, double* fy, double* fz, double* m
   };
   return MAP_SAFE;
 };
-
 
 
 MAP_ERROR_CODE set_force_minus(const double* u_type, double* force, const int size)

@@ -12,8 +12,8 @@ Node Type     X     Y     Z     M     B     FX   FY   FZ
 ---------------------- LINE PROPERTIES ---------------------------------------
 Line    LineType  UnstrLen    NodeAnch  NodeFair  Flags
 (-)      (-)       (m)         (-)       (-)       (-)
-1       Material   151.73       1         2         linear_spring
-2       Material   151.73       3         4         gf_po 
+1       Material   151.73       1         2         
+2       Material   151.73       3         4         
 ---------------------- SOLVER OPTIONS-----------------------------------------
 Option
 (-)   

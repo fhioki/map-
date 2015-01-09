@@ -58,15 +58,15 @@ MAP_ERROR_CODE root_finding_step(OuterSolveAttributes* ns, const int n, MAP_Cons
 int inner_function_evals(void* line_ptr, int m, int n, const __cminpack_real__* x, __cminpack_real__* fvec, __cminpack_real__* fjac, int ldfjac, int iflag) 
 {
   Line* line = (Line*)line_ptr;
-  // double Fh = x[0];
-  const double Fh = x[0] > MAP_HORIZONTAL_TOL ? x[0] : MAP_HORIZONTAL_TOL;
+  const double Fh = x[0];
+  // const double Fh = fabs(x[0]) > MAP_HORIZONTAL_TOL ? fabs(x[0]) : MAP_HORIZONTAL_TOL;
   const double Fv = x[1];  
   const double EA = line->line_property->EA;
   const double Lu = line->Lu.value;
   const double height = line->h;
-  // const double length = line->l;
+  const double length = line->l;
   // const double height = line->h > MAP_HORIZONTAL_TOL ? line->h : MAP_HORIZONTAL_TOL;
-  const double length = line->l > MAP_HORIZONTAL_TOL ? line->l : MAP_HORIZONTAL_TOL;
+  // const double length = line->l > MAP_HORIZONTAL_TOL ? line->l : MAP_HORIZONTAL_TOL;
   const double omega = line->line_property->omega;
   const double cb = line->line_property->cb;
   const bool contactFlag = line->options.omit_contact;
@@ -85,12 +85,6 @@ int inner_function_evals(void* line_ptr, int m, int n, const __cminpack_real__* 
    * XF = MAX(XF, Tol)
    * ZF = MAX(ZF, TOl)
    */  
-
-  // if (Fh<MAP_HORIZONTAL_TOL) { /* perfectly vertical case */
-  //   printf("%f ",Fh);
-  //   checkpoint();
-  //   Fh = MAP_HORIZONTAL_TOL;
-  // };
 
   if (iflag!=2) {
     if (contactFlag==true || omega<0.0 || (Fv-omega*Lu)>0.0) { /* true when no portion of the line rests on the seabed */
@@ -186,7 +180,8 @@ MAP_ERROR_CODE call_minpack_lmder(Line* line, InnerSolveAttributes* inner_opt, c
   MAP_ERROR_CODE success = MAP_SAFE;
 
   /* initial guess vector is set in set_line_initial_guess(..); otherwise, the previous solution is used as the initial guess */
-  inner_opt->x[0] = *(line->H.value);
+  inner_opt->x[0] = fabs(*(line->H.value)) > MAP_HORIZONTAL_TOL ? fabs(*(line->H.value)) : MAP_HORIZONTAL_TOL;
+  // inner_opt->x[0] = *(line->H.value);
   inner_opt->x[1] = *(line->V.value);
 
   line->evals = 0;
@@ -220,7 +215,6 @@ MAP_ERROR_CODE call_minpack_lmder(Line* line, InnerSolveAttributes* inner_opt, c
   line->residual_norm = (double)__minpack_func__(enorm)(&inner_opt->m, inner_opt->fvec);
   
   if (line->options.diagnostics_flag && (double)line->diagnostic_type>time || line->residual_norm>inner_opt->f_tol) {
-  // if (line->options.diagnostics_flag && (double)line->diagnostic_type>time ) { 
     printf("\n      %4.3f [sec]  Line %d\n",time, line_num);
     printf("      ----------------------------------------------------\n");
     printf("      Residual l2 norm at solution:  %15.7g\n", line->residual_norm);

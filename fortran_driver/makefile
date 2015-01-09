@@ -95,4 +95,4 @@ clean:
 	rm -f *.o map_driver *.*~ *.*# Makefile~ *.mod *.valgrind baseline.sum*
 
 memcheck:
-	valgrind  -v --tool=memcheck --leak-check=yes --show-reachable=yes --track-origins=yes ./f_driver
+	valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --track-origins=yes ./f_driver
