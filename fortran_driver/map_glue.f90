@@ -67,7 +67,7 @@ PROGRAM Main
 
     
   ! set the MAP input file name and other environment terms.
-  InitInData_MAP%file_name = "baseline.map"      
+  InitInData_MAP%file_name = "Mooring.dat"      
   InitInData_MAP%summary_file_name = "baseline.sum.map"  
   InitInData_MAP%gravity = 9.81       ! @bonnie : This need to be according to g used in FAST. Positive value
   InitInData_MAP%sea_density = 1025    ! @bonnie : This needs to be set according to seawater density in FAST. Positive value

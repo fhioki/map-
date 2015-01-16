@@ -21,21 +21,21 @@ def get_vessel_column_index(name,out_chanel):
     fp = open(name) 
     for i,line in enumerate(fp):
         if i==6:
-            words = line = line.strip().split("\t")
+            words = line.split()
             for j in range(0,len(words)):
-                if words[j].strip()=='PtfmSurge':
+                if words[j]=='PtfmTDxi':
                     index[0] = j;
-                if words[j].strip()=='PtfmSway':
+                if words[j]=='PtfmTDyi':
                     index[1] = j;
-                if words[j].strip()=='PtfmHeave':
+                if words[j]=='PtfmTDzi':
                     index[2] = j;
-                if words[j].strip()=='PtfmRoll':
+                if words[j]=='PtfmRDxi':
                     index[3] = j;
-                if words[j].strip()=='PtfmPitch':
+                if words[j]=='PtfmRDyi':
                     index[4] = j;
-                if words[j].strip()=='PtfmYaw':
+                if words[j]=='PtfmRDzi':
                     index[5] = j;
-                if words[j].strip()==out_chanel:
+                if words[j]==out_chanel:
                     index[6] = j;
     fp.close()
     return index
@@ -43,7 +43,7 @@ def get_vessel_column_index(name,out_chanel):
 
 def set_vessel_prescribed_motion(table,index):
     vessel = Vessel()
-    N = len(table)
+    N = 1000#len(table)
     vessel.time = [float(table[i][0]) for i in range(8,N)]
     vessel.x = [float(table[i][index[0]]) for i in range(8,N)]
     vessel.y = [float(table[i][index[1]]) for i in range(8,N)]

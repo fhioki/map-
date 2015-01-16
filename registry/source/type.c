@@ -88,6 +88,10 @@ C_type( char * s )
 char *
 c_types_binding( char *s )
 {
+   char * str_to_return = "CHARACTER(KIND=C_CHAR), DIMENSION(";
+   char * name_with_extension;
+
+
   if ( !strcmp(  s, "INTEGER(IntKi)") ) return("INTEGER(KIND=C_INT)" ) ;
   if ( !strcmp(  s, "LOGICAL"       ) ) return("LOGICAL(KIND=C_BOOL)") ;
   if ( !strcmp(  s, "REAL(ReKi)"    ) ) return("REAL(KIND=C_FLOAT)"  ) ;
@@ -102,9 +106,7 @@ c_types_binding( char *s )
         p++;
       }
     }    
-    char *str_to_return = "CHARACTER(KIND=C_CHAR), DIMENSION(";
-    // char *str_to_return = "CHARACTER(KIND=C_CHAR,LEN=";    
-    char* name_with_extension;
+
     
     name_with_extension = malloc(strlen(str_to_return)+2); // memory leak, should take care of this ?
     strcpy(name_with_extension, str_to_return); 
@@ -191,7 +193,7 @@ set_state_dims ( char * dims , node_t * node )
       strcpy(dspec,"") ;
     }
   }
-  // check to make sure that if any dimension is deferred they all most be 
+  // check to make sure that if any dimension is deferred they all must be 
 
   has_deferred_dim( node, 1 ) ;
 

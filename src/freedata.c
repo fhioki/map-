@@ -276,7 +276,7 @@ MAP_ERROR_CODE map_free_types(MAP_InputType_t* u_type, MAP_ParameterType_t* p_ty
 
 MAP_ERROR_CODE free_outer_solve_data(OuterSolveAttributes* ns, const int size, char* map_msg, MAP_ERROR_CODE* ierr)
 {
-  const int N = ns->max_krylov_its + 1;
+  // const int N = ns->max_krylov_its + 1;
   const int SIZE = 3*size;
   int i = 0;
 

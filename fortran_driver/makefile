@@ -37,7 +37,6 @@ OBJ = $(PREC).o              \
 	ModMesh.o            \
 	ModMesh_Mapping.o    \
 	NWTC_Library.o       \
-	MAP_C_Types.o        \
 	MAP_Types.o          \
 	map.o 	             \
 	map_glue.o

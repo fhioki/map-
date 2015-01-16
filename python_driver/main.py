@@ -34,15 +34,16 @@ if __name__ == '__main__':
 
     mooring_1 = Map( )
     
-    mooring_1.map_set_sea_depth(100)
+    mooring_1.map_set_sea_depth(220)
     mooring_1.map_set_gravity(9.81)
     mooring_1.map_set_sea_density(1020.0)
     
     # mooring_1.read_file("../test/baseline_1.map") # 120 m depth    
-    mooring_1.read_file("../test/baseline_2.map") # 100 m depth
+    # mooring_1.read_file("../test/baseline_2.map") # 100 m depth
     # mooring_1.read_file("../test/baseline_3.map") # 120 m depth
     # mooring_1.read_file("../test/baseline_4.map") # 100 m depth
     # mooring_1.read_file("../test/baseline_5.map") # 80 m depth
+    mooring_1.read_file("../fortran_driver/Mooring.dat") # 220 m depth
     # mooring_1.read_file("../test/OMAERB_Mooring.dat") # 100 m depth
     # mooring_1.read_file("../test/NRELOffshrBsline5MW_Platform_OC3Hywind.map") # 320 m depth
     # mooring_1.read_file("../test/NRELOffshrBsline5MW_Platform_OC3Hywind_segmented.map") # 320 m depth
@@ -52,25 +53,6 @@ if __name__ == '__main__':
     # mooring_1.summary_file('name_me.txt')
     mooring_1.init( )
 
-    x_plat = np.linspace(0.0,-25.0,20)
-    y_plat = np.linspace(0.0,-20.0,20)
-    phi_plat = np.linspace(0.0,10.0,20)
-
-#    for i in range(0,len(x_plat)) :
-#        mooring_1.displace_vessel(x_plat[i], y_plat[i], 0.0, phi_plat[i], 0.0, 0.0)
-#        mooring_1.update_states(float(i), 0)
-    # mooring_1.displace_vessel(5.0, 0.0, 0.0, 0.0, 0.0, 10.0)
-    # mooring_1.update_states(0.0, 0)
-    # mooring_1.displace_vessel(-25.0, -20.0, 0.0, 10.0, 0.0, 0.0)
-    # mooring_1.update_states(0.0, 0)
-
-    print "\n\n\n\n\n\n\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n\n\n\n"
-    print "\n\n\n\n\n\n\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n\n\n\n"
-    print "\n\n\n\n\n\n\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n\n\n\n"
-    print "\n\n\n\n\n\n\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n\n\n\n"
-
-    mooring_1.update_states(4.0, 0)
-    print "\n\n\n\n\n\n\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n\n\n\n"    
     # epsilon = 1e-3
     # K = mooring_1.linear(epsilon)    
     # print "\nHere is the linearized stiffness matrix with zero vessel displacement:"
@@ -105,9 +87,9 @@ if __name__ == '__main__':
     fig = plt.figure()
     ax = Axes3D(fig)
     for i in range(0,mooring_1.size_lines()):
-        x = mooring_1.plot_x( i, 10 )
-        y = mooring_1.plot_y( i, 10 )
-        z = mooring_1.plot_z( i, 10 )        
+        x = mooring_1.plot_x( i, 20 )
+        y = mooring_1.plot_y( i, 20 )
+        z = mooring_1.plot_z( i, 20 )        
         ax.plot(x,y,z,'b-')
      
     ax.set_xlabel('X [m]')

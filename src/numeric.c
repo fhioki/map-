@@ -214,7 +214,7 @@ MAP_ERROR_CODE call_minpack_lmder(Line* line, InnerSolveAttributes* inner_opt, c
   
   line->residual_norm = (double)__minpack_func__(enorm)(&inner_opt->m, inner_opt->fvec);
   
-  if (line->options.diagnostics_flag && (double)line->diagnostic_type>time || line->residual_norm>inner_opt->f_tol) {
+  if (line->options.diagnostics_flag && (double)line->diagnostic_type>time /* || line->residual_norm>inner_opt->f_tol */ ) {
     printf("\n      %4.3f [sec]  Line %d\n",time, line_num);
     printf("      ----------------------------------------------------\n");
     printf("      Residual l2 norm at solution:  %15.7g\n", line->residual_norm);

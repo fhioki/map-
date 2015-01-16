@@ -7,18 +7,18 @@ lower     0.085     200        800000000        1.0    1.0E8    0.6 -1.0    0.05
 ---------------------- NODE PROPERTIES ---------------------------------------
 Node  Type       X       Y       Z      M     B     FX      FY      FZ
 (-)   (-)       (m)     (m)     (m)    (kg)  (mˆ3)  (N)     (N)     (N)
-1     fix       -300     0      depth   0     0      #      #       #
-2     Connect  #-120    #0     #-70     0     0      0      0       0 
-3     Connect  #-53     #0     #-20     0     0      0      0       0 
-4     vessel    -25     15       0.0    0     0      #      #       #
-5     Vessel    -25    -15       0.0    0     0      #      #       # 
+1     fix       -300     0      depth   0     0      #       #       #
+2     Connect  #-120    #0     #-70     0     0      0       0       0 
+3     Connect  #-53     #0     #-20     0     0      0       0       0 
+4     vessel    -25     15       0.0    0     0      #       #       #
+5     Vessel    -25    -15       0.0    0     0      #       #       # 
 ---------------------- LINEP ROPERTIES ---------------------------------------
 Line    LineType  UnstrLen  NodeAnch  NodeFair  Flags
 (-)      (-)       (m)       (-)       (-)       (-)
 1        lower     130       1         2        omit_contact gy_pos  gz_a_pos  H_ANCH seg_size 19  damage_time 12
 2        middle    122       2         3        omit_contact linear_spring
 3        upper     50        3         4        omit_contact x_excursion  z_excursion  azimuth  tension_fair omit_contact 
-4        upper     50        3         5        omit_contact tension_anch omit_contact diagnostic 50.0
+4        upper     50        3         5        omit_contact tension_anch omit_contact diagnostic -10.0
 ---------------------- SOLVER OPTIONS-----------------------------------------
 Option 
 (-) 
@@ -38,5 +38,5 @@ outer_tol 1e-6
  inner_max_its 100
  outer_max_its 100
 repeat 120 240
- krylov_accelerator 10
+krylov_accelerator 10
  ref_position 0.0 0.0 -6.0
