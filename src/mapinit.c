@@ -215,6 +215,7 @@ void initialize_outer_solve_data_defaults(OuterSolveAttributes* outer)
   outer->fd = BACKWARD_DIFFERENCE;
   outer->pg = false;
   outer->krylov_accelerator = false;
+  outer->powell = false;
   outer->tol = 1e-6;
   outer->epsilon = 1e-3;
   outer->max_its = 500;
@@ -344,7 +345,7 @@ MAP_ERROR_CODE allocate_outer_solve_data(OuterSolveAttributes* ns, const int siz
   ns->u = malloc(SIZE*sizeof(double*));  
   ns->x = malloc(SIZE*sizeof(double));
   ns->b = malloc(SIZE*sizeof(double));
-  ns->y = malloc(SIZE*sizeof(double*));  
+  ns->y = malloc(SIZE*sizeof(double));  
   
   if (ns->jac==NULL) {
     set_universal_error(map_msg, ierr, MAP_FATAL_8);        
@@ -759,6 +760,18 @@ MAP_ERROR_CODE check_krylov_accelerator_flag(struct bstrList* list, OuterSolveAt
 };
 
 
+MAP_ERROR_CODE check_powell_flag(struct bstrList* list, OuterSolveAttributes* solver)
+{
+  int success = 0;
+
+  success = biseqcstrcaseless(list->entry[0],"POWELL"); /* string compare */
+  if (success) {
+    solver->powell = true;
+  };
+  return MAP_SAFE;
+};
+
+
 MAP_ERROR_CODE check_cb_default_flag(struct bstrList* list, double* cb)
 {
   int success = 0;
@@ -1000,6 +1013,8 @@ MAP_ERROR_CODE check_uncaught_flag(struct bstrList* list)
     return MAP_SAFE;
   } else if (biseqcstrcaseless(list->entry[0],"LM_MODEL")) {
     return MAP_SAFE;
+  } else if (biseqcstrcaseless(list->entry[0],"POWELL")) {
+    return MAP_SAFE;
   } else if (biseqcstrcaseless(list->entry[0],"PG_COOKED")) {
     return MAP_SAFE;
   } else if (biseqcstrcaseless(list->entry[0],"KRYLOV_ACCELERATOR")) {
@@ -1134,6 +1149,7 @@ MAP_ERROR_CODE set_model_options_list(Domain* domain, InitializationData* init_d
     success = check_lm_model_flag(parsed, &domain->model_options.lm_model); CHECKERRK(MAP_WARNING_11);
     success = check_pg_cooked_flag(parsed, &domain->outer_loop); CHECKERRK(MAP_WARNING_8);
     success = check_krylov_accelerator_flag(parsed, &domain->outer_loop); CHECKERRK(MAP_WARNING_12);
+    success = check_powell_flag(parsed, &domain->outer_loop); CHECKERRK(MAP_WARNING_14);
     success = check_repeat_flag(parsed, &domain->model_options); CHECKERRQ(MAP_FATAL_34);
     success = check_ref_position_flag(parsed, &domain->vessel.ref_origin); CHECKERRQ(MAP_FATAL_36);
     success = check_uncaught_flag(parsed);       
@@ -1149,6 +1165,13 @@ MAP_ERROR_CODE set_model_options_list(Domain* domain, InitializationData* init_d
   /* throw error if PG_COOKED and KRYLOV_ACCELERATOR are simultaneously set in the input file */
   if (domain->outer_loop.pg && domain->outer_loop.krylov_accelerator) {
     set_universal_error(map_msg, ierr, MAP_WARNING_13);
+    domain->outer_loop.krylov_accelerator = false;
+  };
+
+  /* throw error if PG_COOKED and KRYLOV_ACCELERATOR are simultaneously set in the input file */
+  if ( (domain->outer_loop.powell && domain->outer_loop.krylov_accelerator) ||
+       (domain->outer_loop.powell && domain->outer_loop.pg)) {
+    set_universal_error(map_msg, ierr, MAP_WARNING_14);
     domain->outer_loop.krylov_accelerator = false;
   };
 

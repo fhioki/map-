@@ -39,7 +39,10 @@
 
 
 #if defined(_MSC_VER)
-#  include "stdbool.h"
+  typedef int bool;
+  #define false 0
+  #define true 1
+//#  include "stdbool.h"
 #  define map_snprintf _snprintf
 #  define map_strcat(a,b,c) strcat_s(a,b,c)
 #  define MAP_EXTERNCALL __declspec( dllexport )

@@ -607,6 +607,7 @@ IF (ALLOCATED(InitOut%WriteOutputUnt)) WRITE(*,*) InitOut%WriteOutputUnt ! @bonn
        u%X(i) = u%PtFairDisplacement%Position(1,i) + u%PtFairDisplacement%TranslationDisp(1,i)
        u%Y(i) = u%PtFairDisplacement%Position(2,i) + u%PtFairDisplacement%TranslationDisp(2,i)
        u%Z(i) = u%PtFairDisplacement%Position(3,i) + u%PtFairDisplacement%TranslationDisp(3,i)
+!       write(*,*) 'inputs: ', u%x(i), ' ', u%y(i) , ' ', u%z(i)
     END DO
   
     CALL MSQS_CalcOutput(time            , & 

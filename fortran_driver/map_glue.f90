@@ -47,7 +47,7 @@ PROGRAM Main
   ! -------------------------------------------------------------------------
   
   t_initial = 0.
-  t_final   = 5.0
+  t_final   = 80.0
   
   ! specify time increment; currently, all modules will be time integrated with this increment size
   dt_global = 0.5
@@ -71,7 +71,7 @@ PROGRAM Main
   InitInData_MAP%summary_file_name = "baseline.sum.map"  
   InitInData_MAP%gravity = 9.81       ! @bonnie : This need to be according to g used in FAST. Positive value
   InitInData_MAP%sea_density = 1025    ! @bonnie : This needs to be set according to seawater density in FAST. Positive value
-  InitInData_MAP%depth = -350         ! @bonnie : This need to be set according to the water depth in FAST. Negative value
+  InitInData_MAP%depth = -220         ! @bonnie : This need to be set according to the water depth in FAST. Negative value
   ! p_MAP%dt = dt_global     ! @bonnie : This is for the glue code to set
 
   ! call the initialization routine
@@ -204,8 +204,8 @@ PROGRAM Main
      ! ! MAP_InputTimes(2) = MAP_InputTimes(1) - dt_global 
      ! ! MAP_InputTimes(3) = MAP_InputTimes(2) - dt_global
      ! 
-     MAP_Input(1)%PtFairDisplacement%TranslationDisp(1,1) = 1*n_t_global  
-     ! ! MAP_Input(2)%PtFairDisplacement%TranslationDisp(1,1) = 1*n_t_global  
+     MAP_Input(1)%PtFairDisplacement%TranslationDisp(1,1) = .05*n_t_global  
+     MAP_Input(1)%PtFairDisplacement%TranslationDisp(1,2) = .05*n_t_global  
      ! ! MAP_Input(3)%PtFairDisplacement%TranslationDisp(1,1) = 1*n_t_global  
      ! !===========================================================================
           

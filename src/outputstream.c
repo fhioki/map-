@@ -32,6 +32,7 @@
 MAP_ERROR_CODE get_iteration_output_stream(MAP_OutputType_t *y_type, MAP_OtherStateType_t* other_type, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   int count = 0;
+    int i = 0;
   Domain* domain = other_type->object;
   VarTypePtr* vartype_ptr = NULL;
   VarType* vartype = NULL;
@@ -60,7 +61,13 @@ MAP_ERROR_CODE get_iteration_output_stream(MAP_OutputType_t *y_type, MAP_OtherSt
     y_type->wrtOutput[count] = vartype->value;
     count++;    
   };
-  list_iterator_stop(&domain->y_list->out_list);     
+  list_iterator_stop(&domain->y_list->out_list);    
+
+  //printf("C :\n");
+  for(i=0 ; i<count ; i++)  {
+	// printf("%f , ",y_type->wrtOutput[i]);
+	 //printf("%d  %d\n",y_type->wrtOutput_Len,count);
+  }//printf("\n");
   return MAP_SAFE;
 };
 

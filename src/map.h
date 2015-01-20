@@ -412,6 +412,7 @@ struct OuterSolveAttributes_t {
   double coef;
   bool pg;
   bool krylov_accelerator;
+  bool powell;
   int max_krylov_its;
   int max_its;
   int iteration_count;

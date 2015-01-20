@@ -399,11 +399,25 @@ MAP_ERROR_CODE check_outer_fd_flag(struct bstrList* list, FdType* fd);
  *           publisher={ASCE}
  *          }
  * @param   list, a character array structure
- * @param   fd, finite difference type
+ * @param   solver, outer solvr attributes
  * @see     set_model_options_list(), map_init()
  * @return  MAP error code
  */
 MAP_ERROR_CODE check_pg_cooked_flag(struct bstrList* list, OuterSolveAttributes* solver);
+
+
+/**
+ * @brief   Sets flag to use Powell's method to solve the outer loop nonlinear equations
+ *          MAP input file syntax:
+ *          <pre>
+ *          POWELL
+ *          </pre>
+ * @param   list, a character array structure
+ * @param   solver, outer solvr attributes
+ * @see     set_model_options_list(), map_init()
+ * @return  MAP error code
+ */
+MAP_ERROR_CODE check_powell_flag(struct bstrList* list, OuterSolveAttributes* solver);
 
 
 /**

@@ -69,7 +69,7 @@ OBJ       = lmder.o \
 	residual.o \
 
 all : $(OBJ)
-	$(CC_TOOLS) $(LDFLAGS) -o libmap-1.00.01.so $(DEBUG) $(OBJ) -lm -llapacke
+	$(CC_TOOLS) $(LDFLAGS) -o libmap-1.10.00.so $(DEBUG) $(OBJ) -lm -llapacke
 
 .c.o :
 	$(CC_TOOLS) -c $(CFLAGS) $<

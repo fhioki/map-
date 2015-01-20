@@ -154,6 +154,7 @@ const char MAP_ERROR_STRING[][256] = {
   /* MAP_WARNING_11 */  "Could not enable the lumped-mass model during initialization",
   /* MAP_WARNING_12 */  "Line option 'KRYLOV_ACCELERATOR' does not trail with a valid integer. Defaulting to initialized MMAX value",
   /* MAP_WARNING_13 */  "Line options 'KRYLOV_ACCELERATOR' and 'PG_COOKED' are not compatible together. Disabling Krylov acceleration",
+  /* MAP_WARNING_14 */  "Conflicting options. Cannot use Powell's method in conjuction with KRYLOV_ACCELERATOR or PG_COOKED",
 };
 
 
