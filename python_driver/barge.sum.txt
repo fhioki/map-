@@ -1,0 +1,274 @@
+Outputs were generated using MAP++ ff29-dirty.
+
+    Wednesday January 14-2015 at 20:57:58 PM
+
+    Gravity constant          [m/s^2]  : 9.81
+    Sea density               [kg/m^3] : 1020.00
+    Water depth               [m]      : 220.00
+    Vessel reference position [m]      : 0.00 , 0.00 , 0.00
+
+    Cable Type          : ChainMain
+    Diameter     [m]    : 0.1200
+    Mass Density [kg/m] : 261.86
+    EA           [N]    : 1798160000.00
+    omega        [N/m]  : 2455.72
+    CB                  : 1.00
+
+    Cable Type          : ChainBridle
+    Diameter     [m]    : 0.0600
+    Mass Density [kg/m] : 7.00
+    EA           [N]    : 307440000.00
+    omega        [N/m]  : 40.38
+    CB                  : 1.00
+
+          | Node 1 Data            Node 2 Data            Node 3 Data            Node 4 Data
+          | -------------------------------------------------------------------------------------------
+Type      |  VESSEL                 VESSEL                 CONNECT                FIX
+X  [m]    |   6.668                  6.668                ( 24.088)                757.213
+Y  [m]    |   3.850                 -3.850                ( 0.000)                 0.000
+Z  [m]    |  -21.000                -21.000               (-34.298)               -220.000
+M  [kg]   |  0.000                   0.000                  0.000                  0.000
+B  [m^3]  |  0.000                   0.000                  0.000                  0.000
+FX [N]    | (-883626.951)          (-883626.951)          ( 0.000)               ( 1211786.558)
+FY [N]    | ( 195288.283)          (-195288.283)          ( 0.000)               (-0.000)
+FZ [N]    | ( 674980.768)          ( 674980.768)          (-0.000)               ( 0.000)
+
+
+          | Node 5 Data            Node 6 Data            Node 7 Data            Node 8 Data
+          | -------------------------------------------------------------------------------------------
+Type      |  VESSEL                 VESSEL                 CONNECT                FIX
+X  [m]    |   0.000                 -6.668                (-12.044)               -378.606
+Y  [m]    |  -7.700                 -3.850                (-20.861)               -655.766
+Z  [m]    |  -21.000                -21.000               (-34.298)               -220.000
+M  [kg]   |  0.000                   0.000                  0.000                  0.000
+B  [m^3]  |  0.000                   0.000                  0.000                  0.000
+FX [N]    | ( 610937.996)          ( 272687.784)          (-0.000)               (-605891.670)
+FY [N]    | ( 667599.257)          ( 862885.379)          (-0.000)               (-1049435.081)
+FZ [N]    | ( 674981.204)          ( 674979.485)          (-0.000)               ( 0.000)
+
+
+          | Node 9 Data            Node 10 Data           Node 11 Data           Node 12 Data
+          | -------------------------------------------------------------------------------------------
+Type      |  VESSEL                 VESSEL                 CONNECT                FIX
+X  [m]    |  -6.668                  0.000                (-12.044)               -378.606
+Y  [m]    |   3.850                  7.700                ( 20.861)                655.766
+Z  [m]    |  -21.000                -21.000               (-34.298)               -220.000
+M  [kg]   |  0.000                   0.000                  0.000                  0.000
+B  [m^3]  |  0.000                   0.000                  0.000                  0.000
+FX [N]    | ( 272687.784)          ( 610937.996)          ( 0.000)               (-605891.670)
+FY [N]    | (-862885.379)          (-667599.257)          (-0.000)               ( 1049435.082)
+FZ [N]    | ( 674979.485)          ( 674981.204)          (-0.000)               ( 0.000)
+
+
+                | Line 1
+                | ---------------------------------------
+Material        |  ChainBridle
+Lu        [m]   |  22.170
+Lb        [m]   | 0.000
+H         [N]   |  904949.778
+V         [N]   |  674980.768
+T         [N]   |  1128952.230
+Alpha     [deg] |  36.718
+HAnch     [N]   |  904949.778
+VAnch     [N]   |  674085.584
+TAnch     [N]   |  1128417.244
+AlphaAnch [deg] |  36.682
+L^2-Norm        |  7.164336e-13
+Function Evals  |  2
+Jacobian Evals  |  1
+Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
+
+
+                | Line 2
+                | ---------------------------------------
+Material        |  ChainBridle
+Lu        [m]   |  22.170
+Lb        [m]   | 0.000
+H         [N]   |  904949.778
+V         [N]   |  674980.768
+T         [N]   |  1128952.230
+Alpha     [deg] |  36.718
+HAnch     [N]   |  904949.778
+VAnch     [N]   |  674085.584
+TAnch     [N]   |  1128417.244
+AlphaAnch [deg] |  36.682
+L^2-Norm        |  3.036064e-12
+Function Evals  |  2
+Jacobian Evals  |  1
+Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
+
+
+                | Line 3
+                | ---------------------------------------
+Material        |  ChainMain
+Lu        [m]   |  775.186
+Lb        [m]   |  226.193
+H         [N]   |  1767253.901
+V         [N]   |  1348171.169
+T         [N]   |  2222780.207
+Alpha     [deg] |  37.339
+HAnch     [N]   |  1211786.558
+VAnch     [N]   | 0.000
+TAnch     [N]   |  1211786.558
+AlphaAnch [deg] | 0.000
+L^2-Norm        |  1.171857e-13
+Function Evals  |  2
+Jacobian Evals  |  1
+Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
+
+
+                | Line 4
+                | ---------------------------------------
+Material        |  ChainBridle
+Lu        [m]   |  22.170
+Lb        [m]   | 0.000
+H         [N]   |  904949.724
+V         [N]   |  674981.204
+T         [N]   |  1128952.447
+Alpha     [deg] |  36.718
+HAnch     [N]   |  904949.724
+VAnch     [N]   |  674086.020
+TAnch     [N]   |  1128417.461
+AlphaAnch [deg] |  36.682
+L^2-Norm        |  1.579325e-12
+Function Evals  |  2
+Jacobian Evals  |  1
+Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
+
+
+                | Line 5
+                | ---------------------------------------
+Material        |  ChainBridle
+Lu        [m]   |  22.170
+Lb        [m]   | 0.000
+H         [N]   |  904947.405
+V         [N]   |  674979.485
+T         [N]   |  1128949.561
+Alpha     [deg] |  36.718
+HAnch     [N]   |  904947.405
+VAnch     [N]   |  674084.302
+TAnch     [N]   |  1128414.574
+AlphaAnch [deg] |  36.682
+L^2-Norm        |  1.468419e-12
+Function Evals  |  2
+Jacobian Evals  |  1
+Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
+
+
+                | Line 6
+                | ---------------------------------------
+Material        |  ChainMain
+Lu        [m]   |  775.186
+Lb        [m]   |  226.194
+H         [N]   |  1767251.465
+V         [N]   |  1348170.322
+T         [N]   |  2222777.757
+Alpha     [deg] |  37.339
+HAnch     [N]   |  1211783.275
+VAnch     [N]   | 0.000
+TAnch     [N]   |  1211783.275
+AlphaAnch [deg] | 0.000
+L^2-Norm        |  8.526513e-14
+Function Evals  |  2
+Jacobian Evals  |  1
+Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
+
+
+                | Line 7
+                | ---------------------------------------
+Material        |  ChainBridle
+Lu        [m]   |  22.170
+Lb        [m]   | 0.000
+H         [N]   |  904947.405
+V         [N]   |  674979.485
+T         [N]   |  1128949.561
+Alpha     [deg] |  36.718
+HAnch     [N]   |  904947.405
+VAnch     [N]   |  674084.302
+TAnch     [N]   |  1128414.574
+AlphaAnch [deg] |  36.682
+L^2-Norm        |  6.165366e-13
+Function Evals  |  3
+Jacobian Evals  |  2
+Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
+
+
+                | Line 8
+                | ---------------------------------------
+Material        |  ChainBridle
+Lu        [m]   |  22.170
+Lb        [m]   | 0.000
+H         [N]   |  904949.724
+V         [N]   |  674981.204
+T         [N]   |  1128952.447
+Alpha     [deg] |  36.718
+HAnch     [N]   |  904949.724
+VAnch     [N]   |  674086.020
+TAnch     [N]   |  1128417.461
+AlphaAnch [deg] |  36.682
+L^2-Norm        |  3.611494e-12
+Function Evals  |  3
+Jacobian Evals  |  2
+Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
+
+
+                | Line 9
+                | ---------------------------------------
+Material        |  ChainMain
+Lu        [m]   |  775.186
+Lb        [m]   |  226.194
+H         [N]   |  1767251.465
+V         [N]   |  1348170.322
+T         [N]   |  2222777.757
+Alpha     [deg] |  37.339
+HAnch     [N]   |  1211783.275
+VAnch     [N]   | 0.000
+TAnch     [N]   |  1211783.275
+AlphaAnch [deg] | 0.000
+L^2-Norm        |  5.403097e-09
+Function Evals  |  3
+Jacobian Evals  |  2
+Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
+
+
+---------------------- LINE DICTIONARY ---------------------------------------
+LineType  Diam      MassDenInAir   EA            CB
+[-]       [m]       [kg/m]         [N]           [-]
+ChainMain                   0.12                        261.864                     1798160000                  1                           100000000                   1                           1                           0.6
+ChainBridle                 0.06                        7.0                          307440000                   1                           100000000                   1                           1                           0.6
+---------------------- NODE PROPERTIES ---------------------------------------
+Node  Type       X       Y       Z      M     B     FX    FY    FZ
+[-]   [-]       [m]     [m]     [m]    [kg]  [mˆ3]  [N]   [N]   [N]
+1                           Vessel                      6.668                       3.85                        -21                         0                           0                           #                           #                           #
+2                           Vessel                      6.668                       -3.85                       -21                         0                           0                           #                           #                           #
+3                           Connect                     #28.50                      #0                          #-46.968                    0                           0                           0                           0                           0
+4                           Fix                         757.213                     0                           depth                       0                           0                           #                           #                           #
+5   Vessel   0.0002   -7.6997   -21.0000   0   0   #   #   #
+6   Vessel   -6.6682   -3.8497   -21.0000   0   0   #   #   #
+7   Connect   #-14.2500   #-24.6817   #-46.9680   0   0   0.0000   -0.0000   0.0000
+8   Fix   -378.6065   -655.7657   depth   0   0   #   #   #
+9   Vessel   -6.6682   3.8497   -21.0000   0   0   #   #   #
+10   Vessel   0.0002   7.6997   -21.0000   0   0   #   #   #
+11   Connect   #-14.2500   #24.6817   #-46.9680   0   0   -0.0000   0.0000   0.0000
+12   Fix   -378.6065   655.7657   depth   0   0   #   #   #
+---------------------- LINE PROPERTIES ---------------------------------------
+Line  LineType  UnstrLen  NodeAnch  NodeFair  Flags
+[-]      [-]       [m]       [-]       [-]       [-]
+1                           ChainBridle                 22.17                       3                           1                           tension_fair tension_anch
+2                           ChainBridle                 22.17                       3                           2                           tension_fair tension_anch
+3                           ChainMain                   775.186                     4                           3                           tension_fair tension_anch
+4   ChainBridle   22.17   7   5   tension_fair   tension_anch   
+5   ChainBridle   22.17   7   6   tension_fair   tension_anch   
+6   ChainMain   775.186   8   7   tension_fair   tension_anch   
+7   ChainBridle   22.17   11   9   tension_fair   tension_anch   
+8   ChainBridle   22.17   11   10   tension_fair   tension_anch   
+9   ChainMain   775.186   12   11   tension_fair   tension_anch   
+---------------------- SOLVER OPTIONS-----------------------------------------
+Option 
+[-] 
+ help
+inner_ftol 1e-6
+inner_gtol 1e-6
+inner_xtol 1e-6
+outer_tol 1e-3
+repeat 120 240

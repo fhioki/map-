@@ -159,6 +159,8 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
   
   free_init_data(init_data, map_msg, ierr); 
   MAP_InitInput_Delete(init_data);
+  checkpoint();
+  if (*ierr!=MAP_SAFE) printf("Intialization: %s\n", map_msg);
 };
 
 
@@ -197,12 +199,12 @@ MAP_EXTERNCALL void map_update_states(float t,
        point_iter = (ReferencePoint*)list_iterator_next(&domain->u_update_list);               
        point_iter->x->value = &(u_type->x[i]);
        point_iter->y->value = &(u_type->y[i]);
-       point_iter->z->value = &(u_type->z[i]);                 
+       point_iter->z->value = &(u_type->z[i]);      
        i++;
      };
      list_iterator_stop(&domain->u_update_list);
      domain->HEAD_U_TYPE = u_type;
-     
+
      if (i!=u_type->x_Len) { /* raise error if the input array are exceeded */
        set_universal_error_with_message(map_msg, ierr, MAP_FATAL_89, "u_type range: <%d>. Updated array range: <%d>", u_type->x_Len, i);
        break;
@@ -216,6 +218,7 @@ MAP_EXTERNCALL void map_update_states(float t,
    };    
 
    MAP_END_ERROR_LOG;
+   if (*ierr!=MAP_SAFE) printf("interval %d Update_state: %s\n",interval, map_msg);
 };    
 
 
@@ -275,6 +278,7 @@ MAP_EXTERNCALL void map_calc_output(float t,
 
    success = get_iteration_output_stream(y_type, other_type, map_msg, ierr); // @todo: CHECKERRQ();   
    MAP_END_ERROR_LOG;
+   if (*ierr!=MAP_SAFE) printf("time %f Calc_output: %s\n",t, map_msg);
 };
 
 

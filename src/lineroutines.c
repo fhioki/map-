@@ -548,7 +548,7 @@ MAP_ERROR_CODE node_solve_sequence(Domain* domain, MAP_ParameterType_t* p_type, 
   if (domain->outer_loop.krylov_accelerator) {
     success = krylov_solve_sequence(domain, p_type, u_type, z_type, other_type, time, map_msg, ierr); CHECKERRQ(MAP_FATAL_94);
   } else if (domain->outer_loop.powell) {
-    checkpoint();
+
   } else {
     success = newton_solve_sequence(domain, p_type, u_type, z_type, other_type, time, map_msg, ierr); CHECKERRQ(MAP_FATAL_93);
   };    
@@ -895,7 +895,7 @@ MAP_ERROR_CODE fd_x_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterType
   if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
     success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
   } else {
-    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, -999.9, map_msg, ierr); // @todo CHECKERRQ()
+    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, (float)-999.9, map_msg, ierr); // @todo CHECKERRQ()
   };    
   success = set_force_plus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
   success = set_force_plus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
@@ -908,7 +908,7 @@ MAP_ERROR_CODE fd_x_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterType
   if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
     success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
   } else {
-    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, -999.9, map_msg, ierr); // @todo CHECKERRQ()
+    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, (float)-999.9, map_msg, ierr); // @todo CHECKERRQ()
   };    
   success = set_force_minus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
   success = set_force_minus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
@@ -935,7 +935,7 @@ MAP_ERROR_CODE fd_y_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterType
   if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
     success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
   } else {
-    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, -999.9, map_msg, ierr); // @todo CHECKERRQ()
+    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, (float)-999.9, map_msg, ierr); // @todo CHECKERRQ()
   };    
   success = set_force_plus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
   success = set_force_plus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
@@ -948,7 +948,7 @@ MAP_ERROR_CODE fd_y_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterType
   if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
     success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
   } else {
-    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, -999.9, map_msg, ierr); // @todo CHECKERRQ()
+    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, (float)-999.9, map_msg, ierr); // @todo CHECKERRQ()
   };    
   success = set_force_minus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
   success = set_force_minus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
@@ -975,7 +975,7 @@ MAP_ERROR_CODE fd_z_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterType
   if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
     success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
   } else {
-    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, -999.9, map_msg, ierr); // @todo CHECKERRQ()
+    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, (float)-999.9, map_msg, ierr); // @todo CHECKERRQ()
   };    
   success = set_force_plus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
   success = set_force_plus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
@@ -988,7 +988,7 @@ MAP_ERROR_CODE fd_z_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterType
   if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
     success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
   } else {
-    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, -999.9, map_msg, ierr); // @todo CHECKERRQ()
+    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, (float)-999.9, map_msg, ierr); // @todo CHECKERRQ()
   };    
   success = set_force_minus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
   success = set_force_minus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
@@ -1015,7 +1015,7 @@ MAP_ERROR_CODE fd_phi_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterTy
   if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
     success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
   } else {
-    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, -999.9, map_msg, ierr); // @todo CHECKERRQ()
+    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, (float)-999.9, map_msg, ierr); // @todo CHECKERRQ()
   };    
   success = set_force_plus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
   success = set_force_plus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
@@ -1030,7 +1030,7 @@ MAP_ERROR_CODE fd_phi_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterTy
   if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
     success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
   } else {
-    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, -999.9, map_msg, ierr); // @todo CHECKERRQ()
+    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, (float)-999.9, map_msg, ierr); // @todo CHECKERRQ()
   };    
   success = set_force_minus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
   success = set_force_minus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
@@ -1059,7 +1059,7 @@ MAP_ERROR_CODE fd_the_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterTy
   if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
     success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
   } else {
-    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, -999.9, map_msg, ierr); // @todo CHECKERRQ()
+    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, (float)-999.9, map_msg, ierr); // @todo CHECKERRQ()
   };    
   success = set_force_plus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
   success = set_force_plus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
@@ -1074,7 +1074,7 @@ MAP_ERROR_CODE fd_the_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterTy
   if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
     success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
   } else {
-    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, -999.9, map_msg, ierr); // @todo CHECKERRQ()
+    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, (float)-999.9, map_msg, ierr); // @todo CHECKERRQ()
   };    
   success = set_force_minus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
   success = set_force_minus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
@@ -1103,7 +1103,7 @@ MAP_ERROR_CODE fd_psi_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterTy
   if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
     success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
   } else {
-    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, -999.9, map_msg, ierr); // @todo CHECKERRQ()
+    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, (float)-999.9, map_msg, ierr); // @todo CHECKERRQ()
   };    
   success = set_force_plus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
   success = set_force_plus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
@@ -1118,7 +1118,7 @@ MAP_ERROR_CODE fd_psi_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterTy
   if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
     success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr);
   } else {
-    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, -999.9, map_msg, ierr); // @todo CHECKERRQ()
+    success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, (float)-999.9, map_msg, ierr); // @todo CHECKERRQ()
   };    
   success = set_force_minus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
   success = set_force_minus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);

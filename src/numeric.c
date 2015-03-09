@@ -121,7 +121,7 @@ MAP_ERROR_CODE lu(OuterSolveAttributes* ns, const int n, char* map_msg, MAP_ERRO
     ns->l[i][i] = 1.0;
     for (j=i+1 ; j<n ; j++) {
       if (fabs(ns->jac[i][i])<MACHINE_EPSILON) {
-        return MAP_FATAL;
+       return MAP_FATAL;
       };
       ns->l[j][i] = (ns->jac[j][i])/(ns->jac[i][i]);
       /* ns->jac[j][j] = ns->l[j][j] */

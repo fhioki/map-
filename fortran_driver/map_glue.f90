@@ -47,7 +47,7 @@ PROGRAM Main
   ! -------------------------------------------------------------------------
   
   t_initial = 0.
-  t_final   = 80.0
+  t_final   = 10.0
   
   ! specify time increment; currently, all modules will be time integrated with this increment size
   dt_global = 0.5
@@ -67,11 +67,11 @@ PROGRAM Main
 
     
   ! set the MAP input file name and other environment terms.
-  InitInData_MAP%file_name = "Mooring.dat"      
+  InitInData_MAP%file_name = "OC3_segmented.map"      
   InitInData_MAP%summary_file_name = "baseline.sum.map"  
   InitInData_MAP%gravity = 9.81       ! @bonnie : This need to be according to g used in FAST. Positive value
   InitInData_MAP%sea_density = 1025    ! @bonnie : This needs to be set according to seawater density in FAST. Positive value
-  InitInData_MAP%depth = -220         ! @bonnie : This need to be set according to the water depth in FAST. Negative value
+  InitInData_MAP%depth = -320         ! @bonnie : This need to be set according to the water depth in FAST. Negative value
   ! p_MAP%dt = dt_global     ! @bonnie : This is for the glue code to set
 
   ! call the initialization routine

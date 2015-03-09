@@ -21,10 +21,10 @@
 
 BITS = -m64
 PLATFORM = $(shell uname -s)
-CMINPACK_DIR = cminpack
-BSTRING_DIR = bstring
-SIMCLIST_DIR = simclist
-LAPACK_DIR = lapack
+# CMINPACK_DIR = cminpack
+# BSTRING_DIR = bstring
+# SIMCLIST_DIR = simclist
+# LAPACK_DIR = lapack
 
 VPATH = cminpack:simclist:bstring:lapack
 
