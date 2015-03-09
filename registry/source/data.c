@@ -29,7 +29,34 @@ init_dim_table()
 
 node_t * 
 new_node ( int kind )
-{ node_t *p ; p = (node_t *)malloc(sizeof(node_t)) ; bzero(p,sizeof(node_t)); p->node_kind = kind ; return (p) ; }
+{ node_t *p ; 
+  p = (node_t *)malloc(sizeof(node_t)) ; 
+  bzero(p,sizeof(node_t)); 
+  p->node_kind = kind ; 
+
+  p->fields          = NULL;
+  p->params          = NULL;
+  p->type            = NULL;
+  p->module          = NULL;
+  p->module_ddt_list = NULL;
+  p->next            = NULL;
+  //p->coord_end_param = NULL;
+  strcpy(p->dim_param_name, "");
+  p->dim_param = 0;
+  p->type_type = 0;
+  p->max_ndims = 0;
+  p->containsPtr = 0;
+  p->ndims = 0;
+  p->deferred = 0;
+  p->usefrom = 0;
+  p->is_interface_type = 0;
+  strcpy(p->name, "");
+  strcpy(p->mapsto, "");
+  strcpy(p->nickname, "");
+  strcpy(p->descrip, "");
+  strcpy(p->units, "");
+
+  return (p) ; }
 
 int
 add_node_to_end ( node_t * node , node_t ** list )
@@ -84,15 +111,16 @@ add_node_to_end_4d ( node_t * node , node_t ** list )
 
 #if 1
 
-int
+void
 show_nodelist( node_t * p )
 {
   show_nodelist1( p , 0 ) ;
 }
 
+void
 show_nodelist1( node_t * p , int indent )
 {
-  if ( p == NULL ) return(0) ;
+  if ( p == NULL ) return;
   show_node1( p, indent) ;
   show_nodelist1( p->next, indent ) ;
 }

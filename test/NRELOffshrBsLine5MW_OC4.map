@@ -8,7 +8,7 @@ Node      Type      X        Y         Z        M        V        FX       FY   
 1         Fix     725.38    418.8     -200     0        0        #        #       #
 2         Vessel  35.39     20.43     -14.0     0        0        #        #       #
 ---------------------- LINE PROPERTIES -----------------------------------------------------
-Element    LineType  UnstrLen   NodeAnch  NodeFair  Flags
+Line     LineType  UnstrLen   NodeAnch  NodeFair  Flags
 (-)      (-)       (m)        (-)       (-)       (-)
 1        steel     835.35      1         2        plot 
 ---------------------- SOLVER OPTIONS-----------------------------------------

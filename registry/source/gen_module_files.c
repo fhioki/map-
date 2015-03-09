@@ -11,298 +11,90 @@
 
 #include "FAST_preamble.h"
 
+void gen_mask_alloc( FILE *fp, int ndims, char *tmp );
 
 /**
- * ============  Generate ModName INTERFACE block in ModName_Types.f90 ==================
+ * ==============  Create the C2Farry Copy Subroutine in ModName_Types.f90 ======================
  *
- * This is a copy of C function gen_copy_f2c_c2f(..), but certain part are stripped out
- * and modified to make it generate only a part of the F2C interface between C and
- * Fortran.
+ * In the C2F routines, we associate the pointer created in C with the variables in the
+ * corresponding Fortran types.
  * ======================================================================================
  */
 int
-gen_f2c_interface( FILE         *fp        , // *.f90 file we are writting to
-                   const node_t *ModName   , // module name
-                   char         *inout     , // character string written out
-                   char         *inoutlong , // not sure what this is used for
-                   int          sw         , // sw=0 f2c, sw=1 c2f
-                   FILE         *fpIntf    ) // *.f90 interface file we are writting to (for dummy .f90 code)
-{
-  char tmp[NAMELEN], tmp2[NAMELEN], addnick[NAMELEN], nonick[NAMELEN] ;
-  node_t *q, * r ;
-  int d ;
-
-  remove_nickname(ModName->nickname,inout,nonick) ;
-  append_nickname((is_a_fast_interface_type(inoutlong))?ModName->nickname:"",inoutlong,addnick) ;
-  sprintf(tmp,"%s",addnick) ;
-  sprintf(tmp2,"%s",make_lower_temp(tmp)) ;
-
-  if (( q = get_entry( make_lower_temp(tmp),ModName->module_ddt_list ) ) != NULL ) {
-    for ( r = q->fields ; r ; r = r->next ){
-      if ( r->type != NULL ) {
-        if ( r->type->type_type == DERIVED && ! r->type->usefrom  ) {
-#if 0
-          // cannot pass derived data types through C interface
-          if ( strcmp(make_lower_temp(r->type->mapsto),"meshtype") ) { // if not meshtype
-            char nonick2[NAMELEN] ;
-            remove_nickname(ModName->nickname,r->type->name,nonick2) ;
-            ModName->nickname,(sw==0)?"F2C":"C2F",fast_interface_type_shortname(nonick2),
-              nonick,r->name,dimstr(r->ndims)) ;
-        }
-#endif
-        } else {
-          if ( sw_norealloc_lsh && r->ndims > 0 && has_deferred_dim(r,0) ) {
-            char tmp2[NAMELEN], tmp4[NAMELEN] ;
-            char modified_mod_name[100];
-            strcpy(tmp,"") ;
-            strcpy(tmp4,"") ;
-            strcpy(modified_mod_name,"") ;
-
-            if ( sw == 0 ) {
-
-              char var_type[36] ="";
-              char c_var_type[36] = "";
-
-              // Create the name of the BINC(C) type for fortran. This depends on we are comminucating a logical, integer, or real to C.
-              if      ( strcmp( r->type->mapsto, "REAL(DbKi)"    )==0 ) { strcat(var_type,"REAL"   ); strcat(c_var_type,"C_DOUBLE"); }
-              else if ( strcmp( r->type->mapsto, "REAL(ReKi)"    )==0 ) { strcat(var_type,"REAL"   ); strcat(c_var_type,"C_FLOAT"); }
-              else if ( strcmp( r->type->mapsto, "INTEGER(IntKi)")==0 ) { strcat(var_type,"INTEGER"); strcat(c_var_type,"C_INT"   ); }
-              else if ( strcmp( r->type->mapsto, "LOGICAL"       )==0 ) { strcat(var_type,"LOGICAL"); strcat(c_var_type,"C_BOOL"  ); }
-
-              if ( strncmp( r->type->mapsto,"CHARACTER",9   )!=0 ) { // DON'T CREATE AN INTERFACE BLOCK FOR C_CHARS!!!!
-
-                // Because the C derived types name does not match between what is defined in the MAP_C_Types.f90 file and
-                // what can be produced by this function, we have to modify the name...
-                //
-                // @see   :  Template_C_Types.c. c_type_alias should match the match the name of a BIND(C)
-                //           derived type.
-                // @tdod  :  This should be changed so that the c_type_alias name is now part of the
-                //           "node_t" struct
-                if ( strcmp( nonick, "OtherState" )==0 ) strcat( modified_mod_name, "OtherState"      ) ;
-                if ( strcmp( nonick, "ConstrState")==0 ) strcat( modified_mod_name, "ConstraintState" ) ;
-                if ( strcmp( nonick, "Param"      )==0 ) strcat( modified_mod_name, "Parameter"       ) ;
-                if ( strcmp( nonick, "Input"      )==0 ) strcat( modified_mod_name, "Input"           ) ;
-                if ( strcmp( nonick, "Output"     )==0 ) strcat( modified_mod_name, "Output"          ) ;
-
-                // Now create the interface block and write it to the file fp
-                fprintf(fp,"\n  INTERFACE\n");
-                fprintf(fp,"     SUBROUTINE %s_F2C_%s_%s( Object, arr, len) BIND(C,name='%s_F2C_%s_%s_C') \n",
-                        ModName->nickname ,
-                        nonick            ,
-                        r->name           ,
-                        ModName->nickname ,
-                        nonick            ,
-                        r->name           );
-                fprintf(fp,"       IMPORT\n");
-                fprintf(fp,"       IMPLICIT NONE\n");
-                fprintf(fp,"       TYPE( %s_%sType_C ) Object\n"       , ModName->nickname, modified_mod_name );
-                fprintf(fp,"       %s(KIND=%s), DIMENSION(*) :: arr\n" , var_type, c_var_type                 );
-                fprintf(fp,"       INTEGER(KIND=C_INT), VALUE :: len\n"                                       );
-                fprintf(fp,"     END SUBROUTINE %s_F2C_%s_%s\n"        , ModName->nickname, nonick,r->name    );
-                fprintf(fp,"  END INTERFACE\n"                                                                 );
-
-
-                // bjj: duplicate this in a fortran file (for dummy .f90 file)
-                fprintf(fpIntf,"SUBROUTINE %s_F2C_%s_%s( Object, arr, len) BIND(C,name='%s_F2C_%s_%s_C') \n",
-                        ModName->nickname ,
-                        nonick            ,
-                        r->name           ,
-                        ModName->nickname ,
-                        nonick            ,
-                        r->name           );
-                fprintf(fpIntf,"!DEC$ ATTRIBUTES DLLEXPORT:: %s_F2C_%s_%s\n", ModName->nickname ,nonick,r->name   );
-                fprintf(fpIntf,"       USE MAP_Types, only : %s_%sType_C\n", ModName->nickname, modified_mod_name );
-                fprintf(fpIntf,"       USE , INTRINSIC :: ISO_C_Binding\n"   );
-                fprintf(fpIntf,"       IMPLICIT NONE\n");
-                fprintf(fpIntf,"!GCC$ ATTRIBUTES DLLEXPORT ::%s_F2C_%s_%s\n", ModName->nickname ,nonick,r->name   );
-                fprintf(fpIntf,"       TYPE( %s_%sType_C ) Object\n"       , ModName->nickname, modified_mod_name );
-                fprintf(fpIntf,"       %s(KIND=%s), DIMENSION(*) :: arr\n" , var_type, c_var_type                 );
-                fprintf(fpIntf,"       INTEGER(KIND=C_INT), VALUE :: len\n"                                       );
-                fprintf(fpIntf,"END SUBROUTINE %s_F2C_%s_%s\n"        , ModName->nickname, nonick,r->name    );
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-  return(0) ;
-}
-
-
-/**
- * ============  Create the Copy F2C and C2F Subroutine in ModName_Types.f90 ============
- *
- * In the F2C routines, there are function that map to functon in C. These functions are
- * defined in the INTERFACE block in ModName_Types.f90. The corresponding C function
- * call can be foudn in ModName_Types.c
- * ======================================================================================
- */
-int
-gen_copy_f2c_c2f( FILE         *fp        , // *.f90 file we are writting to
-                  const node_t *ModName   , // module name
-                  char         *inout     , // character string written out
-                  char         *inoutlong , // not sure what this is used for
-                  int          sw         ) // sw=0 f2c, sw=1 c2f
+gen_copy_c2f( FILE         *fp        , // *.f90 file we are writting to
+              const node_t *ModName   , // module name
+              char         *inout     , // character string written out
+              char         *inoutlong ) // not sure what this is used for
 {
   node_t *q, *r ;
   char tmp[NAMELEN];
-  char tmp2[NAMELEN];
   char addnick[NAMELEN];
   char nonick[NAMELEN] ;
-  int d ;
 
   remove_nickname(ModName->nickname,inout,nonick) ;
   append_nickname((is_a_fast_interface_type(inoutlong))?ModName->nickname:"",inoutlong,addnick) ;
-  fprintf(fp,"  SUBROUTINE %s_%s_Copy%s( %sData, ErrStat, ErrMsg )\n", ModName->nickname,(sw==0)?"F2C":"C2F", nonick,nonick );
+  fprintf(fp," SUBROUTINE %s_C2Fary_Copy%s( %sData, ErrStat, ErrMsg )\n", ModName->nickname, nonick,nonick );
   fprintf(fp,"    TYPE(%s), INTENT(INOUT) :: %sData\n"               , addnick, nonick                                      );
   fprintf(fp,"    INTEGER(IntKi),  INTENT(  OUT) :: ErrStat\n"                                                              );
   fprintf(fp,"    CHARACTER(*),    INTENT(  OUT) :: ErrMsg\n"                                                               );
-  fprintf(fp,"    ! Local \n"                                                                                               );
-  fprintf(fp,"    INTEGER(IntKi)                   :: i,i1,i2,i3,i4,i5,j,k\n"                                               );
-  fprintf(fp,"    REAL(KIND=C_DOUBLE) ,ALLOCATABLE :: c_dbl_value(:)\n"                                                     );
-  fprintf(fp,"    REAL(KIND=C_DOUBLE) ,POINTER     :: dbl_arr(:)\n"                                                         );
-  fprintf(fp,"    REAL(KIND=C_FLOAT)  ,ALLOCATABLE :: c_float_value(:)\n"                                                   );
-  fprintf(fp,"    REAL(KIND=C_FLOAT)  ,POINTER     :: float_arr(:)\n"                                                       );
-  fprintf(fp,"    INTEGER(KIND=C_INT) ,ALLOCATABLE :: c_int_value(:)\n"                                                     );
-  fprintf(fp,"    INTEGER(KIND=C_INT) ,POINTER     :: int_arr(:)\n"                                                         );
-  fprintf(fp,"    LOGICAL(KIND=C_BOOL),ALLOCATABLE :: c_bool_value(:)\n"                                                    );
-  fprintf(fp,"    LOGICAL(KIND=C_BOOL),POINTER     :: bool_arr(:)\n"                                                        );
   fprintf(fp,"    ! \n"                                                                                                     );
   fprintf(fp,"    ErrStat = ErrID_None\n"                                                                                   );
   fprintf(fp,"    ErrMsg  = \"\"\n"                                                                                         );
 
   sprintf(tmp,"%s",addnick) ;
 
-  sprintf(tmp2,"%s",make_lower_temp(tmp)) ;
-
   if (( q = get_entry( make_lower_temp(tmp),ModName->module_ddt_list ) ) == NULL )
   {
-    fprintf(stderr,"Registry warning: generating %s_Copy%s: cannot find definition for %s\n",ModName->nickname,nonick,tmp) ;
+    fprintf(stderr,"Registry warning: generating %s_C2Fary_Copy%s: cannot find definition for %s\n",ModName->nickname,nonick,tmp) ;
   } else {
     for ( r = q->fields ; r ; r = r->next )
     {
       if ( r->type != NULL ) {
         if ( r->type->type_type == DERIVED && ! r->type->usefrom  ) {
-#if 0
-// cannot pass derived data types through C interface
-          if ( strcmp(make_lower_temp(r->type->mapsto),"meshtype") ) { // if not meshtype
-            char nonick2[NAMELEN] ;
-            remove_nickname(ModName->nickname,r->type->name,nonick2) ;
-            for ( d = r->ndims ; d >= 1 ; d-- ) {
-  fprintf(fp,"DO i%d = LBOUND(%sData%%%s,%d), UBOUND(%sData%%%s,%d)\n",d,nonick,r->name,d,nonick,r->name,d  ) ;
-            }
-fprintf(stderr,"> %s\n",r->type->name,r->type->mapsto) ;
-  fprintf(fp,"  CALL %s_%s_Copy%s( %sData%%%s%s, ErrStat, ErrMsg )\n",
-            ModName->nickname,(sw==0)?"F2C":"C2F",fast_interface_type_shortname(nonick2),
-            nonick,r->name,dimstr(r->ndims)) ;
-            for ( d = r->ndims ; d >= 1 ; d-- ) {
-  fprintf(fp,"ENDDO\n") ;
-            }
-          }
-#else
-  fprintf(stderr,"Registry WARNING: derived data type %s of type %s is not passed through C interface\n",r->name,r->type->name) ;
-#endif
+          fprintf(stderr,"Registry WARNING: derived data type %s of type %s is not passed through C interface\n",r->name,r->type->name) ;
         } else {
-          if ( strncmp( r->type->mapsto,"CHARACTER",9   )!=0 ) { // DON'T CREATE AN C2F/F2C functions for CHARS!
-                                                                 // @todo : ask John if this is OK!!! Preferably, do
-                                                                 // this before he leaves for good to extract a detailed
-                                                                 // answer out of him.
-            if ( sw_norealloc_lsh && r->ndims > 0 && has_deferred_dim(r,0) ) {
-              char tmp2[NAMELEN];
-              char tmp4[NAMELEN] ;
-              strcpy(tmp,"") ;
-              strcpy(tmp4,"") ;
-              fprintf(fp,"\n    ! -- %s %s Data fields\n",r->name,nonick) ;
-              fprintf(fp,"    IF ( %s( %sData%%%s ) ) THEN\n",assoc_or_allocated(r),nonick,r->name) ;
-
-              if ( sw == 0 ) { // generate the code to perform the F-to-C conversion (i.e., let the C code know that data
-                // was modified by the Fortran dirver)
-                char var_type[10] ="";
-
-                if ( strcmp( r->type->mapsto, "REAL(DbKi)"    )==0 ) strcat( var_type, "dbl"  );
-                if ( strcmp( r->type->mapsto, "REAL(ReKi)"    )==0 ) strcat( var_type, "float");
-                if ( strcmp( r->type->mapsto, "INTEGER(IntKi)")==0 ) strcat( var_type, "int"  );
-                if ( strcmp( r->type->mapsto, "LOGICAL"       )==0 ) strcat( var_type, "bool" );
-
-                fprintf(fp,"       ALLOCATE( c_%s_value(%sData%%C_obj%%%s_Len) )\n"                        , var_type, nonick, r->name                                             ) ;
-                fprintf(fp,"       DO i = 1 , %sData%%C_obj%%%s_Len\n"                                     , nonick, r->name                                                       ) ;
-                fprintf(fp,"          c_%s_value(i) = %sData%%%s(i)\n"                                     , var_type, nonick, r->name                                             ) ;
-                fprintf(fp,"       END DO\n"                                                                                                                                       ) ;
-                fprintf(fp,"       CALL %s_F2C_%s_%s( %sData%%C_obj, c_%s_value, %sData%%C_obj%%%s_Len )\n", ModName->nickname, nonick, r->name, nonick , var_type, nonick,r->name ) ;
-                fprintf(fp,"       DEALLOCATE( c_%s_value )\n"                                             , var_type                                                              );
-// bjj: I think this would be sufficient:                fprintf(fp,"       CALL C_F_POINTER(  %sData%%C_obj%%%s, %sData%%%s, (/%sData%%C_obj%%%s_Len/) )\n", nonick, r->name, , nonick, r->name, , nonick, r->name );
-              } else {  //Now do the opposite, and create the source to let the Fortran driver know that variables were
-                //modified in the C portion.
-                char arrayname[NAMELEN];
-                char tmp2[NAMELEN];
-                char tmp3[NAMELEN] ;
-                char var_type[4] ="";
-
-                if ( strcmp( r->type->mapsto, "REAL(DbKi)"    )==0 ) strcat( var_type, "dbl"  );
-                if ( strcmp( r->type->mapsto, "REAL(ReKi)"    )==0 ) strcat( var_type, "float");
-                if ( strcmp( r->type->mapsto, "INTEGER(IntKi)")==0 ) strcat( var_type, "int"  );
-                if ( strcmp( r->type->mapsto, "LOGICAL"       )==0 ) strcat( var_type, "bool" );
-
-                fprintf(fp,"       CALL C_F_POINTER( %sData%%C_obj%%%s, %s_arr, (/%sData%%C_obj%%%s_Len/) )\n", nonick, r->name, var_type, nonick, r->name );
-                fprintf(fp,"       DO i = 1, %sData%%C_obj%%%s_Len\n"                                         , nonick, r->name                            );
-                fprintf(fp,"          %sData%%%s(i) = %s_arr(i)\n"                                            , nonick, r->name,var_type                   );
-                fprintf(fp,"       END DO\n"                                                                                                               );
-              }
-            } else {
-              if ( r->ndims > 0 ) {
-                strcpy(tmp,"") ;
-                for ( d = 1 ; d <= r->ndims ; d++ ) {
-                  fprintf(fp,"  i%d = SIZE(%sData%%%s,%d)\n",d,nonick,r->name,d) ;
-                  sprintf(tmp2,",i%d",d) ;
-                  strcat(tmp,tmp2) ;
-                }
-                if ( sw==0 ) {
-                  fprintf(fp,"  CALL %s_F2C_%s_%s(%sData%%%s,%sData%%C_obj %s)\n",
-                          ModName->nickname,nonick,r->name,nonick,r->name,nonick,tmp) ;
-                } else {
-                  fprintf(fp,"  CALL %s_C2F_%s_%s(%sData%%C_obj,%sData%%%s %s)\n",
-                          ModName->nickname,nonick,r->name,nonick,nonick,r->name,tmp) ;
-                }
-              } else {
-                if (strcmp( r->name, "Ver")!=0 ) { // ignore ProgVer because it does not exist in the C types header file
-                  fprintf(fp,"    %sData%s%%%s = %sData%s%%%s\n",
-                          nonick,(sw==0)?"%C_obj":"",r->name,nonick,(sw!=0)?"%C_obj":"",r->name) ;
-                }
-              }
-            }
-            if ( sw_norealloc_lsh && r->ndims > 0 && has_deferred_dim(r,0) ) {
-              fprintf(fp,"    ENDIF\n") ;
-            }
-          }
+            if ( is_pointer(r) ) {
+                 fprintf(fp,"\n    ! -- %s %s Data fields\n",r->name,nonick) ;
+                 fprintf(fp,"    IF ( .NOT. C_ASSOCIATED( %sData%%C_obj%%%s ) ) THEN\n",nonick,r->name) ;
+                 fprintf(fp,"       NULLIFY( %sData%%%s )\n",nonick,r->name) ;
+                 fprintf(fp,"    ELSE\n") ;
+                 fprintf(fp,"       CALL C_F_POINTER(%sData%%C_obj%%%s, %sData%%%s, (/%sData%%C_obj%%%s_Len/))\n",nonick,r->name,nonick,r->name,nonick,r->name) ;
+                 fprintf(fp,"    END IF\n") ;
+             }
         }
       }
     }
   }
 
-  fprintf(fp," END SUBROUTINE %s_%s_Copy%s\n\n", ModName->nickname,(sw==0)?"F2C":"C2F",nonick ) ;
+  fprintf(fp," END SUBROUTINE %s_C2Fary_Copy%s\n\n", ModName->nickname,nonick ) ;
   return(0) ;
 }
 
+
 int
-gen_copy( FILE * fp, const node_t * ModName, char * inout, char * inoutlong )
+gen_copy( FILE * fp, const node_t * ModName, char * inout, char * inoutlong, const node_t * q_in )
 {
   char tmp[NAMELEN], tmp2[NAMELEN], addnick[NAMELEN], nonick[NAMELEN] ;
   node_t *q, * r ;
   int d ;
+  int arySize;
 
   remove_nickname(ModName->nickname,inout,nonick) ;
   append_nickname((is_a_fast_interface_type(inoutlong))?ModName->nickname:"",inoutlong,addnick) ;
   fprintf(fp," SUBROUTINE %s_Copy%s( Src%sData, Dst%sData, CtrlCode, ErrStat, ErrMsg )\n",ModName->nickname,nonick,nonick,nonick ) ;
-  fprintf(fp,"   TYPE(%s), INTENT(INOUT) :: Src%sData\n",addnick,nonick) ;
+  fprintf(fp, "   TYPE(%s), INTENT(%s) :: Src%sData\n", addnick, (q_in->containsPtr == 1) ? "INOUT" : "IN", nonick);
+//fprintf(fp, "   TYPE(%s), INTENT(INOUT) :: Src%sData\n", addnick, nonick);
   fprintf(fp,"   TYPE(%s), INTENT(INOUT) :: Dst%sData\n",addnick,nonick) ;
   fprintf(fp,"   INTEGER(IntKi),  INTENT(IN   ) :: CtrlCode\n") ;
   fprintf(fp,"   INTEGER(IntKi),  INTENT(  OUT) :: ErrStat\n") ;
   fprintf(fp,"   CHARACTER(*),    INTENT(  OUT) :: ErrMsg\n") ;
   fprintf(fp,"! Local \n") ;
-  fprintf(fp,"   INTEGER(IntKi)                 :: i,i1,i2,i3,i4,i5,j,k\n") ;
-  fprintf(fp,"   INTEGER(IntKi)                 :: i1_l,i2_l,i3_l,i4_l,i5_l  ! lower bounds for an array dimension\n") ;
-  fprintf(fp,"   INTEGER(IntKi)                 :: i1_u,i2_u,i3_u,i4_u,i5_u  ! upper bounds for an array dimension\n") ;
+  fprintf(fp,"   INTEGER(IntKi)                 :: i,j,k\n") ;
+  for (d = 1; d <= q_in->max_ndims; d++){
+  fprintf(fp, "   INTEGER(IntKi)                 :: i%d, i%d_l, i%d_u  !  bounds (upper/lower) for an array dimension %d\n", d, d, d, d);
+  }
+  fprintf(fp,"   INTEGER(IntKi)                 :: ErrStat2\n") ;
+  fprintf(fp,"   CHARACTER(1024)                :: ErrMsg2\n") ;
   fprintf(fp,"! \n") ;
   fprintf(fp,"   ErrStat = ErrID_None\n") ;
   fprintf(fp,"   ErrMsg  = \"\"\n") ;
@@ -327,6 +119,7 @@ gen_copy( FILE * fp, const node_t * ModName, char * inout, char * inoutlong )
            if ( sw_norealloc_lsh ) {
              char tmp2[14] ;
              strcpy(tmp,"") ;
+             arySize = 0;
              for ( d = 1 ; d <= r->ndims ; d++ ) {
   fprintf(fp,"   i%d_l = LBOUND(Src%sData%%%s,%d)\n",d,nonick,r->name,d) ;
   fprintf(fp,"   i%d_u = UBOUND(Src%sData%%%s,%d)\n",d,nonick,r->name,d) ;
@@ -335,12 +128,17 @@ gen_copy( FILE * fp, const node_t * ModName, char * inout, char * inoutlong )
              }
 //fprintf(fp," nonick=%s\n", nonick    );
   fprintf(fp,"   IF (.NOT. %s(Dst%sData%%%s)) THEN \n",assoc_or_allocated(r),nonick,r->name) ;
-  fprintf(fp,"      ALLOCATE(Dst%sData%%%s(%s),STAT=ErrStat)\n",nonick,r->name,(char*)&(tmp[1])) ;
-  fprintf(fp,"      IF (ErrStat /= 0) THEN \n") ;
-  fprintf(fp,"         ErrStat = ErrID_Fatal \n") ;
-  fprintf(fp,"         ErrMsg = '%s_Copy%s: Error allocating Dst%sData%%%s.'\n",ModName->nickname,nonick,nonick,r->name) ;
+  fprintf(fp,"      ALLOCATE(Dst%sData%%%s(%s),STAT=ErrStat2)\n",nonick,r->name,(char*)&(tmp[1])) ;
+  fprintf(fp,"      IF (ErrStat2 /= 0) THEN \n") ;
+  fprintf(fp,"         CALL SetErrStat(ErrID_Fatal, 'Error allocating Dst%sData%%%s.', ErrStat, ErrMsg,'%s_Copy%s')\n",nonick,r->name,ModName->nickname,nonick);
   fprintf(fp,"         RETURN\n") ;
   fprintf(fp,"      END IF\n") ;
+
+        if ( sw_ccode && is_pointer(r) ) { // bjj: this needs to be updated if we've got multiple dimension arrays
+  fprintf(fp,"      Dst%sData%%c_obj%%%s_Len = SIZE(Dst%sData%%%s)\n",nonick,r->name,nonick,r->name) ; 
+  fprintf(fp,"      IF (Dst%sData%%c_obj%%%s_Len > 0) &\n",nonick,r->name) ; 
+  fprintf(fp,"         Dst%sData%%c_obj%%%s = C_LOC( Dst%sData%%%s(i1_l) ) \n",nonick,r->name, nonick,r->name ) ;      
+        }
   fprintf(fp,"   END IF\n") ;
            }
         }
@@ -352,7 +150,9 @@ gen_copy( FILE * fp, const node_t * ModName, char * inout, char * inoutlong )
          if ( sw_ccode ) {
   fprintf(fp,"  Dst%sData%%C_obj = Src%sData%%C_obj\n",nonick,nonick);
          }
-  fprintf(fp,"     CALL MeshCopy( Src%sData%%%s%s, Dst%sData%%%s%s, CtrlCode, ErrStat, ErrMsg )\n",nonick,r->name,dimstr(r->ndims),nonick,r->name,dimstr(r->ndims)) ;
+  fprintf(fp,"     CALL MeshCopy( Src%sData%%%s%s, Dst%sData%%%s%s, CtrlCode, ErrStat2, ErrMsg2 )\n",nonick,r->name,dimstr(r->ndims),nonick,r->name,dimstr(r->ndims)) ;
+  fprintf(fp,"         CALL SetErrStat(ErrStat2, ErrMsg2, ErrStat, ErrMsg,'%s_Copy%s:%s%s')\n",ModName->nickname,nonick,r->name,dimstr(r->ndims));
+  fprintf(fp,"         IF (ErrStat>=AbortErrLev) RETURN\n");
           for ( d = r->ndims ; d >= 1 ; d-- ) {
   fprintf(fp,"   ENDDO\n") ;
           }
@@ -366,10 +166,13 @@ gen_copy( FILE * fp, const node_t * ModName, char * inout, char * inoutlong )
           }
 
 
-  fprintf(fp,"      CALL %s_Copy%s( Src%sData%%%s%s, Dst%sData%%%s%s, CtrlCode, ErrStat, ErrMsg )\n",
+  fprintf(fp,"      CALL %s_Copy%s( Src%sData%%%s%s, Dst%sData%%%s%s, CtrlCode, ErrStat2, ErrMsg2 )\n",
                                 r->type->module->nickname,fast_interface_type_shortname(nonick2),
                                 nonick,r->name,dimstr(r->ndims),
                                 nonick,r->name,dimstr(r->ndims)) ;
+  fprintf(fp,"         CALL SetErrStat(ErrStat2, ErrMsg2, ErrStat, ErrMsg,'%s_Copy%s:%s%s')\n",ModName->nickname,nonick,r->name,dimstr(r->ndims));
+  fprintf(fp,"         IF (ErrStat>=AbortErrLev) RETURN\n");
+
 
 
           for ( d = r->ndims ; d >= 1 ; d-- ) {
@@ -391,9 +194,12 @@ gen_copy( FILE * fp, const node_t * ModName, char * inout, char * inoutlong )
   return(0) ;
 }
 
-int
+void
 gen_pack( FILE * fp, const node_t * ModName, char * inout, char *inoutlong )
 {
+
+//BJJ: fix me: we need to store LBOUND() and UBOUND() of each dimension of each entry that has deferred dimensions.
+// we also need to pack characters
   char tmp[NAMELEN], tmp2[NAMELEN], tmp3[NAMELEN], addnick[NAMELEN], nonick[NAMELEN] ;
   node_t *q, * r ;
   int frst, d ;
@@ -406,7 +212,7 @@ gen_pack( FILE * fp, const node_t * ModName, char * inout, char *inoutlong )
   if (( q = get_entry( make_lower_temp(tmp),ModName->module_ddt_list ) ) == NULL )
   {
     fprintf(stderr,"Registry warning: generating %s_Pack%s: cannot find definition for %s\n",ModName->nickname,nonick,tmp) ;
-    return(1) ;
+    return;//(1) ;
   }
 
   fprintf(fp," SUBROUTINE %s_Pack%s( ReKiBuf, DbKiBuf, IntKiBuf, Indata, ErrStat, ErrMsg, SizeOnly )\n", ModName->nickname,nonick) ;
@@ -434,7 +240,7 @@ gen_pack( FILE * fp, const node_t * ModName, char * inout, char *inoutlong )
   for ( r = q->fields ; r ; r = r->next )
   {
     if ( r->type == NULL ) {
-      fprintf(stderr,"Registry warning generating %_Pack%s: %s has no type.\n",ModName->nickname,nonick,r->name) ;
+      fprintf(stderr,"Registry warning generating %s_Pack%s: %s has no type.\n",ModName->nickname,nonick,r->name) ;
       return ; // EARLY RETURN
     } else {
       if ( !strcmp( r->type->name, "meshtype" ) || (r->type->type_type == DERIVED ) ) { // && ! r->type->usefrom ) ) {
@@ -521,20 +327,41 @@ gen_pack( FILE * fp, const node_t * ModName, char * inout, char *inoutlong )
       else if ( !strcmp( r->type->mapsto, "REAL(DbKi)")     ) {
   fprintf(fp,"  Db_BufSz   = Db_BufSz   + 1  ! %s\n",r->name ) ;
       }
-      else if ( !strcmp( r->type->mapsto, "INTEGER(IntKi)") ) {
+      else if ( !strcmp( r->type->mapsto, "INTEGER(IntKi)") ||
+                !strcmp( r->type->mapsto, "LOGICAL" )       ) {
   fprintf(fp,"  Int_BufSz  = Int_BufSz  + 1  ! %s\n",r->name ) ;
       }
+      else
+      {
+  fprintf(fp,"!  missing buffer for %s\n",r->name ) ;
+      }
     } else { // r->ndims > 0
+
       if      ( !strcmp( r->type->mapsto, "REAL(ReKi)")  ||
                 !strcmp( r->type->mapsto, "REAL(SiKi)")     ) {
+         if ( has_deferred_dim(r,0) ){
+  fprintf(fp,"  IF ( %s(InData%%%s) ) ", assoc_or_allocated(r),r->name ) ;
+         };
   fprintf(fp,"  Re_BufSz    = Re_BufSz    + SIZE( InData%%%s )  ! %s \n", r->name , r->name ) ;
       }
       else if ( !strcmp( r->type->mapsto, "REAL(DbKi)")     ) {
+         if ( has_deferred_dim(r,0) ){
+  fprintf(fp,"  IF ( %s(InData%%%s) ) ", assoc_or_allocated(r),r->name ) ;
+         };
   fprintf(fp,"  Db_BufSz    = Db_BufSz    + SIZE( InData%%%s )  ! %s \n", r->name , r->name ) ;
       }
-      else if ( !strcmp( r->type->mapsto, "INTEGER(IntKi)") ) {
+      else if ( !strcmp( r->type->mapsto, "INTEGER(IntKi)") ||
+                !strcmp( r->type->mapsto, "LOGICAL" )       ) {
+        if ( has_deferred_dim(r,0) ){
+  fprintf(fp,"  IF ( %s(InData%%%s) ) ", assoc_or_allocated(r),r->name ) ;
+        };
   fprintf(fp,"  Int_BufSz   = Int_BufSz   + SIZE( InData%%%s )  ! %s \n", r->name , r->name ) ;
       }
+      else
+      {
+  fprintf(fp,"!  missing buffer for %s\n",r->name ) ;
+      }
+
     }
   }
 
@@ -555,7 +382,7 @@ gen_pack( FILE * fp, const node_t * ModName, char * inout, char *inoutlong )
                                  r->name,dimstr(r->ndims),r->name,  r->name,    r->name,                              r->name ) ;
 
   fprintf(fp,"  IF(ALLOCATED(Re_%s_Buf)) THEN\n",r->name) ;
-  fprintf(fp,"    IF ( .NOT. OnlySize ) ReKiBuf( Re_Xferred:Re_Xferred+SIZE(Re_%s_Buf)-1 ) = Re_%s_Buf\n",r->name,r->name,r->name) ;
+  fprintf(fp,"    IF ( .NOT. OnlySize ) ReKiBuf( Re_Xferred:Re_Xferred+SIZE(Re_%s_Buf)-1 ) = Re_%s_Buf\n",r->name,r->name) ;
   fprintf(fp,"    Re_Xferred = Re_Xferred + SIZE(Re_%s_Buf)\n",r->name) ;
   fprintf(fp,"  ENDIF\n" ) ;
   fprintf(fp,"  IF(ALLOCATED(Db_%s_Buf)) THEN\n",r->name) ;
@@ -602,7 +429,7 @@ gen_pack( FILE * fp, const node_t * ModName, char * inout, char *inoutlong )
                         dimstr(r->ndims),
                         r->name ) ;
   fprintf(fp,"  IF(ALLOCATED(Re_%s_Buf)) THEN\n",r->name) ;
-  fprintf(fp,"    IF ( .NOT. OnlySize ) ReKiBuf( Re_Xferred:Re_Xferred+SIZE(Re_%s_Buf)-1 ) = Re_%s_Buf\n",r->name,r->name,r->name) ;
+  fprintf(fp,"    IF ( .NOT. OnlySize ) ReKiBuf( Re_Xferred:Re_Xferred+SIZE(Re_%s_Buf)-1 ) = Re_%s_Buf\n",r->name,r->name) ;
   fprintf(fp,"    Re_Xferred = Re_Xferred + SIZE(Re_%s_Buf)\n",r->name) ;
   fprintf(fp,"  ENDIF\n" ) ;
   fprintf(fp,"  IF(ALLOCATED(Db_%s_Buf)) THEN\n",r->name) ;
@@ -642,6 +469,7 @@ gen_pack( FILE * fp, const node_t * ModName, char * inout, char *inoutlong )
       if ( !strcmp( r->type->mapsto, "REAL(ReKi)") ||
            !strcmp( r->type->mapsto, "REAL(SiKi)") ||
            !strcmp( r->type->mapsto, "REAL(DbKi)") ||
+           !strcmp( r->type->mapsto, "LOGICAL")    ||
            !strcmp( r->type->mapsto, "INTEGER(IntKi)") ) {
         if ( r->ndims > 0 && has_deferred_dim( r, 0 )) {
   fprintf(fp,"  IF ( %s(InData%%%s) ) THEN\n", assoc_or_allocated(r),r->name ) ;
@@ -663,6 +491,13 @@ gen_pack( FILE * fp, const node_t * ModName, char * inout, char *inoutlong )
              indent,(r->ndims>0)?tmp2:"1",(r->ndims>0)?"PACK":"",r->name,(r->ndims>0)?",.TRUE.":"") ;
   fprintf(fp,"  %sInt_Xferred   = Int_Xferred   + %s\n",indent,(r->ndims>0)?tmp2:"1"  ) ;
         }
+        else if ( !strcmp( r->type->mapsto, "LOGICAL") ) {
+  fprintf(fp,"  %sIF ( .NOT. OnlySize ) IntKiBuf ( Int_Xferred:Int_Xferred+(%s)-1 ) = TRANSFER( %s(InData%%%s %s), IntKiBuf(1), 1)\n",
+             indent,(r->ndims>0)?tmp2:"1",(r->ndims>0)?"PACK":"",r->name,(r->ndims>0)?",.TRUE.":"") ;
+  fprintf(fp,"  %sInt_Xferred   = Int_Xferred   + %s\n",indent,(r->ndims>0)?tmp2:"1"  ) ;
+        }
+
+
         if ( r->ndims > 0 && has_deferred_dim( r, 0 )) {
   fprintf(fp,"  ENDIF\n") ;
         }
@@ -671,15 +506,15 @@ gen_pack( FILE * fp, const node_t * ModName, char * inout, char *inoutlong )
   }
 
   fprintf(fp," END SUBROUTINE %s_Pack%s\n\n", ModName->nickname,nonick ) ;
-  return(0) ;
+  return;//(0) ;
 }
 
-int
+void
 gen_unpack( FILE * fp, const node_t * ModName, char * inout, char * inoutlong )
 {
   char tmp[NAMELEN], tmp2[NAMELEN], tmp3[NAMELEN], tmp4[NAMELEN], addnick[NAMELEN], nonick[NAMELEN] ;
   node_t *q, * r ;
-  int d, idim, frst ;
+  int d, frst ;
 
   remove_nickname(ModName->nickname,inout,nonick) ;
   append_nickname((is_a_fast_interface_type(inoutlong))?ModName->nickname:"",inoutlong,addnick) ;
@@ -689,7 +524,7 @@ gen_unpack( FILE * fp, const node_t * ModName, char * inout, char * inoutlong )
   if (( q = get_entry( make_lower_temp(tmp),ModName->module_ddt_list ) ) == NULL )
   {
     fprintf(stderr,"Registry warning: generating %s_UnPack%s: cannot find definition for %s\n",ModName->nickname,nonick,tmp) ;
-    return(1) ;
+    return;//(1) ;
   }
 
   fprintf(fp," SUBROUTINE %s_UnPack%s( ReKiBuf, DbKiBuf, IntKiBuf, Outdata, ErrStat, ErrMsg )\n", ModName->nickname,nonick ) ;
@@ -720,7 +555,7 @@ gen_unpack( FILE * fp, const node_t * ModName, char * inout, char * inoutlong )
   for ( r = q->fields ; r ; r = r->next )
   {
     if ( r->type == NULL ) {
-      fprintf(stderr,"Registry warning generating %_UnPack%s: %s has no type.\n",ModName->nickname,nonick,r->name) ;
+      fprintf(stderr,"Registry warning generating %s_UnPack%s: %s has no type.\n",ModName->nickname,nonick,r->name) ;
       return ; // EARLY RETURN
     } else {
       if ( !strcmp( r->type->name, "meshtype" ) || (r->type->type_type == DERIVED ) ) { // && ! r->type->usefrom ) ) {
@@ -752,7 +587,7 @@ gen_unpack( FILE * fp, const node_t * ModName, char * inout, char * inoutlong )
   fprintf(fp,"  CALL MeshPack( OutData%%%s%s, Re_%s_Buf, Db_%s_Buf, Int_%s_Buf, ErrStat, ErrMsg , .TRUE. ) ! %s \n",
                                r->name,dimstr(r->ndims),r->name,  r->name,    r->name,                     r->name ) ;
   fprintf(fp,"  IF(ALLOCATED(Re_%s_Buf)) THEN\n",r->name) ;
-  fprintf(fp,"    Re_%s_Buf = ReKiBuf( Re_Xferred:Re_Xferred+SIZE(Re_%s_Buf)-1 )\n",r->name,r->name,r->name) ;
+  fprintf(fp,"    Re_%s_Buf = ReKiBuf( Re_Xferred:Re_Xferred+SIZE(Re_%s_Buf)-1 )\n",r->name,r->name) ;
   fprintf(fp,"    Re_Xferred = Re_Xferred + SIZE(Re_%s_Buf)\n",r->name) ;
   fprintf(fp,"  ENDIF\n" ) ;
   fprintf(fp,"  IF(ALLOCATED(Db_%s_Buf)) THEN\n",r->name) ;
@@ -804,7 +639,7 @@ gen_unpack( FILE * fp, const node_t * ModName, char * inout, char * inoutlong )
   fprintf(fp,"  CALL %s_Pack%s( Re_%s_Buf, Db_%s_Buf, Int_%s_Buf, OutData%%%s%s, ErrStat, ErrMsg, .TRUE. ) ! %s \n",
                         r->type->module->nickname,fast_interface_type_shortname(nonick2), r->name, r->name, r->name, r->name, dimstr(r->ndims),r->name ) ;
   fprintf(fp,"  IF(ALLOCATED(Re_%s_Buf)) THEN\n",r->name) ;
-  fprintf(fp,"    Re_%s_Buf = ReKiBuf( Re_Xferred:Re_Xferred+SIZE(Re_%s_Buf)-1 )\n",r->name,r->name,r->name) ;
+  fprintf(fp,"    Re_%s_Buf = ReKiBuf( Re_Xferred:Re_Xferred+SIZE(Re_%s_Buf)-1 )\n",r->name,r->name) ;
   fprintf(fp,"    Re_Xferred = Re_Xferred + SIZE(Re_%s_Buf)\n",r->name) ;
   fprintf(fp,"  ENDIF\n" ) ;
   fprintf(fp,"  IF(ALLOCATED(Db_%s_Buf)) THEN\n",r->name) ;
@@ -841,6 +676,7 @@ gen_unpack( FILE * fp, const node_t * ModName, char * inout, char * inoutlong )
       if ( !strcmp( r->type->mapsto, "REAL(ReKi)") ||
            !strcmp( r->type->mapsto, "REAL(SiKi)") ||
            !strcmp( r->type->mapsto, "REAL(DbKi)") ||
+           !strcmp( r->type->mapsto, "LOGICAL")    ||
            !strcmp( r->type->mapsto, "INTEGER(IntKi)") ) {
         if ( r->ndims > 0 && has_deferred_dim( r, 0 )) {
   fprintf(fp,"  IF ( %s(OutData%%%s) ) THEN\n", assoc_or_allocated(r),r->name ) ;
@@ -855,7 +691,12 @@ gen_unpack( FILE * fp, const node_t * ModName, char * inout, char * inoutlong )
             gen_mask_alloc(fp, r->ndims, arrayname ) ;
 
             if      ( !strcmp( r->type->mapsto, "REAL(ReKi)") ) {
+               if ( is_pointer(r) ) { // bjj: this isn't very generic, but it's quick and will work for all current cases
+  fprintf(fp,"  %sOutData%%%s = REAL( UNPACK(ReKiBuf( %s ),mask%d,REAL(OutData%%%s,ReKi)), C_FLOAT)\n",indent,r->name,tmp4,r->ndims,r->name) ;
+               }
+               else {
   fprintf(fp,"  %sOutData%%%s = UNPACK(ReKiBuf( %s ),mask%d,OutData%%%s)\n",indent,r->name,tmp4,r->ndims,r->name) ;
+            }
             }
             else if ( !strcmp( r->type->mapsto, "REAL(SiKi)") )
                {
@@ -874,7 +715,12 @@ gen_unpack( FILE * fp, const node_t * ModName, char * inout, char * inoutlong )
 
           if ( r->ndims > 0 ) {
             gen_mask_alloc(fp, r->ndims, arrayname ) ;
+            if ( is_pointer(r) ) { // bjj: this isn't very generic, but it's quick and will work for all current cases
+  fprintf(fp,"  %sOutData%%%s = REAL( UNPACK(DbKiBuf( %s ),mask%d,REAL(OutData%%%s,DbKi)), C_DOUBLE)\n",indent,r->name,tmp4,r->ndims,r->name) ;
+            }
+            else {
   fprintf(fp,"  %sOutData%%%s = UNPACK(DbKiBuf( %s ),mask%d,OutData%%%s)\n",indent,r->name,tmp4,r->ndims,r->name) ;
+            }
   fprintf(fp,"  DEALLOCATE(mask%d)\n",r->ndims) ;
           } else {
   fprintf(fp,"  %sOutData%%%s%s = DbKiBuf ( %s )\n",indent,r->name,tmp3,tmp4) ;
@@ -905,6 +751,13 @@ gen_unpack( FILE * fp, const node_t * ModName, char * inout, char * inoutlong )
   fprintf(fp,"  %sInt_Xferred   = Int_Xferred   + %s\n",indent,(r->ndims>0)?tmp2:"1"  ) ;
 #endif
         }
+
+// BJJ: TODO: NEED to know upper and lower bounds or each array dimension when has_deferred_dim( r, 0 ); must also allocate these arrays;
+//      if there are C types, we're going to have to associate with C data structures....        
+
+
+
+
         if ( r->ndims > 0 && has_deferred_dim( r, 0 )) {
   fprintf(fp,"  ENDIF\n") ;
         }
@@ -915,21 +768,22 @@ gen_unpack( FILE * fp, const node_t * ModName, char * inout, char * inoutlong )
   fprintf(fp,"  Db_Xferred   = Db_Xferred-1\n") ;
   fprintf(fp,"  Int_Xferred  = Int_Xferred-1\n") ;
   fprintf(fp," END SUBROUTINE %s_UnPack%s\n\n", ModName->nickname,nonick ) ;
-  return(0) ;
+  return;//(0) ;
 }
 
+void
 gen_mask_alloc( FILE *fp, int ndims, char *tmp )
 {
   if        ( ndims == 1 ) {
-    fprintf(fp,"  ALLOCATE(mask%d(SIZE(%s,1))); mask%d = .TRUE.\n",ndims,tmp,ndims) ;
+    fprintf(fp,"  ALLOCATE(mask%d(SIZE(%s,1)))\n  mask%d = .TRUE.\n",ndims,tmp,ndims) ;
   } else if ( ndims == 2 ) {
-    fprintf(fp,"  ALLOCATE(mask%d(SIZE(%s,1),SIZE(%s,2))); mask%d = .TRUE.\n",ndims,tmp,tmp,ndims) ;
+    fprintf(fp,"  ALLOCATE(mask%d(SIZE(%s,1),SIZE(%s,2)))\n  mask%d = .TRUE.\n",ndims,tmp,tmp,ndims) ;
   } else if ( ndims == 3 ) {
-    fprintf(fp,"  ALLOCATE(mask%d(SIZE(%s,1),SIZE(%s,2),SIZE(%s,3))); mask%d = .TRUE.\n",ndims,tmp,tmp,tmp,ndims) ;
+    fprintf(fp,"  ALLOCATE(mask%d(SIZE(%s,1),SIZE(%s,2),SIZE(%s,3)))\n  mask%d = .TRUE.\n",ndims,tmp,tmp,tmp,ndims) ;
   } else if ( ndims == 4 ) {
-    fprintf(fp,"  ALLOCATE(mask%d(SIZE(%s,1),SIZE(%s,2),SIZE(%s,3),SIZE(%s,4))); mask%d = .TRUE.\n",ndims,tmp,tmp,tmp,tmp,ndims) ;
+    fprintf(fp,"  ALLOCATE(mask%d(SIZE(%s,1),SIZE(%s,2),SIZE(%s,3),SIZE(%s,4)))\n  mask%d = .TRUE.\n",ndims,tmp,tmp,tmp,tmp,ndims) ;
   } else if ( ndims == 5 ) {
-    fprintf(fp,"  ALLOCATE(mask%d(SIZE(%s,1),SIZE(%s,2),SIZE(%s,3),SIZE(%s,4),SIZE(%s,5))); mask%d = .TRUE.\n",ndims,tmp,tmp,tmp,tmp,tmp,ndims) ;
+    fprintf(fp,"  ALLOCATE(mask%d(SIZE(%s,1),SIZE(%s,2),SIZE(%s,3),SIZE(%s,4),SIZE(%s,5)))\n  mask%d = .TRUE.\n",ndims,tmp,tmp,tmp,tmp,tmp,ndims) ;
   }
 }
 
@@ -956,7 +810,6 @@ gen_destroy( FILE * fp, const node_t * ModName, char * inout, char * inoutlong )
 //  sprintf(tmp,"%s_%s",ModName->nickname,inoutlong) ;
 //  sprintf(tmp,"%s",inoutlong) ;
   sprintf(tmp,"%s",addnick) ;
-  if(!sw_ccode){
   if (( q = get_entry( make_lower_temp(tmp),ModName->module_ddt_list ) ) == NULL )
   {
     fprintf(stderr,"Registry warning: generating %s_Destroy%s: cannot find definition for %s\n",ModName->nickname,nonick,tmp) ;
@@ -964,7 +817,7 @@ gen_destroy( FILE * fp, const node_t * ModName, char * inout, char * inoutlong )
     for ( r = q->fields ; r ; r = r->next )
     {
       if ( r->type == NULL ) {
-        fprintf(stderr,"Registry warning generating %_Destroy%s: %s has no type.\n",ModName->nickname,nonick,r->name) ;
+        fprintf(stderr,"Registry warning generating %s_Destroy%s: %s has no type.\n",ModName->nickname,nonick,r->name) ;
       } else {
 
   if ( r->ndims > 0 && has_deferred_dim(r,0) ) {
@@ -1013,26 +866,13 @@ gen_destroy( FILE * fp, const node_t * ModName, char * inout, char * inoutlong )
   if ( r->ndims > 0 && has_deferred_dim(r,0) ) {
   fprintf(fp,"   DEALLOCATE(%sData%%%s)\n",nonick,r->name) ;
   if ( is_pointer(r) ) {
-  fprintf(fp,"   %sData%%%s => NULL()\n",nonick,r->name) ;
+  fprintf(fp,"   %sData%%%s => NULL()\n",nonick,r->name) ; //bjj: should probably set the c versions of this, too...
   }
   fprintf(fp,"ENDIF\n") ;
   }
       }
     }
   }
-  } else {
-    if (( q = get_entry( make_lower_temp(tmp),ModName->module_ddt_list ) ) == NULL )
-    {
-      fprintf(stderr,"Registry warning: generating %s_Destroy%s: cannot find definition for %s\n",ModName->nickname,nonick,tmp) ;
-    } else {
-      for ( r = q->fields ; r ; r = r->next ){
-        if ( !strcmp( r->type->name, "meshtype" ) ) {
-          fprintf(fp,"  CALL MeshDestroy( %sData%%%s%s, ErrStat, ErrMsg )\n",nonick,r->name,dimstr(r->ndims)) ;
-        }
-      };
-    };
-  };
-
 
   fprintf(fp," END SUBROUTINE %s_Destroy%s\n\n", ModName->nickname,nonick ) ;
   return(0) ;
@@ -1041,9 +881,9 @@ gen_destroy( FILE * fp, const node_t * ModName, char * inout, char * inoutlong )
 
 #define MAXRECURSE 9
 // HERE
-void gen_extint_order( FILE *fp, const node_t *ModName, const int order, node_t *r, char * deref, int recurselevel ) {
+void gen_extint_order( FILE *fp, const node_t *ModName, char * typnm, const int order, node_t *r, char * deref, int recurselevel ) {
    node_t *q, *r1 ;
-   int i, j ;
+   int j ;
    int mesh = 0 ;
    char derefrecurse[NAMELEN],dex[NAMELEN],tmp[NAMELEN] ;
    if ( recurselevel > MAXRECURSE ) {
@@ -1067,7 +907,7 @@ void gen_extint_order( FILE *fp, const node_t *ModName, const int order, node_t 
 fprintf(fp,"  DO i%d%d = LBOUND(u_out%s,%d),UBOUND(u_out%s,%d)\n",recurselevel,j,derefrecurse,j,derefrecurse,j) ;
              sprintf(derefrecurse,"%s%%%s(i%d%d)",deref,r->name,recurselevel,j) ;
            }
-           gen_extint_order( fp, ModName, order, r1, derefrecurse, recurselevel+1 ) ;
+           gen_extint_order( fp, ModName, typnm, order, r1, derefrecurse, recurselevel+1 ) ;
            for ( j = r->ndims ; j > 0 ; j-- ) {
   fprintf(fp,"  ENDDO\n") ;
            }
@@ -1083,13 +923,19 @@ fprintf(fp,"  DO i%d%d = LBOUND(u_out%s,%d),UBOUND(u_out%s,%d)\n",recurselevel,j
          }
 
          if        ( order == 0 ) {
-  fprintf(fp,"  CALL MeshCopy(u(1)%s%%%s%s, u_out%s%%%s%s, MESH_UPDATECOPY, ErrStat, ErrMsg )\n",deref,r->name,dex,deref,r->name,dex )  ;
+  fprintf(fp,"  CALL MeshCopy(u(1)%s%%%s%s, u_out%s%%%s%s, MESH_UPDATECOPY, ErrStat2, ErrMsg2 )\n",deref,r->name,dex,deref,r->name,dex )  ;
+  fprintf(fp,"         CALL SetErrStat(ErrStat2, ErrMsg2, ErrStat, ErrMsg,'%s_%s_ExtrapInterp:%s%%%s%s')\n",ModName->nickname,typnm,deref,r->name,dex);
+  fprintf(fp,"         IF (ErrStat>=AbortErrLev) RETURN\n");
          } else if ( order == 1 ) {
-  fprintf(fp,"  CALL MeshExtrapInterp1(u(1)%s%%%s%s, u(2)%s%%%s%s, tin, u_out%s%%%s%s, tin_out, ErrStat, ErrMsg )\n",
+  fprintf(fp,"  CALL MeshExtrapInterp1(u(1)%s%%%s%s, u(2)%s%%%s%s, tin, u_out%s%%%s%s, tin_out, ErrStat2, ErrMsg2 )\n",
                                       deref,r->name,dex,deref,r->name,dex,deref,r->name,dex  )  ;
+  fprintf(fp,"         CALL SetErrStat(ErrStat2, ErrMsg2, ErrStat, ErrMsg,'%s_%s_ExtrapInterp:%s%%%s%s')\n",ModName->nickname,typnm,deref,r->name,dex);
+  fprintf(fp,"         IF (ErrStat>=AbortErrLev) RETURN\n");
          } else if ( order == 2 ) {
-  fprintf(fp,"  CALL MeshExtrapInterp2(u(1)%s%%%s%s, u(2)%s%%%s%s, u(3)%s%%%s%s, tin, u_out%s%%%s%s, tin_out, ErrStat, ErrMsg )\n",
+  fprintf(fp,"  CALL MeshExtrapInterp2(u(1)%s%%%s%s, u(2)%s%%%s%s, u(3)%s%%%s%s, tin, u_out%s%%%s%s, tin_out, ErrStat2, ErrMsg2 )\n",
                                        deref,r->name,dex,deref,r->name,dex,deref,r->name,dex,deref,r->name,dex  )  ;
+  fprintf(fp,"         CALL SetErrStat(ErrStat2, ErrMsg2, ErrStat, ErrMsg,'%s_%s_ExtrapInterp:%s%%%s%s')\n",ModName->nickname,typnm,deref,r->name,dex);
+  fprintf(fp,"         IF (ErrStat>=AbortErrLev) RETURN\n");
          }
 
          for ( j = r->ndims ; j > 0 ; j-- ) {
@@ -1102,7 +948,7 @@ fprintf(fp,"  DO i%d%d = LBOUND(u_out%s,%d),UBOUND(u_out%s,%d)\n",recurselevel,j
           remove_nickname(r->type->module->nickname,r->type->name,nonick2) ;
           strcpy(dex,"") ;
           for ( j = r->ndims ; j >= 1 ; j-- ) {
-  fprintf(fp,"   DO i%d = LBOUND(u_out%s%%%s,%d), UBOUND(u_out%s%%%s,%d)\n",0,1,deref,r->name,j,deref,r->name,j  ) ;
+  fprintf(fp,"   DO i%d%d = LBOUND(u_out%s%%%s,%d), UBOUND(u_out%s%%%s,%d)\n",0,1,deref,r->name,j,deref,r->name,j  ) ;
              if ( j == r->ndims ) strcat(dex,"(") ;
              sprintf(tmp,"i%d%d",0,j) ;
              if ( j == 1 ) strcat(tmp,")") ; else strcat(tmp,",") ;
@@ -1110,17 +956,16 @@ fprintf(fp,"  DO i%d%d = LBOUND(u_out%s,%d),UBOUND(u_out%s,%d)\n",recurselevel,j
           }
 
 
-  fprintf(fp,"      CALL %s_%s_ExtrapInterp( u%s%%%s%s, tin, u_out%s%%%s%s, tin_out, ErrStat, ErrMsg )\n",
+  fprintf(fp,"      CALL %s_%s_ExtrapInterp( u%s%%%s%s, tin, u_out%s%%%s%s, tin_out, ErrStat2, ErrMsg2 )\n",
                                 r->type->module->nickname,fast_interface_type_shortname(nonick2),
                                 deref,r->name,dex,deref,r->name,dex) ;
+  fprintf(fp,"         CALL SetErrStat(ErrStat2, ErrMsg2, ErrStat, ErrMsg,'%s_%s_ExtrapInterp')\n",ModName->nickname,typnm);
+  fprintf(fp,"         IF (ErrStat>=AbortErrLev) RETURN\n");
 
 
           for ( j = r->ndims ; j >= 1 ; j-- ) {
   fprintf(fp,"   ENDDO\n") ;
           }
-
-
-
 
        }
      } else if ( !strcmp( r->type->mapsto, "REAL(ReKi)") ||
@@ -1180,13 +1025,60 @@ fprintf(fp,"  DO i%d%d = LBOUND(u_out%s,%d),UBOUND(u_out%s,%d)\n",recurselevel,j
    }
 }
 
-int
+void calc_extint_order(FILE *fp, const node_t *ModName, node_t *r, int recurselevel, int *max_ndims, int *max_nrecurs, int *max_alloc_ndims) {
+   node_t *q, *r1 ;
+// bjj: make sure this is consistent with logic of gen_extint_order
+
+   if ( r->type != NULL ) {
+   //   if(r->ndims > *max_ndims  )* max_ndims = r->ndims;
+
+      if (r->type->type_type == DERIVED) {
+         if ((q = get_entry(make_lower_temp(r->type->name), ModName->module_ddt_list)) != NULL) {
+            for (r1 = q->fields; r1; r1 = r1->next)
+            {
+               if (r->ndims > 0) {
+                  if (recurselevel > *max_nrecurs) *max_nrecurs = recurselevel;
+                  if (r->ndims     > *max_ndims  ) *max_ndims   = r->ndims;
+               }
+               calc_extint_order(fp, ModName, r1, recurselevel + 1, max_ndims, max_nrecurs, max_alloc_ndims);
+            }
+         } 
+         else if (!strcmp(r->type->mapsto, "MeshType")) {
+            if (r->ndims > 0) {
+               if (r->ndims > *max_ndims)* max_ndims = r->ndims;
+            }
+         }
+         else {
+            if (r->ndims >= 1) {
+               if (r->ndims > *max_ndims)* max_ndims = r->ndims;
+            }
+         }
+
+      }
+      else if (!strcmp(r->type->mapsto, "REAL(ReKi)") ||
+         !strcmp(r->type->mapsto, "REAL(SiKi)") ||
+         !strcmp(r->type->mapsto, "REAL(DbKi)")) {
+         if (/*order > 0 &&*/ r->ndims > *max_alloc_ndims) *max_alloc_ndims = r->ndims;
+      }
+
+
+   }
+
+   if ( recurselevel > MAXRECURSE ) {
+     fprintf(stderr,"REGISTRY ERROR: too many levels of array subtypes\n") ;
+     exit(9) ;
+   }
+
+}
+
+
+void
 gen_ExtrapInterp( FILE *fp , const node_t * ModName, char * typnm, char * typnmlong )
 {
-  char tmp[NAMELEN], addnick[NAMELEN],  nonick[NAMELEN] ;
+  char nonick[NAMELEN] ;
   char *ddtname ;
   node_t *q, * r ;
-  int founddt, k, i, j ;
+  int i, j, max_ndims, max_nrecurs, max_alloc_ndims;
 
   fprintf(fp,"\n") ;
   fprintf(fp," SUBROUTINE %s_%s_ExtrapInterp(u, tin, u_out, tin_out, ErrStat, ErrMsg )\n",ModName->nickname,typnm) ;
@@ -1206,6 +1098,7 @@ gen_ExtrapInterp( FILE *fp , const node_t * ModName, char * typnm, char * typnml
   fprintf(fp,"!..................................................................................................................................\n") ;
   fprintf(fp,"\n") ;
 
+  
   fprintf(fp," TYPE(%s_%s), INTENT(INOUT)  :: u(:)      ! Inputs at t1 > t2 > t3\n",ModName->nickname,typnmlong) ;
   fprintf(fp," REAL(DbKi),         INTENT(IN   )  :: tin(:)      ! Times associated with the inputs\n") ;
 //jm Modified from INTENT(  OUT) to INTENT(INOUT) to prevent ALLOCATABLE array arguments in the DDT
@@ -1219,20 +1112,54 @@ gen_ExtrapInterp( FILE *fp , const node_t * ModName, char * typnm, char * typnml
   fprintf(fp," REAL(DbKi) :: t_out           ! Time to which to be extrap/interpd\n") ;
   fprintf(fp," INTEGER(IntKi)                 :: order    ! order of polynomial fit (max 2)\n") ;
 
+  max_ndims   = 0; // ModName->module_ddt_list->max_ndims; //bjj: this is max for module, not for typnmlong
+  max_nrecurs = 0; // MAXRECURSE;
+  max_alloc_ndims = 0;
+
+  for (q = ModName->module_ddt_list; q; q = q->next)
+  {
+     if (q->usefrom == 0) {
+        ddtname = q->name;
+        remove_nickname(ModName->nickname, ddtname, nonick);
+        if (!strcmp(nonick, typnmlong)) {
+           for (r = q->fields; r; r = r->next)
+           {
+              // recursive
+              calc_extint_order(fp, ModName, r, 0, &max_ndims, &max_nrecurs, &max_alloc_ndims);
+           }
+        }
+     }
+  }
+  //fprintf(stderr, "ndims=%d nrecurs=%d %d\n\n", max_ndims, max_nrecurs, max_alloc_ndims);
+
+  if (max_alloc_ndims >= 0){
   fprintf(fp," REAL(DbKi)                                 :: b0       ! temporary for extrapolation/interpolation\n") ;
   fprintf(fp," REAL(DbKi)                                 :: c0       ! temporary for extrapolation/interpolation\n") ;
+  if (max_alloc_ndims >= 1){
   fprintf(fp," REAL(DbKi),ALLOCATABLE,DIMENSION(:)        :: b1       ! temporary for extrapolation/interpolation\n") ;
   fprintf(fp," REAL(DbKi),ALLOCATABLE,DIMENSION(:)        :: c1       ! temporary for extrapolation/interpolation\n") ;
+  if (max_alloc_ndims >= 2){
   fprintf(fp," REAL(DbKi),ALLOCATABLE,DIMENSION(:,:)      :: b2       ! temporary for extrapolation/interpolation\n") ;
   fprintf(fp," REAL(DbKi),ALLOCATABLE,DIMENSION(:,:)      :: c2       ! temporary for extrapolation/interpolation\n") ;
+  if (max_alloc_ndims >= 3){
   fprintf(fp," REAL(DbKi),ALLOCATABLE,DIMENSION(:,:,:)    :: b3       ! temporary for extrapolation/interpolation\n") ;
   fprintf(fp," REAL(DbKi),ALLOCATABLE,DIMENSION(:,:,:)    :: c3       ! temporary for extrapolation/interpolation\n") ;
+  if (max_alloc_ndims >= 4){
   fprintf(fp," REAL(DbKi),ALLOCATABLE,DIMENSION(:,:,:,:)  :: b4       ! temporary for extrapolation/interpolation\n") ;
   fprintf(fp," REAL(DbKi),ALLOCATABLE,DIMENSION(:,:,:,:)  :: c4       ! temporary for extrapolation/interpolation\n") ;
+  if (max_alloc_ndims >= 5){
   fprintf(fp," REAL(DbKi),ALLOCATABLE,DIMENSION(:,:,:,:,:):: b5       ! temporary for extrapolation/interpolation\n") ;
   fprintf(fp," REAL(DbKi),ALLOCATABLE,DIMENSION(:,:,:,:,:):: c5       ! temporary for extrapolation/interpolation\n") ;
-  for ( j = 1 ; j <= 5 ; j++ ) {
-    for ( i = 0 ; i <= MAXRECURSE ; i++ ) {
+   } // 5
+   } // 4
+   } // 3
+   } // 2
+   } // 1
+  } // 0
+  fprintf(fp," INTEGER(IntKi)                             :: ErrStat2 ! local errors\n");
+  fprintf(fp," CHARACTER(1024)                            :: ErrMsg2  ! local errors\n");
+  for ( j = 1 ; j <= max_ndims ; j++ ) {
+    for ( i = 0 ; i <= max_nrecurs ; i++ ) {
   fprintf(fp," INTEGER                                    :: i%d%d    ! dim%d level %d counter variable for arrays of ddts\n",i,j,j,i) ;
     }
   }
@@ -1267,7 +1194,7 @@ gen_ExtrapInterp( FILE *fp , const node_t * ModName, char * typnm, char * typnml
         for ( r = q->fields ; r ; r = r->next )
         {
           // recursive
-          gen_extint_order( fp, ModName, 0, r, "", 0 ) ;
+          gen_extint_order( fp, ModName, typnm, 0, r, "", 0 ) ;
         }
       }
     }
@@ -1289,7 +1216,7 @@ fprintf(fp,"  END IF\n") ;
         for ( r = q->fields ; r ; r = r->next )
         {
           // recursive
-          gen_extint_order( fp, ModName, 1, r, "", 0 ) ;
+          gen_extint_order( fp, ModName, typnm, 1, r, "", 0 ) ;
         }
       }
     }
@@ -1320,7 +1247,7 @@ fprintf(fp,"  END IF\n") ;
         for ( r = q->fields ; r ; r = r->next )
         {
           // recursive
-          gen_extint_order( fp, ModName, 2, r, "", 0 ) ;
+          gen_extint_order( fp, ModName, typnm, 2, r, "", 0 ) ;
         }
       }
     }
@@ -1336,10 +1263,10 @@ fprintf(fp,"  END IF\n") ;
   fprintf(fp,"\n") ;
 }
 
-int
+void
 gen_rk4( FILE *fp , const node_t * ModName )
 {
-  char tmp[NAMELEN], addnick[NAMELEN],  nonick[NAMELEN] ;
+  char nonick[NAMELEN] ;
   char *ddtname ;
   node_t *q, * r ;
   int founddt, k ;
@@ -1367,7 +1294,7 @@ gen_rk4( FILE *fp , const node_t * ModName )
     }
   }
   if ( !founddt ) {
-    fprintf(stderr,"Registry warning: cannot generate %s_RK4. Add dt to ParameterType for this module\n") ;
+    fprintf(stderr,"Registry warning: cannot generate %s_RK4. Add dt to ParameterType for this module\n", ModName->nickname) ;
     return ;
   }
 
@@ -1468,17 +1395,15 @@ gen_rk4( FILE *fp , const node_t * ModName )
 
 static char *typenames[] = { "Input", "Param", "ContState", "DiscState", "ConstrState",
                              "OtherState", "Output", 0L } ;
-static char **typename ;
+static char **typename1 ;
 static char *argtypenames[] = { "InData", "ParamData", "ContStateData", "DiscStateData", "ConstrStateData",
                                 "OtherStateData", "OutData", 0L } ;
 static char **argtypename ;
 
-int
+void
 gen_modname_pack( FILE *fp , const node_t * ModName )
 {
-  char tmp[NAMELEN] ;
 
-  node_t *q, * r ;
   fprintf(fp," SUBROUTINE %s_Pack( Re_RetAry, Db_RetAry, Int_RetAry, &\n",ModName->nickname) ;
   fprintf(fp,"                     InData, ParamData, ContStateData, DiscStateData, &\n") ;
   fprintf(fp,"                     ConstrStateData, OtherStateData, OutData, ErrStat, ErrMsg, &\n" ) ;
@@ -1524,12 +1449,12 @@ gen_modname_pack( FILE *fp , const node_t * ModName )
   fprintf(fp,"  Db_Xferred  = 1\n") ;
   fprintf(fp,"  Int_Xferred  = 1\n") ;
 
-  for ( typename = typenames, argtypename = argtypenames ; *typename ; typename++ , argtypename++ ) {
-  fprintf(fp,"    ! Pack %s\n",*typename) ;
+  for ( typename1 = typenames, argtypename = argtypenames ; *typename1 ; typename1++ , argtypename++ ) {
+  fprintf(fp,"    ! Pack %s\n",*typename1) ;
   fprintf(fp,"  IF ( ALLOCATED( Re_Ary ) )  DEALLOCATE(Re_Ary)\n" ) ;
   fprintf(fp,"  IF ( ALLOCATED( Db_Ary ) )  DEALLOCATE(Db_Ary)\n" ) ;
   fprintf(fp,"  IF ( ALLOCATED( Int_Ary ) )  DEALLOCATE(Int_Ary)\n" ) ;
-  fprintf(fp,"  CALL %s_Pack%s(Re_Ary,Db_Ary,Int_Ary,%s,ErrStat2,ErrMsg2,SizeOnly=.TRUE.)\n",ModName->nickname,*typename,*argtypename) ;
+  fprintf(fp,"  CALL %s_Pack%s(Re_Ary,Db_Ary,Int_Ary,%s,ErrStat2,ErrMsg2,SizeOnly=.TRUE.)\n",ModName->nickname,*typename1,*argtypename) ;
   fprintf(fp,"  IF ( ALLOCATED( Re_Ary ) ) THEN\n") ;
   fprintf(fp,"    Re_Xferred = Re_Xferred + SIZE( Re_Ary )\n") ;
   fprintf(fp,"    DEALLOCATE(Re_Ary)\n" ) ;
@@ -1557,12 +1482,12 @@ gen_modname_pack( FILE *fp , const node_t * ModName )
   fprintf(fp,"  Db_Xferred  = 1\n") ;
   fprintf(fp,"  Int_Xferred  = 1\n") ;
 
-  for ( typename = typenames, argtypename = argtypenames ; *typename ; typename++ , argtypename++ ) {
-    fprintf(fp,"    ! Pack %s\n",*typename) ;
+  for ( typename1 = typenames, argtypename = argtypenames ; *typename1 ; typename1++ , argtypename++ ) {
+    fprintf(fp,"    ! Pack %s\n",*typename1) ;
     fprintf(fp,"  IF ( ALLOCATED( Re_Ary ) )  DEALLOCATE(Re_Ary)\n" ) ;
     fprintf(fp,"  IF ( ALLOCATED( Db_Ary ) )  DEALLOCATE(Db_Ary)\n" ) ;
     fprintf(fp,"  IF ( ALLOCATED( Int_Ary ) )  DEALLOCATE(Int_Ary)\n" ) ;
-    fprintf(fp,"  CALL %s_Pack%s(Re_Ary,Db_Ary,Int_Ary,%s,ErrStat2,ErrMsg2)\n",ModName->nickname,*typename,*argtypename) ;
+    fprintf(fp,"  CALL %s_Pack%s(Re_Ary,Db_Ary,Int_Ary,%s,ErrStat2,ErrMsg2)\n",ModName->nickname,*typename1,*argtypename) ;
     fprintf(fp,"  IF ( ALLOCATED( Re_Ary ) ) THEN\n") ;
     fprintf(fp,"    IF ( .NOT. OnlySize ) Re_RetAry(Re_Xferred:Re_Xferred+SIZE(Re_Ary)-1)=Re_Ary\n") ;
     fprintf(fp,"    Re_Xferred = Re_Xferred + SIZE( Re_Ary )\n") ;
@@ -1586,12 +1511,10 @@ gen_modname_pack( FILE *fp , const node_t * ModName )
   fprintf(fp," END SUBROUTINE %s_Pack\n\n", ModName->nickname ) ;
 }
 
-int
+void
 gen_modname_unpack( FILE *fp , const node_t * ModName )
 {
-  char tmp[NAMELEN] ;
 
-  node_t *q, * r ;
   fprintf(fp," SUBROUTINE %s_UnPack( Re_RetAry, Db_RetAry, Int_RetAry, &\n",ModName->nickname) ;
   fprintf(fp,"                     InData, ParamData, ContStateData, DiscStateData, &\n") ;
   fprintf(fp,"                     ConstrStateData, OtherStateData, OutData, ErrStat, ErrMsg )\n" ) ;
@@ -1630,12 +1553,12 @@ gen_modname_unpack( FILE *fp , const node_t * ModName )
   fprintf(fp,"  Re_Xferred  = 1\n") ;
   fprintf(fp,"  Db_Xferred  = 1\n") ;
   fprintf(fp,"  Int_Xferred  = 1\n") ;
-  for ( typename = typenames, argtypename = argtypenames ; *typename ; typename++ , argtypename++ ) {
-  fprintf(fp,"    ! UnPack %s\n",*typename) ;
+  for ( typename1 = typenames, argtypename = argtypenames ; *typename1 ; typename1++ , argtypename++ ) {
+  fprintf(fp,"    ! UnPack %s\n",*typename1) ;
   fprintf(fp,"  IF ( ALLOCATED( Re_Ary ) )  DEALLOCATE(Re_Ary)\n" ) ;
   fprintf(fp,"  IF ( ALLOCATED( Db_Ary ) )  DEALLOCATE(Db_Ary)\n" ) ;
   fprintf(fp,"  IF ( ALLOCATED( Int_Ary ) )  DEALLOCATE(Int_Ary)\n" ) ;
-  fprintf(fp,"  CALL %s_Pack%s(Re_Ary,Db_Ary,Int_Ary,%s,ErrStat2,ErrMsg2,SizeOnly=.TRUE.)\n",ModName->nickname,*typename,*argtypename) ;
+  fprintf(fp,"  CALL %s_Pack%s(Re_Ary,Db_Ary,Int_Ary,%s,ErrStat2,ErrMsg2,SizeOnly=.TRUE.)\n",ModName->nickname,*typename1,*argtypename) ;
   fprintf(fp,"  IF ( ALLOCATED( Re_Ary ) ) THEN\n") ;
   fprintf(fp,"    Re_Ary = Re_RetAry(Re_Xferred:Re_Xferred+SIZE(Re_Ary)-1)\n") ;
   fprintf(fp,"    Re_Xferred = Re_Xferred + SIZE( Re_Ary )\n") ;
@@ -1648,7 +1571,7 @@ gen_modname_unpack( FILE *fp , const node_t * ModName )
   fprintf(fp,"    Int_Ary = Int_RetAry(Int_Xferred:Int_Xferred+SIZE(Int_Ary)-1)\n") ;
   fprintf(fp,"    Int_Xferred = Int_Xferred + SIZE( Int_Ary )\n") ;
   fprintf(fp,"  ENDIF\n") ;
-  fprintf(fp,"  CALL %s_UnPack%s(Re_Ary,Db_Ary,Int_Ary,%s,ErrStat2,ErrMsg2)\n",ModName->nickname,*typename,*argtypename) ;
+  fprintf(fp,"  CALL %s_UnPack%s(Re_Ary,Db_Ary,Int_Ary,%s,ErrStat2,ErrMsg2)\n",ModName->nickname,*typename1,*argtypename) ;
   fprintf(fp,"  IF ( ALLOCATED( Re_Ary ) )  DEALLOCATE(Re_Ary)\n" ) ;
   fprintf(fp,"  IF ( ALLOCATED( Db_Ary ) )  DEALLOCATE(Db_Ary)\n" ) ;
   fprintf(fp,"  IF ( ALLOCATED( Int_Ary ) )  DEALLOCATE(Int_Ary)\n" ) ;
@@ -1661,21 +1584,22 @@ gen_modname_unpack( FILE *fp , const node_t * ModName )
 }
 
 
-int
-gen_module( FILE * fp , node_t * ModName, char * prog_ver, FILE * fpIntf )
+void
+gen_module( FILE * fp , node_t * ModName, char * prog_ver )
 {
   node_t * p, * q, * r ;
   int i ;
   int ipass ;
   char nonick[NAMELEN] ;
+  char tmp[NAMELEN] ;
+  char ** p1;
 
   if ( strlen(ModName->nickname) > 0 ) {
 // gen preamble
     {
       fprintf( fp, "! %s\n", prog_ver );
 
-      char ** p ;
-      for ( p = FAST_preamble ; *p ; p++ ) { fprintf( fp, *p, ModName->name ) ; }
+      for ( p1 = FAST_preamble ; *p1 ; p1++ ) { fprintf( fp, *p1, ModName->name ) ; }
     }
     for ( p = ModNames ; p ; p = p->next )
     {
@@ -1688,8 +1612,8 @@ gen_module( FILE * fp , node_t * ModName, char * prog_ver, FILE * fpIntf )
     }
     if ( sw_ccode ) {
 // Generate a container object for the Fortran code to carry around a pointer to the CPP object(s)
-      fprintf(fp,"USE %s_C_Types\n",ModName->nickname) ;
-      fprintf(fp,"!USE, INTRINSIC :: ISO_C_Binding\n") ; // this is inherited from NickName_C_Types.f90, and older versions of gfortran complain about ambiguous data when we use this (it thinks it's declared twicel; see http://gcc.gnu.org/ml/fortran/2013-04/msg00166.html )
+      //fprintf(fp,"USE %s_C_Types\n",ModName->nickname) ;
+      fprintf(fp,"!USE, INTRINSIC :: ISO_C_Binding\n") ; // this is inherited from NWTC_Library.f90, and older versions of gfortran complain about ambiguous data when we use this (it thinks it's declared twice; see http://gcc.gnu.org/ml/fortran/2013-04/msg00166.html )
     }
 
 // if this is the NWTC Library, we're not going to print "USE NWTC_Library"
@@ -1748,26 +1672,32 @@ gen_module( FILE * fp , node_t * ModName, char * prog_ver, FILE * fpIntf )
       fprintf(fp,"\n") ;
     }
 
-// generate each derived data type
+// generate each derived data type   
     for ( q = ModName->module_ddt_list ; q ; q = q->next )
     {
       if ( q->mapsto) remove_nickname( ModName->nickname, make_lower_temp(q->mapsto) , nonick ) ;
-      fprintf(fp,"! =========  %s%s  =======\n",q->mapsto,(ipass==0)?"_C":"") ;
+      fprintf(fp, "! =========  %s%s  =======\n", q->mapsto, (sw_ccode) ? "_C" : "");
     for ( ipass = (sw_ccode)?0:1 ; ipass < 2 ; ipass++ ) {   // 2 passes for C code, 1st pass generates bound ddt
       if ( q->usefrom == 0 ) {
         fprintf(fp,"  TYPE, %s :: %s%s\n",(ipass==0)?"BIND(C)":"PUBLIC",q->mapsto,(ipass==0)?"_C":"") ;
         if ( sw_ccode ) {
           if ( ipass == 0 ) {
-            fprintf(fp,"    TYPE( %s_%s_C ) :: object\n",ModName->nickname,fast_interface_type_shortname(nonick)) ;
+//            q->containsPtr = 1;
+              fprintf(fp,"   TYPE(C_PTR) :: object = C_NULL_PTR\n") ;
           } else {
-            fprintf(fp,"    TYPE( c_ptr ) :: %s_UserData = C_NULL_ptr\n",ModName->nickname) ;
             fprintf(fp,"    TYPE( %s_C ) :: C_obj\n",q->mapsto) ;
           }
         }
         for ( r = q->fields ; r ; r = r->next )
         {
           if ( r->type != NULL ) {
+              // check max number of dimmensions
+              // check if this type contains any pointers/meshes or types that have pointers/meshes
+              if (r->ndims > q->max_ndims) q->max_ndims = r->ndims;
+              if (r->ndims > ModName->module_ddt_list->max_ndims) ModName->module_ddt_list->max_ndims = r->ndims;
            if ( ipass == 0 ) {
+              //r->containsPtr = 1;
+              //q->containsPtr = 1;
               if        ( r->ndims == 0 && r->type->type_type != DERIVED ) {
                 fprintf(fp,"    %s :: %s \n",c_types_binding( r->type->mapsto), r->name) ;
               } else if ( r->ndims >  0 && r->type->type_type != DERIVED ) {
@@ -1787,9 +1717,19 @@ gen_module( FILE * fp , node_t * ModName, char * prog_ver, FILE * fpIntf )
            } else { // ipass /= 0
             if ( r->type->type_type == DERIVED ) {
                fprintf(fp,"    TYPE(%s) ",r->type->mapsto ) ;
+
+               checkContainsMesh(r);
+               if (r->containsPtr) q->containsPtr = 1;
+
+               // bjj: we need to make sure these types map to reals, too
+               tmp[0] = '\0' ;
+               if ( q->mapsto ) remove_nickname( ModName->nickname, make_lower_temp(q->mapsto) , tmp ) ;
+               if ( must_have_real_or_double(tmp) ) checkOnlyReals( q->mapsto, r );
+
+
             } else {
-              char tmp[NAMELEN] ; tmp[0] = '\0' ;
-              if ( q->mapsto) remove_nickname( ModName->nickname, make_lower_temp(q->mapsto) , tmp ) ;
+              tmp[0] = '\0' ;
+              if ( q->mapsto ) remove_nickname( ModName->nickname, make_lower_temp(q->mapsto) , tmp ) ;
               if ( must_have_real_or_double(tmp) ) {
                 if ( strncmp(r->type->mapsto,"REAL",4) ) {
                   fprintf(stderr,"Registry warning: %s contains a field (%s) whose type is not real or double: %s\n",
@@ -1824,7 +1764,15 @@ gen_module( FILE * fp , node_t * ModName, char * prog_ver, FILE * fpIntf )
                   fprintf(fp,", DIMENSION(") ;
                   for ( i = 0 ; i < r->ndims ; i++ )
                   {
-                    fprintf(fp,"%d:%d",r->dims[i]->coord_start,r->dims[i]->coord_end) ;
+                     if (r->dims[i]->dim_param == 0){
+                        fprintf(fp, "%d:%d", r->dims[i]->coord_start, r->dims[i]->coord_end) ;
+                     }
+                     else {
+                        //fprintf(stderr, "start, %s, %s, %s\n", dimspec, dim_entry->name, dim_entry->module);
+                       // if (r->module != NULL) { node_t *param_dim = get_entry(r->dims[i]->dim_param_name, r->module->params); }
+
+                        fprintf(fp, "%s", r->dims[i]->dim_param_name);
+                     }
                     if ( i < r->ndims-1 ) fprintf(fp,",") ;
                   }
                   fprintf(fp,") ") ;
@@ -1844,13 +1792,12 @@ gen_module( FILE * fp , node_t * ModName, char * prog_ver, FILE * fpIntf )
                fprintf(fp,"     ! %s [%s]", r->descrip, r->units) ;
             }
             fprintf(fp,"\n") ;
-           }
+           } // ipass /= 0
           }
         }
         fprintf(fp,"  END TYPE %s%s\n",q->mapsto,(ipass==0)?"_C":"") ;
-        if ( sw_ccode == 1 ) {
+        //fprintf(stderr, "module %d type %d\n", ModName->module_ddt_list->max_ndims, q->max_ndims);
 
-        }
       }
   }
       fprintf(fp,"! =======================\n") ;
@@ -1859,6 +1806,7 @@ gen_module( FILE * fp , node_t * ModName, char * prog_ver, FILE * fpIntf )
     if ( sw_ccode ) {
       for ( q = ModName->module_ddt_list ; q ; q = q->next )
       {
+
          if ( q->usefrom == 0 ) {
 
             char * ddtname, * ddtnamelong, nonick[NAMELEN] ;
@@ -1873,12 +1821,9 @@ gen_module( FILE * fp , node_t * ModName, char * prog_ver, FILE * fpIntf )
                ddtnamelong = ddtname ;
             }
 
-            gen_f2c_interface( fp, ModName, ddtname, ddtnamelong, 0 , fpIntf) ;
          }
       }
     } // sw_ccode
-
-
 
 
     fprintf(fp,"CONTAINS\n") ;
@@ -1887,7 +1832,8 @@ gen_module( FILE * fp , node_t * ModName, char * prog_ver, FILE * fpIntf )
       if ( q->usefrom == 0 ) {
 
         char * ddtname, * ddtnamelong, nonick[NAMELEN] ;
-        ddtname = q->name ;
+        //ddtname = q->name ;
+		ddtname = q->mapsto;
 
         remove_nickname(ModName->nickname,ddtname,nonick) ;
 
@@ -1900,22 +1846,24 @@ gen_module( FILE * fp , node_t * ModName, char * prog_ver, FILE * fpIntf )
           ddtnamelong = ddtname ;
         }
 
-        if ( sw_ccode ) {
-          gen_copy_f2c_c2f( fp, ModName, ddtname, ddtnamelong, 0 ) ;
-          gen_copy_f2c_c2f( fp, ModName, ddtname, ddtnamelong, 1 ) ;
-        }
-        gen_copy( fp, ModName, ddtname, ddtnamelong ) ;
+        gen_copy( fp, ModName, ddtname, ddtnamelong , q) ;
         gen_destroy( fp, ModName, ddtname, ddtnamelong ) ;
         gen_pack( fp, ModName, ddtname, ddtnamelong ) ;
         gen_unpack( fp, ModName, ddtname, ddtnamelong ) ;
+        if ( sw_ccode ) {
+            gen_copy_c2f( fp, ModName, ddtname, ddtnamelong ) ; 
+        }
+
       }
     }
 // bjj: removed gen_modname_pack and gen_modname_unpack because i don't see them being used any differently than the other pack/unpack routines 02/22/2014
 //    gen_modname_pack( fp, ModName ) ;
 //    gen_modname_unpack( fp, ModName ) ;
 //    gen_rk4( fp, ModName ) ;
-    gen_ExtrapInterp( fp, ModName, "Input", "inputtype" ) ;
-    gen_ExtrapInterp( fp, ModName, "Output", "outputtype" ) ;
+    if (!sw_noextrap){
+        gen_ExtrapInterp( fp, ModName, "Input", "inputtype" ) ;
+        gen_ExtrapInterp( fp, ModName, "Output", "outputtype" ) ;
+    }
 
     fprintf(fp,"END MODULE %s_Types\n",ModName->name ) ;
   }
@@ -1926,9 +1874,8 @@ gen_module( FILE * fp , node_t * ModName, char * prog_ver, FILE * fpIntf )
 int
 gen_module_files ( char * dirname, char * prog_ver )
 {
-  FILE * fp, *fpc, *fph, *fpIntf ;
+  FILE * fp, *fph ;
   char  fname[NAMELEN], fname2[NAMELEN] ;
-  char * fn ;
 
   node_t * p ;
 
@@ -1936,8 +1883,7 @@ gen_module_files ( char * dirname, char * prog_ver )
   {
     if ( strlen( p->nickname ) > 0  && ! p->usefrom ) {
       fp = NULL ;
-      fpc = NULL ;
-      fpIntf = NULL;
+
       if ( strlen(dirname) > 0 )
         { sprintf(fname,"%s/%s_Types.f90",dirname,p->name) ; }
       else
@@ -1948,20 +1894,8 @@ gen_module_files ( char * dirname, char * prog_ver )
       print_warning(fp,fname, "") ;
 
       if ( sw_ccode == 1 ) {
-        if ( strlen(dirname) > 0 )
-          { sprintf(fname,"%s/%s_Types_Intf.f90",dirname,p->name) ; }
-        else
-          { sprintf(fname,"%s_Types_Intf.f90",p->name) ; }
-        if ((fpIntf = fopen( fname , "w" )) == NULL ) return(1) ;
-        print_warning(fpIntf,fname, "") ;
 
-        if ( strlen(dirname) > 0 )
-          { sprintf(fname,"%s/%s_Types.c",dirname,p->name) ; }
-        else
-          { sprintf(fname,"%s_Types.c",p->name) ; }
-        if ((fpc = fopen( fname , "w" )) == NULL ) return(1) ;
 
-        print_warning(fpc,fname, "//") ;
         if ( strlen(dirname) > 0 )
           { sprintf(fname,"%s/%s_Types.h",dirname,p->name) ; }
         else
@@ -1969,21 +1903,6 @@ gen_module_files ( char * dirname, char * prog_ver )
         sprintf(fname2,"%s_Types.h",p->name) ;
         if ((fph = fopen( fname , "w" )) == NULL ) return(1) ;
 
-        fprintf(fpc,"#include <stdio.h>\n") ;
-        fprintf(fpc,"#include <stdlib.h>\n") ;
-        fprintf(fpc,"#include <string.h>\n") ;
-        fprintf(fpc,"#include \"%s\"\n\n",fname2) ;
-        
-        fprintf(fpc,"\n#ifdef _WIN32 //define something for Windows (32-bit)\n");
-        fprintf(fpc,"#  include \"stdbool.h\"\n");
-        fprintf(fpc,"#  define CALL __declspec( dllexport )\n");
-        fprintf(fpc,"#elif _WIN64 //define something for Windows (64-bit)\n");
-        fprintf(fpc,"#  include \"stdbool.h\"\n");
-        fprintf(fpc,"#  define CALL __declspec( dllexport ) \n");
-        fprintf(fpc,"#else\n");
-        fprintf(fpc,"#  include <stdbool.h>\n");
-        fprintf(fpc,"#  define CALL \n");
-        fprintf(fpc,"#endif\n\n\n");
 
         print_warning(fph,fname, "//") ;
 
@@ -2000,15 +1919,13 @@ gen_module_files ( char * dirname, char * prog_ver )
         fprintf(fph,"#  define CALL \n");
         fprintf(fph,"#endif\n\n\n");
       }
-      gen_module ( fp , p, prog_ver, fpIntf ) ;
+      gen_module ( fp , p, prog_ver ) ;
       close_the_file( fp, "" ) ;
       if ( sw_ccode ) {
-        gen_c_module ( fpc , fph , p, fpIntf ) ;
-        
+        gen_c_module ( fph , p ) ;
+
         fprintf(fph,"\n#endif // _%s_TYPES_H\n\n\n",p->name);
-        close_the_file( fpc,"//") ;
         close_the_file( fph,"//") ;
-        close_the_file( fpIntf,"") ;
 
       }
     }
@@ -2016,23 +1933,25 @@ gen_module_files ( char * dirname, char * prog_ver )
   return(0) ;
 }
 
-int
-remove_nickname( char *nickname, char *src, char *dst )
+void
+remove_nickname( const char *nickname, char *src, char *dst )
 {
   char tmp[NAMELEN];
-  int n ;
+  char srclo[NAMELEN];
+  int n;
   strcpy(tmp,make_lower_temp(nickname)) ;
+  strcpy(srclo, make_lower_temp(src));
   strcat(tmp,"_") ;
   n = strlen(tmp) ;
-  if ( !strncmp(tmp,src,n) ) {
+  if (!strncmp(tmp, srclo, n)) {
     strcpy(dst,&(src[n])) ;
   } else {
     strcpy(dst,src) ;
   }
 }
 
-int
-append_nickname( char *nickname, char *src, char *dst )
+void
+append_nickname( const char *nickname, char *src, char *dst )
 {
   int n ;
   n = strlen(nickname) ;
@@ -2083,4 +2002,55 @@ char * dimstr_c( int d )
     retval = " REGISTRY ERROR TOO MANY DIMS " ;
   }
   return(retval) ;
+}
+
+void
+checkOnlyReals( const char *q_mapsto, node_t * q) //, int recurselevel)
+{
+  node_t * r ;
+
+  if ( q->type->type_type == DERIVED )
+  {
+     if ( strcmp( q->type->name, "meshtype" ) ) // skip meshes
+     {
+        for ( r = q->type->fields ; r ; r = r->next )
+        {
+           checkOnlyReals( q_mapsto, r);
+        }
+     }
+
+  } else { // SIMPLE
+
+     if ( strncmp(q->type->mapsto,"REAL",4) )
+     {
+         fprintf(stderr,"Registry warning: %s contains a field (%s) in a derived type whose type is not real or double: %s\n",
+                q_mapsto, q->name , q->type->mapsto ) ;
+     }
+
+  }
+  return;
+}
+
+void
+checkContainsMesh( node_t * q) //, int recurselevel)
+{
+   node_t * r;
+
+   if (q->type->type_type == DERIVED)
+   {
+      if (!strcmp(q->type->name, "meshtype") || !strcmp(q->type->name, "meshmaptype")){ // is a mesh or (a bad workaround for meshmaptype which contains meshtype in "usefrom" instead of "typedef")
+         q->containsPtr = 1;
+      } 
+
+      else {
+         for (r = q->type->fields; r; r = r->next)
+         {
+            checkContainsMesh(r);
+            if (r->containsPtr) q->containsPtr = 1;
+         }
+      } 
+
+   }
+
+   return;
 }

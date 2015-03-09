@@ -1,22 +1,24 @@
-/***************************************************************************
- *   Copyright (C) 2014 mdm                                                *
- *   marco[dot]masciola at gmail                                           *
- *                                                                         *
- *   MAP++ is free software; you can redistribute it and/or modify it      *
- *   under the terms of the GNU General Public License as published by     *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- *   This program is distributed in the hope that it will be useful,       *
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU General Public License for more details.                          *
- *                                                                         *
- *   You should have received a copy of the GNU General Public License     *
- *   along with this program; if not, write to the                         *
- *   Free Software Foundation, Inc.,                                       *
- *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.           *
- ***************************************************************************/
+/****************************************************************
+ *   Copyright (C) 2014 mdm                                     *
+ *   marco[dot]masciola[at]gmail                                *
+ *                                                              *
+ * Licensed to the Apache Software Foundation (ASF) under one   *
+ * or more contributor license agreements.  See the NOTICE file *
+ * distributed with this work for additional information        *
+ * regarding copyright ownership.  The ASF licenses this file   *
+ * to you under the Apache License, Version 2.0 (the            *
+ * "License"); you may not use this file except in compliance   *
+ * with the License.  You may obtain a copy of the License at   *
+ *                                                              *
+ *   http://www.apache.org/licenses/LICENSE-2.0                 *
+ *                                                              *
+ * Unless required by applicable law or agreed to in writing,   *
+ * software distributed under the License is distributed on an  *
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY       *
+ * KIND, either express or implied.  See the License for the    *
+ * specific language governing permissions and limitations      *      
+ * under the License.                                           *  
+ ****************************************************************/
 
 
 /**
@@ -24,945 +26,852 @@
  */
 
 
-#include <time.h>
-#include "map.h"
-#include "maperror.h"
 #include "outputstream.h"
 
 
-/** @addtogroup FortranCall */
-/* @{ */
-MAP_EXTERNCALL void set_summary_file_name(MAP_InitInputType_t* init_type, char *map_msg, MAP_ERROR_CODE *ierr) {  
-  int length = 0;
-  char *temp = NULL;
-  InitializationData* init = init_type->object; 
-  
-  if (init->summaryFileName!=NULL) {
-    MAPFREE(init->summaryFileName);
-  };  
-  temp = strtok(init_type->summaryFileName, " \n&");
-  length = strlen(temp)+1;
-  init->summaryFileName = (char*)malloc(sizeof(char)*length);
-  strcpy(init->summaryFileName, temp);
-  init_type->summaryFileName[0] = 0;  
-};
-
-
-MAP_EXTERNCALL void get_header_string(int* n, char** str_array, MAP_OtherStateType_t* other_type)
-{ 
-  int count = 0;    
-  ModelData* model_data = other_type->object;
-  VarTypePtr* vartype_ptr = NULL;
-  VarType* vartype = NULL;
-
-  list_iterator_start(&model_data->yList->out_list_ptr);
-  while (list_iterator_hasnext(&model_data->yList->out_list_ptr)) { 
-    vartype_ptr = (VarTypePtr*)list_iterator_next(&model_data->yList->out_list_ptr);
-    strcpy(str_array[count],vartype_ptr->name);
-    count++;
-  };
-  list_iterator_stop(&model_data->yList->out_list_ptr);     
-
-  list_iterator_start(&model_data->yList->out_list);
-  while (list_iterator_hasnext(&model_data->yList->out_list)) { 
-    vartype = (VarType*)list_iterator_next(&model_data->yList->out_list);
-    strcpy(str_array[count],vartype->name);
-    count++;
-  };
-  list_iterator_stop(&model_data->yList->out_list);     
-  /* @todo this should raise and error when count != n */
-};
-
-
-MAP_EXTERNCALL void get_unit_string(int* n, char** str_array, MAP_OtherStateType_t* other_type)
-{ 
-  int count = 0;    
-  ModelData* model_data = other_type->object;
-  VarTypePtr* vartype_ptr = NULL;
-  VarType* vartype = NULL;
-
-  list_iterator_start(&model_data->yList->out_list_ptr);
-  while (list_iterator_hasnext(&model_data->yList->out_list_ptr)) { 
-    vartype_ptr = (VarTypePtr*)list_iterator_next(&model_data->yList->out_list_ptr );
-    strcpy(str_array[count],vartype_ptr->units);
-    count++;
-  };
-  list_iterator_stop(&model_data->yList->out_list_ptr);     
-
-  list_iterator_start(&model_data->yList->out_list);
-  while (list_iterator_hasnext(&model_data->yList->out_list)) { 
-    vartype = (VarType*)list_iterator_next(&model_data->yList->out_list );
-    strcpy(str_array[count],vartype->units);
-    count++;
-  };
-  list_iterator_stop(&model_data->yList->out_list);     
-};
-/* @} */
-
-
+// <<<<<<< HEAD
+// /** @addtogroup FortranCall */
+// /* @{ */
+// MAP_EXTERNCALL void set_summary_file_name(MAP_InitInputType_t* init_type, char *map_msg, MAP_ERROR_CODE *ierr) {  
+//   int length = 0;
+//   char *temp = NULL;
+//   InitializationData* init = init_type->object; 
+//   
+//   if (init->summaryFileName!=NULL) {
+//     MAPFREE(init->summaryFileName);
+//   };  
+//   temp = strtok(init_type->summaryFileName, " \n&");
+//   length = strlen(temp)+1;
+//   init->summaryFileName = (char*)malloc(sizeof(char)*length);
+//   strcpy(init->summaryFileName, temp);
+//   init_type->summaryFileName[0] = 0;  
+// };
+// 
+// 
+// MAP_EXTERNCALL void get_header_string(int* n, char** str_array, MAP_OtherStateType_t* other_type)
+// { 
+//   int count = 0;    
+//   ModelData* model_data = other_type->object;
+//   VarTypePtr* vartype_ptr = NULL;
+//   VarType* vartype = NULL;
+// 
+//   list_iterator_start(&model_data->yList->out_list_ptr);
+//   while (list_iterator_hasnext(&model_data->yList->out_list_ptr)) { 
+//     vartype_ptr = (VarTypePtr*)list_iterator_next(&model_data->yList->out_list_ptr);
+//     strcpy(str_array[count],vartype_ptr->name);
+//     count++;
+//   };
+//   list_iterator_stop(&model_data->yList->out_list_ptr);     
+// 
+//   list_iterator_start(&model_data->yList->out_list);
+//   while (list_iterator_hasnext(&model_data->yList->out_list)) { 
+//     vartype = (VarType*)list_iterator_next(&model_data->yList->out_list);
+//     strcpy(str_array[count],vartype->name);
+//     count++;
+//   };
+//   list_iterator_stop(&model_data->yList->out_list);     
+//   /* @todo this should raise and error when count != n */
+// };
+// 
+// 
+// MAP_EXTERNCALL void get_unit_string(int* n, char** str_array, MAP_OtherStateType_t* other_type)
+// { 
+//   int count = 0;    
+//   ModelData* model_data = other_type->object;
+//   VarTypePtr* vartype_ptr = NULL;
+//   VarType* vartype = NULL;
+// 
+//   list_iterator_start(&model_data->yList->out_list_ptr);
+//   while (list_iterator_hasnext(&model_data->yList->out_list_ptr)) { 
+//     vartype_ptr = (VarTypePtr*)list_iterator_next(&model_data->yList->out_list_ptr );
+//     strcpy(str_array[count],vartype_ptr->units);
+//     count++;
+//   };
+//   list_iterator_stop(&model_data->yList->out_list_ptr);     
+// 
+//   list_iterator_start(&model_data->yList->out_list);
+//   while (list_iterator_hasnext(&model_data->yList->out_list)) { 
+//     vartype = (VarType*)list_iterator_next(&model_data->yList->out_list );
+//     strcpy(str_array[count],vartype->units);
+//     count++;
+//   };
+//   list_iterator_stop(&model_data->yList->out_list);     
+// };
+// /* @} */
+// 
+// 
+// =======
+// >>>>>>> next
 MAP_ERROR_CODE get_iteration_output_stream(MAP_OutputType_t *y_type, MAP_OtherStateType_t* other_type, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   int count = 0;
-  ModelData* model_data = other_type->object;
+    int i = 0;
+  Domain* domain = other_type->object;
   VarTypePtr* vartype_ptr = NULL;
   VarType* vartype = NULL;
-
+  
+  /* this should only be run once at initialization */
   if (!y_type->wrtOutput) { /* if NULL, then wrtOutput is not initialized */
     /* first set size of out list */
-    y_type->wrtOutput_Len = (int)list_size(&model_data->yList->out_list_ptr);
-    y_type->wrtOutput_Len += (int)list_size(&model_data->yList->out_list);
+    y_type->wrtOutput_Len = (int)list_size(&domain->y_list->out_list_ptr);
+    y_type->wrtOutput_Len += (int)list_size(&domain->y_list->out_list);
     
-    /* allocation array */
+    /* allocation of the array */
     y_type->wrtOutput = malloc(sizeof(double)*y_type->wrtOutput_Len);
   };
 
-  list_iterator_start(&model_data->yList->out_list_ptr);
-  while (list_iterator_hasnext(&model_data->yList->out_list_ptr)) { 
-    vartype_ptr = (VarTypePtr*)list_iterator_next(&model_data->yList->out_list_ptr);
+  list_iterator_start(&domain->y_list->out_list_ptr);
+  while (list_iterator_hasnext(&domain->y_list->out_list_ptr)) { 
+    vartype_ptr = (VarTypePtr*)list_iterator_next(&domain->y_list->out_list_ptr);
     y_type->wrtOutput[count] = *vartype_ptr->value;
     count++;
   };
-  list_iterator_stop(&model_data->yList->out_list_ptr);     
+  list_iterator_stop(&domain->y_list->out_list_ptr);     
 
-  list_iterator_start(&model_data->yList->out_list);
-  while (list_iterator_hasnext(&model_data->yList->out_list)) { 
-    vartype = (VarType*)list_iterator_next(&model_data->yList->out_list);
+  list_iterator_start(&domain->y_list->out_list);
+  while (list_iterator_hasnext(&domain->y_list->out_list)) { 
+    vartype = (VarType*)list_iterator_next(&domain->y_list->out_list);
     y_type->wrtOutput[count] = vartype->value;
-    count++;
+    count++;    
   };
-  list_iterator_stop(&model_data->yList->out_list);     
+  list_iterator_stop(&domain->y_list->out_list);    
+
+  //printf("C :\n");
+  for(i=0 ; i<count ; i++)  {
+	// printf("%f , ",y_type->wrtOutput[i]);
+	 //printf("%d  %d\n",y_type->wrtOutput_Len,count);
+  }//printf("\n");
   return MAP_SAFE;
 };
 
 
-MAP_ERROR_CODE set_output_list(ModelData* data, MAP_InitOutputType_t* ioType, char* map_msg, MAP_ERROR_CODE* ierr)
-{
-  Element* iterElem = NULL;
-  OutputList* yList = data->yList;
-  
-  list_iterator_start(&data->element); /* starting an iteration "session" */
-  while (list_iterator_hasnext(&data->element)) { /* tell whether more values available */ 
-    iterElem = (Element*)list_iterator_next(&data->element);    
-    
-    if (iterElem->options.gxAnchorPosFlag) {
-      list_append(&yList->out_list_ptr, &iterElem->anchor->positionPtr.x);      
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.gyAnchorPosFlag) {
-      list_append(&yList->out_list_ptr, &iterElem->anchor->positionPtr.y);
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.gzAnchorPosFlag) {
-      list_append(&yList->out_list_ptr, &iterElem->anchor->positionPtr.z);
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.gxPosFlag) {
-      list_append(&yList->out_list_ptr, &iterElem->fairlead->positionPtr.x);
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.gyPosFlag) {
-      list_append(&yList->out_list_ptr, &iterElem->fairlead->positionPtr.y);
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.gzPosFlag) {
-      list_append(&yList->out_list_ptr, &iterElem->fairlead->positionPtr.z);
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.HFlag) {
-      list_append(&yList->out_list_ptr, &iterElem->H);
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.VFlag) {
-      list_append(&yList->out_list_ptr, &iterElem->V);
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-    
-    if (iterElem->options.HAnchorFlag) {
-      list_append(&yList->out_list, &iterElem->HAtAnchor);
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.VAnchorFlag) {
-      list_append(&yList->out_list, &iterElem->VAtAnchor);
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.anchorTensionFlag) {
-      list_append(&yList->out_list, &iterElem->TAtAnchor);
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.altitudeAnchorFlag) {
-      list_append(&yList->out_list, &iterElem->alphaAtAnchor);
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.gxForceFlag) {
-      list_append(&yList->out_list, &iterElem->forceAtFairlead.fx); /* @todo: this is not correct. Should point to fairlead->sumForce.fx */
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.gyForceFlag) {
-      list_append(&yList->out_list, &iterElem->forceAtFairlead.fy); /* @todo: this is not correct. Should point to fairlead->sumForce.fy */
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.gzForceFlag) {
-      list_append(&yList->out_list, &iterElem->forceAtFairlead.fz); /* @todo: this is not correct. Should point to fairlead->sumForce.fz */
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.VFlag) {
-      list_append(&yList->out_list, &iterElem->forceAtFairlead.fz); /* @todo: this is not correct. Doubled up with above */
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.fairleadTensionFlag) {
-      list_append(&yList->out_list, &iterElem->T);
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.horizontalExcursionFlag) {
-      list_append(&yList->out_list, &iterElem->l);
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.verticalExcursionFlag) {
-      list_append(&yList->out_list, &iterElem->h);
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.layLengthFlag) {
-      list_append(&yList->out_list, &iterElem->lb);
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.azimuthFlag) {
-      list_append(&yList->out_list, &iterElem->psi);
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-
-    if (iterElem->options.altitudeFlag) {
-      list_append(&yList->out_list, &iterElem->alpha);
-      ioType->writeOutputHdr_Len++;
-      ioType->writeOutputUnt_Len++;
-    };
-  };
-  list_iterator_stop(&data->element); /* ending the iteration session */  
-
-  return MAP_SAFE;
-};
-
-
-MAP_ERROR_CODE write_summary_file(InitializationData* init, MAP_ParameterType_t* paramType, ModelData* data, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE write_summary_file(InitializationData* init, MAP_ParameterType_t* paramType, Domain* data, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_ERROR_CODE success = MAP_SAFE;
-  struct tm* tmInfo;
+  FILE* file;
+  MAP_ERROR_CODE err = MAP_SAFE;
+  char time_buffer[TIME_BUFFER_SIZE] = "\0";
   time_t timer;
-  FILE* file = fopen(init->summaryFileName, "w");
-  char timeBuffer[64] = "";
-  char name[256] = "";
-  
+
+# if !defined(_MSC_VER)
+  struct tm* tm_info;
   time(&timer);
-  tmInfo = localtime(&timer);
-  
-  if (file==NULL) {
-    *ierr = map_set_universal_error(init->summaryFileName, map_msg, ierr, MAP_FATAL_38);
+  tm_info = localtime(&timer);
+  strftime(time_buffer, TIME_BUFFER_SIZE, "%A %B %d-%Y at %H:%M:%S %p", tm_info);
+# else
+  struct tm tm_info;
+  time(&timer);
+  localtime_s(&tm_info, &timer);
+  strftime(time_buffer, TIME_BUFFER_SIZE, "%A %B %d-%Y at %H:%M:%S %p", &tm_info);
+# endif
+
+  err = fopen_s(&file, init->summary_file_name->data, "w");
+  if (err!=MAP_SAFE) {
+    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_95, "File name: <%s>", init->summary_file_name->data);
     return MAP_FATAL;
   };
   
-  __get_machine_name(name);  
-  strftime(timeBuffer, 64, "%A %B %d-%Y at %H:%M:%S %p", tmInfo);
-  fprintf(file,"Outputs were generated using %s %s-%s on %s.\n\n\n", PROGNAME, PROGVERSION, name, timeBuffer ); 
+  if (file==NULL) {
+    set_universal_error_with_message(map_msg, ierr, MAP_FATAL_38, "File name: <%s>", init->summary_file_name->data);
+    return MAP_FATAL;
+  };
+  
+  //__get_machine_name(name);  
+
+  /* May want to retag version number of git between major/minor releases. A trick to include git revision number
+   * can be found archived here: http://stackoverflow.com/questions/1704907/how-can-i-get-my-c-code-to-automatically-print-out-its-git-version-hash
+   *
+   * $ git tag -a v1.00 -m "Release v1.00"
+   */
+
+  /* unboubtedly this will be useful on windows. Not sure how to track git version 
+   * on windows with MSVC compiler, or for those who don't use version control? */
+#  ifndef GITVERSION 
+#    define GITVERSION PROGVERSION
+#  endif
+
+  fprintf(file,"Outputs were generated using MAP++ %s.\n\n", GITVERSION); 
+  fprintf(file,"    %s\n\n", time_buffer); 
   fprintf(file,"    Gravity constant          [m/s^2]  : %1.2f\n", paramType->g); 
-  fprintf(file,"    Sea density               [kg/m^3] : %1.2f\n", paramType->rhoSea);
+  fprintf(file,"    Sea density               [kg/m^3] : %1.2f\n", paramType->rho_sea);
   fprintf(file,"    Water depth               [m]      : %1.2f\n", paramType->depth);
-  fprintf(file,"    Vessel reference position [m]      : %1.2f , %1.2f , %1.2f\n\n", data->vessel.refOrigin.x.value, data->vessel.refOrigin.y.value, data->vessel.refOrigin.z.value); 
+  fprintf(file,"    Vessel reference position [m]      : %1.2f , %1.2f , %1.2f\n\n", data->vessel.ref_origin.x.value, data->vessel.ref_origin.y.value, data->vessel.ref_origin.z.value); 
   
   success = write_cable_library_information_to_summary_file(file, data); CHECKERRK(MAP_ERROR_6);
   success = write_node_information_to_summary_file(file, data, map_msg, ierr); CHECKERRK(MAP_ERROR_7);
-  success = write_element_information_to_summary_file(file, data); CHECKERRK(MAP_ERROR_8);
+  success = write_line_information_to_summary_file(file, data); CHECKERRK(MAP_ERROR_8);
   success = write_expanded_input_file_to_summary_file(file, init);
   fclose(file);  
   
-  MAP_RETURN;
+  MAP_RETURN_STATUS(*ierr);
 };
 
 
-MAP_ERROR_CODE write_cable_library_information_to_summary_file(FILE* file, ModelData* model_data)
+MAP_ERROR_CODE write_cable_library_information_to_summary_file(FILE* file, Domain* domain)
 {
-  CableLibrary* cableLibraryIter = NULL;  
-  list_iterator_start(&model_data->cableLibrary);    
-  while (list_iterator_hasnext(&model_data->cableLibrary)) { 
-    cableLibraryIter = (CableLibrary*)list_iterator_next(&model_data->cableLibrary);    
-    fprintf(file, "    Cable Type          : %s\n", cableLibraryIter->label);
-    fprintf(file, "    Diameter     [m]    : %1.4f\n", cableLibraryIter->diam);
-    fprintf(file, "    Mass Density [kg/m] : %1.2f\n", cableLibraryIter->massDensityInAir);
-    fprintf(file, "    EA           [kN]   : %1.2f\n", cableLibraryIter->ea);
-    fprintf(file, "    omega        [N/m]  : %1.2f\n", cableLibraryIter->omega);
-    fprintf(file, "    CB                  : %1.2f\n\n", cableLibraryIter->cb);
+  CableLibrary* library_iter = NULL;  
+
+  list_iterator_start(&domain->library);    
+  while (list_iterator_hasnext(&domain->library)) { 
+    library_iter = (CableLibrary*)list_iterator_next(&domain->library);    
+    fprintf(file, "    Cable Type          : %s\n", library_iter->label->data);
+    fprintf(file, "    Diameter     [m]    : %1.4f\n", library_iter->diam);
+    fprintf(file, "    Mass Density [kg/m] : %1.2f\n", library_iter->mass_density);
+    fprintf(file, "    EA           [N]    : %1.2f\n", library_iter->EA);
+    fprintf(file, "    omega        [N/m]  : %1.2f\n", library_iter->omega);
+    fprintf(file, "    CB                  : %1.2f\n\n", library_iter->cb);
   };
-  list_iterator_stop(&model_data->cableLibrary);  
+  list_iterator_stop(&domain->library);  
   return MAP_SAFE;
 };
 
 
-MAP_ERROR_CODE write_node_type_to_summary_file(const int num_col, const int count_to_four, const NodeType node_type, char* line_char)
+MAP_ERROR_CODE write_node_type_to_summary_file(const int num_col, const int count_to_four, const NodeType node_type, bstring line)
 {
+  int ret = 0;
   int j = 0;
-  int size = 0;
+  const int size = line->slen - 23*count_to_four;
 
   if (!num_col) { /* if this is the firs column, then line the right side with information */
     if (node_type==VESSEL) {
-      map_snprintf(line_char, 256, "Type      |  VESSEL");
+      ret = bcatcstr(line, "Type      |  VESSEL");
     } else if (node_type==FIX ) { 
-      map_snprintf(line_char, 256, "Type      |  FIX");
+      ret = bcatcstr(line, "Type      |  FIX");
     } else if (node_type==CONNECT ) {
-      map_snprintf(line_char, 256, "Type      |  CONNECT");
+      ret = bcatcstr(line, "Type      |  CONNECT");
     } else {
-      map_snprintf(line_char, 256, "Type      |  UNKNOWN");
+      ret = bcatcstr(line, "Type      |  UNKNOWN");
     };
-  } else { /* otherwise, just print the information */
-    size = (int)strlen(line_char)-23*count_to_four; /* each node column is 23 character wide */ 
+  } else { /* otherwise, just print the information */ 
     for (j=0 ; j<SPACE_LENGTH-size ; j++) { /* add white spaces */
-      map_strcat(line_char, 256, " "); 
+      bconchar(line,' ');
     };
 
     if (node_type==VESSEL) {
-      map_strcat(line_char, 256, " VESSEL");        
+      ret = bcatcstr(line, " VESSEL");
     } else if (node_type==FIX ) { 
-      map_strcat(line_char, 256, " FIX");        
+      ret = bcatcstr(line, " FIX");
     } else if(node_type==CONNECT ) {
-      map_strcat(line_char, 256, " CONNECT");        
+      ret = bcatcstr(line, " CONNECT");
     } else {
-      map_strcat(line_char, 256, " UNKNOWN");        
+      ret = bcatcstr(line, " UNKNOWN");
     };
   };
   return MAP_SAFE;
 };
 
 
-MAP_ERROR_CODE write_node_header_to_summary_file(const int num_col, const int count_to_four, const int node_num, char* line_char)
+MAP_ERROR_CODE write_node_header_to_summary_file(const int num_col, const int count_to_four, const int node_num, bstring line)
 {
+  int ret = 0;
   int j = 0;
-  int size = 0;
-  char spaces[64] = "";
-  char buffer[64] = "";
+  const int size = line->slen - 23*count_to_four;
+  bstring info = NULL;
 
   if (!num_col) { 
-    map_snprintf(line_char, 256, "          | Node %d Data", node_num);        
+    info = bformat("          | Node %d Data", node_num);  
   } else {
-    size = (int)strlen(line_char)-23*count_to_four; /* each node column is 23 character wide */ 
     for (j=0 ; j<SPACE_LENGTH-size ; j++) {
-      map_strcat(spaces, 64, " ");       
+      bconchar(line,' ');
     };
-    map_snprintf(buffer, 64, "%sNode %d Data", spaces, node_num);
-    map_strcat(line_char, 256, buffer);       
+    info = bformat("Node %d Data", node_num);
   };
+  ret = bconcat(line, info);
+  ret = bdestroy(info);
+
   return MAP_SAFE;
 };
 
 
-MAP_ERROR_CODE write_node_x_position_to_summary_file(const int num_col, const int count_to_four, VarTypePtr* x_pos, char* line_char)
+MAP_ERROR_CODE write_node_x_position_to_summary_file(const int num_col, const int count_to_four, VarTypePtr* x_pos, bstring line)
 {
   int j = 0;
-  int size = 0;
-  char spaces[64] = "";
-  char buffer[64] = "";
-  MapReal x = *x_pos->value;
+  const int size = line->slen-23*count_to_four; /* each node column is 23 character wide */ 
+  double x = *x_pos->value;
+  bstring info = NULL;
 
   if (!num_col) { 
-    if (!x_pos->isFixed) {
+    if (!x_pos->is_fixed) {
       if (x>=0.0) {
-        map_snprintf(line_char, 256, "X  [m]    | ( %1.3f)", x);
+        info = bformat("X  [m]    | ( %1.3f)", x);
       } else {
-        map_snprintf(line_char, 256, "X  [m]    | (%1.3f)", x);        
+        info = bformat("X  [m]    | (%1.3f)", x);
       };
     } else {
       if (x>0.0) {
-        map_snprintf(line_char, 256, "X  [m]    |   %1.3f", x);        
+        info = bformat("X  [m]    |   %1.3f", x);
       } else {
-        map_snprintf(line_char, 256, "X  [m]    |  %1.3f", x);        
+        info = bformat("X  [m]    |  %1.3f", x);
       };
     };
   } else { 
-    size = (int)strlen(line_char)-23*count_to_four; /* each node column is 23 character wide */ 
     for (j=0 ; j<SPACE_LENGTH-size ; j++) {
-      map_strcat(spaces, 64, " "); 
+      bconchar(line,' ');
     };
 
-    if (!x_pos->isFixed) {
+    if (!x_pos->is_fixed) {
       if (x>=0.0) {
-        map_snprintf(buffer, 64, "%s( %1.3f)", spaces, x);
+        info = bformat("( %1.3f)", x);
       } else {
-        map_snprintf(buffer, 64, "%s(%1.3f)", spaces, x);        
+        info = bformat("(%1.3f)", x);
       };
     } else {
       if (x>=0.0) {
-        map_snprintf(buffer, 64, "%s  %1.3f", spaces, x);        
+        info = bformat("  %1.3f", x);
       } else {
-        map_snprintf(buffer, 64, "%s %1.3f", spaces, x);        
+        info = bformat(" %1.3f", x);
       };
     };
-    map_strcat(line_char, 256, buffer);       
   };
 
+  bconcat(line, info);
+  bdestroy(info);
   return MAP_SAFE;
 };
 
 
-MAP_ERROR_CODE write_node_y_position_to_summary_file(const int num_col, const int count_to_four, VarTypePtr* y_pos, char* line_char)
+MAP_ERROR_CODE write_node_y_position_to_summary_file(const int num_col, const int count_to_four, VarTypePtr* y_pos, bstring line)
 {
   int j = 0;
-  int size = 0;
-  char spaces[64] = "";
-  char buffer[64] = "";
-  MapReal y = *y_pos->value;
+  const int size = line->slen-23*count_to_four; /* each node column is 23 character wide */ 
+  double y = *y_pos->value;
+  bstring info = NULL;
 
   if (!num_col) { 
-    if (!y_pos->isFixed) {
+    if (!y_pos->is_fixed) {
       if (y>=0.0) {
-        map_snprintf(line_char, 256, "Y  [m]    | ( %1.3f)", y);
+        info = bformat("Y  [m]    | ( %1.3f)", y);
       } else {
-        map_snprintf(line_char, 256, "Y  [m]    | (%1.3f)", y);        
+        info = bformat("Y  [m]    | (%1.3f)", y);
       };
     } else {
-      if (y>=0.0) {
-        map_snprintf(line_char, 256, "Y  [m]    |   %1.3f", y);        
+      if (y>0.0) {
+        info = bformat("Y  [m]    |   %1.3f", y);
       } else {
-        map_snprintf(line_char, 256, "Y  [m]    |  %1.3f", y);        
+        info = bformat("Y  [m]    |  %1.3f", y);
       };
     };
   } else { 
-    size = (int)strlen(line_char)-23*count_to_four; /* each node column is 23 character wide */ 
     for (j=0 ; j<SPACE_LENGTH-size ; j++) {
-      map_strcat(spaces, 64, " "); 
+      bconchar(line,' ');
     };
-    if (!y_pos->isFixed) {
+
+    if (!y_pos->is_fixed) {
       if (y>=0.0) {
-        map_snprintf(buffer, 64, "%s( %1.3f)", spaces, y);
+        info = bformat("( %1.3f)", y);
       } else {
-        map_snprintf(buffer, 64, "%s(%1.3f)", spaces, y);        
+        info = bformat("(%1.3f)", y);
       };
     } else {
       if (y>=0.0) {
-        map_snprintf(buffer, 64, "%s  %1.3f", spaces, y);        
+        info = bformat("  %1.3f", y);
       } else {
-        map_snprintf(buffer, 64, "%s %1.3f", spaces, y);        
+        info = bformat(" %1.3f", y);
       };
     };
-    map_strcat(line_char, 256, buffer);       
   };
+
+  bconcat(line, info);
+  bdestroy(info);
   return MAP_SAFE;
 };
 
 
-MAP_ERROR_CODE write_node_z_position_to_summary_file(const int num_col, const int count_to_four, VarTypePtr* z_pos, char* line_char)
+MAP_ERROR_CODE write_node_z_position_to_summary_file(const int num_col, const int count_to_four, VarTypePtr* z_pos, bstring line)
 {
   int j = 0;
-  int size = 0;
-  char spaces[64] = "";
-  char buffer[64] = "";
-  MapReal z = *z_pos->value;
+  const int size = line->slen-23*count_to_four; /* each node column is 23 character wide */ 
+  double z = *z_pos->value;
+  bstring info = NULL;
+
+  if (!num_col) { 
+    if (!z_pos->is_fixed) {
+      if (z>=0.0) {
+        info = bformat("Z  [m]    | ( %1.3f)", z);
+      } else {
+        info = bformat("Z  [m]    | (%1.3f)", z);
+      };
+    } else {
+      if (z>0.0) {
+        info = bformat("Z  [m]    |   %1.3f", z);
+      } else {
+        info = bformat("Z  [m]    |  %1.3f", z);
+      };
+    };
+  } else { 
+    for (j=0 ; j<SPACE_LENGTH-size ; j++) {
+      bconchar(line,' ');
+    };
+
+    if (!z_pos->is_fixed) {
+      if (z>=0.0) {
+        info = bformat("( %1.3f)", z);
+      } else {
+        info = bformat("(%1.3f)", z);
+      };
+    } else {
+      if (z>=0.0) {
+        info = bformat("  %1.3f", z);
+      } else {
+        info = bformat(" %1.3f", z);
+      };
+    };
+  };
+
+  bconcat(line, info);
+  bdestroy(info);
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE write_node_mass_information_to_summary_file(const int num_col, const int count_to_four, VarType* point_mass, bstring line)
+{
+  int j = 0;
+  const int size = line->slen-23*count_to_four; /* each node column is 23 character wide */ 
+  const double mass = point_mass->value;
+  bstring info = NULL;
+
+  if (!num_col) { 
+    if (!point_mass->is_fixed) {
+      if (mass>=0.0) {
+        info = bformat("M  [kg]   | ( %1.3f)", mass);
+      } else {
+        info = bformat("M  [kg]   | (%1.3f)", mass);                       
+      };
+    } else {
+      if (mass>0.0) {
+        info = bformat("M  [kg]   |   %1.3f", mass);
+      } else {
+        info = bformat("M  [kg]   |  %1.3f", mass);
+      };
+    };
+  } else { 
+    for (j=0 ; j<SPACE_LENGTH-size ; j++) {
+      bconchar(line,' ');
+    };
+
+    if (!point_mass->is_fixed) {
+      if (mass>=0.0) {
+        info = bformat("( %1.3f)", mass);
+      } else {
+        info = bformat("(%1.3f)", mass);
+      };
+    } else {
+      if (mass>=0.0) {
+        info = bformat("  %1.3f", mass);
+      } else {
+        info = bformat(" %1.3f", mass);
+      };
+    };
+  };
+
+  bconcat(line, info);
+  bdestroy(info);
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE write_node_buoyancy_information_to_summary_file(const int num_col, const int count_to_four, VarType* point_buoy, bstring line)
+{
+  int j = 0;
+  const int size = line->slen-23*count_to_four; /* each node column is 23 character wide */ 
+  const double buoy = point_buoy->value;
+  bstring info = NULL;
   
   if (!num_col) { 
-    if (!z_pos->isFixed) {
-      if (z>=0.0) {
-        map_snprintf(line_char, 256, "Z  [m]    | ( %1.3f)", z);
+    if (!point_buoy->is_fixed) {
+      if (buoy>=0.0) {
+        info = bformat("B  [m^3]  | ( %1.3f)", buoy);                       
       } else {
-        map_snprintf(line_char, 256, "Z  [m]    | (%1.3f)", z);        
+        info = bformat("B  [m^3]  | (%1.3f)", buoy);                       
       };
     } else {
-      if (z>=0.0) {
-        map_snprintf(line_char, 256, "Z  [m]    |   %1.3f", z);        
+      if (buoy>0.0) {
+        info = bformat("B  [m^3]  |   %1.3f", buoy);
       } else {
-        map_snprintf(line_char, 256, "Z  [m]    |  %1.3f", z);        
+        info = bformat("B  [m^3]  |  %1.3f", buoy);
       };
     };
   } else { 
-    size = (int)strlen(line_char)-23*count_to_four; /* each node column is 23 character wide */ 
     for (j=0 ; j<SPACE_LENGTH-size ; j++) {
-      map_strcat(spaces, 64, " "); 
+      bconchar(line,' ');
     };
 
-    if (!z_pos->isFixed) {
-      if (z>=0.0) {
-        map_snprintf(buffer, 64, "%s( %1.3f)", spaces, z);
+    if (!point_buoy->is_fixed) {
+      if (buoy>=0.0) {
+        info = bformat("( %1.3f)", buoy);
       } else {
-        map_snprintf(buffer, 64, "%s(%1.3f)", spaces, z);        
+        info = bformat("(%1.3f)", buoy);
       };
     } else {
-      if (z>=0.0) {
-        map_snprintf(buffer, 64, "%s  %1.3f", spaces, z);        
+      if (buoy>=0.0) {
+        info = bformat("  %1.3f", buoy);
       } else {
-        map_snprintf(buffer, 64, "%s %1.3f", spaces, z);        
+        info = bformat(" %1.3f", buoy);
       };
     };
-    map_strcat(line_char, 256, buffer);       
   };
+
+  bconcat(line, info);
+  bdestroy(info);
   return MAP_SAFE;
 };
 
 
-MAP_ERROR_CODE write_node_mass_information_to_summary_file(const int num_col, const int count_to_four, VarType* point_mass, char* line_char)
+MAP_ERROR_CODE write_node_x_sum_force_to_summary_file(const int num_col, const int count_to_four, VarTypePtr* x_sum_force, bstring line)
 {
   int j = 0;
-  int size = 0;
-  char spaces[64] = "";
-  char buffer[64] = "";
-  MapReal mass = point_mass->value;
+  const int size = line->slen-23*count_to_four; /* each node column is 23 character wide */ 
+  const double fx = *(x_sum_force->value);
+  bstring info = NULL;
 
   if (!num_col) { 
-    if (!point_mass->isFixed) {
-      if (mass>=0.0) {
-        map_snprintf(line_char, 256, "M  [kg]   | ( %1.3f)", mass);
+    if (!x_sum_force->is_fixed) {
+      if (fx>=0.0) {
+        info = bformat("FX [N]    | ( %1.3f)", fx);
       } else {
-        map_snprintf(line_char, 256, "M  [kg]   | (%1.3f)", mass);        
+        info = bformat("FX [N]    | (%1.3f)", fx);
       };
     } else {
-      if (mass>=0.0) {
-        map_snprintf(line_char, 256, "M  [kg]   |   %1.3f", mass);        
+      if (fx>0.0) {
+        info = bformat("FX [N]    |   %1.3f", fx);
       } else {
-        map_snprintf(line_char, 256, "M  [kg]   |  %1.3f", mass);        
-      };
-    };
-
-  } else { 
-    size = (int)strlen(line_char)-23*count_to_four; /* each node column is 23 character wide */ 
-    for (j=0 ; j<SPACE_LENGTH-size ; j++) {
-      map_strcat(spaces, 64, " "); 
-    };
-
-    if (!point_mass->isFixed) {
-      if (mass>=0.0) {
-        map_snprintf(buffer, 64, "%s( %1.3f)", spaces, mass);
-      } else {
-        map_snprintf(buffer, 64, "%s(%1.3f)", spaces, mass);        
-      };
-    } else {
-      if (mass>=0.0) {
-        map_snprintf(buffer, 64, "%s  %1.3f", spaces, mass);        
-      } else {
-        map_snprintf(buffer, 64, "%s %1.3f", spaces, mass);        
-      };
-    };
-    map_strcat(line_char, 256, buffer);       
-  };
-  return MAP_SAFE;
-};
-
-
-MAP_ERROR_CODE write_node_buoyancy_information_to_summary_file(const int num_col, const int count_to_four, VarType* point_buoy, char* line_char)
-{
-  int j = 0;
-  int size = 0;
-  char spaces[64] = "";
-  char buffer[64] = "";
-  MapReal buoyancy = point_buoy->value;
-
-  if (!num_col) { 
-    if (!point_buoy->isFixed) {
-      if (buoyancy>=0.0) {
-        map_snprintf(line_char, 256, "B  [m^3]  | ( %1.3f)", buoyancy);
-      } else {
-        map_snprintf(line_char, 256, "B  [m^3]  | (%1.3f)", buoyancy);        
-      };
-    } else {
-      if (buoyancy>=0.0) {
-        map_snprintf(line_char, 256, "B  [m^3]  |   %1.3f", buoyancy);        
-      } else {
-        map_snprintf(line_char, 256, "B  [m^3]  |  %1.3f", buoyancy);        
+        info = bformat("FX [N]    |  %1.3f", fx);
       };
     };
   } else { 
-    size = (int)strlen(line_char)-23*count_to_four; /* each node column is 23 character wide */ 
     for (j=0 ; j<SPACE_LENGTH-size ; j++) {
-      map_strcat(spaces, 64, " "); 
+      bconchar(line,' ');
     };
-    
-    if (!point_buoy->isFixed) {
-      if (buoyancy>=0.0) {
-        map_snprintf(buffer, 64, "%s( %1.3f)", spaces, buoyancy);
+
+    if (!x_sum_force->is_fixed) {
+      if (fx>=0.0) {
+        info = bformat("( %1.3f)", fx);
       } else {
-        map_snprintf(buffer, 64, "%s(%1.3f)", spaces, buoyancy);        
+        info = bformat("(%1.3f)", fx);
       };
     } else {
-      if (buoyancy>=0.0) {
-        map_snprintf(buffer, 64, "%s  %1.3f", spaces, buoyancy);        
+      if (fx>=0.0) {
+        info = bformat("  %1.3f", fx);
       } else {
-        map_snprintf(buffer, 64, "%s %1.3f", spaces, buoyancy);        
+        info = bformat(" %1.3f", fx);
       };
     };
-    map_strcat(line_char, 256, buffer);       
   };
+
+  bconcat(line, info);
+  bdestroy(info);
   return MAP_SAFE;
 };
 
 
-MAP_ERROR_CODE write_node_x_sum_force_to_summary_file(const int num_col, const int count_to_four, VarTypePtr* x_sum_force, char* line_char)
+MAP_ERROR_CODE write_node_y_sum_force_to_summary_file(const int num_col, const int count_to_four, VarTypePtr* y_sum_force, bstring line)
 {
   int j = 0;
-  int size = 0;
-  char spaces[64] = "";
-  char buffer[64] = "";
-  MapReal fx = *(x_sum_force->value);
+  const int size = line->slen-23*count_to_four; /* each node column is 23 character wide */ 
+  const double fy = *(y_sum_force->value);
+  bstring info = NULL;
 
   if (!num_col) { 
-    if (!x_sum_force->isFixed) {
-      if (fx>=0.0) {
-        map_snprintf(line_char, 256, "FX [kN]   | ( %1.3f)", fx);
+    if (!y_sum_force->is_fixed) {
+      if (fy>=0.0) {
+        info = bformat("FY [N]    | ( %1.3f)", fy);
       } else {
-        map_snprintf(line_char, 256, "FX [kN]   | (%1.3f)", fx);        
+        info = bformat("FY [N]    | (%1.3f)", fy);
       };
     } else {
-      if (fx>=0.0) {
-        map_snprintf(line_char, 256, "FX [kN]   |   %1.3f", fx);        
+      if (fy>0.0) {
+        info = bformat("FY [N]    |   %1.3f", fy);
       } else {
-        map_snprintf(line_char, 256, "FX [kN]   |  %1.3f", fx);        
+        info = bformat("FY [N]    |  %1.3f", fy);
       };
     };
-  } else {
-    size = (int)strlen(line_char)-23*count_to_four; /* each node column is 23 character wide */ 
+  } else { 
     for (j=0 ; j<SPACE_LENGTH-size ; j++) {
-      map_strcat(spaces, 64, " "); 
-    }
-    if (!x_sum_force->isFixed) {
-      if (fx>=0.0) {
-        map_snprintf(buffer, 64, "%s( %1.3f)", spaces, fx);
+      bconchar(line,' ');
+    };
+
+    if (!y_sum_force->is_fixed) {
+      if (fy>=0.0) {
+        info = bformat("( %1.3f)", fy);
       } else {
-        map_snprintf(buffer, 64, "%s(%1.3f)", spaces, fx);        
+        info = bformat("(%1.3f)", fy);
       };
     } else {
-      if (fx>=0.0) {
-        map_snprintf(buffer, 64, "%s  %1.3f", spaces, fx);        
+      if (fy>=0.0) {
+        info = bformat("  %1.3f", fy);
       } else {
-        map_snprintf(buffer, 64, "%s %1.3f", spaces, fx);        
+        info = bformat(" %1.3f", fy);
       };
     };
-    map_strcat(line_char, 256, buffer);
   };
+
+  bconcat(line, info);
+  bdestroy(info);
   return MAP_SAFE;
 };
 
 
-MAP_ERROR_CODE write_node_y_sum_force_to_summary_file(const int num_col, const int count_to_four, VarTypePtr* y_sum_force, char* line_char)
+MAP_ERROR_CODE write_node_z_sum_force_to_summary_file(const int num_col, const int count_to_four, VarTypePtr* z_sum_force, bstring line)
 {
   int j = 0;
-  int size = 0;
-  char spaces[64] = "";
-  char buffer[64] = "";
-  MapReal fy = *(y_sum_force->value);
+  const int size = line->slen-23*count_to_four; /* each node column is 23 character wide */ 
+  const double fz = *(z_sum_force->value);
+  bstring info = NULL;
 
   if (!num_col) { 
-    if (!y_sum_force->isFixed) {
-      if (fy>=0.0) {
-        map_snprintf(line_char, 256, "FY [kN]   | ( %1.3f)", fy);
+    if (!z_sum_force->is_fixed) {
+      if (fz>=0.0) {
+        info = bformat("FZ [N]    | ( %1.3f)", fz);
       } else {
-        map_snprintf(line_char, 256, "FY [kN]   | (%1.3f)", fy);        
+        info = bformat("FZ [N]    | (%1.3f)", fz);
       };
     } else {
-      if (fy>=0.0) {
-        map_snprintf(line_char, 256, "FY [kN]   |   %1.3f", fy);        
+      if (fz>0.0) {
+        info = bformat("FZ [N]    |   %1.3f", fz);
       } else {
-        map_snprintf(line_char, 256, "FY [kN]   |  %1.3f", fy);        
+        info = bformat("FZ [N]    |  %1.3f", fz);
       };
     };
-  } else {
-    size = (int)strlen(line_char)-23*count_to_four; /* each node column is 23 character wide */ 
+  } else { 
     for (j=0 ; j<SPACE_LENGTH-size ; j++) {
-      map_strcat(spaces, 64, " "); 
-    }
+      bconchar(line,' ');
+    };
 
-    if (!y_sum_force->isFixed) {
-      if (fy>=0.0) {
-        map_snprintf(buffer, 64, "%s( %1.3f)", spaces, fy);
+    if (!z_sum_force->is_fixed) {
+      if (fz>=0.0) {
+        info = bformat("( %1.3f)", fz);
       } else {
-        map_snprintf(buffer, 64, "%s(%1.3f)", spaces, fy);        
+        info = bformat("(%1.3f)", fz);
       };
     } else {
-      if (fy>=0.0) {
-        map_snprintf(buffer, 64, "%s  %1.3f", spaces, fy);        
+      if (fz>=0.0) {
+        info = bformat("  %1.3f", fz);
       } else {
-        map_snprintf(buffer, 64, "%s %1.3f", spaces, fy);        
+        info = bformat(" %1.3f", fz);
       };
     };
-    map_strcat(line_char, 256, buffer);
   };
+
+  bconcat(line, info);
+  bdestroy(info);
   return MAP_SAFE;
 };
 
 
-MAP_ERROR_CODE write_node_z_sum_force_to_summary_file(const int num_col, const int count_to_four, VarTypePtr* z_sum_force, char* line_char)
-{
-  int j = 0;
-  int size = 0;
-  char spaces[64] = "";
-  char buffer[64] = "";
-  MapReal fz = *(z_sum_force->value);
-
-  if (!num_col) { 
-    if (!z_sum_force->isFixed) {
-      if (fz>=0.0) {
-        map_snprintf(line_char, 256, "FZ [kN]   | ( %1.3f)", fz);
-      } else {
-        map_snprintf(line_char, 256, "FZ [kN]   | (%1.3f)", fz);        
-      };
-    } else {
-      if (fz>=0.0) {
-        map_snprintf(line_char, 256, "FZ [kN]   |   %1.3f", fz);        
-      } else {
-        map_snprintf(line_char, 256, "FZ [kN]   |  %1.3f", fz);        
-      };
-    };
-  } else {
-    size = (int)strlen(line_char)-23*count_to_four; /* each node column is 23 character wide */ 
-    for (j=0 ; j<SPACE_LENGTH-size ; j++) {
-      map_strcat(spaces, 64, " "); 
-    }
-    if (!z_sum_force->isFixed) {
-      if (fz>=0.0) {
-        map_snprintf( buffer, 64, "%s( %1.3f)", spaces, fz);
-      } else {
-        map_snprintf( buffer, 64, "%s(%1.3f)", spaces, fz);        
-      };
-    } else {
-      if (fz>=0.0) {
-        map_snprintf(buffer, 64, "%s  %1.3f", spaces, fz);        
-      } else {
-        map_snprintf(buffer, 64, "%s %1.3f", spaces, fz);        
-      };
-    };
-    map_strcat(line_char, 256, buffer);
-  };
-  return MAP_SAFE;
-};
-
-
-MAP_ERROR_CODE write_node_information_to_summary_file(FILE* file, ModelData* model_data, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE write_node_information_to_summary_file(FILE* file, Domain* domain, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   int num = 0;
-  int i = 0;
-  int col_cnt = 0; /* number of columns. The MAP summary file prints 4 columns of node information. After 
-                    * column 4, carriage return */
-  char line0[256] = "";
-  char line1[256] = "";
-  char line2[256] = "";
-  char line3[256] = "";
-  char line4[256] = "";
-  char line5[256] = "";
-  char line6[256] = "";
-  char line7[256] = "";
-  char line8[256] = "";
-  char line9[256] = "";
+  unsigned int i = 0;
+  int col_cnt = 0; /* number of columns. The MAP summary file prints 4 columns of node information. After column 4, carriage return */
+  
+  bstring line0 = NULL; 
+  bstring line1 = NULL; 
+  bstring line2 = NULL; 
+  bstring line3 = NULL; 
+  bstring line4 = NULL; 
+  bstring line5 = NULL;
+  bstring line6 = NULL;
+  bstring line7 = NULL;
+  bstring line8 = NULL;
+  bstring line9 = NULL;
   Node* node_iter = NULL;  
   const int FOUR = 4;
-  const unsigned int num_nodes = list_size(&model_data->node);  
+  const unsigned int num_nodes = list_size(&domain->node);  
   unsigned int col = 0;
   MAP_ERROR_CODE success = MAP_SAFE;
 
-  do {
-    for (i=0 ; i<num_nodes ; i+=FOUR) {
-      if (i+FOUR>num_nodes) {
-        num = num_nodes-i;
-      } else {
-        num = FOUR;
-      };    
-      for (col=i ; col<i+num ; col++) {
-        node_iter = (Node*)list_get_at(&model_data->node, col);      
-        success = write_node_header_to_summary_file(col-i, col_cnt, col+1, line0); CHECKERRQ(MAP_FATAL_70);
-        success = write_node_type_to_summary_file(col-i, col_cnt, node_iter->type, line1); CHECKERRQ(MAP_FATAL_70);
-        success = write_node_x_position_to_summary_file(col-i, col_cnt, &node_iter->positionPtr.x, line2); CHECKERRQ(MAP_FATAL_70);
-        success = write_node_y_position_to_summary_file(col-i, col_cnt, &node_iter->positionPtr.y, line3); CHECKERRQ(MAP_FATAL_70);
-        success = write_node_z_position_to_summary_file(col-i, col_cnt, &node_iter->positionPtr.z, line4); CHECKERRQ(MAP_FATAL_70);
-        success = write_node_mass_information_to_summary_file(col-i, col_cnt, &node_iter->MApplied, line5); CHECKERRQ(MAP_FATAL_70);
-        success = write_node_buoyancy_information_to_summary_file(col-i, col_cnt, &node_iter->BApplied, line6); CHECKERRQ(MAP_FATAL_70);
-        success = write_node_x_sum_force_to_summary_file(col-i, col_cnt, &node_iter->sumForcePtr.fx, line7); CHECKERRQ(MAP_FATAL_70);
-        success = write_node_y_sum_force_to_summary_file(col-i, col_cnt, &node_iter->sumForcePtr.fy, line8); CHECKERRQ(MAP_FATAL_70);
-        success = write_node_z_sum_force_to_summary_file(col-i, col_cnt, &node_iter->sumForcePtr.fz, line9); CHECKERRQ(MAP_FATAL_70);
-        col_cnt++;
-      };
-      col_cnt = 0;
-      map_strcat(line0, 256, "\n");
-      map_strcat(line1, 256, "\n");
-      map_strcat(line2, 256, "\n");
-      map_strcat(line3, 256, "\n");
-      map_strcat(line4, 256, "\n");
-      map_strcat(line5, 256, "\n");
-      map_strcat(line6, 256, "\n");
-      map_strcat(line7, 256, "\n");
-      map_strcat(line8, 256, "\n");
-      map_strcat(line9, 256, "\n");
-    
-      fprintf(file, "%s",line0);
-      fprintf(file, "          | -------------------------------------------------------------------------------------------\n");
-      fprintf(file, "%s",line1);
-      fprintf(file, "%s",line2);
-      fprintf(file, "%s",line3);
-      fprintf(file, "%s",line4);
-      fprintf(file, "%s",line5);
-      fprintf(file, "%s",line6);
-      fprintf(file, "%s",line7);
-      fprintf(file, "%s",line8);
-      fprintf(file, "%s\n\n",line9);
-    
-      line0[0] = 0; 
-      line1[0] = 0; 
-      line2[0] = 0; 
-      line3[0] = 0; 
-      line4[0] = 0; 
-      line5[0] = 0; 
-      line6[0] = 0; 
-      line7[0] = 0; 
-      line8[0] = 0; 
-      line9[0] = 0; 
+  MAP_BEGIN_ERROR_LOG;
+
+  for (i=0 ; i<num_nodes ; i+=FOUR) {
+    if (i+FOUR>num_nodes) {
+      num = num_nodes-i;
+    } else {
+      num = FOUR;
+    };    
+
+    line0 = bformat("");
+    line1 = bformat("");
+    line2 = bformat("");
+    line3 = bformat("");
+    line4 = bformat("");
+    line5 = bformat("");
+    line6 = bformat("");
+    line7 = bformat("");
+    line8 = bformat("");
+    line9 = bformat("");
+
+    for (col=i ; col<i+num ; col++) {
+      node_iter = (Node*)list_get_at(&domain->node, col);      
+      success = write_node_header_to_summary_file(col-i, col_cnt, col+1, line0); CHECKERRQ(MAP_FATAL_70);
+      success = write_node_type_to_summary_file(col-i, col_cnt, node_iter->type, line1); CHECKERRQ(MAP_FATAL_70);
+      success = write_node_x_position_to_summary_file(col-i, col_cnt, &node_iter->position_ptr.x, line2); CHECKERRQ(MAP_FATAL_70);
+      success = write_node_y_position_to_summary_file(col-i, col_cnt, &node_iter->position_ptr.y, line3); CHECKERRQ(MAP_FATAL_70);
+      success = write_node_z_position_to_summary_file(col-i, col_cnt, &node_iter->position_ptr.z, line4); CHECKERRQ(MAP_FATAL_70);
+      success = write_node_mass_information_to_summary_file(col-i, col_cnt, &node_iter->M_applied, line5); CHECKERRQ(MAP_FATAL_70);
+      success = write_node_buoyancy_information_to_summary_file(col-i, col_cnt, &node_iter->B_applied, line6); CHECKERRQ(MAP_FATAL_70);
+      success = write_node_x_sum_force_to_summary_file(col-i, col_cnt, &node_iter->sum_force_ptr.fx, line7); CHECKERRQ(MAP_FATAL_70);
+      success = write_node_y_sum_force_to_summary_file(col-i, col_cnt, &node_iter->sum_force_ptr.fy, line8); CHECKERRQ(MAP_FATAL_70);
+      success = write_node_z_sum_force_to_summary_file(col-i, col_cnt, &node_iter->sum_force_ptr.fz, line9); CHECKERRQ(MAP_FATAL_70);
+      col_cnt++;
     };
-  } while (0);
-  MAP_RETURN;
+    col_cnt = 0;
+      
+    fprintf(file, "%s\n",line0->data);
+    fprintf(file, "          | -------------------------------------------------------------------------------------------\n");
+    fprintf(file, "%s\n",line1->data);
+    fprintf(file, "%s\n",line2->data);
+    fprintf(file, "%s\n",line3->data);
+    fprintf(file, "%s\n",line4->data);
+    fprintf(file, "%s\n",line5->data);
+    fprintf(file, "%s\n",line6->data);
+    fprintf(file, "%s\n",line7->data);
+    fprintf(file, "%s\n",line8->data);
+    fprintf(file, "%s\n\n\n",line9->data);
+      
+    bdestroy(line0);
+    bdestroy(line1);
+    bdestroy(line2);
+    bdestroy(line3);
+    bdestroy(line4);
+    bdestroy(line5);
+    bdestroy(line6);
+    bdestroy(line7);
+    bdestroy(line8);
+    bdestroy(line9);
+  };
+
+  MAP_END_ERROR_LOG;
+
+  MAP_RETURN_STATUS(*ierr);
 };
 
 
-MAP_ERROR_CODE write_element_information_to_summary_file(FILE* file, ModelData* model_data)
+MAP_ERROR_CODE write_line_information_to_summary_file(FILE* file, Domain* domain)
 {
-  const unsigned int num_elements = list_size(&model_data->element);
-  Element* element_iter = NULL;  
-  char line0[256] = "";
-  char line1[256] = "";
-  char line2[256] = "";
-  char line3[256] = "";
-  char line4[256] = "";
-  char line5[256] = "";
-  char line6[256] = "";
-  char line7[256] = "";
-  char line8[256] = "";
-  char line9[256] = "";
-  char line10[256] = "";
-  int i = 0;  
+  const unsigned int num_lines = list_size(&domain->line);
+  Line* line_iter = NULL;  
+  bstring line0 = NULL;
+  bstring line1 = NULL;
+  bstring line2 = NULL;
+  bstring line3 = NULL;
+  bstring line4 = NULL;
+  bstring line5 = NULL;
+  bstring line6 = NULL;
+  bstring line7 = NULL;
+  bstring line8 = NULL;
+  bstring line9 = NULL;
+  bstring line10 = NULL;
+  unsigned int i = 0;  
 
-  for (i=0 ; i<num_elements ; i++) {
-    element_iter = (Element*)list_get_at(&model_data->element, i);
-    
-    if (element_iter->Lu.value>0.0) {
-      map_strcat(line0, 256, " ");
+  for (i=0 ; i<num_lines ; i++) {
+    line_iter = (Line*)list_get_at(&domain->line, i);
+
+    line0 = bformat("");
+    line1 = bformat("");
+    line2 = bformat("");
+    line3 = bformat("");
+    line4 = bformat("");
+    line5 = bformat("");
+    line6 = bformat("");
+    line7 = bformat("");
+    line8 = bformat("");
+    line9 = bformat("");
+
+    if (line_iter->Lu.value>0.0) {
+      bconchar(line0,' ');      
     };
-    if (element_iter->lb.value>0.0) {
-      map_strcat(line1, 256, " ");
+    if (line_iter->Lb>0.0) {
+      bconchar(line1,' ');      
     };
-    if (*(element_iter->H.value)>0.0) {
-        map_strcat(line2, 256, " ");
+    if (*(line_iter->H.value)>0.0) {
+      bconchar(line2,' ');      
     };
-    if (*(element_iter->V.value)>0.0) {
-      map_strcat(line3, 256, " ");
+    if (*(line_iter->V.value)>0.0) {
+      bconchar(line3,' ');      
     };
-    if (element_iter->T.value>0.0) {
-      map_strcat(line4, 256, " ");
+    if (line_iter->T>0.0) {
+      bconchar(line4,' ');      
     };
-    if (element_iter->alpha.value>0.0) {
-      map_strcat(line5, 256, " ");
+    if (line_iter->alpha>0.0) {
+      bconchar(line5,' ');      
     };
-    if (element_iter->HAtAnchor.value>0.0) {
-      map_strcat(line6, 256, " ");
+    if (line_iter->H_at_anchor>0.0) {
+      bconchar(line6,' ');      
     };
-    if (element_iter->VAtAnchor.value>0.0) {
-      map_strcat(line7, 256, " ");
+    if (line_iter->V_at_anchor>0.0) {
+      bconchar(line7,' ');      
     };
-    if (element_iter->TAtAnchor.value>0.0) {
-      map_strcat(line8, 256, " ");
+    if (line_iter->T_at_anchor>0.0) {
+      bconchar(line8,' ');      
     };
-    if (element_iter->alphaAtAnchor.value>0.0) {
-      map_strcat(line9, 256, " ");
+    if (line_iter->alpha_at_anchor>0.0) {
+      bconchar(line9,' ');      
     };
         
-    switch (element_iter->convergeReason) {
+    switch (line_iter->converge_reason) {
     case 0 :
-      map_strcat(line10, 256, "Improver input parameter for inner loop solver.");
+      line10 = bformat("Improver input parameter for inner loop solver.");
       break;
     case 1 :
-      map_strcat(line10, 256, "SQRT( H^2 + V^2 ) <= INNER_FTOL.");
+      line10 = bformat("SQRT( H^2 + V^2 ) <= INNER_FTOL.");
       break;
     case 2 :
-      map_strcat(line10, 256, "||x_i - x_{i-1}||  <= INNER_XTOL.");
+      line10 = bformat("||x_i - x_{i-1}||  <= INNER_XTOL.");
       break;
     case 3 :
-      map_strcat(line10, 256, "Both SQRT( H^2 + V^2 )<=INNER_FTOL and ||x_i - x_{i-1}||  <= INNER_XTOL.");
+      line10 = bformat("Both SQRT( H^2 + V^2 )<=INNER_FTOL and ||x_i - x_{i-1}||  <= INNER_XTOL.");
       break;
     case 4 :
-      map_strcat(line10, 256, "The cosine of the angle between [H, V] and any column of the Jacobian is at most INNER_GTOL in absolute value.");
+      line10 = bformat("The cosine of the angle between [H, V] and any column of the Jacobian is at most INNER_GTOL in absolute value.");
       break;
     case 5 :
-      map_strcat(line10, 256, "INNER_MAX_ITS reached. Try increasing the maximum allowable iteration count.");
+      line10 = bformat("INNER_MAX_ITS reached. Try increasing the maximum allowable iteration count.");
       break;
     case 6 :
-      map_strcat(line10, 256, "INNER_FTOL si too small. SQRT( H^2 + V^2 ) cannot be reduced further.");
+      line10 = bformat("INNER_FTOL si too small. SQRT( H^2 + V^2 ) cannot be reduced further.");
       break;
     case 7 :
-      map_strcat(line10, 256, "INNER_XTOL is too small. No further refinements can be made in [H, V].");
+      line10 = bformat("INNER_XTOL is too small. No further refinements can be made in [H, V].");
       break;
     case 8 :
-      map_strcat(line10, 256, "INNER_GTOL is too small. The iterated variable vector [H, V] is orthogonal to the Jacobian columns.");
+      line10 = bformat("INNER_GTOL is too small. The iterated variable vector [H, V] is orthogonal to the Jacobian columns.");
       break;
     default :
-      map_strcat(line10, 256, "Uncaught error.");
+      line10 = bformat("Uncaught error.");
       break;
     };
 
-    fprintf(file, "                | Element %d\n", i+1);    
+    fprintf(file, "                | Line %d\n", i+1);    
     fprintf(file, "                | ---------------------------------------\n");    
-    fprintf(file, "Material        |  %s\n", element_iter->lineProperty->label);
-    fprintf(file, "Lu        [m]   | %s%1.3f\n", line0, element_iter->Lu.value);
-    fprintf(file, "Lb        [m]   | %s%1.3f\n", line1, element_iter->lb.value); 
-    fprintf(file, "H         [N]   | %s%1.3f\n", line2, *(element_iter->H.value));
-    fprintf(file, "V         [N]   | %s%1.3f\n", line3, *(element_iter->V.value));
-    fprintf(file, "T         [N]   | %s%1.3f\n", line4, element_iter->T.value);
-    fprintf(file, "Alpha     [deg] | %s%1.3f\n", line5, element_iter->alpha.value*RAD2DEG); 
-    fprintf(file, "HAnch     [N]   | %s%1.3f\n", line6, element_iter->HAtAnchor.value);
-    fprintf(file, "VAnch     [N]   | %s%1.3f\n", line7, element_iter->VAtAnchor.value);
-    fprintf(file, "TAnch     [N]   | %s%1.3f\n", line8, element_iter->TAtAnchor.value);
-    fprintf(file, "AlphaAnch [deg] | %s%1.3f\n", line9, element_iter->alphaAtAnchor.value*RAD2DEG);
-    fprintf(file, "L^2-Norm        |  %1.7g\n", element_iter->residualNorm);
-    fprintf(file, "Function Evals  |  %d\n", element_iter->numFuncEvals);
-    fprintf(file, "Jacobian Evals  |  %d\n", element_iter->numJacEvals);
-    fprintf(file, "Term. criteria  |  %d : %s\n", element_iter->convergeReason, line10);
+    fprintf(file, "Material        |  %s\n", line_iter->line_property->label->data);
+    fprintf(file, "Lu        [m]   | %s%1.3f\n", line0->data, line_iter->Lu.value);
+    fprintf(file, "Lb        [m]   | %s%1.3f\n", line1->data, line_iter->Lb); 
+    fprintf(file, "H         [N]   | %s%1.3f\n", line2->data, *(line_iter->H.value));
+    fprintf(file, "V         [N]   | %s%1.3f\n", line3->data, *(line_iter->V.value));
+    fprintf(file, "T         [N]   | %s%1.3f\n", line4->data, line_iter->T);
+    fprintf(file, "Alpha     [deg] | %s%1.3f\n", line5->data, line_iter->alpha*RAD2DEG); 
+    fprintf(file, "HAnch     [N]   | %s%1.3f\n", line6->data, line_iter->H_at_anchor);
+    fprintf(file, "VAnch     [N]   | %s%1.3f\n", line7->data, line_iter->V_at_anchor);
+    fprintf(file, "TAnch     [N]   | %s%1.3f\n", line8->data, line_iter->T_at_anchor);
+    fprintf(file, "AlphaAnch [deg] | %s%1.3f\n", line9->data, line_iter->alpha_at_anchor*RAD2DEG);
+    fprintf(file, "L^2-Norm        |  %1.7g\n", line_iter->residual_norm);
+    fprintf(file, "Function Evals  |  %d\n", line_iter->evals);
+    fprintf(file, "Jacobian Evals  |  %d\n", line_iter->njac_evals);
+    fprintf(file, "Term. criteria  |  %d : %s\n", line_iter->converge_reason, line10->data);
     fprintf(file, "\n\n");
 
-    line0[0] = 0;
-    line1[0] = 0;
-    line2[0] = 0;
-    line3[0] = 0;
-    line4[0] = 0;
-    line5[0] = 0;
-    line6[0] = 0;
-    line7[0] = 0;
-    line8[0] = 0;
-    line9[0] = 0;
-    line10[0] = 0;
+    bdestroy(line0);
+    bdestroy(line1);
+    bdestroy(line2);
+    bdestroy(line3);
+    bdestroy(line4);
+    bdestroy(line5);
+    bdestroy(line6);
+    bdestroy(line7);
+    bdestroy(line8);
+    bdestroy(line9);
+    bdestroy(line10);
   };
   return MAP_SAFE;
 };
@@ -970,46 +879,69 @@ MAP_ERROR_CODE write_element_information_to_summary_file(FILE* file, ModelData* 
 
 MAP_ERROR_CODE write_expanded_input_file_to_summary_file(FILE* file, InitializationData* init_data)
 {
+  const char* line = NULL;
+  int len = 0;
   int i = 0;
 
   fprintf(file, "---------------------- LINE DICTIONARY ---------------------------------------\n");
   fprintf(file, "LineType  Diam      MassDenInAir   EA            CB\n");
-  fprintf(file, "(-)       (m)       (kg/m)        (kN)           (-)\n");  
-  for (i=0 ; i<init_data->librarySize ; i++) {
-    fprintf(file, "%s", init_data->libraryInputString[i]);
-    if (init_data->libraryInputString[i][strlen(init_data->libraryInputString[i])-1]!='\n') {
+  fprintf(file, "[-]       [m]       [kg/m]         [N]           [-]\n");  
+  for (i=0 ; i<init_data->library_input_string->qty ; i++) {
+    line = init_data->library_input_string->entry[i]->data;
+    len = init_data->library_input_string->entry[i]->slen;
+    fprintf(file, "%s", line);
+    if (line[len-1]!='\n') {
       fprintf(file, "\n" );
     };
   };
 
   fprintf(file, "---------------------- NODE PROPERTIES ---------------------------------------\n");
   fprintf(file, "Node  Type       X       Y       Z      M     B     FX    FY    FZ\n");
-  fprintf(file, "(-)   (-)       (m)     (m)     (m)    (kg)  (mˆ3) (kN)  (kN)  (kN)\n");
-  for (i=0 ; i<init_data->sizeOfFullNodeString ; i++) {    
-    fprintf(file, "%s", init_data->expandedNodeInputString[i]);
-    if (init_data->expandedNodeInputString[i][strlen(init_data->expandedNodeInputString[i])-1]!='\n') {
+  fprintf(file, "[-]   [-]       [m]     [m]     [m]    [kg]  [mˆ3]  [N]   [N]   [N]\n");
+  for (i=0 ; i<init_data->expanded_node_input_string->qty ; i++) {    
+    line = init_data->expanded_node_input_string->entry[i]->data;
+    len = init_data->expanded_node_input_string->entry[i]->slen;
+    fprintf(file, "%s", line);
+    if (line[len-1]!='\n') {
       fprintf(file, "\n" );
     };
   };
-
-  fprintf(file, "---------------------- LINEP ROPERTIES ---------------------------------------\n");
-  fprintf(file, "Element  LineType  UnstrLen  NodeAnch  NodeFair  Flags\n");
-  fprintf(file, "(-)      (-)       (m)       (-)       (-)       (-)\n");
-  for (i=0 ; i<init_data->sizeOfFullElementString ; i++) {    
-    fprintf(file, "%s", init_data->expandedElementInputString[i]);
-    if (init_data->expandedElementInputString[i][strlen(init_data->expandedElementInputString[i])-1]!='\n') {
+  
+  fprintf(file, "---------------------- LINE PROPERTIES ---------------------------------------\n");
+  fprintf(file, "Line  LineType  UnstrLen  NodeAnch  NodeFair  Flags\n");
+  fprintf(file, "[-]      [-]       [m]       [-]       [-]       [-]\n");
+  for (i=0 ; i<init_data->expanded_line_input_string->qty ; i++) {    
+    line = init_data->expanded_line_input_string->entry[i]->data;
+    len = init_data->expanded_line_input_string->entry[i]->slen;
+    fprintf(file, "%s", line);
+    if (line[len-1]!='\n') {
       fprintf(file, "\n" );
     };
   };
-
+  
   fprintf(file, "---------------------- SOLVER OPTIONS-----------------------------------------\n");
   fprintf(file, "Option \n");
-  fprintf(file, "(-) \n");
-  for (i=0 ; i<init_data->solverOptionsSize ; i++) {    
-    fprintf(file, "%s", init_data->solverOptionsString[i]);
-    if (init_data->solverOptionsString[i][strlen(init_data->solverOptionsString[i])-1]!='\n') {
-      fprintf(file, "\n");
+  fprintf(file, "[-] \n");
+  for (i=0 ; i<init_data->solver_options_string->qty ; i++) {    
+    line = init_data->solver_options_string->entry[i]->data;
+    len = init_data->solver_options_string->entry[i]->slen;
+    fprintf(file, "%s", line);
+    if (line[len-1]!='\n') {
+      fprintf(file, "\n" );
     };
   };
   return MAP_SAFE;
 };
+
+
+#if !defined(_MSC_VER)
+MAP_ERROR_CODE fopen_s(FILE** f, const char* name, const char* mode)
+{
+  assert(f);
+  *f = fopen(name, mode);
+  if (!*f) {
+    return MAP_FATAL;   
+  }
+  return MAP_SAFE;
+};
+#endif

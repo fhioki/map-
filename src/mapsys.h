@@ -1,21 +1,23 @@
-/**
- * Copyright (c) 2014 mdm <marco.masciola@gmail.com>
- *
- * This file is part of MAP++.
- *
- * MAP++ is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * MAP++ is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with MAP++. If not, see <http://www.gnu.org/licenses/>.
- */
+/***************************************************************************
+ *   Copyright (C) 2014 mdm                                                *
+ *   marco[dot]masciola at gmail                                           *
+ *                                                                         *
+ *   MAP++ is free software; you can redistribute it and/or modify it      *
+ *   under the terms of the GNU General Public License as published by     *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.           *
+ ***************************************************************************/
+
 
 #ifndef _MAPSYS_H
 #define _MAPSYS_H
@@ -27,6 +29,7 @@
 #include <ctype.h>
 #include <math.h>
 
+
 #if defined(_WIN32) || defined(_WIN64)
 #  include <Windows.h>
 #  include <tchar.h>
@@ -35,24 +38,21 @@
 #endif
 
 
-#ifdef _WIN64 
-#  include "stdbool.h"
+#if defined(_MSC_VER)
+  typedef int bool;
+  #define false 0
+  #define true 1
+//#  include "stdbool.h"
 #  define map_snprintf _snprintf
 #  define map_strcat(a,b,c) strcat_s(a,b,c)
-#  define map_end_color(a)
 #  define MAP_EXTERNCALL __declspec( dllexport )
-#elif _WIN32 
-#  include "stdbool.h"
-#  define map_snprintf _snprintf
-#  define map_strcat(a,b,c) strcat_s(a,b,c)
-#  define map_end_color(a)
-#  define MAP_EXTERNCALL __declspec( dllexport )
+#  define MAP_STRCPY(a,b,c) strcpy_s(a,b,c)
 #else
 #  include <stdbool.h>
 #  define map_snprintf snprintf
 #  define map_strcat(a,b,c) strncat(a,c,b)
-#  define map_end_color(a) map_end_unix_color(a)
 #  define MAP_EXTERNCALL 
+#  define MAP_STRCPY(a,b,c) strcpy(a,c)
 #endif
 
 
@@ -89,25 +89,39 @@
 #endif // DEBUG
 
 
+#define MAX_INIT_TYPE_STRING_LENGTH 255
+#define TIME_BUFFER_SIZE 64
+#define MAX_INIT_VERSION_STRING_LENGTH 99
+#define MAX_INIT_COMPILING_DATA_STRING_LENGTH 25
+#define MAP_ERROR_STRING_LENGTH 1024
+#define MAP_HORIZONTAL_TOL 1E-2
+
 #define PROGNAME "MAP++ (Mooring Analysis Program++)"
-#define PROGVERSION "1.00.01a"
-#define CHECKERRQ(code) if(success!=MAP_SAFE) { *ierr=map_set_universal_error("", map_msg, ierr, code ); break; } 
-#define CHECKERRK(code) if(success!=MAP_SAFE) { *ierr=map_set_universal_error("", map_msg, ierr, code ); } 
-#define MAPFREE(obj) if(obj!=NULL) { free( obj ); obj=NULL; } 
-#define MAP_STR_LEN 1024
-#define MapReal double /* this can be set to double, long double, ect as necessary */
+#define PROGVERSION "1.10.0rc"
+#define CHECKERRQ(code) if(success!=MAP_SAFE) {set_universal_error(map_msg, ierr, code); break;} 
+#define CHECKERRK(code) if(success!=MAP_SAFE) {set_universal_error(map_msg, ierr, code);} 
+#define MAPFREE(obj) if(obj!=NULL) {free(obj); obj=NULL;} 
 #define DEG2RAD 0.01745329251 /*  pi/180  */
 #define RAD2DEG 57.2957795131 /*  180/pi  */
 #define ARCSINH(x) log(x+sqrt(1+x*x))
 #define SPACE_LENGTH 12
 #define MACHINE_EPSILON 1e-16
-#define MAP_RETURN if(*ierr==MAP_FATAL) { return MAP_FATAL; }; return MAP_SAFE;
+#define MAP_BEGIN_ERROR_LOG do{ \
+  ; 
+#define MAP_END_ERROR_LOG } while(0);
+#define MAP_RETURN_STATUS(x) \
+  if (x==MAP_SAFE) {         \
+    return MAP_SAFE;         \
+  } else if (x==MAP_ERROR) { \
+    return MAP_ERROR;        \
+  } else {                   \
+    return MAP_FATAL;        \
+  };                             
 
 
-/**
- * Text Coloring (OS dependant)
+/* Text Coloring (OS dependant)
  *
- * Used for text coloring in the terminal. If we are on a non-Unix OS, then:
+ * Not used any longer, but can color text at the terminal. If we are on a non-Unix OS, then:
  *   -- set the strings to "" (empty) so that garbage is not printed
  */
 #ifdef __posix 

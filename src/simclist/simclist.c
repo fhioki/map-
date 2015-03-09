@@ -405,21 +405,28 @@ static inline struct list_entry_s *list_findpos(const list_t *restrict l, int po
     /* accept 1 slot overflow for fetching head and tail sentinels */
     if (posstart < -1 || posstart > (int)l->numels) return NULL;
 
-    x = (float)(posstart+1) / l->numels;
-    if (x <= 0.25) {
-        /* first quarter: get to posstart from head */
-        for (i = -1, ptr = l->head_sentinel; i < posstart; ptr = ptr->next, i++);
-    } else if (x < 0.5) {
-        /* second quarter: get to posstart from mid */
-        for (i = (l->numels-1)/2, ptr = l->mid; i > posstart; ptr = ptr->prev, i--);
-    } else if (x <= 0.75) {
-        /* third quarter: get to posstart from mid */
-        for (i = (l->numels-1)/2, ptr = l->mid; i < posstart; ptr = ptr->next, i++);
-    } else {
-        /* fourth quarter: get to posstart from tail */
-        for (i = l->numels, ptr = l->tail_sentinel; i > posstart; ptr = ptr->prev, i--);
+    if (l->numels == 0){ //avoid division-by-zero on first element
+       ptr = l->head_sentinel;
     }
-
+    else{
+       x = (float)(posstart + 1) / l->numels;
+       if (x <= 0.25) {
+          /* first quarter: get to posstart from head */
+          for (i = -1, ptr = l->head_sentinel; i < posstart; ptr = ptr->next, i++);
+       }
+       else if (x < 0.5) {
+          /* second quarter: get to posstart from mid */
+          for (i = (l->numels - 1) / 2, ptr = l->mid; i > posstart; ptr = ptr->prev, i--);
+       }
+       else if (x <= 0.75) {
+          /* third quarter: get to posstart from mid */
+          for (i = (l->numels - 1) / 2, ptr = l->mid; i < posstart; ptr = ptr->next, i++);
+       }
+       else {
+          /* fourth quarter: get to posstart from tail */
+          for (i = l->numels, ptr = l->tail_sentinel; i > posstart; ptr = ptr->prev, i--);
+       }
+    }
     return ptr;
 }
 

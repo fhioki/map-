@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #ifdef _WIN32
 # define rindex(X,Y) strrchr(X,Y)
 # define index(X,Y) strchr(X,Y)
@@ -83,7 +84,7 @@ pre_parse( char * dir, FILE * infile, FILE * outfile, int usefrom_sw )
     if ( (!strncmp( p1 , "include", 7 ) || !strncmp( p1, "usefrom", 7 ))  &&  ! ( ifdef_stack_ptr >= 0 && ! ifdef_stack[ifdef_stack_ptr] ) )
     {
       FILE *include_fp ;
-      char include_file_name[128] ;
+      char include_file_name[NAMELEN] ;
       int checking_for_usefrom = !strncmp( p1, "usefrom", 7 ) ;
 //fprintf(stderr,"checking_for_usefrom %d |%s|\n",checking_for_usefrom,p1) ;
 
@@ -94,18 +95,21 @@ pre_parse( char * dir, FILE * infile, FILE * outfile, int usefrom_sw )
         foundit = 0 ;
 
         sprintf( include_file_name , "%s", p ) ;                         // no dir
-        for ( p2 = include_file_name ; !( *p2 == ' ' || *p2 == '\t' || *p2 == '\n' ) && *p2 != '\0' ; p2++ ) ; *p2 = '\0' ; // drop tailing white space
+        for ( p2 = include_file_name ; !( *p2 == ' ' || *p2 == '\t' || *p2 == '\n' ) && *p2 != '\0' ; p2++ ) {} 
+        *p2 = '\0' ; // drop tailing white space
         if ( (q=index(include_file_name,'\n')) != NULL ) *q = '\0' ;
         if (( include_fp = fopen( include_file_name , "r" )) != NULL )   { foundit = 1 ; goto gotit ; }
 
         sprintf( include_file_name , "%s/%s", dir , p ) ;                      // dir/path
-        for ( p2 = include_file_name ; !( *p2 == ' ' || *p2 == '\t' || *p2 == '\n' ) && *p2 != '\0' ; p2++ ) ; *p2 = '\0' ;
+        for ( p2 = include_file_name ; !( *p2 == ' ' || *p2 == '\t' || *p2 == '\n' ) && *p2 != '\0' ; p2++ ) {} 
+        *p2 = '\0' ;
         if ( (q=index(include_file_name,'\n')) != NULL ) *q = '\0' ;
         if (( include_fp = fopen( include_file_name , "r" )) != NULL )   { foundit = 1 ; goto gotit ; }
 
         for ( ifile = 0 ; ifile < nincldirs ; ifile++ ) {
           sprintf( include_file_name , "%s/%s", IncludeDirs[ifile] , p ) ;     // dir specified with -I
-          for ( p2 = include_file_name ; !( *p2 == ' ' || *p2 == '\t' || *p2 == '\n' ) && *p2 != '\0' ; p2++ ) ;  *p2 = '\0' ;
+          for ( p2 = include_file_name ; !( *p2 == ' ' || *p2 == '\t' || *p2 == '\n' ) && *p2 != '\0' ; p2++ ) {}
+          *p2 = '\0' ;
           if ( (q=index(include_file_name,'\n')) != NULL ) *q = '\0' ;
           if (( include_fp = fopen( include_file_name , "r" )) != NULL ) { foundit = 1 ; goto gotit ; }
         }
@@ -113,7 +117,8 @@ pre_parse( char * dir, FILE * infile, FILE * outfile, int usefrom_sw )
         for ( ifile = 0 ; ifile < nincldirs ; ifile++ ) {
           int drive_specified = 0 ;
           sprintf( include_file_name , "%s/%s", IncludeDirs[ifile] , p ) ;     // dir munged for cigwin
-          for ( p2 = include_file_name ; !( *p2 == ' ' || *p2 == '\t' || *p2 == '\n' ) && *p2 != '\0' ; p2++ ) ;  *p2 = '\0' ;
+          for ( p2 = include_file_name ; !( *p2 == ' ' || *p2 == '\t' || *p2 == '\n' ) && *p2 != '\0' ; p2++ ) {}  
+          *p2 = '\0' ;
           if ( include_file_name[0] == '/' ) {
             char tmp[NAMELEN], tmp2[NAMELEN], *dr ;
             strcpy( tmp2, include_file_name ) ;
@@ -125,7 +130,8 @@ pre_parse( char * dir, FILE * infile, FILE * outfile, int usefrom_sw )
             for ( dr = "abcdefmy" ; *dr ; dr++ ) {
               sprintf(tmp,"%c:%s%s",*dr,(drive_specified)?"":"/cygwin",tmp2) ;
               strcpy( include_file_name, tmp ) ;
-              for ( p2 = include_file_name ; !( *p2 == ' ' || *p2 == '\t' || *p2 == '\n' ) && *p2 != '\0' ; p2++ ) ;  *p2 = '\0' ;
+              for ( p2 = include_file_name ; !( *p2 == ' ' || *p2 == '\t' || *p2 == '\n' ) && *p2 != '\0' ; p2++ ) {}  
+              *p2 = '\0' ;
               if ( (q=index(include_file_name,'\n')) != NULL ) *q = '\0' ;
               if (( include_fp = fopen( include_file_name , "r" )) != NULL ) { foundit = 1 ; goto gotit ; }
             }
@@ -381,7 +387,7 @@ reg_parse( FILE * infile )
 
         add_node_to_end( param_struct , &(modname_struct->params) ) ;
 
-      } else {
+      } else { // not param
 
 // FAST registry, construct list of derived data types specified for the Module
 //  Only the FAST interface defined types should have the Module's nickname prepended
@@ -395,6 +401,11 @@ reg_parse( FILE * infile )
         }
         sprintf(tmpstr,"%s",make_lower_temp(ddtname)) ;
         type_struct = get_entry( tmpstr, modname_struct->module_ddt_list ) ;
+        if ( type_struct == NULL && modname_struct->usefrom)
+        {
+            type_struct = get_entry( tmpstr, Type ) ;
+        }
+
         if ( type_struct == NULL )
         {
           type_struct = new_node( TYPE ) ;
@@ -436,7 +447,7 @@ reg_parse( FILE * infile )
         field_struct->usefrom   = type_struct->usefrom ;
 
         add_node_to_end( field_struct , &(type_struct->fields) ) ;
-      }
+      } // not param
 
     }
 
@@ -576,10 +587,17 @@ set_dim_len ( char * dimspec , node_t * dim_entry )
     }
     dim_entry->len_defined_how = NAMELIST ;
   }
-  else
+  else /* if (param_dim != NULL) */ {
+     dim_entry->coord_start = 1;
+     dim_entry->len_defined_how = CONSTANT;
+     strcpy(dim_entry->dim_param_name, dimspec);
+     dim_entry->dim_param = 1;
+  }
+/*    else
   {
     return(1) ;
   }
+*/
   return(0) ;
 }
 

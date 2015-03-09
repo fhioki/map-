@@ -1,165 +1,328 @@
-/***************************************************************************
- *   Copyright (C) 2014 mdm                                                *
- *   marco.masciola@gmail.com                                              *
- *                                                                         *
- *   MAP++ is free software; you can redistribute it and/or modify it      *
- *   under the terms of the GNU General Public License as published by     *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- *   This program is distributed in the hope that it will be useful,       *
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU General Public License for more details.                          *
- *                                                                         *
- *   You should have received a copy of the GNU General Public License     *
- *   along with this program; if not, write to the                         *
- *   Free Software Foundation, Inc.,                                       *
- *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.           *
- ***************************************************************************/
+/****************************************************************
+ *   Copyright (C) 2014 mdm                                     *
+ *   marco[dot]masciola[at]gmail                                *
+ *                                                              *
+ * Licensed to the Apache Software Foundation (ASF) under one   *
+ * or more contributor license agreements.  See the NOTICE file *
+ * distributed with this work for additional information        *
+ * regarding copyright ownership.  The ASF licenses this file   *
+ * to you under the Apache License, Version 2.0 (the            *
+ * "License"); you may not use this file except in compliance   *
+ * with the License.  You may obtain a copy of the License at   *
+ *                                                              *
+ *   http://www.apache.org/licenses/LICENSE-2.0                 *
+ *                                                              *
+ * Unless required by applicable law or agreed to in writing,   *
+ * software distributed under the License is distributed on an  *
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY       *
+ * KIND, either express or implied.  See the License for the    *
+ * specific language governing permissions and limitations      *      
+ * under the License.                                           *  
+ ****************************************************************/
+
 
 /**
  * @file 
  */
 
-#include "map.h"
-#include "maperror.h"
+
 #include "freedata.h"
 
 
-/** @addtogroup FortranCall */
-/*@{*/
-MAP_EXTERNCALL int free_init_data (InitializationData* init, char* map_msg, MAP_ERROR_CODE* ierr) 
+
+MAP_EXTERNCALL void MAP_InitInput_Delete(InitializationData* init_data)
 {
-  int sizeOfString = 0;
-  int i = 0;
-  
-  MAPFREE(init->summaryFileName);
+  MAPFREE(init_data); 
+};
 
-  for(i=0 ; i<init->sizeOfFullNodeString ; i++) {
-    MAPFREE(init->expandedNodeInputString[i]);
-  };
-  MAPFREE(init->expandedNodeInputString);
 
-  sizeOfString = init->sizeOfFullElementString;  
-  for(i=0 ; i<sizeOfString ; i++) {
-    MAPFREE(init->expandedElementInputString[i]);
+MAP_EXTERNCALL void MAP_OtherState_Delete(Domain* domain)
+{
+  MAPFREE(domain);
+};
+
+
+MAP_ERROR_CODE free_outlist(Domain* domain, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  VarTypePtr* vartype_ptr = NULL;
+
+  if (domain->y_list) { /* if allocated, then proceed with free'ing */
+    list_iterator_start(&domain->y_list->out_list_ptr);
+    while (list_iterator_hasnext(&domain->y_list->out_list_ptr)) { 
+      vartype_ptr = (VarTypePtr*)list_iterator_next(&domain->y_list->out_list_ptr);
+      bdestroy(vartype_ptr->name);
+      bdestroy(vartype_ptr->units);
+    };
+    list_iterator_stop(&domain->y_list->out_list_ptr);     
+    
+    // @rm y_list->out_list no longer exists/is useful ?
+    list_destroy(&domain->y_list->out_list);     /* destroy output lists for writting information to output file */
+    list_destroy(&domain->y_list->out_list_ptr); /* destroy output lists for writting information to output file */
   };
-  MAPFREE(init->expandedElementInputString);  
-  
-  for(i=0 ; i<init->librarySize ; i++) {
-    MAPFREE(init->libraryInputString[i]);
-  };
-  MAPFREE(init->libraryInputString);
-  
-  for(i=0 ; i<init->nodeSize ; i++) {
-    MAPFREE(init->nodeInputString[i]);
-  };
-  MAPFREE(init->nodeInputString);
-  
-  for(i=0 ; i<init->elementSize ; i++) {
-    MAPFREE(init->elementInputString[i]);
-  };
-  MAPFREE(init->elementInputString);  
-  
-  for(i=0 ; i<init->solverOptionsSize ; i++) {
-    MAPFREE(init->solverOptionsString[i]);
-  };
-  MAPFREE(init->solverOptionsString);
+  MAPFREE(domain->y_list);
   return MAP_SAFE;
 };
-/*@}*/
 
 
-MAP_ERROR_CODE free_element(list_t *restrict element) 
+MAP_ERROR_CODE free_cable_library(list_t* restrict library)
 {
-  Element* iterElem = NULL;
-  list_iterator_start(element); /* starting an iteration "session" */
-  while (list_iterator_hasnext(element)) { /* tell whether more values available */
-    iterElem = (Element*)list_iterator_next(element);
-    MAPFREE( iterElem->psi.name ); 
-    MAPFREE( iterElem->psi.units );
-    MAPFREE( iterElem->alpha.name );
-    MAPFREE( iterElem->alpha.units );
-    MAPFREE( iterElem->alphaAtAnchor.name );
-    MAPFREE( iterElem->alphaAtAnchor.units );
-    MAPFREE( iterElem->l.name ); 
-    MAPFREE( iterElem->l.units );
-    MAPFREE( iterElem->lb.name ); 
-    MAPFREE( iterElem->lb.units );
-    MAPFREE( iterElem->Lu.name ); 
-    MAPFREE( iterElem->Lu.units );
-    MAPFREE( iterElem->h.name ); 
-    MAPFREE( iterElem->h.units );
-    MAPFREE( iterElem->H.name ); 
-    MAPFREE( iterElem->H.units );
-    MAPFREE( iterElem->V.name ); 
-    MAPFREE( iterElem->V.units );
-    MAPFREE( iterElem->HAtAnchor.name ); 
-    MAPFREE( iterElem->HAtAnchor.units );
-    MAPFREE( iterElem->VAtAnchor.name ); 
-    MAPFREE( iterElem->VAtAnchor.units );
-    MAPFREE( iterElem->forceAtFairlead.fx.name ); 
-    MAPFREE( iterElem->forceAtFairlead.fx.units );
-    MAPFREE( iterElem->forceAtFairlead.fy.name );
-    MAPFREE( iterElem->forceAtFairlead.fy.units );
-    MAPFREE( iterElem->forceAtFairlead.fz.name ); 
-    MAPFREE( iterElem->forceAtFairlead.fz.units );
-    MAPFREE( iterElem->forceAtAnchor.fx.name );
-    MAPFREE( iterElem->forceAtAnchor.fx.units );
-    MAPFREE( iterElem->forceAtAnchor.fy.name );
-    MAPFREE( iterElem->forceAtAnchor.fy.units );
-    MAPFREE( iterElem->forceAtAnchor.fz.name ); 
-    MAPFREE( iterElem->forceAtAnchor.fz.units );
-    MAPFREE( iterElem->T.name );
-    MAPFREE( iterElem->T.units );
-    MAPFREE( iterElem->TAtAnchor.name );
-    MAPFREE( iterElem->TAtAnchor.units );
+  CableLibrary* iter_library = NULL;
+  list_iterator_start(library);          /* starting an iteration "session" */
+  while (list_iterator_hasnext(library)) { /* tell whether more values available */
+    iter_library = (CableLibrary*)list_iterator_next(library);
+    bdestroy(iter_library->label);
+  };
+  list_iterator_stop(library);
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE free_update_list (list_t* restrict ref_list)
+{
+  ReferencePoint* point_iter = NULL;
+  list_iterator_start(ref_list); /* starting an iteration "session" */
+  while (list_iterator_hasnext(ref_list)) { /* tell whether more values available */
+    point_iter = (ReferencePoint*)list_iterator_next(ref_list);
+    point_iter->x = NULL;
+    point_iter->y = NULL;
+    point_iter->z = NULL;
+  };
+  list_iterator_stop(ref_list); 
+
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE free_line(list_t* restrict line) 
+{
+  Line* line_iter = NULL;
+  list_iterator_start(line); /* starting an iteration "session" */
+  while (list_iterator_hasnext(line)) { /* tell whether more values available */
+    line_iter = (Line*)list_iterator_next(line);
+    // @rm  bdestroy(line_iter->psi.name); 
+    // @rm  bdestroy(line_iter->psi.units);
+    // @rm  bdestroy(line_iter->alpha.name);
+    // @rm  bdestroy(line_iter->alpha.units);
+    // @rm  bdestroy(line_iter->alpha_at_anchor.name);
+    // @rm  bdestroy(line_iter->alpha_at_anchor.units);
+    // @rm  bdestroy(line_iter->l.name); 
+    // @rm  bdestroy(line_iter->l.units);
+    // @rm  bdestroy(line_iter->Lb.name); 
+    // @rm  bdestroy(line_iter->Lb.units);
+    bdestroy(line_iter->Lu.name); 
+    bdestroy(line_iter->Lu.units);
+    // @rm  bdestroy(line_iter->h.name); 
+    // @rm  bdestroy(line_iter->h.units);
+    bdestroy(line_iter->H.name); 
+    bdestroy(line_iter->H.units);
+    bdestroy(line_iter->V.name); 
+    bdestroy(line_iter->V.units);
+    // @rm  bdestroy(line_iter->H_at_anchor.name); 
+    // @rm  bdestroy(line_iter->H_at_anchor.units);
+    // @rm  bdestroy(line_iter->V_at_anchor.name); 
+    // @rm  bdestroy(line_iter->V_at_anchor.units);
+    // @rm  bdestroy(line_iter->force_at_fairlead.fx.name); 
+    // @rm  bdestroy(line_iter->force_at_fairlead.fx.units);
+    // @rm  bdestroy(line_iter->force_at_fairlead.fy.name);
+    // @rm  bdestroy(line_iter->force_at_fairlead.fy.units);
+    // @rm  bdestroy(line_iter->force_at_fairlead.fz.name); 
+    // @rm  bdestroy(line_iter->force_at_fairlead.fz.units);
+    // @rm  bdestroy(line_iter->force_at_anchor.fx.name);
+    // @rm  bdestroy(line_iter->force_at_anchor.fx.units);
+    // @rm  bdestroy(line_iter->force_at_anchor.fy.name);
+    // @rm  bdestroy(line_iter->force_at_anchor.fy.units);
+    // @rm  bdestroy(line_iter->force_at_anchor.fz.name); 
+    // @rm  bdestroy(line_iter->force_at_anchor.fz.units);
+    // @rm  bdestroy(line_iter->T.name);
+    // @rm  bdestroy(line_iter->T.units);
+    // @rm  bdestroy(line_iter->tension_at_anchor.name);
+    // @rm  bdestroy(line_iter->tension_at_anchor.units);
   
     /* don't let any pointers dangle */
-    iterElem->lineProperty = NULL;      
-    iterElem->label = NULL;
-    iterElem->lineTension = NULL;
-    iterElem->anchor = NULL; 
-    iterElem->fairlead = NULL;
+    line_iter->line_property = NULL;      
+    line_iter->label = NULL;
+    line_iter->line_tension = NULL;
+    line_iter->anchor = NULL; 
+    line_iter->fairlead = NULL;
   };
-  list_iterator_stop(element); /* ending the iteration "session" */  
+  list_iterator_stop(line); /* ending the iteration "session" */  
+  return MAP_SAFE;
 };
 
 
 MAP_ERROR_CODE free_node(list_t *restrict node)
 {
   Node* iterNode = NULL;
+  MAP_ERROR_CODE success = MAP_SAFE;
   list_iterator_start(node);            /* starting an iteration "session" */
   while (list_iterator_hasnext(node)) { /* tell whether more values available */ 
     iterNode = (Node*)list_iterator_next(node);
-    MAPFREE(iterNode->MApplied.name); 
-    MAPFREE(iterNode->MApplied.units);
-    MAPFREE(iterNode->BApplied.name);
-    MAPFREE(iterNode->BApplied.units);
-    
-    MAPFREE(iterNode->externalForce.fx.name);
-    MAPFREE(iterNode->externalForce.fx.units);
-    MAPFREE(iterNode->externalForce.fy.name);
-    MAPFREE(iterNode->externalForce.fy.units);
-    MAPFREE(iterNode->externalForce.fz.name);
-    MAPFREE(iterNode->externalForce.fz.units);
-    
-    MAPFREE(iterNode->positionPtr.x.name); 
-    MAPFREE(iterNode->positionPtr.x.units);
-    MAPFREE(iterNode->positionPtr.y.name); 
-    MAPFREE(iterNode->positionPtr.y.units);
-    MAPFREE(iterNode->positionPtr.z.name); 
-    MAPFREE(iterNode->positionPtr.z.units);
-    
-    MAPFREE(iterNode->sumForcePtr.fx.name); 
-    MAPFREE(iterNode->sumForcePtr.fx.units);
-    MAPFREE(iterNode->sumForcePtr.fy.name); 
-    MAPFREE(iterNode->sumForcePtr.fy.units);
-    MAPFREE(iterNode->sumForcePtr.fz.name); 
-    MAPFREE(iterNode->sumForcePtr.fz.units);
-  };
-  list_iterator_stop(node);             /* ending the iteration "session" */  
 
+    success = bdestroy(iterNode->M_applied.name); 
+    success = bdestroy(iterNode->M_applied.units);
+    success = bdestroy(iterNode->B_applied.name);
+    success = bdestroy(iterNode->B_applied.units);
+
+    success = bdestroy(iterNode->external_force.fx.name);
+    success = bdestroy(iterNode->external_force.fx.units);
+    success = bdestroy(iterNode->external_force.fy.name);
+    success = bdestroy(iterNode->external_force.fy.units);
+    success = bdestroy(iterNode->external_force.fz.name);
+    success = bdestroy(iterNode->external_force.fz.units);
+
+    success = bdestroy(iterNode->position_ptr.x.name); 
+    success = bdestroy(iterNode->position_ptr.x.units);
+    success = bdestroy(iterNode->position_ptr.y.name); 
+    success = bdestroy(iterNode->position_ptr.y.units);
+    success = bdestroy(iterNode->position_ptr.z.name); 
+    success = bdestroy(iterNode->position_ptr.z.units);
+
+    success = bdestroy(iterNode->sum_force_ptr.fx.name); 
+    success = bdestroy(iterNode->sum_force_ptr.fx.units);
+    success = bdestroy(iterNode->sum_force_ptr.fy.name); 
+    success = bdestroy(iterNode->sum_force_ptr.fy.units);
+    success = bdestroy(iterNode->sum_force_ptr.fz.name); 
+    success = bdestroy(iterNode->sum_force_ptr.fz.units);
+  };
+  list_iterator_stop(node); /* ending the iteration "session" */  
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE free_vessel(Vessel* floater) 
+{
+  /* Now delete the vessel information */
+  MAPFREE(floater->xi);
+  MAPFREE(floater->yi);
+  MAPFREE(floater->zi);
+
+  bdestroy(floater->displacement.x.name);
+  bdestroy(floater->displacement.x.units);
+  bdestroy(floater->displacement.y.name);
+  bdestroy(floater->displacement.y.units);
+  bdestroy(floater->displacement.z.name);
+  bdestroy(floater->displacement.z.units);
+  
+  bdestroy(floater->ref_origin.x.name);
+  bdestroy(floater->ref_origin.x.units);
+  bdestroy(floater->ref_origin.y.name);
+  bdestroy(floater->ref_origin.y.units);
+  bdestroy(floater->ref_origin.z.name);
+  bdestroy(floater->ref_origin.z.units);
+          
+  bdestroy(floater->line_sum_force.fx.name);
+  bdestroy(floater->line_sum_force.fx.units);
+  bdestroy(floater->line_sum_force.fy.name);
+  bdestroy(floater->line_sum_force.fy.units);
+  bdestroy(floater->line_sum_force.fz.name);
+  bdestroy(floater->line_sum_force.fz.units);
+
+  bdestroy(floater->orientation.phi.name);
+  bdestroy(floater->orientation.phi.units);
+  bdestroy(floater->orientation.the.name);
+  bdestroy(floater->orientation.the.units);
+  bdestroy(floater->orientation.psi.name);
+  bdestroy(floater->orientation.psi.units);
+  return MAP_SAFE;
+}
+
+
+MAP_ERROR_CODE map_free_types(MAP_InputType_t* u_type, MAP_ParameterType_t* p_type, MAP_ContinuousStateType_t* x_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type)
+{
+  /* inputs */
+  MAPFREE(u_type->x);
+  MAPFREE(u_type->y);
+  MAPFREE(u_type->z);
+
+  /* parameters are skipped for now; they are set in fortran since depth, gravity and sea density are set by glue code */
+
+  /* continuous state */
+
+  /* constraint state */  
+  MAPFREE(z_type->H);     
+  MAPFREE(z_type->V);     
+  MAPFREE(z_type->x);     
+  MAPFREE(z_type->y);     
+  MAPFREE(z_type->z);     
+
+  /* other state */
+  MAPFREE(other_type->H); 
+  MAPFREE(other_type->V); 
+  MAPFREE(other_type->Ha);
+  MAPFREE(other_type->Va);
+  MAPFREE(other_type->x); 
+  MAPFREE(other_type->y); 
+  MAPFREE(other_type->z); 
+  MAPFREE(other_type->xa);
+  MAPFREE(other_type->ya);
+  MAPFREE(other_type->za);
+  MAPFREE(other_type->Fx_connect); 
+  MAPFREE(other_type->Fy_connect); 
+  MAPFREE(other_type->Fz_connect); 
+  MAPFREE(other_type->Fx_anchor); 
+  MAPFREE(other_type->Fy_anchor); 
+  MAPFREE(other_type->Fz_anchor); 
+
+  /* outputs */
+  MAPFREE(y_type->Fx);    
+  MAPFREE(y_type->Fy);    
+  MAPFREE(y_type->Fz);    
+  MAPFREE(y_type->wrtOutput);
+  MAPFREE(y_type->WriteOutput);
+  
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE free_outer_solve_data(OuterSolveAttributes* ns, const int size, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+  // const int N = ns->max_krylov_its + 1;
+  const int SIZE = 3*size;
+  int i = 0;
+
+  if (ns->jac) { /* is it allocated? */
+    for(i=0 ; i<SIZE ; i++) {
+      MAPFREE(ns->jac[i]);
+    };
+  };
+ 
+  if (ns->l) { /* is it allocated? */
+    for(i=0 ; i<SIZE ; i++) {
+     MAPFREE(ns->l[i]);
+    };
+  };
+
+  if (ns->u) { /* is it allocated? */
+    for(i=0 ; i<SIZE ; i++) {
+      MAPFREE(ns->u[i]);
+   };  
+  };
+
+  if (ns->V) { /* is it allocated? */
+    for(i=0 ; i<SIZE ; i++) {
+      MAPFREE(ns->V[i]);
+   };  
+  };
+
+  if (ns->AV) { /* is it allocated? */
+    for(i=0 ; i<SIZE ; i++) {
+      MAPFREE(ns->AV[i]);
+   };  
+  };
+
+
+  MAPFREE(ns->jac);
+  MAPFREE(ns->AV);
+  MAPFREE(ns->av);
+  MAPFREE(ns->V);
+  MAPFREE(ns->l);
+  MAPFREE(ns->u);
+  MAPFREE(ns->b);
+  MAPFREE(ns->w);
+  MAPFREE(ns->q);
+  MAPFREE(ns->x);  
+  MAPFREE(ns->y);
+  MAPFREE(ns->C);
+  return MAP_SAFE;
 };
 

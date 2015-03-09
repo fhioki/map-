@@ -23,14 +23,14 @@
   typedef struct MAP_InitInputType {
     void * object ;
     double gravity ;
-    double seaDensity ;
+    double sea_density ;
     double depth ;
-    char fileName[255] ;
-    char summaryFileName[255] ;
-    char libraryInputLine[255] ;
-    char nodeInputLine[255] ;
-    char elementInputLine[255] ;
-    char optionInputLine[255] ;
+    char file_name[255] ;
+    char summary_file_name[255] ;
+    char library_input_str[255] ;
+    char node_input_str[255] ;
+    char line_input_str[255] ;
+    char option_input_str[255] ;
   } MAP_InitInputType_t ;
   typedef struct MAP_InitOutputType {
     void * object ;
@@ -80,7 +80,8 @@
     void * object ;
     double g ;
     double depth ;
-    double rhoSea ;
+    double rho_sea ;
+    double dt ;
   } MAP_ParameterType_t ;
   typedef struct MAP_InputType {
     void * object ;
@@ -94,6 +95,7 @@
     double * Fx ;     int Fx_Len ;
     double * Fy ;     int Fy_Len ;
     double * Fz ;     int Fz_Len ;
+    float * WriteOutput ;     int WriteOutput_Len ;
     double * wrtOutput ;     int wrtOutput_Len ;
 
   } MAP_OutputType_t ;

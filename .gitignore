@@ -16,6 +16,9 @@
 *.exe
 *.tar
 *.so
+c_driver
+f_driver
+
 
 # compiling files
 *.o
@@ -44,3 +47,5 @@ libs/
 python_solve/
 src/html/
 src/latex/
+updated_files/
+fortran_driver/Mooring.dat

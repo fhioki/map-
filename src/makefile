@@ -1,31 +1,51 @@
-# =========== MAP Makefile        =============================================
-#	     
-#  Copyright Jan. 21, 2014
-#  Author: Marco D. Masciola
-# 	
-#  MAP is free software: you can redistribute it and/or modify it under the terms 
-#  of the GNU General Public License as published by the Free Software Foundation, 
-#  either version 3 of the License, or (at your option) any later version.
-#
-#  MAP is distributed in the hope that it will be useful, but WITHOUT ANY 
-#  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS 
-#  FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License along 
-#  with MAP. If not, see:
-#  
-#  < http://www.gnu.org/licenses/>
-#  ============================================================================
+#   Copyright (C) 2014 mdm                                     
+#   marco[dot]masciola[at]gmail                                
+#                                                              
+# Licensed to the Apache Software Foundation (ASF) under one   
+# or more contributor license agreements.  See the NOTICE file 
+# distributed with this work for additional information        
+# regarding copyright ownership.  The ASF licenses this file   
+# to you under the Apache License, Version 2.0 (the            
+# "License"); you may not use this file except in compliance   
+# with the License.  You may obtain a copy of the License at   
+#                                                              
+#   http://www.apache.org/licenses/LICENSE-2.0                 
+#                                                              
+# Unless required by applicable law or agreed to in writing,   
+# software distributed under the License is distributed on an  
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY       
+# KIND, either express or implied.  See the License for the    
+# specific language governing permissions and limitations            
+# under the License.                                             
 
-CMINPACK_DIR = cminpack
-SIMCLIST_DIR = simclist
 
-VPATH=cminpack:simclist
+BITS = -m64
+PLATFORM = $(shell uname -s)
+# CMINPACK_DIR = cminpack
+# BSTRING_DIR = bstring
+# SIMCLIST_DIR = simclist
+# LAPACK_DIR = lapack
 
-CC_TOOLS  = gcc 
-CFLAGS    = -g -fPIC -D DEBUG -Icminpack -Isimclist
-#CFLAGS    = -g -O2 -fPIC -Wstrict-aliasing
-LDFLAGS   = -shared 
+VPATH = cminpack:simclist:bstring:lapack
+
+
+ifeq ($(PLATFORM),Darwin)
+  CC_TOOLS  = clang
+  CFLAGS    = -g -O1 -fsanitize=address -fno-omit-frame-pointer -fPIC -D DEBUG -Icminpack -Isimclist
+  LDFLAGS   = -g -fsanitize=address -fno-omit-frame-pointer -dynamiclib 
+else ifeq ($(PLATFORM),Linux)
+  CC_TOOLS  = gcc
+  #CFLAGS    = -g -O1 -fsanitize=address -fno-omit-frame-pointer -fPIC -D DEBUG -DGITVERSION=\"$(GIT_VERSION)\" -Icminpack -Isimclist
+  #CFLAGS    = -g -fPIC -std=c99 -Wuninitialized -Wall -D DEBUG -DGITVERSION=\"$(GIT_VERSION)\" 
+  CFLAGS    = $(BITS) -g -fPIC -std=c99 -D DEBUG -DGITVERSION=\"$(GIT_VERSION)\" -D WITH_LAPACK
+  LDFLAGS   = $(BITS) -g -shared -llapacke
+endif
+
+
+
+
+
+GIT_VERSION := $(shell git describe --abbrev=4 --dirty --always)
 DEBUG     = 
 OBJ       = lmder.o \
 	dpmpar.o \
@@ -35,23 +55,21 @@ OBJ       = lmder.o \
 	enorm_u.o \
 	qrfac.o \
 	simclist.o \
-	nwtcfunctions.o \
-	fortdatamanager.o \
+	bstrlib.o \
+	bstraux.o \
+	freedata.o \
 	mapinit.o \
 	maperror.o \
-	freedata.o \
-	initialization.o \
-	supportfiles.o \
-	lineupdateroutines.o \
+	lineroutines.o \
 	numeric.o \
 	outputstream.o \
-	linegenerator.o \
-	MAP_Types.o \
-	fortroutines.o \
-	pyroutines.o
+	mapapi.o \
+	lmroutines.o \
+	jacobian.o \
+	residual.o \
 
 all : $(OBJ)
-	$(CC_TOOLS) $(LDFLAGS) -o libmap-1.00.01.so $(DEBUG) $(OBJ)
+	$(CC_TOOLS) $(LDFLAGS) -o libmap-1.10.00.so $(DEBUG) $(OBJ) -lm -llapacke
 
 .c.o :
 	$(CC_TOOLS) -c $(CFLAGS) $<
@@ -61,47 +79,3 @@ clean:
 
 memcheck:	
 	valgrind --tool=memcheck --leak-check=yes python -E -tt ./main.py	
-
-
-
-# CC_TOOLS  = gcc 
-# CFLAGS    = -g -fPIC -D DEBUG 
-# #CFLAGS    = -g -O2 -fPIC -Wstrict-aliasing
-# LDFLAGS   = -shared 
-# DEBUG     = 
-# OBJ       = $(CMINPACK_DIR)/lmder.o \
-# 	$(CMINPACK_DIR)/dpmpar.o \
-# 	$(CMINPACK_DIR)/lmpar.o \
-# 	$(CMINPACK_DIR)/qrsolv.o \
-# 	$(CMINPACK_DIR)/enorm.o \
-# 	$(CMINPACK_DIR)/enorm_u.o \
-# 	$(CMINPACK_DIR)/qrfac.o \
-# 	$(SIMCLIST_DIR)/simclist.o \
-# 	nwtcfunctions.o \
-# 	fortdatamanager.o \
-# 	mapinit.o \
-# 	maperror.o \
-# 	freedata.o \
-# 	initialization.o \
-# 	supportfiles.o \
-# 	lineupdateroutines.o \
-# 	numeric.o \
-# 	outputstream.o \
-# 	linegenerator.o \
-# 	MAP_Types.o \
-# 	fortroutines.o \
-# 	pyroutines.o
-# 
-# all : $(OBJ)
-# 	$(CC_TOOLS) $(LDFLAGS) -o map.so $(DEBUG) $(OBJ)
-# 
-# .c.o :
-# 	$(CC_TOOLS) -c $(CFLAGS) $<
-# 
-# clean:
-# 	rm -rf *.so *.o *~
-# 
-# memcheck:	
-# 	valgrind --tool=memcheck --leak-check=yes python -E -tt ./main.py	
-# 	#valgrind --tool=callgrind python ./main.py		
-# 	#valgrind --tool=memcheck --log-file="memcheck.out" python -E -tt ./main.py		
