@@ -159,7 +159,6 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
   
   free_init_data(init_data, map_msg, ierr); 
   MAP_InitInput_Delete(init_data);
-  checkpoint();
   if (*ierr!=MAP_SAFE) printf("Intialization: %s\n", map_msg);
 };
 
