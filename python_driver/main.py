@@ -34,23 +34,15 @@ if __name__ == '__main__':
 
     mooring_1 = Map( )
     
-    mooring_1.map_set_sea_depth(220)
+    mooring_1.map_set_sea_depth(120)
     mooring_1.map_set_gravity(9.81)
     mooring_1.map_set_sea_density(1025.0)
     
-    # mooring_1.read_file("../test/baseline_1.map") # 120 m depth    
-    # mooring_1.read_file("../test/baseline_2.map") # 100 m depth
-    # mooring_1.read_file("../test/baseline_3.map") # 120 m depth
-    # mooring_1.read_file("../test/baseline_4.map") # 100 m depth
-    # mooring_1.read_file("../test/baseline_5.map") # 80 m depth
-    # mooring_1.read_file("../fortran_driver/baseline_segmented.map") # 120 m depth
-    mooring_1.read_file("../fortran_driver/Mooring.dat") # 220 m depth
-    # mooring_1.read_file("../fortran_driver/baseline.map") # 120 m depth
-    # mooring_1.read_file("../test/OMAERB_Mooring.dat") # 100 m depth
-    # mooring_1.read_file("../test/NRELOffshrBsline5MW_Platform_OC3Hywind.map") # 320 m depth
+    mooring_1.read_file("../test/baseline_1.map")                                         # 120 m depth    
+    # mooring_1.read_file("../test/baseline_5.map")                                       # 80 m depth
+    # mooring_1.read_file("../test/NRELOffshrBsline5MW_Platform_OC3Hywind.map")           # 320 m depth
     # mooring_1.read_file("../test/NRELOffshrBsline5MW_Platform_OC3Hywind_segmented.map") # 320 m depth
-    # mooring_1.read_file("../test/NRELOffshrBsline5MW_Platform_OC3Hywind.map") # 320 m depth
-    # mooring_1.read_file("../test/NRELOffshrBsLine5MW_TLP.map") # 200 m depth
+    # mooring_1.read_file("../test/NRELOffshrBsLine5MW_TLP.map")                          # 200 m depth
 
     # mooring_1.summary_file('name_me.txt')
     mooring_1.init( )
