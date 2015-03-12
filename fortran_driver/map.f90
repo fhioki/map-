@@ -1,6 +1,3 @@
-#define MAP_CHECKERR() IF(MAP_ERROR_CHECKER(message_from_MAP,status_from_MAP,ErrMsg,ErrStat)) RETURN
-#define MAP_CHECKERRQ(string) IF(MAP_ERROR(ErrMsg,ErrStat,string)) RETURN
-
 MODULE MAP
   
    USE MAP_Types
@@ -372,6 +369,10 @@ CONTAINS
     INTEGER(KIND=C_INT)                             :: status_from_MAP 
     CHARACTER(KIND=C_CHAR), DIMENSION(1024)         :: message_from_MAP
     
+    INTEGER(IntKi)                                  :: ErrStat2     ! Error status of the operation
+    CHARACTER(1024)                                 :: ErrMsg2      ! Error message if ErrStat /= ErrID_None
+    CHARACTER(*), PARAMETER                         :: RoutineName = 'MAP_Init'
+    
     INTEGER(IntKi)                                  :: i
     INTEGER(IntKi)                                  :: n
     REAL(ReKi)                                      :: Pos(3)
@@ -389,13 +390,17 @@ CONTAINS
     p%C_obj%dt = p%dt
 
     CALL NWTC_Init( )  ! Initialize the NWTC Subroutine Library     
-    !CALL MAP_InitInput_Initialize(InitInp%C_obj%object, message_from_MAP, status_from_MAP); MAP_CHECKERR() ! Call the constructor for each MAP class to create and instance of each C++ object        
-    !CALL MAP_Other_Initialize(other%C_obj%object, message_from_MAP, status_from_MAP); MAP_CHECKERR() 
     
-    InitInp%C_obj%object = MAP_InitInput_Create(message_from_MAP,status_from_MAP); MAP_CHECKERR()        ! routine in MAP dll
-    other%C_obj%object   = MAP_OtherState_Create(message_from_MAP,status_from_MAP); MAP_CHECKERR()       ! routine in MAP dll
+    InitInp%C_obj%object = MAP_InitInput_Create(message_from_MAP,status_from_MAP)         ! routine in MAP dll      
+      CALL MAP_ERROR_CHECKER(message_from_MAP,status_from_MAP,ErrMsg2,ErrStat2)
+      CALL SetErrStat(ErrStat2,ErrMsg2, ErrStat, ErrMsg, RoutineName)
+    other%C_obj%object   = MAP_OtherState_Create(message_from_MAP,status_from_MAP)        ! routine in MAP dll
+      CALL MAP_ERROR_CHECKER(message_from_MAP,status_from_MAP,ErrMsg2,ErrStat2)
+      CALL SetErrStat(ErrStat2,ErrMsg2, ErrStat, ErrMsg, RoutineName)
     CALL MAP_Initialize_Base(u%C_obj, p%C_obj, x%C_obj, z%C_obj, other%C_obj, y%C_obj, InitOut%C_obj)    ! routine in MAP dll
 
+IF (ErrStat >= AbortErrLev) RETURN    
+    
     ! Set the environmental properties:
     !   depth           = water depth [m]
     !   gravity         = the acceleration due to gravity [N] -or- [kg*m/s^2]
@@ -415,12 +420,16 @@ CONTAINS
     CALL MAP_set_gravity(p%C_obj, InitInp%C_Obj%gravity)
     CALL MAP_set_depth(p%C_obj, InitInp%C_Obj%depth)
     CALL MAP_set_density(p%C_obj, InitInp%C_Obj%sea_density)
-    CALL MAP_set_summary_file_name(InitInp%C_obj, message_from_map, status_from_MAP); MAP_CHECKERR()
+    CALL MAP_set_summary_file_name(InitInp%C_obj, message_from_map, status_from_MAP); 
+      CALL MAP_ERROR_CHECKER(message_from_MAP,status_from_MAP,ErrMsg2,ErrStat2); 
+      CALL SetErrStat(ErrStat2,ErrMsg2, ErrStat, ErrMsg, RoutineName)
+
 
     ! Read the MAP input file, and pass the arguments to the C++ sructures. 
     ! @note : this call the following C function in MAP_FortranBinding.cpp
-    CALL map_read_input_file_contents(InitInp%file_name , InitInp, ErrStat)
-    MAP_CHECKERRQ("MAP_ERROR[FORT]: cannot read the MAP input file.")
+    CALL map_read_input_file_contents(InitInp%file_name , InitInp, ErrStat2)
+      CALL SetErrStat(ErrStat2,"Cannot read the MAP input file.", ErrStat, ErrMsg, RoutineName)
+      IF (ErrStat >= AbortErrLev) RETURN
 
     ! This binds MSQS_Init function in C++ with Fortran
     CALL MSQS_Init(InitInp%C_obj   , &
@@ -434,7 +443,9 @@ CONTAINS
                    InitOut%C_obj   , &
                    status_from_MAP , &
                    message_from_MAP )
-    MAP_CHECKERR()
+      CALL MAP_ERROR_CHECKER(message_from_MAP,status_from_MAP,ErrMsg2,ErrStat2);
+      CALL SetErrStat(ErrStat2,ErrMsg2, ErrStat, ErrMsg, RoutineName)
+      IF (ErrStat >= AbortErrLev) RETURN
 
     ! ==========   MAP F2C (literally, Fortran to C) conversion   ===========================================
     ! Now call the C2FC_ routines for the INTENT(  OUT) C objects
@@ -443,10 +454,14 @@ CONTAINS
     !  MAP Other State
     !  MAP Output State
     ! =======================================================================================================  
-    CALL MAP_C2Fary_CopyConstrState(z, ErrStat, ErrMsg); MAP_CHECKERRQ("MAP_ERROR[FORT]: FAST/MAP C2F constraint state conversion error.")
-    CALL MAP_C2Fary_CopyOutput(y, ErrStat, ErrMsg); MAP_CHECKERRQ("MAP_ERROR[FORT]: FAST/MAP C2F output state conversion error.")
-    CALL MAP_C2Fary_CopyOtherState(other, ErrStat, ErrMsg); MAP_CHECKERRQ("MAP_ERROR[FORT]: FAST/MAP C2F other state conversion error.")
-    CALL MAP_C2Fary_CopyInput(u, ErrStat, ErrMsg); MAP_CHECKERRQ("MAP_ERROR[FORT]: FAST/MAP C2F input state conversion error.")
+    CALL MAP_C2Fary_CopyConstrState(z, ErrStat2, ErrMsg2); 
+      CALL SetErrStat(ErrStat2,ErrMsg2, ErrStat, ErrMsg, RoutineName)    
+    CALL MAP_C2Fary_CopyOutput(y, ErrStat, ErrMsg)
+      CALL SetErrStat(ErrStat2,ErrMsg2, ErrStat, ErrMsg, RoutineName)    
+    CALL MAP_C2Fary_CopyOtherState(other, ErrStat, ErrMsg)
+      CALL SetErrStat(ErrStat2,ErrMsg2, ErrStat, ErrMsg, RoutineName)    
+    CALL MAP_C2Fary_CopyInput(u, ErrStat, ErrMsg)
+      CALL SetErrStat(ErrStat2,ErrMsg2, ErrStat, ErrMsg, RoutineName)    
     
     CALL MAP_Get_Output_Headers(InitOut, other)
     
@@ -454,23 +469,25 @@ CONTAINS
     ! get header information for the FAST output file                  !          | 
     NumNodes = u%C_obj%X_Len                                           !          |    
     ! Create the input mesh                                            !          |
-    CALL MeshCreate(BlankMesh=u%PtFairDisplacement ,IOS= COMPONENT_INPUT, NNodes=NumNodes, TranslationDisp=.TRUE.,ErrStat=ErrStat, ErrMess=ErrMsg)
-    IF(ErrStat/=ErrID_None) CALL WrScr(TRIM(ErrMsg))                   !          |
+    CALL MeshCreate(BlankMesh=u%PtFairDisplacement ,IOS= COMPONENT_INPUT, NNodes=NumNodes, TranslationDisp=.TRUE.,ErrStat=ErrStat2, ErrMess=ErrMsg2)
+       CALL SetErrStat(ErrStat2, ErrMsg2, ErrStat,ErrMsg, RoutineName)
+       IF (ErrStat >= AbortErrLev) RETURN
                                                                        !          |
     DO i = 1,NumNodes                                                  !          |
        Pos(1) = u%X(i)                                                 !          |
        Pos(2) = u%Y(i)                                                 !          |
        Pos(3) = u%Z(i)                                                 !          |
                                                                        !          |
-       CALL MeshPositionNode(u%PtFairDisplacement,i,Pos,ErrStat,ErrMsg)!          |
-       IF (ErrStat /= ErrID_None) CALL WrScr(TRIM(ErrMsg))             !          |
+       CALL MeshPositionNode(u%PtFairDisplacement,i,Pos,ErrStat2,ErrMsg2)!          |
+         CALL SetErrStat(ErrStat2, ErrMsg2, ErrStat,ErrMsg, RoutineName)
                                                                        !          |
-       CALL MeshConstructElement(u%PtFairDisplacement, ELEMENT_POINT, ErrStat, ErrMsg, i)
-       IF (ErrStat /= ErrID_None) CALL WrScr(TRIM(ErrMsg))             !          |
+       CALL MeshConstructElement(u%PtFairDisplacement, ELEMENT_POINT, ErrStat2, ErrMsg2, i)
+         CALL SetErrStat(ErrStat2, ErrMsg2, ErrStat,ErrMsg, RoutineName)
     END DO                                                             !          |
                                                                        !          |
-    CALL MeshCommit ( u%PtFairDisplacement, ErrStat, ErrMsg )          !          |
-    IF (ErrStat /= ErrID_None) CALL WrScr(TRIM(ErrMsg))                !          |
+    CALL MeshCommit ( u%PtFairDisplacement, ErrStat2, ErrMsg2 )          !          |
+       CALL SetErrStat(ErrStat2, ErrMsg2, ErrStat,ErrMsg, RoutineName)
+       IF (ErrStat >= AbortErrLev) RETURN
                                                                        !          |
     ! now, copy the input PtFairDisplacement to output                 !          |
     ! PtFairleadLoad to complete this                                  !          |
@@ -479,9 +496,10 @@ CONTAINS
                     CtrlCode = MESH_SIBLING         , &                !          |
                     IOS      = COMPONENT_OUTPUT     , &                !          |
                     Force    = .TRUE.               , &                !          |
-                    ErrStat  = ErrStat              , &                !          |
-                    ErrMess  = ErrMsg                 )                !          |
-    IF (ErrStat /= ErrID_None) CALL WrScr(TRIM(ErrMsg))                !          |
+                    ErrStat  = ErrStat2              , &                !          |
+                    ErrMess  = ErrMsg2                 )                !          |
+       CALL SetErrStat(ErrStat2, ErrMsg2, ErrStat,ErrMsg, RoutineName)
+       IF (ErrStat >= AbortErrLev) RETURN
                                                                        !          |
     ! End mesh initialization                                          !   -------+
     !==============================================================================
@@ -509,12 +527,10 @@ CONTAINS
     END DO
     
     InitOut%Ver = ProgDesc('MAP++',TRIM(InitOut%version),TRIM(InitOut%compilingData))
-IF (ALLOCATED(InitOut%WriteOutputHdr)) WRITE(*,*) InitOut%WriteOutputHdr ! @bonnie : this is artificial. Remove.
-IF (ALLOCATED(InitOut%WriteOutputUnt)) WRITE(*,*) InitOut%WriteOutputUnt ! @bonnie : this is artificial. Remove.
 
    IF ( ALLOCATED(InitOut%WriteOutputHdr) ) THEN
       ALLOCATE( y%WriteOutput(SIZE(InitOut%WriteOutputHdr)), STAT=n)
-      IF (N/=0) CALL SetErrStat(ErrID_Fatal, 'Failed to allocate y%WriteOutput',ErrStat, ErrMsg, 'MAP_Init')
+      IF (N/=0) CALL SetErrStat(ErrID_Fatal, 'Failed to allocate y%WriteOutput',ErrStat, ErrMsg, RoutineName)
    END IF
   
   END SUBROUTINE MAP_Init                                                                        !   -------+
@@ -536,24 +552,36 @@ IF (ALLOCATED(InitOut%WriteOutputUnt)) WRITE(*,*) InitOut%WriteOutputUnt ! @bonn
     CHARACTER(*)                    , INTENT(  OUT) :: ErrMsg     ! Error message if ErrStat /= ErrID_None
   
     ! Local variables
-    INTEGER(KIND=C_INT)                             :: status_from_MAP = 0
-    CHARACTER(KIND=C_CHAR), DIMENSION(1024)         :: message_from_MAP = ' '
-    ! CHARACTER(KIND=C_CHAR,len=1024)                 :: message_from_MAP = ""//CHAR(0)
-    REAL(KIND=C_FLOAT)                              :: time = 0
-    INTEGER(KIND=C_INT)                             :: interval = 0
-    INTEGER(IntKi)                                  :: i=0  
+    INTEGER(KIND=C_INT)                             :: status_from_MAP 
+    CHARACTER(KIND=C_CHAR), DIMENSION(1024)         :: message_from_MAP 
+    REAL(KIND=C_FLOAT)                              :: time 
+    INTEGER(KIND=C_INT)                             :: interval 
+    INTEGER(IntKi)                                  :: i  
     TYPE(MAP_InputType)                             :: u_interp    ! Inputs at t
     
+    INTEGER(IntKi)                                  :: ErrStat2     ! Error status of the operation
+    CHARACTER(1024)                                 :: ErrMsg2      ! Error message if ErrStat /= ErrID_None
+    CHARACTER(*), PARAMETER                         :: RoutineName = 'MAP_UpdateStates'
+    
+    ErrStat = ErrID_None
+    ErrMsg  = ""
+    
+    
     ! create space for arrays/meshes in u_interp
-    CALL MAP_CopyInput(u(1), u_interp, MESH_NEWCOPY, ErrStat, ErrMsg)          
-    CALL MAP_Input_ExtrapInterp(u, utimes, u_interp, t+p%dt, ErrStat, ErrMsg)
-    !CALL CheckError(ErrStat2,ErrMsg2)
-    !IF ( ErrStat >= AbortErrLev ) RETURN
+    CALL MAP_CopyInput(u(1), u_interp, MESH_NEWCOPY, ErrStat2, ErrMsg2)
+       CALL SetErrStat(ErrStat2, ErrMsg2, ErrStat,ErrMsg, RoutineName)
+       IF (ErrStat >= AbortErrLev) RETURN
+
+    CALL MAP_Input_ExtrapInterp(u, utimes, u_interp, t+p%dt, ErrStat2, ErrMsg2)
+       CALL SetErrStat(ErrStat2, ErrMsg2, ErrStat,ErrMsg, RoutineName)
     
     ! set the time and coupling interval to something readable by MAP (using KIND=C_INT/C_FLOAT instead
     ! of the native IntKi/DbKi format in FAST)
     time = t
     interval = n
+    
+    status_from_MAP = 0
+    message_from_MAP = ' '
     
     ! Copy the mesh input to the MAP C types
     ! @marco: the Position field is fixed in the initialization routine. TranslationDisp is the displacement from the original position.
@@ -575,9 +603,13 @@ IF (ALLOCATED(InitOut%WriteOutputUnt)) WRITE(*,*) InitOut%WriteOutputUnt ! @bonn
                             O%C_obj         , &
                             status_from_MAP , &
                             message_from_MAP  )
-    MAP_CHECKERR()
+
+    CALL MAP_ERROR_CHECKER(message_from_MAP,status_from_MAP,ErrMsg2,ErrStat2)
+      CALL SetErrStat(ErrStat2, ErrMsg2, ErrStat,ErrMsg, RoutineName)
+
+    CALL MAP_DestroyInput(u_interp, ErrStat2, ErrMsg2) 
     
-    CALL MAP_DestroyInput(u_interp, ErrStat, ErrMsg)        
+    
   END SUBROUTINE MAP_UpdateStates                                                                !   -------+
   !==========================================================================================================
   
@@ -597,17 +629,25 @@ IF (ALLOCATED(InitOut%WriteOutputUnt)) WRITE(*,*) InitOut%WriteOutputUnt ! @bonn
   
     ! Local variables
     INTEGER(KIND=C_INT)                             :: status_from_MAP
-    CHARACTER(KIND=C_CHAR), DIMENSION(1024)         :: message_from_MAP = ' '
-    REAL(KIND=C_FLOAT)                              :: time = 0
-    integer                                         :: i
-  
+    CHARACTER(KIND=C_CHAR), DIMENSION(1024)         :: message_from_MAP 
+    REAL(KIND=C_FLOAT)                              :: time
+    integer                                         :: i     
+    
+    INTEGER(IntKi)                                  :: ErrStat2     ! Error status of the operation
+    CHARACTER(1024)                                 :: ErrMsg2      ! Error message if ErrStat /= ErrID_None
+    CHARACTER(*), PARAMETER                         :: RoutineName = 'MAP_CalcOutput'
+    
+    
+    ErrStat = ErrID_None
+    ErrMsg  = ""
+    
     time = t
+    message_from_MAP = ' '
     
     DO i = 1,u%PtFairDisplacement%NNodes
        u%X(i) = u%PtFairDisplacement%Position(1,i) + u%PtFairDisplacement%TranslationDisp(1,i)
        u%Y(i) = u%PtFairDisplacement%Position(2,i) + u%PtFairDisplacement%TranslationDisp(2,i)
        u%Z(i) = u%PtFairDisplacement%Position(3,i) + u%PtFairDisplacement%TranslationDisp(3,i)
-!       write(*,*) 'inputs: ', u%x(i), ' ', u%y(i) , ' ', u%z(i)
     END DO
   
     CALL MSQS_CalcOutput(time            , & 
@@ -620,12 +660,12 @@ IF (ALLOCATED(InitOut%WriteOutputUnt)) WRITE(*,*) InitOut%WriteOutputUnt ! @bonn
                          y%C_obj         , &
                          status_from_MAP , &
                          message_from_MAP ) 
-    MAP_CHECKERR()
   
+      CALL MAP_ERROR_CHECKER(message_from_MAP,status_from_MAP,ErrMsg2,ErrStat2)
+      CALL SetErrStat(ErrStat2, ErrMsg2, ErrStat,ErrMsg, RoutineName)
 
+    
    IF (ALLOCATED(y%WriteOutput) .AND. ASSOCIATED(y%WrtOutput) ) y%WriteOutput = REAL( y%WrtOutput, ReKi ) 
-WRITE(*,*) y%wrtOutput ! @bonnie : remove
-write(*,*)
 
    ! Copy the MAP C output types to the native Fortran mesh output types
     DO i = 1,y%ptFairleadLoad%NNodes
@@ -633,6 +673,8 @@ write(*,*)
        y%ptFairleadLoad%Force(2,i) = -y%FY(i)
        y%ptFairleadLoad%Force(3,i) = -y%FZ(i)
     END DO  
+        
+    
   END SUBROUTINE MAP_CalcOutput                                                                  !   -------+
   !==========================================================================================================
 
@@ -653,7 +695,12 @@ write(*,*)
     INTEGER(KIND=C_INT)                             :: status_from_MAP=0                 
     CHARACTER(KIND=C_CHAR), DIMENSION(1024)         :: message_from_MAP = ' '
     INTEGER(IntKi)                                  :: i=0 
-                                                                                         
+            
+    INTEGER(IntKi)                                  :: ErrStat2     ! Error status of the operation
+    CHARACTER(1024)                                 :: ErrMsg2      ! Error message if ErrStat /= ErrID_None
+    CHARACTER(*), PARAMETER                         :: RoutineName = 'MAP_End'
+            
+    
     ErrStat = ErrID_None                                                                 
     ErrMsg  = ""                                                                             
 
@@ -665,26 +712,28 @@ write(*,*)
                    other%C_obj     , &                                                   
                    y%C_obj         , &                                                   
                    status_from_MAP , &                                                   
-                   message_from_MAP  )                                                    
-    MAP_CHECKERR()
+                   message_from_MAP  )                
+   CALL MAP_ERROR_CHECKER(message_from_MAP,status_from_MAP,ErrMsg2,ErrStat2)
+      CALL SetErrStat(ErrStat2, ErrMsg2, ErrStat,ErrMsg, RoutineName)
+   
 
     ! bjj: we need to nullify Fortran pointers that were associated with C_F_POINTER in the Init routine:
     !        
-    CALL MAP_C2Fary_CopyConstrState(z, ErrStat, ErrMsg)
-    CALL MAP_C2Fary_CopyOutput(y, ErrStat, ErrMsg)
-    CALL MAP_C2Fary_CopyOtherState(other, ErrStat, ErrMsg)
-    CALL MAP_C2Fary_CopyInput(u, ErrStat, ErrMsg)
+    CALL MAP_C2Fary_CopyConstrState(z, ErrStat2, ErrMsg2);    CALL SetErrStat(ErrStat2, ErrMsg2, ErrStat,ErrMsg, RoutineName)
+    CALL MAP_C2Fary_CopyOutput(y, ErrStat2, ErrMsg2);         CALL SetErrStat(ErrStat2, ErrMsg2, ErrStat,ErrMsg, RoutineName)
+    CALL MAP_C2Fary_CopyOtherState(other, ErrStat2, ErrMsg2); CALL SetErrStat(ErrStat2, ErrMsg2, ErrStat,ErrMsg, RoutineName)
+    CALL MAP_C2Fary_CopyInput(u, ErrStat2, ErrMsg2);          CALL SetErrStat(ErrStat2, ErrMsg2, ErrStat,ErrMsg, RoutineName)
            
     
     ! Destroy Fortran MAP types
     ! Anything allocated in C should be destroyed in C. Calling these functions only destroys mesh types. 
-    CALL MAP_DestroyInput(u, ErrStat, ErrMsg)
-    CALL MAP_DestroyParam(p , ErrStat, ErrMsg)
-    CALL MAP_DestroyContState(x, ErrStat, ErrMsg)
-    CALL MAP_DestroyDiscState(xd, ErrStat, ErrMsg)
-    CALL MAP_DestroyConstrState(z, ErrStat, ErrMsg)
-    CALL MAP_DestroyOtherState(other, ErrStat, ErrMsg)
-    CALL MAP_DestroyOutput(y, ErrStat, ErrMsg)
+    CALL MAP_DestroyInput(u,          ErrStat2, ErrMsg2); CALL SetErrStat(ErrStat2, ErrMsg2, ErrStat,ErrMsg, RoutineName)
+    CALL MAP_DestroyParam(p ,         ErrStat2, ErrMsg2); CALL SetErrStat(ErrStat2, ErrMsg2, ErrStat,ErrMsg, RoutineName)
+    CALL MAP_DestroyContState(x,      ErrStat2, ErrMsg2); CALL SetErrStat(ErrStat2, ErrMsg2, ErrStat,ErrMsg, RoutineName)
+    CALL MAP_DestroyDiscState(xd,     ErrStat2, ErrMsg2); CALL SetErrStat(ErrStat2, ErrMsg2, ErrStat,ErrMsg, RoutineName)
+    CALL MAP_DestroyConstrState(z,    ErrStat2, ErrMsg2); CALL SetErrStat(ErrStat2, ErrMsg2, ErrStat,ErrMsg, RoutineName)
+    CALL MAP_DestroyOtherState(other, ErrStat2, ErrMsg2); CALL SetErrStat(ErrStat2, ErrMsg2, ErrStat,ErrMsg, RoutineName)
+    CALL MAP_DestroyOutput(y,         ErrStat2, ErrMsg2); CALL SetErrStat(ErrStat2, ErrMsg2, ErrStat,ErrMsg, RoutineName)
   END SUBROUTINE MAP_End                                                                         !   -------+
   !==========================================================================================================
 
@@ -703,8 +752,8 @@ write(*,*)
     INTEGER                                :: index_node=0                
     INTEGER                                :: index_elem=0                
     INTEGER                                :: index_optn=0                
-    INTEGER                                :: i = 0
-    INTEGER                                :: N = 0
+    INTEGER                                :: i 
+    INTEGER                                :: N 
     CHARACTER(255)                         :: line
    
     INTEGER                                :: Un
@@ -810,18 +859,15 @@ write(*,*)
   !                                                                                              !          |
   ! this is different from MAP_ERROR_CHECKER. MAP_ERROR check internal fortran errors, whereas
   ! the former checks errors in the MAP DLL.
-  LOGICAL FUNCTION MAP_ERROR(ErrMsg, ErrStat, string)
+  SUBROUTINE MAP_ERROR(ErrMsg, ErrStat, string)
     CHARACTER(1024), INTENT(INOUT) :: ErrMsg 
     INTEGER(IntKi),  INTENT(INOUT) :: ErrStat 
     CHARACTER(*),    INTENT(IN   ) :: string    
 
-    MAP_ERROR = .FALSE.
-
     IF (ErrStat.NE.ErrID_None) THEN
        ErrMsg = TRIM(ErrMsg)//string
-       MAP_ERROR = .TRUE.
     END IF
-  END FUNCTION MAP_ERROR                                                                         !   -------+
+  END SUBROUTINE  MAP_ERROR                                                                         !   -------+
   !==========================================================================================================
 
    
@@ -829,18 +875,18 @@ write(*,*)
   !                                                                                              !          |
   ! A convenient way to convert C-character arrays into a fortran string. The return argustment 
   ! is a logical: False if program is safe; True if program fails in the MAP DLL 
-  LOGICAL FUNCTION MAP_ERROR_CHECKER(msg, stat, ErrMsg, ErrStat)
+  SUBROUTINE MAP_ERROR_CHECKER(msg, stat, ErrMsg, ErrStat)
     CHARACTER(KIND=C_CHAR), DIMENSION(1024), INTENT(INOUT) :: msg
     INTEGER(KIND=C_INT),                     INTENT(INOUT) :: stat
     CHARACTER(*),                            INTENT(  OUT) :: ErrMsg 
     INTEGER(IntKi),                          INTENT(  OUT) :: ErrStat    
-    INTEGER                                                :: i = 0                                             
+    INTEGER                                                :: i                                             
 
-    MAP_ERROR_CHECKER = .FALSE. ! default warning; does not throw a RETURN
     ErrStat = ErrID_None
     ErrMsg  = ""
-    
+        
     IF (stat.NE.0) THEN
+                     
        DO i = 1,min(1024,len(ErrMsg)) ! convert c-character array to a fortran character array
           IF(msg(i).NE.C_NULL_CHAR) THEN
              ErrMsg(i:i) = msg(i)
@@ -851,13 +897,12 @@ write(*,*)
 
        IF(stat.EQ.1) THEN ! assign warning levels
           ErrStat = ErrID_Warn
-          CALL WrScr(ErrMsg)         
        ELSE ! only the case of a fatal warning returns true; throws a RETURN
           ErrStat = ErrID_Fatal
-          MAP_ERROR_CHECKER = .TRUE.
        END IF
     END IF
-  END FUNCTION MAP_ERROR_CHECKER                                                                 !   -------+
+    
+  END SUBROUTINE MAP_ERROR_CHECKER                                                                 !   -------+
   !==========================================================================================================
 
  
@@ -871,8 +916,8 @@ write(*,*)
     TYPE(MAP_OtherStateType), INTENT(INOUT)  :: Other   
 
     ! Locals
-    INTEGER :: i = 0
-    INTEGER(C_INT)                                  :: numHeaderStr = 0
+    INTEGER :: i 
+    INTEGER(C_INT)                                  :: numHeaderStr 
     CHARACTER(16),DIMENSION(:), ALLOCATABLE, TARGET :: strHdrArray ! Hopefully none of the headers are more than 16 characters long
     TYPE(C_PTR), DIMENSION(:), ALLOCATABLE          :: strHdrPtrs
     CHARACTER(15),DIMENSION(:), ALLOCATABLE, TARGET :: strUntArray ! Hopefully none of the headers are more than 15 characters long
