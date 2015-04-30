@@ -1,3 +1,5 @@
+![map.png](https://bitbucket.org/repo/jbRLE9/images/1614157178-map.png)
+
 ## MAP++ 
 
 This is the development page for the Mooring Analysis Program++. 
@@ -6,4 +8,4 @@ MAP++ is a library used for modeling underwater mooring systems quasi-statically
 
 More information on the theory behind MAP++ is described [here](http://cim.mcgill.ca/~mmascio1/ISOPE2013-TPC-0646.pdf), with the hopes to extend capabilities as described [here](http://cim.mcgill.ca/~mmascio1/61159.pdf). MAP++ is licensed under Apache version 2.
 
-![map.png=0x](https://bitbucket.org/repo/jbRLE9/images/1969433685-map.png)
+![compare.png](https://bitbucket.org/repo/jbRLE9/images/205015965-compare.png)
