@@ -488,7 +488,7 @@ MAP_ERROR_CODE check_inner_f_tol_flag(struct bstrList* list, double* ftol)
   } else if (success) { 
     while (n<list->qty-1) { /* iterating through all strings */      
       if (list->entry[n+1]->slen) { /* if the string length is not 0 */
-        word = list->entry[n+1]->data;
+        word = (char*)list->entry[n+1]->data;
         if (is_numeric(word)) { 
           *ftol = (double)atof(word);
           return MAP_SAFE;
@@ -516,7 +516,7 @@ MAP_ERROR_CODE check_inner_g_tol_flag(struct bstrList* list, double* gtol)
   } else if (success) { 
     while (n<list->qty-1) { /* iterating through all strings */      
       if (list->entry[n+1]->slen) { /* if the string length is not 0 */
-        word = list->entry[n+1]->data;
+        word = (char*)list->entry[n+1]->data;
         if (is_numeric(word)) { 
           *gtol = (double)atof(word);
           return MAP_SAFE;
@@ -544,7 +544,7 @@ MAP_ERROR_CODE check_inner_x_tol_flag(struct bstrList* list, double* xtol)
   } else if (success) { 
     while (n<list->qty-1) { /* iterating through all strings */      
       if (list->entry[n+1]->slen) { /* if the string length is not 0 */
-        word = list->entry[n+1]->data;
+        word = (char*)list->entry[n+1]->data;
         if (is_numeric(word)) { 
           *xtol = (double)atof(word);
           return MAP_SAFE;
@@ -573,7 +573,7 @@ MAP_ERROR_CODE check_inner_max_its_flag(struct bstrList* list, int* max_its)
   } else if (success) { 
     while (n<list->qty-1) { /* iterating through all strings */      
       if (list->entry[n+1]->slen) { /* if the string length is not 0 */
-        word = list->entry[n+1]->data;
+        word = (char*)list->entry[n+1]->data;
         if (is_numeric(word)) { 
           *max_its = (int)atof(word);
           return MAP_SAFE;
@@ -601,7 +601,7 @@ MAP_ERROR_CODE check_outer_max_its_flag(struct bstrList* list, int* max_its)
   } else if (success) { 
     while (n<list->qty-1) { /* iterating through all strings */      
       if (list->entry[n+1]->slen) { /* if the string length is not 0 */
-        word = list->entry[n+1]->data;
+        word = (char*)list->entry[n+1]->data;
         if (is_numeric(word)) { 
           *max_its = (int)atof(word);
           return MAP_SAFE;
@@ -629,7 +629,7 @@ MAP_ERROR_CODE check_outer_tol_flag(struct bstrList* list, double* outer_tol)
   } else if (success) { 
     while (n<list->qty-1) { /* iterating through all strings */      
       if (list->entry[n+1]->slen) { /* if the string length is not 0 */
-        word = list->entry[n+1]->data;
+        word = (char*)list->entry[n+1]->data;
         if (is_numeric(word)) { 
           *outer_tol = (double)atof(word);
           return MAP_SAFE;
@@ -657,7 +657,7 @@ MAP_ERROR_CODE check_outer_epsilon_flag(struct bstrList* list, double* epsilon)
   } else if (success) { 
     while (n<list->qty-1) { /* iterating through all strings */      
       if (list->entry[n+1]->slen) { /* if the string length is not 0 */
-        word = list->entry[n+1]->data;
+        word = (char*)list->entry[n+1]->data;
         if (is_numeric(word)) { 
           *epsilon = (double)atof(word);
           return MAP_SAFE;
@@ -678,13 +678,14 @@ MAP_ERROR_CODE check_integration_dt_flag(struct bstrList* list, double* dt)
   int success = 0;
   int n = 0;
   const char* word = NULL;
+
   success = biseqcstrcaseless(list->entry[0],"INTEGRATION_DT"); /* string compare */
   if (success==BSTR_ERR) {
     return MAP_FATAL;
   } else if (success) { 
     while (n<list->qty-1) { /* iterating through all strings */      
       if (list->entry[n+1]->slen) { /* if the string length is not 0 */
-        word = list->entry[n+1]->data;
+        word = (char*)list->entry[n+1]->data;
         if (is_numeric(word)) { 
           *dt = (double)atof(word);
           return MAP_WARNING;
@@ -712,7 +713,7 @@ MAP_ERROR_CODE check_kb_default_flag(struct bstrList* list, double* kb)
   } else if (success) { 
     while (n<list->qty-1) { /* iterating through all strings */      
       if (list->entry[n+1]->slen) { /* if the string length is not 0 */
-        word = list->entry[n+1]->data;
+        word = (char*)list->entry[n+1]->data;
         if (is_numeric(word)) { 
           *kb = (double)atof(word);
           return MAP_WARNING;
@@ -742,7 +743,7 @@ MAP_ERROR_CODE check_krylov_accelerator_flag(struct bstrList* list, OuterSolveAt
     solver->krylov_accelerator = true;
     while (n<list->qty-1) { /* iterating through all strings */      
       if (list->entry[n+1]->slen) { /* if the string length is not 0 */
-        word = list->entry[n+1]->data;
+        word = (char*)list->entry[n+1]->data;
         if (is_numeric(word)) {         
           solver->max_krylov_its = (int)atoi(word);          
           word = NULL;
@@ -784,7 +785,7 @@ MAP_ERROR_CODE check_cb_default_flag(struct bstrList* list, double* cb)
   } else if (success) { 
     while (n<list->qty-1) { /* iterating through all strings */      
       if (list->entry[n+1]->slen) { /* if the string length is not 0 */
-        word = list->entry[n+1]->data;
+        word = (char*)list->entry[n+1]->data;
         if (is_numeric(word)) { 
           *cb = (double)atof(word);
           return MAP_WARNING;
@@ -875,7 +876,7 @@ MAP_ERROR_CODE check_pg_cooked_flag(struct bstrList* list, OuterSolveAttributes*
   } else if (success) {
     while (n<list->qty-1) { /* iterating through all strings */      
       if (list->entry[n+1]->slen) { /* if the string length is not 0 */
-        word = list->entry[n+1]->data;
+        word = (char*)list->entry[n+1]->data;
         if (is_numeric(word)) {         
           if (!next) {
             solver->d = (double)atof(word);
@@ -915,7 +916,7 @@ MAP_ERROR_CODE check_repeat_flag(struct bstrList* list, DomainOptions* options)
   } else if (success) {
     while (n<list->qty-1) { /* iterating through all strings */      
       if (list->entry[n+1]->slen) { /* if the string length is not 0 */
-        current = list->entry[n+1]->data;
+        current = (char*)list->entry[n+1]->data;
         i = options->repeat_angle_size;
         more_angles = realloc(options->repeat_angle, (i+1)*sizeof(double));
         if (more_angles) {
@@ -952,7 +953,7 @@ MAP_ERROR_CODE check_ref_position_flag(struct bstrList* list, Point* ref_positio
   } else if (success) {
     while (n<list->qty-1) { /* iterating through all strings */      
       if (list->entry[n+1]->slen) { /* if the string length is not 0 */
-        word = list->entry[n+1]->data;
+        word = (char*)list->entry[n+1]->data;
         if (is_numeric(word)) {         
           if (!next) {
             ref_position->x.value = (double)atof(word);
@@ -1028,8 +1029,8 @@ MAP_ERROR_CODE check_uncaught_flag(struct bstrList* list)
 
 MAP_ERROR_CODE set_library_diameter(bstring word, CableLibrary* library_ptr)
 {
-  if (is_numeric(word->data)) { 
-    library_ptr->diam = (double)atof(word->data);
+  if (is_numeric((char*)word->data)) { 
+    library_ptr->diam = (double)atof((char*)word->data);
   } else { 
     return MAP_FATAL;
   };  
@@ -1039,8 +1040,8 @@ MAP_ERROR_CODE set_library_diameter(bstring word, CableLibrary* library_ptr)
 
 MAP_ERROR_CODE set_library_mass_density(bstring word, CableLibrary* library_ptr)
 {  
-  if (is_numeric(word->data)) { 
-    library_ptr->mass_density = (double)atof(word->data);
+  if (is_numeric((char*)word->data)) { 
+    library_ptr->mass_density = (double)atof((char*)word->data);
   } else { 
     return MAP_FATAL;
   };  
@@ -1050,8 +1051,8 @@ MAP_ERROR_CODE set_library_mass_density(bstring word, CableLibrary* library_ptr)
 
 MAP_ERROR_CODE set_library_ea(bstring word, CableLibrary* library_ptr)
 {
-  if (is_numeric(word->data)) { 
-    library_ptr->EA = (double)atof(word->data);
+  if (is_numeric((char*)word->data)) { 
+    library_ptr->EA = (double)atof((char*)word->data);
   } else { 
     return MAP_FATAL;
   };  
@@ -1061,8 +1062,8 @@ MAP_ERROR_CODE set_library_ea(bstring word, CableLibrary* library_ptr)
 
 MAP_ERROR_CODE set_library_cb(bstring word, CableLibrary* library_ptr)
 {
-  if (is_numeric(word->data)) { 
-    library_ptr->cb = (double)atof(word->data);
+  if (is_numeric((char*)word->data)) { 
+    library_ptr->cb = (double)atof((char*)word->data);
   } else { 
     return MAP_FATAL;
   };  
@@ -1072,8 +1073,8 @@ MAP_ERROR_CODE set_library_cb(bstring word, CableLibrary* library_ptr)
 
 MAP_ERROR_CODE set_library_internal_damping(bstring word, CableLibrary* library_ptr)
 {
-  if (is_numeric(word->data)) { 
-    library_ptr->cd_i = (double)atof(word->data);
+  if (is_numeric((char*)word->data)) { 
+    library_ptr->cd_i = (double)atof((char*)word->data);
   } else { 
     return MAP_FATAL;
   };  
@@ -1083,8 +1084,8 @@ MAP_ERROR_CODE set_library_internal_damping(bstring word, CableLibrary* library_
 
 MAP_ERROR_CODE set_library_added_mass_coefficient(bstring word, CableLibrary* library_ptr)
 {
-  if (is_numeric(word->data)) { 
-    library_ptr->ca = (double)atof(word->data);
+  if (is_numeric((char*)word->data)) { 
+    library_ptr->ca = (double)atof((char*)word->data);
   } else { 
     return MAP_FATAL;
   };  
@@ -1094,8 +1095,8 @@ MAP_ERROR_CODE set_library_added_mass_coefficient(bstring word, CableLibrary* li
 
 MAP_ERROR_CODE set_library_cross_flow_drag_coefficient(bstring word, CableLibrary* library_ptr)
 {
-  if (is_numeric(word->data)) { 
-    library_ptr->cd_n = (double)atof(word->data);
+  if (is_numeric((char*)word->data)) { 
+    library_ptr->cd_n = (double)atof((char*)word->data);
   } else { 
     return MAP_FATAL;
   };  
@@ -1105,8 +1106,8 @@ MAP_ERROR_CODE set_library_cross_flow_drag_coefficient(bstring word, CableLibrar
 
 MAP_ERROR_CODE set_library_tangent_drag_coefficient(bstring word, CableLibrary* library_ptr)
 {
-  if (is_numeric(word->data)) { 
-    library_ptr->cd_t = (double)atof(word->data);
+  if (is_numeric((char*)word->data)) { 
+    library_ptr->cd_t = (double)atof((char*)word->data);
   } else { 
     return MAP_FATAL;
   };  
@@ -2169,7 +2170,7 @@ MAP_ERROR_CODE set_line_option_flags(struct bstrList* words, int* i_parsed, Line
     } while (words->entry[index]->slen<1);
     if (is_numeric(words->entry[index]->data)) {
       line_ptr->options.damage_time_flag = true;
-      line_ptr->damage_time = (double)atof(words->entry[index]->data);
+      line_ptr->damage_time = (double)atof((char*)words->entry[index]->data);
       *i_parsed = index;
     } else { /* should not cancel the simulation; simply ignore it */      
       set_universal_error_with_message(map_msg, ierr, MAP_ERROR_1, "Option <%s>", words->entry[index]->data);
