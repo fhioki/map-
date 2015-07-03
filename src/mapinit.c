@@ -1502,7 +1502,7 @@ MAP_ERROR_CODE repeat_nodes(Domain* domain, InitializationData* init_data, char*
   init_data->expanded_node_input_string->qty = 0;
   
   for(i=0 ; i<num_node ; i++) {     
-    init_data->expanded_node_input_string->entry[i] = bfromcstr(init_data->node_input_string->entry[i]->data);// bstrcpy(init_data->node_input_string->entry[i]);
+    init_data->expanded_node_input_string->entry[i] = bfromcstr((char*)init_data->node_input_string->entry[i]->data);// bstrcpy(init_data->node_input_string->entry[i]);
     init_data->expanded_node_input_string->qty++;
   };
 
@@ -1519,7 +1519,7 @@ MAP_ERROR_CODE repeat_nodes(Domain* domain, InitializationData* init_data, char*
 
       while (i_parsed<parsed->qty-1) { /* iterating through all strings */              
         if (parsed->entry[i_parsed]->slen) { /* if the string length is not 0 */
-          word = parsed->entry[i_parsed]->data;      
+          word = (char*)parsed->entry[i_parsed]->data;      
           if (next==0) {
             success = expand_node_number(n_line+1, line);/* @todo: checkerrq */
             next++;
@@ -1678,7 +1678,7 @@ MAP_ERROR_CODE repeat_lines(Domain* domain, InitializationData* init_data, char*
   init_data->expanded_line_input_string->qty = 0;
   
   for(i=0 ; i<num_line ; i++) {     
-    init_data->expanded_line_input_string->entry[i] = bfromcstr(init_data->line_input_string->entry[i]->data);
+    init_data->expanded_line_input_string->entry[i] = bfromcstr((char*)init_data->line_input_string->entry[i]->data);
     init_data->expanded_line_input_string->qty++;
   };
   
@@ -1696,7 +1696,7 @@ MAP_ERROR_CODE repeat_lines(Domain* domain, InitializationData* init_data, char*
   
       while (i_parsed<parsed->qty-1) { /* iterating through all strings */              
         if (parsed->entry[i_parsed]->slen) { /* if the string length is not 0 */
-          word = parsed->entry[i_parsed]->data;
+          word = (char*)parsed->entry[i_parsed]->data;
           if (next==0) {
             success = expand_line_number(n_line+1, line);
             next++;
@@ -2048,16 +2048,16 @@ MAP_ERROR_CODE set_vartype(const char* unit, bstring alias, const int num, VarTy
       type->is_fixed = false;
       if (property->slen==1) { /* implies that property->data = "#" */
         type->value = -999.9;
-      } else if (is_numeric(remove_first_character(property->data))) {
-        type->value = (double)atof(remove_first_character(property->data));
+      } else if (is_numeric(remove_first_character((char*)property->data))) {
+        type->value = (double)atof(remove_first_character((char*)property->data));
         type->user_initial_guess = true;
       } else {
         return MAP_FATAL;
       };
     } else { /* this variable is constant */    
       type->is_fixed = true;
-      if (is_numeric(property->data)) { 
-        type->value = (double)atof(property->data);
+      if (is_numeric((char*)property->data)) { 
+        type->value = (double)atof((char*)property->data);
       } else {
         return MAP_FATAL;
       };
@@ -2078,15 +2078,15 @@ MAP_ERROR_CODE set_vartype_ptr(const char* unit, bstring alias, const int num, V
     type->is_fixed = false;
     if (property->slen==1) { /* implies that property->data = "#" */
       *type->value = -999.9;
-    } else if (is_numeric(remove_first_character(property->data))) { 
-      *type->value = (double)atof(remove_first_character(property->data));
+    } else if (is_numeric(remove_first_character((char*)property->data))) { 
+      *type->value = (double)atof(remove_first_character((char*)property->data));
     } else {
       return MAP_FATAL;
     };
   } else { /* this variable is constant */    
     type->is_fixed = true;
-    if (is_numeric(property->data)) { 
-      *type->value = (double)atof(property->data);
+    if ((char*)is_numeric((char*)property->data)) { 
+      *type->value = (double)atof((char*)property->data);
     } else {
       return MAP_FATAL;
     };
@@ -2153,8 +2153,8 @@ MAP_ERROR_CODE set_line_option_flags(struct bstrList* words, int* i_parsed, Line
         break;
       };
     } while (words->entry[index]->slen<1);
-    if (is_numeric(words->entry[index]->data)) {
-      line_ptr->segment_size = (int)atoi(words->entry[index]->data);
+    if (is_numeric((char*)words->entry[index]->data)) {
+      line_ptr->segment_size = (int)atoi((char*)words->entry[index]->data);
       *i_parsed = index;
     } else { /* should not cancel the simulation; simply ignore it */      
       set_universal_error_with_message(map_msg, ierr, MAP_FATAL_18, "Option <%s>", words->entry[index]->data);
@@ -2168,7 +2168,7 @@ MAP_ERROR_CODE set_line_option_flags(struct bstrList* words, int* i_parsed, Line
         break;
       };
     } while (words->entry[index]->slen<1);
-    if (is_numeric(words->entry[index]->data)) {
+    if (is_numeric((char*)words->entry[index]->data)) {
       line_ptr->options.damage_time_flag = true;
       line_ptr->damage_time = (double)atof((char*)words->entry[index]->data);
       *i_parsed = index;
@@ -2182,9 +2182,9 @@ MAP_ERROR_CODE set_line_option_flags(struct bstrList* words, int* i_parsed, Line
         break;
       };
     } while (words->entry[index]->slen<1);
-    if (is_numeric(words->entry[index]->data)) {
+    if (is_numeric((char*)words->entry[index]->data)) {
       line_ptr->options.diagnostics_flag = true;
-      line_ptr->diagnostic_type = (int)atoi(words->entry[index]->data);
+      line_ptr->diagnostic_type = (int)atoi((char*)words->entry[index]->data);
       *i_parsed = index;
     } else { /* should not cancel the simulation; simply ignore it */      
       set_universal_error_with_message(map_msg, ierr, MAP_ERROR_14, "Option <%s>", words->entry[index]->data);
@@ -2252,7 +2252,7 @@ MAP_ERROR_CODE set_line_list(MAP_ConstraintStateType_t* z_type, Domain* domain, 
              
           next++;
         } else if (next==1) {
-          success = associate_line_with_cable_property(line_iter, domain, parsed->entry[i_parsed]->data, map_msg, ierr); CHECKERRQ(MAP_FATAL_32);           
+          success = associate_line_with_cable_property(line_iter, domain, (char*)parsed->entry[i_parsed]->data, map_msg, ierr); CHECKERRQ(MAP_FATAL_32);           
           next++;
         } else if (next==2) { 
           alias = bformat("Lu[%d]", i+1);
@@ -2260,10 +2260,10 @@ MAP_ERROR_CODE set_line_list(MAP_ConstraintStateType_t* z_type, Domain* domain, 
           success = bdestroy(alias);
           next++;
         } else if (next==3) { 
-          success = associate_line_with_anchor_node(line_iter, domain, i+1, parsed->entry[i_parsed]->data,  map_msg, ierr); CHECKERRQ(MAP_FATAL_32);        
+          success = associate_line_with_anchor_node(line_iter, domain, i+1, (char*)parsed->entry[i_parsed]->data,  map_msg, ierr); CHECKERRQ(MAP_FATAL_32);        
           next++;
         } else if (next==4) { 
-          success = associate_line_with_fairlead_node(line_iter, domain, i+1, parsed->entry[i_parsed]->data,  map_msg, ierr); CHECKERRQ(MAP_FATAL_32);        
+          success = associate_line_with_fairlead_node(line_iter, domain, i+1, (char*)parsed->entry[i_parsed]->data,  map_msg, ierr); CHECKERRQ(MAP_FATAL_32);        
           next++;
         } else { /* set the node mass */            
           success = set_line_option_flags(parsed, &i_parsed, line_iter, map_msg, ierr);
