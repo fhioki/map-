@@ -31,8 +31,8 @@ VPATH = cminpack:simclist:bstring:lapack
 
 ifeq ($(PLATFORM),Darwin)
   CC_TOOLS  = clang
-  CFLAGS    = -g -O1 -fsanitize=address -fno-omit-frame-pointer -fPIC -D DEBUG -Icminpack -Isimclist
-  LDFLAGS   = -g -fsanitize=address -fno-omit-frame-pointer -dynamiclib 
+  CFLAGS    = -g -O1 -fno-omit-frame-pointer -fPIC -D DEBUG -Icminpack -Isimclist
+  LDFLAGS   = -g -dynamiclib 
 else ifeq ($(PLATFORM),Linux)
   CC_TOOLS  = gcc
   #CFLAGS    = -g -O1 -fsanitize=address -fno-omit-frame-pointer -fPIC -D DEBUG -DGITVERSION=\"$(GIT_VERSION)\" -Icminpack -Isimclist
@@ -68,14 +68,19 @@ OBJ       = lmder.o \
 	jacobian.o \
 	residual.o \
 
+ifeq ($(PLATFORM),Darwin)
+all : $(OBJ)
+	$(CC_TOOLS) $(LDFLAGS) -o libmap-1.10.00.dylib $(DEBUG) $(OBJ) -lm #-llapacke
+else ifeq ($(PLATFORM),Linux)
 all : $(OBJ)
 	$(CC_TOOLS) $(LDFLAGS) -o libmap-1.10.00.so $(DEBUG) $(OBJ) -lm -llapacke
+endif
 
 .c.o :
 	$(CC_TOOLS) -c $(CFLAGS) $<
 
 clean:
-	rm -rf *.so *.o *~
+	rm -rf *.so *.o *~ *.dylib
 
 memcheck:	
 	valgrind --tool=memcheck --leak-check=yes python -E -tt ./main.py	

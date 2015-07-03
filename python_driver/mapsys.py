@@ -289,7 +289,7 @@ class Map(object):
         return size
 
 
-    def update_states(self, t, interval):        
+    def update_states(self, t, interval):
         Map.lib.map_update_states(c_float(t), c_int(interval), self.f_type_u, self.f_type_p, self.f_type_x, None, self.f_type_z, self.f_type_d, pointer(self.ierr), self.status )
         if self.ierr.value != 0 :
             print self.status.value        
