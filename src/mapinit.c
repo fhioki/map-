@@ -1179,8 +1179,6 @@ MAP_ERROR_CODE set_model_options_list(Domain* domain, InitializationData* init_d
 
 MAP_ERROR_CODE reset_cable_library(CableLibrary* library_ptr)
 {
-  MAP_ERROR_CODE success = MAP_SAFE;
-
   library_ptr->diam = 0.0;
   library_ptr->mass_density = 0.0;
   library_ptr->EA = 0.0;          
@@ -1204,7 +1202,6 @@ MAP_ERROR_CODE set_cable_library_list(Domain* domain, InitializationData* init_d
   int i = 0;
   int n = 0;
   int next = 0; 
-  int ret = 0;
   const int n_lines = (init_data->library_input_string->qty)-1;
   struct bstrList* parsed = NULL;
   struct tagbstring tokens; 
@@ -1268,7 +1265,6 @@ MAP_ERROR_CODE set_cable_library_list(Domain* domain, InitializationData* init_d
 
 MAP_ERROR_CODE initialize_cable_library_variables(Domain* domain, MAP_ParameterType_t* p_type, char* map_msg, MAP_ERROR_CODE* ierr)
 {
-  MAP_ERROR_CODE success = MAP_SAFE;
   double radius = 0.0;
   double area = 0.0;
   double mu = 0.0;
