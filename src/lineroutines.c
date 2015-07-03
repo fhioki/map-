@@ -247,8 +247,8 @@ MAP_ERROR_CODE set_psi(Line* line, char* map_msg, MAP_ERROR_CODE* ierr)
     return MAP_WARNING;
   };
   
-  if (norm<=1e-2) { 
-    norm = 1e-2; 
+  if (norm<=1e-2) {
+    norm = 1e-2;
   };
 
   /* find the angle psi line simply finds the angle psi between the local and global reference frames simply by 
@@ -619,7 +619,7 @@ MAP_ERROR_CODE solve_line(Domain* domain, const float time, char* map_msg, MAP_E
 
 MAP_ERROR_CODE solve_linear_spring_cable(Line* line, char* map_msg, MAP_ERROR_CODE* ierr)
 {
-  MAP_ERROR_CODE success = MAP_SAFE;
+  // MAP_ERROR_CODE success = MAP_SAFE;
   double d_norm = 0.0;
   Vector d;  /* r1-r2 */
   Vector r1; /* anchor position */
@@ -674,7 +674,7 @@ MAP_ERROR_CODE solve_linear_spring_cable(Line* line, char* map_msg, MAP_ERROR_CO
 
 MAP_ERROR_CODE check_maximum_line_length(Line* line, const bool contact_flag, char *map_msg, MAP_ERROR_CODE *ierr)
 {
-  MAP_ERROR_CODE success = MAP_SAFE;
+  // MAP_ERROR_CODE success = MAP_SAFE;
   double LMax = 0.0;
   const double l = line->l;
   const double h = line->h;

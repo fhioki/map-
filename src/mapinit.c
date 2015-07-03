@@ -333,7 +333,7 @@ MAP_ERROR_CODE first_solve(Domain* domain, MAP_ParameterType_t* p_type, MAP_Inpu
 
 MAP_ERROR_CODE allocate_outer_solve_data(OuterSolveAttributes* ns, const int size, char* map_msg, MAP_ERROR_CODE* ierr)
 {
-  int ret = 0;
+  // int ret = 0;
   int i = 0;
   int j = 0;
   const int THREE = 3;  
@@ -732,7 +732,7 @@ MAP_ERROR_CODE check_krylov_accelerator_flag(struct bstrList* list, OuterSolveAt
 {
   int n = 0;
   int success = 0;
-  int next = 0; 
+  // int next = 0; 
   const char* word = NULL;
 
   success = biseqcstrcaseless(list->entry[0],"KRYLOV_ACCELERATOR"); /* string compare */
@@ -977,8 +977,6 @@ MAP_ERROR_CODE check_ref_position_flag(struct bstrList* list, Point* ref_positio
 
 MAP_ERROR_CODE check_uncaught_flag(struct bstrList* list)
 {
-  int success = 0;  
-
   if (biseqcstrcaseless(list->entry[0],"")) {
     return MAP_SAFE;
   } else if (biseqcstrcaseless(list->entry[0],"HELP")) {
@@ -2102,7 +2100,7 @@ MAP_ERROR_CODE set_vartype_ptr(const char* unit, bstring alias, const int num, V
 
 MAP_ERROR_CODE set_line_option_flags(struct bstrList* words, int* i_parsed, Line* line_ptr, char* map_msg, MAP_ERROR_CODE* ierr)
 {
-  MAP_ERROR_CODE success = MAP_SAFE;
+  // MAP_ERROR_CODE success = MAP_SAFE;
   int index = *i_parsed;
   
   if (biseqcstrcaseless(words->entry[index], "GX_POS")) {
@@ -2307,9 +2305,9 @@ MAP_ERROR_CODE set_output_list(Domain* domain, MAP_InitOutputType_t* io_type, ch
   MAP_ERROR_CODE  success = MAP_SAFE;
   Line* line_iter = NULL;
   OutputList* y_list = domain->y_list;
-  int size = 0;
+  // int size = 0;
   int line_num = 1;
-  VarTypePtr* iter_vartype = NULL;
+  // VarTypePtr* iter_vartype = NULL;
 
   list_iterator_start(&domain->line); /* starting an iteration "session" */
   while (list_iterator_hasnext(&domain->line)) { /* tell whether more values available */ 
@@ -2567,7 +2565,7 @@ MAP_ERROR_CODE reset_node(Node* node_ptr)
 
 MAP_ERROR_CODE associate_line_with_cable_property(Line* line_ptr, Domain* domain, const char* word, char* map_msg, MAP_ERROR_CODE* ierr)
 {
-  MAP_ERROR_CODE success = MAP_SAFE;
+  // MAP_ERROR_CODE success = MAP_SAFE;
   CableLibrary* library_iterator = NULL;
 
   library_iterator = NULL;
@@ -2593,7 +2591,7 @@ MAP_ERROR_CODE associate_line_with_cable_property(Line* line_ptr, Domain* domain
 
 MAP_ERROR_CODE associate_line_with_anchor_node(Line* line_ptr, Domain* domain, const int line_num, const char* word, char* map_msg, MAP_ERROR_CODE* ierr)
 {
-  MAP_ERROR_CODE success = MAP_SAFE;
+  // MAP_ERROR_CODE success = MAP_SAFE;
   Node* node_iter = NULL;
   int node_num = 0;
 
@@ -2619,7 +2617,7 @@ MAP_ERROR_CODE associate_line_with_fairlead_node(Line* line_ptr, Domain* domain,
 {
   Node* node_iter = NULL;
   int node_num = 0;
-  MAP_ERROR_CODE success = MAP_SAFE;
+  // MAP_ERROR_CODE success = MAP_SAFE;
 
   line_ptr->fairlead = NULL;
 
