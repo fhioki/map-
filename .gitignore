@@ -50,5 +50,3 @@ src/latex/
 updated_files/
 fortran_driver/Mooring.dat
 docs/build
-docs/source/nstatic
-docs/source/ntemplates
