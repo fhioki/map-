@@ -3,7 +3,7 @@ MAP++ Documentation
 
 .. toctree::
    :maxdepth: 2
-
+   :hidden:
 
    notes.rst
    license
