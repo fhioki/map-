@@ -1,11 +1,9 @@
 Release Notes
 =============
 
-.. .. toctree::
-..    :maxdepth: 2
-..    :hidden:
-	      
-
+.. Note::
+   Example input files are provided to demonstrate capabilities of MAP. 
+   These examples are contrived and should not be interpreted to represent realistic, practical moorings deployed in the field. 
 
 License
 -------

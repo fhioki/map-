@@ -22,4 +22,4 @@ outer_tol 1e-4
 inner_max_its 400
 outer_max_its 400
  ref_position 1 2 3
-repeat 90 180 -90
+ repeat 90 180 -90
