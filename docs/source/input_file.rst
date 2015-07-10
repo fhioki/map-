@@ -33,6 +33,10 @@ acts as a template for defining parameters in a mooring system demonstrated here
     :align: center
     :width: 400pt
 
+.. Note::
+   Environmental properties like water depth, sea density, and gavity constant are set by the calling program. 
+   They are purposely absent in the MAP++ input file to prevent force imbalances from coefficient mismatches. 
+
 The MAP input file is divided into four sections:
 
 * **LINE DICTIONARY:** Defines the material properties of the line.
@@ -53,5 +57,59 @@ Node Properties
 Line Properties
 ---------------
 
+Flags
+~~~~~
+Flags are applied to individual lines:
+
+* ``GX_POS`` - global X fairlead position [m]
+* ``GY_POS`` - global Y fairlead position [m]
+* ``GZ_POS`` - global Z fairlead position [m]
+* ``GX_A_POS`` - global X position of anchor [m]
+* ``GY_A_POS`` - global Y fairlead position [m]
+* ``GZ_A_POS`` - global Z fairlead position [m]
+* ``GX_FORCE`` - global X fairlead force [N]
+* ``GY_FORCE`` - global Y fairlead force [N]
+* ``GZ_FORCE`` - global Z fairlead force [N]
+* ``H_FAIR`` - horizontal (XY plane) fairlead force [N] 
+* ``H_ANCH`` - horizontal (XY plane) anchor force [N] 
+* ``V_FAIR`` - vertical (Z axis) fairlead force [N]
+* ``V_ANCH`` - vertical (Z axis) anchor force [N]
+* ``TENSION_FAIR`` - fairlead force magnitude, [N] 
+* ``TENSION_ANCH`` - anchor force magnitude, [N] 
+* ``X_EXCURSION`` 
+* ``Z_EXCURSION``
+* ``AZIMUTH``
+* ``ALTITUDE``
+* ``ALTITUDE_ANCH``
+* ``LINE_TENSION``
+* ``OMIT_CONTACT``
+* ``LINEAR_SPRING``
+* ``LAY_LENGTH``
+* ``DAMAGE_TIME``
+* ``DIAGNOSTIC`` 
+
+
+
 Solver Options
 --------------
+``HELP`` - prints a list of options on the command line when MAP++ initializes
+``INNER_FTOL``
+``INNER_GTOL``
+``INNER_XTOL``
+``INNER_MAX_ITS``
+``OUTER_MAX_ITS``
+``OUTER_TOL``
+``OUTER_EPSILON``
+``INTEGRATION_DT``
+``KB_DEFAULT``
+``CB_DEFAULT``
+``OUTER_CD``
+``OUTER_BD``
+``OUTER_FD``
+``LM_MODEL``
+``POWELL``
+``PG_COOKED``
+``KRYLOV_ACCELERATOR``
+``REPEAT``
+``REF_POSITION`` - reference position
+

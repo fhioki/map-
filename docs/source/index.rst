@@ -10,6 +10,7 @@ MAP++ Documentation
    :hidden:
 
    notes.rst
+   definitions.rst
    input_file.rst
    license.rst
    ref.rst
