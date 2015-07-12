@@ -72,7 +72,10 @@ The force-balance equation is evaluated for each node, as follows:
 
 Single Line
 ~~~~~~~~~~~
-hi
+
+.. include-comment:: ../../src/mapinit.c
+
+
 
 Single Line with Contact
 ~~~~~~~~~~~~~~~~~~~~~~~~

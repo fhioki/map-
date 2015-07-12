@@ -1,4 +1,4 @@
-/****************************************************************
+/*---------------------------------------------------------------
  *   Copyright (C) 2014 mdm                                     *
  *   map[dot]plus[dot]plus[dot]help[at]gmail                    *
  *                                                              *
@@ -18,7 +18,7 @@
  * KIND, either express or implied.  See the License for the    *
  * specific language governing permissions and limitations      *      
  * under the License.                                           *  
- ****************************************************************/
+ ---------------------------------------------------------------*/
 
 
 #include "mapinit.h"
@@ -976,6 +976,18 @@ MAP_ERROR_CODE check_ref_position_flag(struct bstrList* list, Point* ref_positio
 };
 
 
+/**
+  .. c:type:: my_struct_t
+
+  This is a struct for holding values.
+*/
+
+/**
+ .. c:function:: my_struct_t * connect(my_struct_t * m, const char *url)
+
+ Connect the client to the server given by *url*.
+
+*/
 MAP_ERROR_CODE check_uncaught_flag(struct bstrList* list)
 {
   if (biseqcstrcaseless(list->entry[0],"")) {
