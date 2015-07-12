@@ -92,24 +92,24 @@ Flags are applied to individual lines:
 
 Solver Options
 --------------
-``HELP`` - prints a list of options on the command line when MAP++ initializes
-``INNER_FTOL``
-``INNER_GTOL``
-``INNER_XTOL``
-``INNER_MAX_ITS``
-``OUTER_MAX_ITS``
-``OUTER_TOL``
-``OUTER_EPSILON``
-``INTEGRATION_DT``
-``KB_DEFAULT``
-``CB_DEFAULT``
-``OUTER_CD``
-``OUTER_BD``
-``OUTER_FD``
-``LM_MODEL``
-``POWELL``
-``PG_COOKED``
-``KRYLOV_ACCELERATOR``
-``REPEAT``
-``REF_POSITION`` - reference position
+ * ``HELP`` - prints a list of options on the command line when MAP++ initializes
+ * ``INNER_FTOL``
+ * ``INNER_GTOL``
+ * ``INNER_XTOL``
+ * ``INNER_MAX_ITS``
+ * ``OUTER_MAX_ITS``
+ * ``OUTER_TOL``
+ * ``OUTER_EPSILON``
+ * ``INTEGRATION_DT``
+ * ``KB_DEFAULT``
+ * ``CB_DEFAULT``
+ * ``OUTER_CD``
+ * ``OUTER_BD``
+ * ``OUTER_FD``
+ * ``LM_MODEL``
+ * ``POWELL``
+ * ``PG_COOKED``
+ * ``KRYLOV_ACCELERATOR``
+ * ``REPEAT``
+ * ``REF_POSITION`` - reference position
 
