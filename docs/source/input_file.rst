@@ -61,33 +61,7 @@ Flags
 ~~~~~
 Flags are applied to individual lines:
 
-* ``GX_POS`` - global X fairlead position [m]
-* ``GY_POS`` - global Y fairlead position [m]
-* ``GZ_POS`` - global Z fairlead position [m]
-* ``GX_A_POS`` - global X position of anchor [m]
-* ``GY_A_POS`` - global Y fairlead position [m]
-* ``GZ_A_POS`` - global Z fairlead position [m]
-* ``GX_FORCE`` - global X fairlead force [N]
-* ``GY_FORCE`` - global Y fairlead force [N]
-* ``GZ_FORCE`` - global Z fairlead force [N]
-* ``H_FAIR`` - horizontal (XY plane) fairlead force [N] 
-* ``H_ANCH`` - horizontal (XY plane) anchor force [N] 
-* ``V_FAIR`` - vertical (Z axis) fairlead force [N]
-* ``V_ANCH`` - vertical (Z axis) anchor force [N]
-* ``TENSION_FAIR`` - fairlead force magnitude, [N] 
-* ``TENSION_ANCH`` - anchor force magnitude, [N] 
-* ``X_EXCURSION`` 
-* ``Z_EXCURSION``
-* ``AZIMUTH``
-* ``ALTITUDE``
-* ``ALTITUDE_ANCH``
-* ``LINE_TENSION``
-* ``OMIT_CONTACT``
-* ``LINEAR_SPRING``
-* ``LAY_LENGTH``
-* ``DAMAGE_TIME``
-* ``DIAGNOSTIC`` 
-
+.. include-comment:: ../../src/mapinit.c
 
 
 Solver Options
