@@ -11,6 +11,7 @@ MAP++ Documentation
 
    notes.rst
    definitions.rst
+   theory.rst
    input_file.rst
    license.rst
    ref.rst

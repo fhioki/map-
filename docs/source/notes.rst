@@ -30,3 +30,8 @@ MAP relied on a single, integrated solver to find the solution, and MAP++ uses n
 The later architecture improves portability and robustness, but comes at a cost of needing a bit more computational effort. 
 MAP++ is written in C, whereas MAP (ironically) was written in C++.  
 The '++' suffix indicates an incremental package design from the original inception. 
+
+
+Change Log
+----------
+
