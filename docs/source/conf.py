@@ -34,7 +34,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinxcontrib.bibtex',
     'sphinx.ext.pngmath',
-#    'sphinxcontrib.cmtinc',
+    'sphinxcontrib.cmtinc',
 ]
 # extensions = []
 
