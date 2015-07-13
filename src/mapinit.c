@@ -267,6 +267,10 @@ void initialize_vessel_to_null(Vessel* floater)
   floater->orientation.phi.units = NULL;
   floater->orientation.the.units = NULL;
   floater->orientation.psi.units = NULL;
+
+  floater->ref_origin.x.value = 0.0;
+  floater->ref_origin.y.value = 0.0;
+  floater->ref_origin.z.value = 0.0;
 };
 
 
@@ -283,10 +287,13 @@ MAP_ERROR_CODE set_vessel(Vessel* floater, const MAP_InputType_t* u_type, char* 
   success = set_vartype_float("[m]", "Vessel_Y", -999, &floater->displacement.y, 0.0); CHECKERRQ(MAP_FATAL_68);
   success = set_vartype_float("[m]", "Vessel_Z", -999, &floater->displacement.z, 0.0); CHECKERRQ(MAP_FATAL_68);
      
-  /* vessel reference origin. When ==[0.0, 0.0, 0.0], then the reference origin is aligned with the SWL */
-  success = set_vartype_float("[m]", "Vessel_Xref", -999, &floater->ref_origin.x, 0.0); CHECKERRQ(MAP_FATAL_68);
-  success = set_vartype_float("[m]", "Vessel_Yref", -999, &floater->ref_origin.y, 0.0); CHECKERRQ(MAP_FATAL_68);
-  success = set_vartype_float("[m]", "Vessel_Zref", -999, &floater->ref_origin.z, 0.0); CHECKERRQ(MAP_FATAL_68);
+  /* vessel reference origin. When ==[0.0, 0.0, 0.0], then the reference origin is aligned with the SWL 
+   * Note: this is commented because it over rides the run-time option 'REF_POSITION'. Instead, the ref position is 
+   * initialized to zero in function void initialize_vessel_to_null(Vessel* floater)
+   */
+  //success = set_vartype_float("[m]", "Vessel_Xref", -999, &floater->ref_origin.x, 0.0); CHECKERRQ(MAP_FATAL_68);
+  //success = set_vartype_float("[m]", "Vessel_Yref", -999, &floater->ref_origin.y, 0.0); CHECKERRQ(MAP_FATAL_68);
+  //success = set_vartype_float("[m]", "Vessel_Zref", -999, &floater->ref_origin.z, 0.0); CHECKERRQ(MAP_FATAL_68);
     
   /* sum force of all fairleads connecte to the vessel */
   success = set_vartype_float("[N]", "Vessel_fx", -999, &floater->line_sum_force.fx, 0.0); CHECKERRQ(MAP_FATAL_68);
@@ -962,6 +969,8 @@ MAP_ERROR_CODE check_ref_position_flag(struct bstrList* list, Point* ref_positio
             ref_position->y.value = (double)atof(word);
             next++;
           } else {
+            checkpoint();
+            printf("%s\n",word);
             ref_position->z.value = (double)atof(word);
             return MAP_SAFE;
           };

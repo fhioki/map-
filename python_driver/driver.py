@@ -12,6 +12,9 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.ticker as mtick
 from matplotlib import rcParams
+import numpy as np 
+np.set_printoptions(precision=2)
+np.set_printoptions(suppress=True)
 rcParams.update({'figure.autolayout': True})
 
 
@@ -46,6 +49,11 @@ if __name__ == '__main__':
     mooring.init()                # solve the cable equilibrium profile
     plot_mooring_system(mooring) # Optional: call the user function to illustrate the mooring equilibrium profile
 
+
+    epsilon = 1e-3
+    K = mooring.linear(epsilon)    
+    print "\nHere is the linearized stiffness matrix with zero vessel displacement:"
+    print np.array(K)
 
     
     '''
@@ -169,4 +177,4 @@ if __name__ == '__main__':
     plt.ylabel('Z Fairlead Force [N]')
     plt.xlabel('Time [sec]')
 
-    plt.show()
+    # plt.show()

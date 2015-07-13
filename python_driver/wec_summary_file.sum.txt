@@ -1,6 +1,6 @@
-Outputs were generated using MAP++ 1.10.0rc.
+Outputs were generated using MAP++ f5b4-dirty.
 
-    Sunday July 05-2015 at 15:29:55 PM
+    Monday July 13-2015 at 09:27:56 AM
 
     Gravity constant          [m/s^2]  : 9.81
     Sea density               [kg/m^3] : 1020.00
@@ -141,12 +141,11 @@ Line  LineType  UnstrLen  NodeAnch  NodeFair  Flags
 ---------------------- SOLVER OPTIONS-----------------------------------------
 Option 
 [-] 
- help
 inner_ftol 1e-6
 inner_gtol 1e-6
 inner_xtol 1e-6
 outer_tol 1e-4
 inner_max_its 400
 outer_max_its 400
- ref_position 1 2 3
+ref_position 0 0 0
 repeat 90 180 -90
