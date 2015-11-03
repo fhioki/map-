@@ -160,6 +160,13 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
   free_init_data(init_data, map_msg, ierr); 
   MAP_InitInput_Delete(init_data);
   if (*ierr!=MAP_SAFE) printf("Intialization: %s\n", map_msg);
+
+  // checkpoint();
+  // printf("In initialization: %p\n",z_type);
+  // for (int i=0 ; i<z_type->H_Len ; i++){
+  //   printf("  H=%2.2f  V=%2.2f\n",z_type->H[i],z_type->V[i]);
+  // }   
+
 };
 
 
@@ -176,12 +183,13 @@ MAP_EXTERNCALL void map_update_states(float t,
    Domain* domain = other_type->object;
    MAP_ERROR_CODE success = MAP_SAFE;
    ReferencePoint* point_iter = NULL;
-   // Node* node_iter = NULL;
    int i = 0;
 
    map_reset_universal_error(map_msg, ierr);
 
    MAP_BEGIN_ERROR_LOG;
+
+   success = associate_constraint_states(domain, z_type); CHECKERRQ(MAP_FATAL_97);
 
    /* If the reference to u_type changes, then we have to update the location MAP internal states are pointing 
     * to. This is accomplished in the following code. The issue here is when this is called in Fortran:
@@ -234,12 +242,14 @@ MAP_EXTERNCALL void map_calc_output(float t,
    Domain* domain = other_type->object;
    MAP_ERROR_CODE success = MAP_SAFE;
    ReferencePoint* point_iter = NULL;
-   // Node* node_iter = NULL;
    int i = 0;
 
-   map_reset_universal_error(map_msg, ierr);
 
+   map_reset_universal_error(map_msg, ierr);
+   
    MAP_BEGIN_ERROR_LOG;
+
+   success = associate_constraint_states(domain, z_type); CHECKERRQ(MAP_FATAL_98);
 
    /* If the reference to u_type changes, then we have to update the location MAP internal states are pointing
    * to. This is accomplished in the following code. The issue here is when this is called in Fortran:
