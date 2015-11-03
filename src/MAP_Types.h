@@ -9,10 +9,7 @@
 
 
 #ifdef _WIN32 //define something for Windows (32-bit)
-typedef int bool;
-#define false 0
-#define true 1
-//#  include "stdbool.h"
+#  include "stdbool.h"
 #  define CALL __declspec( dllexport )
 #elif _WIN64 //define something for Windows (64-bit)
 #  include "stdbool.h"
@@ -85,6 +82,8 @@ typedef int bool;
     double depth ;
     double rho_sea ;
     double dt ;
+    char InputLines[255] ;
+    char InputLineType[1] ;
   } MAP_ParameterType_t ;
   typedef struct MAP_InputType {
     void * object ;

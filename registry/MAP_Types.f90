@@ -187,6 +187,8 @@ IMPLICIT NONE
     REAL(KIND=C_DOUBLE) :: depth 
     REAL(KIND=C_DOUBLE) :: rho_sea 
     REAL(KIND=C_DOUBLE) :: dt 
+    TYPE(C_PTR) :: InputLines(500)
+    TYPE(C_PTR) :: InputLineType(500)
   END TYPE MAP_ParameterType_C
   TYPE, PUBLIC :: MAP_ParameterType
     TYPE( MAP_ParameterType_C ) :: C_obj
@@ -194,6 +196,8 @@ IMPLICIT NONE
     REAL(DbKi)  :: depth      ! distance to seabed [[m]]
     REAL(DbKi)  :: rho_sea      ! density of seawater [[m]]
     REAL(DbKi)  :: dt      ! time step coupling interval [[sec]]
+    CHARACTER(255) , DIMENSION(1:500)  :: InputLines      ! input file line for restart [-]
+    CHARACTER(1) , DIMENSION(1:500)  :: InputLineType      ! input file line type for restart [-]
   END TYPE MAP_ParameterType
 ! =======================
 ! =========  MAP_InputType_C  =======
@@ -1843,6 +1847,7 @@ ENDIF
    CHARACTER(*),    INTENT(  OUT) :: ErrMsg
 ! Local 
    INTEGER(IntKi)                 :: i,j,k
+   INTEGER(IntKi)                 :: i1, i1_l, i1_u  !  bounds (upper/lower) for an array dimension 1
    INTEGER(IntKi)                 :: ErrStat2
    CHARACTER(1024)                :: ErrMsg2
 ! 
@@ -1852,6 +1857,8 @@ ENDIF
    DstParamData%depth = SrcParamData%depth
    DstParamData%rho_sea = SrcParamData%rho_sea
    DstParamData%dt = SrcParamData%dt
+   DstParamData%InputLines = SrcParamData%InputLines
+   DstParamData%InputLineType = SrcParamData%InputLineType
  END SUBROUTINE MAP_CopyParam
 
  SUBROUTINE MAP_DestroyParam( ParamData, ErrStat, ErrMsg )
@@ -1902,6 +1909,8 @@ ENDIF
   Db_BufSz   = Db_BufSz   + 1  ! depth
   Db_BufSz   = Db_BufSz   + 1  ! rho_sea
   Db_BufSz   = Db_BufSz   + 1  ! dt
+!  missing buffer for InputLines
+!  missing buffer for InputLineType
   IF ( Re_BufSz  .GT. 0 ) ALLOCATE( ReKiBuf(  Re_BufSz  ) )
   IF ( Db_BufSz  .GT. 0 ) ALLOCATE( DbKiBuf(  Db_BufSz  ) )
   IF ( Int_BufSz .GT. 0 ) ALLOCATE( IntKiBuf( Int_BufSz ) )

@@ -26,7 +26,7 @@ from ctypes import *
 import os
 
 class Map(object):
-    lib = cdll.LoadLibrary('../src/libmap-1.10.00.so')
+    lib = cdll.LoadLibrary('../src/libmap-1.20.00.so')
 
     '''
     these are the fortran derived types created by the FAST registry.

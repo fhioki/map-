@@ -70,10 +70,10 @@ OBJ       = lmder.o \
 
 ifeq ($(PLATFORM),Darwin)
 all : $(OBJ)
-	$(CC_TOOLS) $(LDFLAGS) -o libmap-1.10.00.dylib $(DEBUG) $(OBJ) -lm 
+	$(CC_TOOLS) $(LDFLAGS) -o libmap-1.20.00.dylib $(DEBUG) $(OBJ) -lm 
 else ifeq ($(PLATFORM),Linux)
 all : $(OBJ)
-	$(CC_TOOLS) $(LDFLAGS) -o libmap-1.10.00.so $(DEBUG) $(OBJ) -lm -llapacke
+	$(CC_TOOLS) $(LDFLAGS) -o libmap-1.20.00.so $(DEBUG) $(OBJ) -lm -llapacke
 endif
 
 .c.o :

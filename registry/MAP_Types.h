@@ -82,6 +82,8 @@
     double depth ;
     double rho_sea ;
     double dt ;
+    char InputLines[255] ;
+    char InputLineType[1] ;
   } MAP_ParameterType_t ;
   typedef struct MAP_InputType {
     void * object ;

@@ -80,7 +80,8 @@ typedef         ^        ^                   DbKi             dt                
 #typedef         ^       ^                   DbKi             diam               -         -                   -            "cable diameter"                                  "[m]"
 #typedef         ^       ^                   DbKi             cb                 -         -                   -            "cable/seabed friction coefficient"
 #typedef         ^       ^                   DbKi             mu                 -         -                   -            "cable mass denity"                               "[kg/m]"
-
+typedef          ^       ^                   CHARACTER(255)   InputLines         {500}     -                   -            "input file line for restart"
+typedef          ^       ^                   CHARACTER(1)     InputLineType      {500}     -                   -            "input file line type for restart"
 
 # ============================== Inputs ============================================================================================================================================	
 typedef	        ^       InputType           DbKi             x                 {:}        -                   -            "fairlead x displacement"  "[m]"					
