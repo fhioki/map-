@@ -16,6 +16,7 @@
 *.exe
 *.tar
 *.so
+*.sum
 c_driver
 f_driver
 
