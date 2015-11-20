@@ -969,8 +969,6 @@ MAP_ERROR_CODE check_ref_position_flag(struct bstrList* list, Point* ref_positio
             ref_position->y.value = (double)atof(word);
             next++;
           } else {
-            checkpoint();
-            printf("%s\n",word);
             ref_position->z.value = (double)atof(word);
             return MAP_SAFE;
           };
@@ -1293,13 +1291,13 @@ MAP_ERROR_CODE initialize_cable_library_variables(Domain* domain, MAP_ParameterT
     library_iter->omega = g*(mu-area*rho_fluid);
 
     library_iter->a = area;
-    if (fabs(library_iter->omega)<=1) {
+    if (fabs(library_iter->omega)<=1.0E-3) {
       set_universal_error_with_message(map_msg, ierr, MAP_WARNING_5, "omega = %f <= 1.0", library_iter->omega);
     };
   };
   list_iterator_stop(&domain->library); /* ending the iteration "session" */    
   
-  if (fabs(library_iter->omega)<=1e-3) {
+  if (fabs(library_iter->omega)<=1.0E-6) {
     return MAP_FATAL;
   }
   return MAP_SAFE;
