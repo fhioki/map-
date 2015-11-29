@@ -3,7 +3,7 @@ Theory
 
 The solution process begins by evaluating the two continuous analytical catenary equations for each element based on :math:`l` and :math:`h` values obtained through node displacement relationships. 
 An element is defined as the component connecting two adjacent nodes together. 
-Once the element fairlead (:math:`H`, :math:`V` ) and anchor (:math:`H_a`, :math:`Va`) values are known at the element level, the forces are transformed from the local :math:`x_i z_i` frame into the global :math:`XYZ` coordinate system. 
+Once the element fairlead (:math:`H`, :math:`V` ) and anchor (:math:`H_a`, :math:`V_a`) values are known at the element level, the forces are transformed from the local :math:`x_i z_i` frame into the global :math:`XYZ` coordinate system. 
 The force contribution at each element's anchor and fairlead is added to the corresponding node it attaches to. 
 
 The force-balance equation is evaluated for each node, as follows:
@@ -15,17 +15,23 @@ The force-balance equation is evaluated for each node, as follows:
   
    \left \{ \mathbf{F} \right \}_{Z}^{j} = \sum^{\textup{Elements $i$ at Node } j}_{i=1} \left [ V_{i} \right ]-F_{Z_{j}}^{ext} + M_{j}g - \rho g B_{j} =0
 
-Node forces are found based on the connectivity geometry between lines and external forces applied at the boundary conditions. 
-This :ref:`is initiated by defining a series <exploded_3d>` of :math:`\mathcal{F}_i` local frames at the origin in which the individual lines are expressed in. 
+Node forces are found based on the connectivity geometry between element and external forces applied at the boundary conditions. 
+This :ref:`is initiated by defining a series <exploded_3d>` of :math:`\mathcal{F}_i` local frames at the origin in which the individual line elements are expressed in. 
 Frame :math:`\mathcal{F}_0` is an arbitrary global axis, but it is usually observed as the vessel reference origin.
 
 .. _exploded_3d:
 
 .. figure:: nstatic/3dProfileExploded2.png
-   :align: center
-   :width: 60%
+    :align: center
+    :width: 60%
 
-.. centered:: Exploded 3D multisegemented line with local :math:`xyz` and global :math:`XYZ` reference origins. The fairlead and anchor positions are denoted by vector :math:`\mathbf{r}_i`.
+    Fig. 2
+
+    .. raw:: html
+
+	<font size="2"><center><i><b>
+	Exploded 3D multisegemented line.
+	</b></i></center></font>
 
 .. Note::
    Simplistic way to think of MAP's dichotomy between nodes and elements:
@@ -33,30 +39,146 @@ Frame :math:`\mathcal{F}_0` is an arbitrary global axis, but it is usually obser
    Elements define the mooring geometry.
 
 Clearly, this process requires two distinct sets of equations, one of which must be solved within the other routine, to find the static cable configuration. 
-The first set of equations are the force{balance relationships in three directions for each node; the second set of equations are the catenary functions proportional to the number of lines. 
-Interactions between solves is captured in the :ref:`flowchart below to summarize the solve solve procedure <nested_flow>`. This method was first proposed in :cite:`peyrot1979`.
+The first set of equations are the force{balance relationships in three directions for each node; the second set of equations are the catenary functions proportional to the number of elements. 
+Interactions between solves is captured in the :ref:`flowchart below to summarize the solve procedure <nested_flow>`. This method was first proposed in :cite:`peyrot1979`.
 
 .. _nested_flow:
 
 .. figure:: nstatic/nested_flowchart.png
-   :align: center
-   :width: 60%
+    :align: center
+    :width: 60%
 
-.. centered:: no cpation yet
+    Fig. 3
+
+    .. raw:: html
+
+	<font size="2"><center><i><b>Partitioned approach to solve the multi-segmented, quasi-static problem.</b></i></center></font>
 
 Single Line
 ~~~~~~~~~~~
+The equations used to describe the shape of a suspended chain illustrated in :ref:`single_line` have been derived in numerous works :cite:`wilson03,irvine1992`. 
+For completeness, a summary of the governing equations used inside the MSQS model are presented. 
+Given a set of line properties, the line geometry can be expressed as a function of the forces exerted at the end of the line:
+
+.. math::
+   x\left ( s \right ) = \frac{H}{\omega}\left \{ \ln\left [ \frac{V_{a} + \omega s}{H} + \sqrt{1 + \left ( \frac{V_{a} + \omega s}{H} \right )^{2}} \right ] - \ln \left [ \frac{V_{a}}{H} + \sqrt{1 + \left ( \frac{V_{a}}{H} \right )^{2} } \right ] \right \} + \frac{Hs}{EA}
+
+.. math::
+   z \left ( s \right ) = \frac{H}{\omega} \left [ \sqrt{ 1 + \left ( \frac{V_{a} + \omega s}{H} \right )^{2} } - \sqrt{ 1 + \left ( \frac{V_{a} }{H} \right )^{2} } \right ] + \frac{1}{EA}\left ( V_{a} s + \frac{\omega s^{2}}{2} \right )
+
+where:
+
+.. math::
+   \omega = gA\left ( \rho_{\textup{cable}}-\rho \right )
+
+and :math:`x` and :math:`z` are coordinate axes in the local (element) frame, :ref:`exploded_3d`. 
+The following substitution can be made for :math:`V_a` in the above equations:
+
+.. math::
+   H_{a} = H
+
+.. math::
+   V_{a} = V-\omega L
+
+which simply states the decrease in the vertical anchor force component is proportional to the mass of the suspended line. 
+The equations for :math:`x(s)` and :math:`z(s)` both describe the catenary profile provided all entries on the right side of the equations are known. 
+However, in practice, the force terms :math:`H` and :math:`V` are sought, and the known entity is the fairlead excursion dimensions, :math:`l` and :math:`l`. 
+In this case, the forces :math:`H` and :math:`V` are found by simultaneously solving the following two equations:
+
+.. math::
+   l = \frac{H}{\omega} \left [  \ln\left ( \frac{V}{H} +\sqrt{1+\left ( \frac{V}{H} \right )^{2}}\right )- \ln\left ( \frac{V-\omega L}{H} + \sqrt{1+ \left ( \frac{V-\omega L}{H}  \right )^{2}}\right ) \right ] + \frac{HL}{EA}
+
+.. math::
+   h = \frac{H}{\omega} \left [ \sqrt{1 + \left ( \frac{V}{H} \right )^{2} } - \sqrt{1 + \left ( \frac{V - \omega L}{H} \right )^{2} } \right ] + \frac{1}{EA}\left ( VL - \frac{\omega L^{2}}{2} \right )
+
+.. _single_line:
+
 .. figure:: nstatic/singleLineDefinition.png
-   :align: center
-   :width: 60%
+    :align: center
+    :width: 60%
 
-.. centered:: Single line definitions for a hanging catenary
+    Fig. 4
 
+    .. raw:: html
+
+	<font size="2"><center><i><b>
+	Single line definitions for a hanging catenary.
+	</b></i></center></font>
 		     
 Single Line with Contact
 ~~~~~~~~~~~~~~~~~~~~~~~~
-.. figure:: nstatic/singleLineDefinition2.png
-   :align: center
-   :width: 70%
+The :eq:`euler` solution for the line in contact with a bottom boundary is found by continuing Eq. \ref{eq:EQ1a} beyond :math:`s=L_{B}` then adding a constant to ensure continuity of boundary conditions between equations. 
 
-.. centered:: Single line definitions for a catenary touching a bottom boundary with friction.
+.. math::
+   x\left ( s \right ) = 
+   \left\{\begin{matrix}
+   s & \textup{if } 0 \leq s \leq x_{0}
+   \\ 
+   \\ 
+   s + \frac{C_{B}\omega}{2EA}\left [ s^{2} - 2x_{0}s + x_{0}\lambda \right ] & \textup{if } x_{0}  < s \leq L_{B} 
+   \\ 
+   \\ 
+   \begin{matrix}
+   L_{B} + \frac{H}{\omega} \ln \left [ \frac{\omega\left ( s-L_{B} \right )}{H} + \sqrt{1 + \left ( \frac{\omega\left ( s-L_{B} \right )}{H} \right )^{2}} \right ] + \frac{Hs}{EA} +\frac{C_{B}\omega}{2EA}\left [ x_{0}\lambda - L_{B}^{2} \right ]
+   \end{matrix} & \textup{if } L_{B} < s \leq L 
+   \\ 
+   \end{matrix}\right.
+   :label: euler
+
+where :math:`\lambda` is:
+
+.. math::
+   \lambda = \left\{\begin{matrix}
+   L_{B} - \frac{H}{C_{B}\omega} & \textup{if } x_{0} > 0
+   \\ 
+   \\ 
+   0 &\textup{otherwise }
+   \end{matrix}\right.
+  
+The expression :math:`z(s)` is found by continuing Eq. \ref{eq:EQ1b} beyond point :math:`B`. 
+Between the range :math:`0\leq s \leq L_{B}`, the vertical height is zero since the line is resting on the seabed and forces can only occur parallel to the horizontal plane. 
+This produces:
+
+.. math::
+   z\left ( s \right ) = \left\{\begin{matrix}
+   0 & \textup{if } 0 \leq s \leq L_{B}
+   \\ 
+   \\
+   \frac{H}{\omega}\left [ \sqrt{1 + \left ( \frac{\omega \left ( s - L_{B} \right )}{H} \right )^{2} } - 1\right ] + \frac{\omega \left ( s - L_{B} \right )^{2} }{2EA} & \textup{if } L_{B} < s \leq L
+   \end{matrix}\right.
+
+Equations \ref{eq:EQ15c} and \ref{eq:EQ17} produce the mooring line profile as a function of :math:`s`. 
+Ideally, a closed--form solution for :math:`l` and :math:`h` is sought to permit simultaneous solves for :math:`H` and :math:`V`, similar to Eqs. 3. 
+This is obtained by substituting :math:`s=L` into Eqs. \ref{eq:EQ15c} and \ref{eq:EQ17}. 
+This gives:
+
+.. math::
+   l = L_{B} + \left (\frac{H}{\omega}  \right ) \ln\left [ \frac{V}{H} + \sqrt{1+\left ( \frac{V}{H} \right )^{2}} \right ] + \frac{HL}{EA} + \frac{C_{B}\omega}{2EA}\left [ x_{0}\lambda - L_{B}^{2} \right ]
+
+.. math::
+   h = \frac{H}{\omega}\left [ \sqrt{1 + \left (  \frac{V}{H} \right )^{2} } - 1 \right ] + \frac{V^{2}}{2EA\omega}
+
+Finally, a useful quantity that is often evaluated is the tension as a function of :math:`s` along the line. 
+This is given using:
+
+.. math::
+   T_{e} \left ( s \right ) = \left\{\begin{matrix}
+   \textup{MAX} \left [ H+C_{B}\omega \left ( s-L_{B} \right ) \;,\; 0 \right ] & \textup{if }0 \leq s\leq L_{B}
+   \\
+   \\
+   \sqrt{H^{2}+\left [ \omega\left ( s-L_{B} \right ) \right ]^{2}} &\textup{if } L_{B} < s \leq L
+   \end{matrix}\right.
+
+The choice of using Eqs. \ref{eq:EQ3a}$\sim$\ref{eq:EQ3b} or Eqs. \ref{eq:EQ18a}$\sim$\ref{eq:EQ18b} is decided by the program depending on the condition of Eq. \ref{eq:EQ5}; though, run--time flags can be enabled to override this feature so that the classical catenary equations for a suspended line (not in contact with the seabed) can be used.  
+
+.. figure:: nstatic/singleLineDefinition2.png
+    :align: center
+    :width: 70%
+
+    Fig. 5
+    
+    .. raw:: html
+
+	<font size="2"><center><i><b>
+	Single line definitions for a catenary touching a bottom boundary with friction.
+	</b></i></center></font>
