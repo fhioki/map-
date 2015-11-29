@@ -57,33 +57,65 @@ Node Properties
 Line Properties
 ---------------
 
+ 
 Flags
-~~~~~
-Flags are applied to individual lines:
+----- 
+Flags are applied to individual lines.
 
-.. include-comment:: ../../src/mapinit.c
-
+ * ``GX_POS`` - global X fairlead position [m]     
+ * ``GY_POS`` - global Y fairlead position [m]  
+ * ``GZ_POS`` - global Z fairlead position [m]  
+ * ``GX_A_POS`` - global X position of anchor [m]
+ * ``GY_A_POS`` - global Y position of anchor [m]  
+ * ``GZ_A_POS`` - global Z position of anchor [m]
+ * ``GX_FORCE`` - global X fairlead force [N]
+ * ``GY_FORCE`` - global Y fairlead force [N]
+ * ``GZ_FORCE`` - global Z fairlead force [N]
+ * ``H_FAIR`` - horizontal (XY plane) fairlead force [N] 
+ * ``H_ANCH`` - horizontal (XY plane) anchor force [N]  
+ * ``V_FAIR`` - vertical (Z axis) fairlead force [N]
+ * ``V_ANCH`` - vertical (Z axis) anchor force [N]  
+ * ``TENSION_FAIR`` - fairlead force magnitude, [N] 
+ * ``TENSION_ANCH`` - anchor force magnitude, [N]  
+ * ``X_EXCURSION`` - line horizontal excursion [m]
+ * ``Z_EXCURSION`` - line veritical excursion [m]
+ * ``AZIMUTH`` - line azimuth angle with respect to the inertial reference frame [deg]
+ * ``ALTITUDE`` - angle of declination at the fairlead [deg]
+ * ``ALTITUDE_ANCH`` - line lift-off angle at the anchor [deg]
+ * ``LINE_TENSION`` - line tension force magnitude at fairlead [N]
+ * ``OMIT_CONTACT`` - ignore seabed boundary and treat line as freely hanging
+ * ``LINEAR_SPRING`` - model the line as a linear spring. Intended for taut lines. 
+ * ``LAY_LENGTH`` - amount of line laying on the seabed [m]
+ * ``DAMAGE_TIME`` - time [sec] to disconnect fairlead from node
+ * ``DIAGNOSTIC`` - run diagonostics on line for each solve iteration
 
 Solver Options
 --------------
+Solver options are applied to the entire model domain.
+
  * ``HELP`` - prints a list of options on the command line when MAP++ initializes
- * ``INNER_FTOL``
- * ``INNER_GTOL``
- * ``INNER_XTOL``
- * ``INNER_MAX_ITS``
- * ``OUTER_MAX_ITS``
- * ``OUTER_TOL``
- * ``OUTER_EPSILON``
- * ``INTEGRATION_DT``
- * ``KB_DEFAULT``
- * ``CB_DEFAULT``
- * ``OUTER_CD``
- * ``OUTER_BD``
- * ``OUTER_FD``
- * ``LM_MODEL``
- * ``POWELL``
- * ``PG_COOKED``
- * ``KRYLOV_ACCELERATOR``
- * ``REPEAT``
+ * ``INNER_FTOL`` - inner loop function tolerance
+ * ``INNER_GTOL`` - desired orthogonality between the function evaluations and Jacobian column
+ * ``INNER_XTOL`` - inner loop consecutive iterate tolerance
+ * ``INNER_MAX_ITS`` - maximum inner loop iterations 
+ * ``OUTER_MAX_ITS`` - maximum outer loop iterations
+ * ``OUTER_TOL`` - outer loop tolerance
+ * ``OUTER_EPSILON`` - Not used
+ * ``INTEGRATION_DT`` - Not used
+ * ``KB_DEFAULT`` - Not used
+ * ``CB_DEFAULT`` - Not used
+ * ``OUTER_CD`` - central difference Jacobian (outer loop solve only)
+ * ``OUTER_BD`` - backward difference Jacobian (outer loop solve only)
+ * ``OUTER_FD`` - forward difference Jacobian (outer loop solve only)
+ * ``LM_MODEL`` - Not used
+ * ``PG_COOKED`` - use the relaxation algorithm developed in :cite:`peyrot1979`
+ * ``KRYLOV_ACCELERATOR`` - use the Krylov accelerator algorithm developed in :cite:`scott2009`
+ * ``REPEAT`` - repeat the element/nodes defined in the input file by mirroring the mooring pattern with a rotation about the Z-axis
  * ``REF_POSITION`` - reference position
 
+
+
+Default Options
+---------------
+
+.. include-comment:: ../../src/mapinit.c

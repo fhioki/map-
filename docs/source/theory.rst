@@ -34,7 +34,7 @@ Frame :math:`\mathcal{F}_0` is an arbitrary global axis, but it is usually obser
 
 Clearly, this process requires two distinct sets of equations, one of which must be solved within the other routine, to find the static cable configuration. 
 The first set of equations are the force{balance relationships in three directions for each node; the second set of equations are the catenary functions proportional to the number of lines. 
-Interactions between solves is captured in the :ref:`flowchart below to summarize the solve solve procedure <nested_flow>`. This method was first proposed in :cite:`pevrot1979`.
+Interactions between solves is captured in the :ref:`flowchart below to summarize the solve solve procedure <nested_flow>`. This method was first proposed in :cite:`peyrot1979`.
 
 .. _nested_flow:
 

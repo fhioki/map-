@@ -180,6 +180,17 @@ MAP_ERROR_CODE allocate_outlist(Domain* data, char* map_msg, MAP_ERROR_CODE* ier
 };
 
 
+/**
+
+ * ``INNER_FTOL`` - 1.0E-6
+
+ * ``INNER_GTOL`` - 1.0E-6
+
+ * ``INNER_XTOL`` - 1.0E-6
+
+ * ``INNER_MAX_ITS`` - 500
+
+ */
 void initialize_inner_solve_data_defaults(InnerSolveAttributes* inner)
 {
   inner->f_tol = 1e-6;
@@ -208,6 +219,19 @@ void initialize_model_option_defaults(DomainOptions* options)
   options->lm_model = false;
 }; 
 
+
+/**
+ * ``OUTER_MAX_ITS`` - 500
+
+ * ``OUTER_TOL`` - 1.0E-6
+
+ * ``OUTER_EPSILON`` - 1.0E-3
+
+ * ``OUTER_BD`` 
+
+ * ``REF_POSITION`` - <0.0 , 0.0 , 0.0>
+
+ */
 
 /* deallocated in free_outer_solve_data() */
 void initialize_outer_solve_data_defaults(OuterSolveAttributes* outer) 
@@ -2102,90 +2126,6 @@ MAP_ERROR_CODE set_vartype_ptr(const char* unit, bstring alias, const int num, V
 };
 
 
-/**
-  .. c:var:: GX_POS
-
-  global X fairlead position [m]
-
-  .. c:var:: GY_POS
-
-  global X fairlead position [m]
-
-
-  .. c:var:: GZ_POS
-
-  global X fairlead position [m]
-
-  .. c:var:: GX_A_POS 
-
-  global X position of anchor [m]
-  
-  .. c:var:: GY_A_POS 
-  
-  global Y fairlead position [m]
-  
-  .. c:var:: GZ_A_POS 
-  
-  global Z fairlead position [m]
-  
-  .. c:var:: GX_FORCE 
-  
-  global X fairlead force [N]
-  
-  .. c:var:: GY_FORCE 
-
-  global Y fairlead force [N]
-  
-  .. c:var:: GZ_FORCE 
-
-  global Z fairlead force [N]
-  
-  .. c:var:: H_FAIR 
-  
-  horizontal (XY plane) fairlead force [N] 
-  
-  .. c:var:: H_ANCH
-
-  horizontal (XY plane) anchor force [N] 
-  
-  .. c:var:: V_FAIR 
-
-  vertical (Z axis) fairlead force [N]
-  
-  .. c:var:: V_ANCH 
-
-  vertical (Z axis) anchor force [N]
-  
-  .. c:var:: TENSION_FAIR 
-
-  fairlead force magnitude, [N] 
-  
-  .. c:var:: TENSION_ANCH 
-
-  anchor force magnitude, [N] 
-  
-  .. c:var:: X_EXCURSION 
-  
-  .. c:var:: Z_EXCURSION
-  
-  .. c:var:: AZIMUTH
-  
-  .. c:var:: ALTITUDE
-  
-  .. c:var:: ALTITUDE_ANCH
-  
-  .. c:var:: LINE_TENSION
-  
-  .. c:var:: OMIT_CONTACT
-  
-  .. c:var:: LINEAR_SPRING
-  
-  .. c:var:: LAY_LENGTH
-  
-  .. c:var:: DAMAGE_TIME
- 
-  .. c:var:: DIAGNOSTIC 
-*/
 MAP_ERROR_CODE set_line_option_flags(struct bstrList* words, int* i_parsed, Line* line_ptr, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   // MAP_ERROR_CODE success = MAP_SAFE;
