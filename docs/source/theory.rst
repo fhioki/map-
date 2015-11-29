@@ -9,11 +9,11 @@ The force contribution at each element's anchor and fairlead is added to the cor
 The force-balance equation is evaluated for each node, as follows:
 
 .. math::
-   \left \{ \mathbf{F} \right \}_{X}^{j} = \sum^{\textup{Elements $i$ at Node } j}_{i=1} \left [ H_{i}\cos(\alpha_{i}) \right ]-F_{X_{j}}^{ext} =0
+   \scriptsize{\left \{ \mathbf{F} \right \}_{X}^{j} = \sum^{\textup{Elements $i$ at Node } j}_{i=1} \left [ H_{i}\cos(\alpha_{i}) \right ]-F_{X_{j}}^{ext} =0}
   
-   \left \{ \mathbf{F} \right \}_{Y}^{j} = \sum^{\textup{Elements $i$ at Node } j}_{i=1} \left [ H_{i}\sin(\alpha_{i}) \right ]-F_{Y_{j}}^{ext} =0
+   \scriptsize{\left \{ \mathbf{F} \right \}_{Y}^{j} = \sum^{\textup{Elements $i$ at Node } j}_{i=1} \left [ H_{i}\sin(\alpha_{i}) \right ]-F_{Y_{j}}^{ext} =0}
   
-   \left \{ \mathbf{F} \right \}_{Z}^{j} = \sum^{\textup{Elements $i$ at Node } j}_{i=1} \left [ V_{i} \right ]-F_{Z_{j}}^{ext} + M_{j}g - \rho g B_{j} =0
+   \scriptsize{\left \{ \mathbf{F} \right \}_{Z}^{j} = \sum^{\textup{Elements $i$ at Node } j}_{i=1} \left [ V_{i} \right ]-F_{Z_{j}}^{ext} + M_{j}g - \rho g B_{j} =0}
 
 Node forces are found based on the connectivity geometry between element and external forces applied at the boundary conditions. 
 This :ref:`is initiated by defining a series <exploded_3d>` of :math:`\mathcal{F}_i` local frames at the origin in which the individual line elements are expressed in. 
@@ -61,24 +61,24 @@ For completeness, a summary of the governing equations used inside the MSQS mode
 Given a set of line properties, the line geometry can be expressed as a function of the forces exerted at the end of the line:
 
 .. math::
-   x\left ( s \right ) = \frac{H}{\omega}\left \{ \ln\left [ \frac{V_{a} + \omega s}{H} + \sqrt{1 + \left ( \frac{V_{a} + \omega s}{H} \right )^{2}} \right ] - \ln \left [ \frac{V_{a}}{H} + \sqrt{1 + \left ( \frac{V_{a}}{H} \right )^{2} } \right ] \right \} + \frac{Hs}{EA}
+   \scriptsize{x\left ( s \right ) = \frac{H}{\omega}\left \{ \ln\left [ \frac{V_{a} + \omega s}{H} + \sqrt{1 + \left ( \frac{V_{a} + \omega s}{H} \right )^{2}} \right ] - \ln \left [ \frac{V_{a}}{H} + \sqrt{1 + \left ( \frac{V_{a}}{H} \right )^{2} } \right ] \right \} + \frac{Hs}{EA}}
 
 .. math::
-   z \left ( s \right ) = \frac{H}{\omega} \left [ \sqrt{ 1 + \left ( \frac{V_{a} + \omega s}{H} \right )^{2} } - \sqrt{ 1 + \left ( \frac{V_{a} }{H} \right )^{2} } \right ] + \frac{1}{EA}\left ( V_{a} s + \frac{\omega s^{2}}{2} \right )
+   \scriptsize{z \left ( s \right ) = \frac{H}{\omega} \left [ \sqrt{ 1 + \left ( \frac{V_{a} + \omega s}{H} \right )^{2} } - \sqrt{ 1 + \left ( \frac{V_{a} }{H} \right )^{2} } \right ] + \frac{1}{EA}\left ( V_{a} s + \frac{\omega s^{2}}{2} \right )}
 
 where:
 
 .. math::
-   \omega = gA\left ( \rho_{\textup{cable}}-\rho \right )
+   \scriptsize{\omega = gA\left ( \rho_{\textup{cable}}-\rho \right )}
 
 and :math:`x` and :math:`z` are coordinate axes in the local (element) frame, :ref:`exploded_3d`. 
 The following substitution can be made for :math:`V_a` in the above equations:
 
 .. math::
-   H_{a} = H
+   \scriptsize{H_{a} = H}
 
 .. math::
-   V_{a} = V-\omega L
+   \scriptsize{V_{a} = V-\omega L}
 
 which simply states the decrease in the vertical anchor force component is proportional to the mass of the suspended line. 
 The equations for :math:`x(s)` and :math:`z(s)` both describe the catenary profile provided all entries on the right side of the equations are known. 
@@ -86,10 +86,10 @@ However, in practice, the force terms :math:`H` and :math:`V` are sought, and th
 In this case, the forces :math:`H` and :math:`V` are found by simultaneously solving the following two equations:
 
 .. math::
-   l = \frac{H}{\omega} \left [  \ln\left ( \frac{V}{H} +\sqrt{1+\left ( \frac{V}{H} \right )^{2}}\right )- \ln\left ( \frac{V-\omega L}{H} + \sqrt{1+ \left ( \frac{V-\omega L}{H}  \right )^{2}}\right ) \right ] + \frac{HL}{EA}
+   \scriptsize{l = \frac{H}{\omega} \left [  \ln\left ( \frac{V}{H} +\sqrt{1+\left ( \frac{V}{H} \right )^{2}}\right )- \ln\left ( \frac{V-\omega L}{H} + \sqrt{1+ \left ( \frac{V-\omega L}{H}  \right )^{2}}\right ) \right ] + \frac{HL}{EA}}
 
 .. math::
-   h = \frac{H}{\omega} \left [ \sqrt{1 + \left ( \frac{V}{H} \right )^{2} } - \sqrt{1 + \left ( \frac{V - \omega L}{H} \right )^{2} } \right ] + \frac{1}{EA}\left ( VL - \frac{\omega L^{2}}{2} \right )
+   \scriptsize{h = \frac{H}{\omega} \left [ \sqrt{1 + \left ( \frac{V}{H} \right )^{2} } - \sqrt{1 + \left ( \frac{V - \omega L}{H} \right )^{2} } \right ] + \frac{1}{EA}\left ( VL - \frac{\omega L^{2}}{2} \right )}
 
 .. _single_line:
 
@@ -107,10 +107,12 @@ In this case, the forces :math:`H` and :math:`V` are found by simultaneously sol
 		     
 Single Line with Contact
 ~~~~~~~~~~~~~~~~~~~~~~~~
-The :eq:`euler` solution for the line in contact with a bottom boundary is found by continuing Eq. \ref{eq:EQ1a} beyond :math:`s=L_{B}` then adding a constant to ensure continuity of boundary conditions between equations. 
+The solution for the line in contact with a bottom boundary is found by continuing :math:`x(s)` and :math:`z(s)` beyond the seabed touch--down point :math:`s=L_{B}`.
+Integration constants are added to ensure continuity of boundary conditions between equations:
 
 .. math::
-   x\left ( s \right ) = 
+
+   \scriptsize{ x\left ( s \right ) = 
    \left\{\begin{matrix}
    s & \textup{if } 0 \leq s \leq x_{0}
    \\ 
@@ -122,54 +124,49 @@ The :eq:`euler` solution for the line in contact with a bottom boundary is found
    L_{B} + \frac{H}{\omega} \ln \left [ \frac{\omega\left ( s-L_{B} \right )}{H} + \sqrt{1 + \left ( \frac{\omega\left ( s-L_{B} \right )}{H} \right )^{2}} \right ] + \frac{Hs}{EA} +\frac{C_{B}\omega}{2EA}\left [ x_{0}\lambda - L_{B}^{2} \right ]
    \end{matrix} & \textup{if } L_{B} < s \leq L 
    \\ 
-   \end{matrix}\right.
-   :label: euler
+   \end{matrix}\right.}
 
 where :math:`\lambda` is:
 
 .. math::
-   \lambda = \left\{\begin{matrix}
+   \scriptsize{\lambda = \left\{\begin{matrix}
    L_{B} - \frac{H}{C_{B}\omega} & \textup{if } x_{0} > 0
    \\ 
    \\ 
    0 &\textup{otherwise }
-   \end{matrix}\right.
+   \end{matrix}\right.}
   
-The expression :math:`z(s)` is found by continuing Eq. \ref{eq:EQ1b} beyond point :math:`B`. 
 Between the range :math:`0\leq s \leq L_{B}`, the vertical height is zero since the line is resting on the seabed and forces can only occur parallel to the horizontal plane. 
 This produces:
 
 .. math::
-   z\left ( s \right ) = \left\{\begin{matrix}
+   \scriptsize{z\left ( s \right ) = \left\{\begin{matrix}
    0 & \textup{if } 0 \leq s \leq L_{B}
    \\ 
    \\
    \frac{H}{\omega}\left [ \sqrt{1 + \left ( \frac{\omega \left ( s - L_{B} \right )}{H} \right )^{2} } - 1\right ] + \frac{\omega \left ( s - L_{B} \right )^{2} }{2EA} & \textup{if } L_{B} < s \leq L
-   \end{matrix}\right.
+   \end{matrix}\right.}
 
-Equations \ref{eq:EQ15c} and \ref{eq:EQ17} produce the mooring line profile as a function of :math:`s`. 
-Ideally, a closed--form solution for :math:`l` and :math:`h` is sought to permit simultaneous solves for :math:`H` and :math:`V`, similar to Eqs. 3. 
-This is obtained by substituting :math:`s=L` into Eqs. \ref{eq:EQ15c} and \ref{eq:EQ17}. 
-This gives:
-
-.. math::
-   l = L_{B} + \left (\frac{H}{\omega}  \right ) \ln\left [ \frac{V}{H} + \sqrt{1+\left ( \frac{V}{H} \right )^{2}} \right ] + \frac{HL}{EA} + \frac{C_{B}\omega}{2EA}\left [ x_{0}\lambda - L_{B}^{2} \right ]
+The equations above produce the mooring line profile as a function of :math:`s`. 
+Ideally, a closed--form solution for :math:`l` and :math:`h` is sought to permit simultaneous solves for :math:`H` and :math:`V`, analogous to the freely--hanging chase in the previous section. 
+This is obtained by substituting :math:`s=L` to give:
 
 .. math::
-   h = \frac{H}{\omega}\left [ \sqrt{1 + \left (  \frac{V}{H} \right )^{2} } - 1 \right ] + \frac{V^{2}}{2EA\omega}
+   \scriptsize{l = L_{B} + \left (\frac{H}{\omega}  \right ) \ln\left [ \frac{V}{H} + \sqrt{1+\left ( \frac{V}{H} \right )^{2}} \right ] + \frac{HL}{EA} + \frac{C_{B}\omega}{2EA}\left [ x_{0}\lambda - L_{B}^{2} \right ]}
+
+.. math::
+   \scriptsize{h = \frac{H}{\omega}\left [ \sqrt{1 + \left (  \frac{V}{H} \right )^{2} } - 1 \right ] + \frac{V^{2}}{2EA\omega}}
 
 Finally, a useful quantity that is often evaluated is the tension as a function of :math:`s` along the line. 
 This is given using:
 
 .. math::
-   T_{e} \left ( s \right ) = \left\{\begin{matrix}
+   \scriptsize{T_{e} \left ( s \right ) = \left\{\begin{matrix}
    \textup{MAX} \left [ H+C_{B}\omega \left ( s-L_{B} \right ) \;,\; 0 \right ] & \textup{if }0 \leq s\leq L_{B}
    \\
    \\
    \sqrt{H^{2}+\left [ \omega\left ( s-L_{B} \right ) \right ]^{2}} &\textup{if } L_{B} < s \leq L
-   \end{matrix}\right.
-
-The choice of using Eqs. \ref{eq:EQ3a}$\sim$\ref{eq:EQ3b} or Eqs. \ref{eq:EQ18a}$\sim$\ref{eq:EQ18b} is decided by the program depending on the condition of Eq. \ref{eq:EQ5}; though, run--time flags can be enabled to override this feature so that the classical catenary equations for a suspended line (not in contact with the seabed) can be used.  
+   \end{matrix}\right.}
 
 .. figure:: nstatic/singleLineDefinition2.png
     :align: center
