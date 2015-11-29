@@ -2,7 +2,7 @@ Input File
 ==========
 
 A MAP input file initializes a mooring mode to provide essential information regarding the mooring line properties, declaring the number of nodes and lines in the system, association between nodes and lines, boundary conditions, and initial states.
-It is recommended to use a ``<*.map>`` extension to identify the MAP input file.
+We use the extension ``<*.map>`` to identify the MAP input file.
 The sample MAP input deck given below::
 
 	--------------- LINE DICTIONARY ----------------------------------------------
@@ -47,20 +47,69 @@ The MAP input file is divided into four sections:
 
 * **SOLVER OPTIONS:** Run-time options to engage different solve strategies.
 
-
 Line Dictionary
 ---------------
+
+   **LineType**     -- user-defined name [-]
+
+   **Diam**         -- material diameter [m]
+
+   **MassDenInAir** -- mass density in air [kg/m^3]
+
+   **EA**           -- element axial stiffness [N/m]
+
+   **CB**           -- cable/seabed friction coefficient [-]
+
+   **CIntDamp**     -- unused
+
+   **Ca**           -- unused
+
+   **Cdn**          -- unused
+
+   **Cdt**          -- unused
 
 Node Properties
 ---------------
 
+   **Node** -- node number (sequential).
+
+   **Type** --  type of node, which can be one of ``FIX``, ``CONNECT``, or ``VESSEL``. Vessel implied the node motion is prescribed.
+
+   **X**    -- X connection point relative to the global origin (if ``FIX`` or ``CONNECT``) or local vessel reference frame (if ``VESSEL``).  ``Connect`` nodes must be preceeded by a ``#`` is indicate this is as an initial guess.
+
+   **Y**    -- Y connection point relative to the global origin (if ``FIX`` or ``CONNECT``) or local vessel reference frame (if ``VESSEL``).  ``Connect`` nodes must be preceeded by a ``#`` is indicate this is as an initial guess.
+
+   **Z**    -- Z connection point relative to the global origin (if ``FIX`` or ``CONNECT``) or local vessel reference frame (if ``VESSEL``).  ``Connect`` nodes must be preceeded by a ``#`` is indicate this is as an initial guess.
+
+   **M**    -- point mass applied to the node. The force appled to the node is :math:`M\times g` applied in the direction of gravity.
+
+   **B**    -- displaced volume applied to node. The  force applied to the node is :math:`B\times \rho \times g` applied in the direction opposite of gravity. 
+
+   **FX**   -- X direction external force applied to node if ``CONNECT``. In the node is a ``VESSEL`` or ``FIX`` type, the ``#`` key must be used to indicate this is as an initial guess/iterated value.
+
+   **FY**   -- Y direction external force applied to node if ``CONNECT``. In the node is a ``VESSEL`` or ``FIX`` type, the ``#`` key must be used to indicate this is as an initial guess/iterated value.
+
+   **FZ**   -- Z direction external force applied to node if ``CONNECT``. In the node is a ``VESSEL`` or ``FIX`` type, the ``#`` key must be used to indicate this is as an initial guess/iterated value.
+
 Line Properties
 ---------------
 
- 
+   **Line**      -- line number (sequential).
+
+   **LineType**  -- line type. Must be one type defined in ``LineType`` from dictionary.
+
+   **UnstrLen**  -- unstretched line length.
+
+   **NodeAnch**  -- anchor node number.
+
+   **NodeFair**  -- fairlead node number.
+
+   **Flags**     -- line flag (defined below).
+
 Flags
 ----- 
-Flags are applied to individual lines.
+Flags are applied to individual lines. 
+These flags control the output text stream:
 
  * ``GX_POS`` - global X fairlead position [m]     
  * ``GY_POS`` - global Y fairlead position [m]  
@@ -82,6 +131,9 @@ Flags are applied to individual lines.
  * ``AZIMUTH`` - line azimuth angle with respect to the inertial reference frame [deg]
  * ``ALTITUDE`` - angle of declination at the fairlead [deg]
  * ``ALTITUDE_ANCH`` - line lift-off angle at the anchor [deg]
+
+The follow flags enable/disable features for each line they are applied to:
+
  * ``LINE_TENSION`` - line tension force magnitude at fairlead [N]
  * ``OMIT_CONTACT`` - ignore seabed boundary and treat line as freely hanging
  * ``LINEAR_SPRING`` - model the line as a linear spring. Intended for taut lines. 
@@ -112,8 +164,6 @@ Solver options are applied to the entire model domain.
  * ``KRYLOV_ACCELERATOR`` - use the Krylov accelerator algorithm developed in :cite:`scott2009`
  * ``REPEAT`` - repeat the element/nodes defined in the input file by mirroring the mooring pattern with a rotation about the Z-axis
  * ``REF_POSITION`` - reference position
-
-
 
 Default Options
 ---------------
