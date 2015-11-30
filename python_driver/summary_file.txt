@@ -1,0 +1,272 @@
+Outputs were generated using MAP++ c2fd-dirty.
+
+    Sunday November 29-2015 at 23:47:28 PM
+
+    Gravity constant          [m/s^2]  : 9.81
+    Sea density               [kg/m^3] : 1025.00
+    Water depth               [m]      : 350.00
+    Vessel reference position [m]      : 0.00 , 0.00 , 0.00
+
+    Cable Type          : steel
+    Diameter     [m]    : 0.2500
+    Mass Density [kg/m] : 320.00
+    EA           [N]    : 9800000000.00
+    omega        [N/m]  : 2645.61
+    CB                  : 1.00
+
+    Cable Type          : nylon
+    Diameter     [m]    : 0.3000
+    Mass Density [kg/m] : 100.00
+    EA           [N]    : 980000000.00
+    omega        [N/m]  : 270.24
+    CB                  : 1.00
+
+          | Node 1 Data            Node 2 Data            Node 3 Data            Node 4 Data
+          | -------------------------------------------------------------------------------------------
+Type      |  FIX                    CONNECT                VESSEL                 VESSEL
+X  [m]    |   400.000              ( 61.823)                20.000                 20.000
+Y  [m]    |  0.000                 (-0.000)                 20.000                -20.000
+Z  [m]    |  -350.000              (-87.215)               -10.000                -10.000
+M  [kg]   |  0.000                   0.000                  0.000                  0.000
+B  [m^3]  |  0.000                   0.000                  0.000                  0.000
+FX [N]    | ( 639482.279)          (-0.000)               (-325730.332)          (-325730.332)
+FY [N]    | (-0.000)               ( 0.000)               ( 155765.531)          (-155765.531)
+FZ [N]    | ( 0.000)               ( 0.000)               ( 613595.238)          ( 613595.238)
+
+
+          | Node 5 Data            Node 6 Data            Node 7 Data            Node 8 Data
+          | -------------------------------------------------------------------------------------------
+Type      |  FIX                    CONNECT                VESSEL                 VESSEL
+X  [m]    |  -200.000              (-30.912)                7.321                 -27.320
+Y  [m]    |  -346.410              (-53.540)               -27.320                -7.321
+Z  [m]    |  -350.000              (-87.215)               -10.000                -10.000
+M  [kg]   |  0.000                   0.000                  0.000                  0.000
+B  [m^3]  |  0.000                   0.000                  0.000                  0.000
+FX [N]    | (-319741.445)          ( 0.000)               ( 297762.036)          ( 27968.462)
+FY [N]    | (-553808.548)          ( 0.000)               ( 204207.986)          ( 359973.908)
+FZ [N]    | ( 0.000)               ( 0.000)               ( 613595.011)          ( 613595.742)
+
+
+          | Node 9 Data            Node 10 Data           Node 11 Data           Node 12 Data
+          | -------------------------------------------------------------------------------------------
+Type      |  FIX                    CONNECT                VESSEL                 VESSEL
+X  [m]    |  -200.000              (-30.912)               -27.320                 7.321
+Y  [m]    |   346.410              ( 53.540)                7.321                  27.320
+Z  [m]    |  -350.000              (-87.215)               -10.000                -10.000
+M  [kg]   |  0.000                   0.000                  0.000                  0.000
+B  [m^3]  |  0.000                   0.000                  0.000                  0.000
+FX [N]    | (-319741.445)          (-0.000)               ( 27968.462)           ( 297762.036)
+FY [N]    | ( 553808.548)          ( 0.000)               (-359973.908)          (-204207.986)
+FZ [N]    | ( 0.000)               (-0.000)               ( 613595.742)          ( 613595.011)
+
+
+                | Line 1
+                | ---------------------------------------
+Material        |  steel
+Lu        [m]   |  450.000
+Lb        [m]   |  4.528
+H         [N]   |  651460.663
+V         [N]   |  1178547.948
+T         [N]   |  1346616.598
+Alpha     [deg] |  61.068
+HAnch     [N]   |  639482.279
+VAnch     [N]   | 0.000
+TAnch     [N]   |  639482.279
+AlphaAnch [deg] | 0.000
+L^2-Norm        |  5.684342e-14
+Function Evals  |  2
+Jacobian Evals  |  1
+Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
+
+
+                | Line 2
+                | ---------------------------------------
+Material        |  nylon
+Lu        [m]   |  90.000
+Lb        [m]   | 0.000
+H         [N]   |  361058.374
+V         [N]   |  613595.238
+T         [N]   |  711942.600
+Alpha     [deg] |  59.526
+HAnch     [N]   |  361058.374
+VAnch     [N]   |  589273.974
+TAnch     [N]   |  691091.142
+AlphaAnch [deg] |  58.503
+L^2-Norm        |  1.558342e-13
+Function Evals  |  2
+Jacobian Evals  |  1
+Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
+
+
+                | Line 3
+                | ---------------------------------------
+Material        |  nylon
+Lu        [m]   |  90.000
+Lb        [m]   | 0.000
+H         [N]   |  361058.374
+V         [N]   |  613595.238
+T         [N]   |  711942.600
+Alpha     [deg] |  59.526
+HAnch     [N]   |  361058.374
+VAnch     [N]   |  589273.974
+TAnch     [N]   |  691091.142
+AlphaAnch [deg] |  58.503
+L^2-Norm        |  2.774758e-13
+Function Evals  |  2
+Jacobian Evals  |  1
+Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
+
+
+                | Line 4
+                | ---------------------------------------
+Material        |  steel
+Lu        [m]   |  450.000
+Lb        [m]   |  4.528
+H         [N]   |  651461.101
+V         [N]   |  1178548.226
+T         [N]   |  1346617.052
+Alpha     [deg] |  61.068
+HAnch     [N]   |  639482.994
+VAnch     [N]   | 0.000
+TAnch     [N]   |  639482.994
+AlphaAnch [deg] | 0.000
+L^2-Norm        |  5.684342e-14
+Function Evals  |  2
+Jacobian Evals  |  1
+Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
+
+
+                | Line 5
+                | ---------------------------------------
+Material        |  nylon
+Lu        [m]   |  90.000
+Lb        [m]   | 0.000
+H         [N]   |  361058.349
+V         [N]   |  613595.011
+T         [N]   |  711942.391
+Alpha     [deg] |  59.526
+HAnch     [N]   |  361058.349
+VAnch     [N]   |  589273.747
+TAnch     [N]   |  691090.935
+AlphaAnch [deg] |  58.503
+L^2-Norm        |  3.910568e-13
+Function Evals  |  2
+Jacobian Evals  |  1
+Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
+
+
+                | Line 6
+                | ---------------------------------------
+Material        |  nylon
+Lu        [m]   |  90.000
+Lb        [m]   | 0.000
+H         [N]   |  361058.789
+V         [N]   |  613595.742
+T         [N]   |  711943.245
+Alpha     [deg] |  59.526
+HAnch     [N]   |  361058.789
+VAnch     [N]   |  589274.478
+TAnch     [N]   |  691091.789
+AlphaAnch [deg] |  58.503
+L^2-Norm        |  2.799214e-13
+Function Evals  |  2
+Jacobian Evals  |  1
+Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
+
+
+                | Line 7
+                | ---------------------------------------
+Material        |  steel
+Lu        [m]   |  450.000
+Lb        [m]   |  4.528
+H         [N]   |  651461.101
+V         [N]   |  1178548.226
+T         [N]   |  1346617.052
+Alpha     [deg] |  61.068
+HAnch     [N]   |  639482.994
+VAnch     [N]   | 0.000
+TAnch     [N]   |  639482.994
+AlphaAnch [deg] | 0.000
+L^2-Norm        |  8.038873e-14
+Function Evals  |  3
+Jacobian Evals  |  2
+Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
+
+
+                | Line 8
+                | ---------------------------------------
+Material        |  nylon
+Lu        [m]   |  90.000
+Lb        [m]   | 0.000
+H         [N]   |  361058.789
+V         [N]   |  613595.742
+T         [N]   |  711943.245
+Alpha     [deg] |  59.526
+HAnch     [N]   |  361058.789
+VAnch     [N]   |  589274.478
+TAnch     [N]   |  691091.789
+AlphaAnch [deg] |  58.503
+L^2-Norm        |  3.240573e-13
+Function Evals  |  4
+Jacobian Evals  |  3
+Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
+
+
+                | Line 9
+                | ---------------------------------------
+Material        |  nylon
+Lu        [m]   |  90.000
+Lb        [m]   | 0.000
+H         [N]   |  361058.349
+V         [N]   |  613595.011
+T         [N]   |  711942.391
+Alpha     [deg] |  59.526
+HAnch     [N]   |  361058.349
+VAnch     [N]   |  589273.747
+TAnch     [N]   |  691090.935
+AlphaAnch [deg] |  58.503
+L^2-Norm        |  4.592217e-13
+Function Evals  |  4
+Jacobian Evals  |  3
+Term. criteria  |  2 : ||x_i - x_{i-1}||  <= INNER_XTOL.
+
+
+---------------------- LINE DICTIONARY ---------------------------------------
+LineType  Diam      MassDenInAir   EA            CB
+[-]       [m]       [kg/m]         [N]           [-]
+steel     0.25       320.0     9800000000   1.0    -999.9 -999.9 -999.9 -999.9
+nylon     0.30       100.0     980000000    1.0    -999.9 -999.9 -999.9 -999.9
+---------------------- NODE PROPERTIES ---------------------------------------
+Node  Type       X       Y       Z      M     B     FX    FY    FZ
+[-]   [-]       [m]     [m]     [m]    [kg]  [mˆ3]  [N]   [N]   [N]
+1    Fix     400        0     depth    0     0      #     #     #
+2    Connect #90       #0    #-80      0     0      0     0     0   
+3    Vessel   20        20    -10      0     0      #     #     #
+4    Vessel   20       -20    -10      0     0      #     #     #
+5   Fix   -200.0000   -346.4102   depth   0   0   #   #   #
+6   Connect   #-45.0000   #-77.9423   #-80.0000   0   0   0.0000   -0.0000   0.0000
+7   Vessel   7.3205   -27.3205   -10.0000   0   0   #   #   #
+8   Vessel   -27.3205   -7.3205   -10.0000   0   0   #   #   #
+9   Fix   -200.0000   346.4102   depth   0   0   #   #   #
+10   Connect   #-45.0000   #77.9423   #-80.0000   0   0   -0.0000   0.0000   0.0000
+11   Vessel   -27.3205   7.3205   -10.0000   0   0   #   #   #
+12   Vessel   7.3205   27.3205   -10.0000   0   0   #   #   #
+---------------------- LINE PROPERTIES ---------------------------------------
+Line  LineType  UnstrLen  NodeAnch  NodeFair  Flags
+[-]      [-]       [m]       [-]       [-]       [-]
+1       steel      450        1         2    
+2       nylon      90         2         3    
+3       nylon      90         2         4    
+4   steel   450   5   6   
+5   nylon   90   6   7   
+6   nylon   90   6   8   
+7   steel   450   9   10   
+8   nylon   90   10   11   
+9   nylon   90   10   12   
+---------------------- SOLVER OPTIONS-----------------------------------------
+Option 
+[-] 
+ help
+outer_tol 1e-4
+repeat 120 
+repeat 240
