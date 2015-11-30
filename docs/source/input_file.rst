@@ -50,61 +50,89 @@ The MAP input file is divided into four sections:
 Line Dictionary
 ---------------
 
-   **LineType**     -- user-defined name [-]
-
-   **Diam**         -- material diameter [m]
-
-   **MassDenInAir** -- mass density in air [kg/m^3]
-
-   **EA**           -- element axial stiffness [N/m]
-
-   **CB**           -- cable/seabed friction coefficient [-]
-
-   **CIntDamp**     -- unused
-
-   **Ca**           -- unused
-
-   **Cdn**          -- unused
-
-   **Cdt**          -- unused
++--------------+---------------------------------------------------------+
+| Variable     | Definition                                              |
++==================+=====================================================+
+| ``LineType``     | User--defined name [-]                              |
++------------------+-----------------------------------------------------+
+| ``Diam``         | Material diameter [m]                               |
++------------------+-----------------------------------------------------+
+| ``MassDenInAir`` | Mass density in air [kg/m^3]                        |
++------------------+-----------------------------------------------------+
+| ``EA``           | Element axial stiffness [N/m]                       |
++------------------+-----------------------------------------------------+
+| ``CB``           | Cable/seabed friction coefficient [-]               |
++------------------+-----------------------------------------------------+
+| ``CIntDamp``     | Unused                                              |
++------------------+-----------------------------------------------------+
+| ``Ca``           | Unused                                              |
++------------------+-----------------------------------------------------+
+| ``Cdn``          | Unused                                              |
++------------------+-----------------------------------------------------+
+| ``Cdt``          | Unused                                              |
++------------------+-----------------------------------------------------+
 
 Node Properties
 ---------------
 
-   **Node** -- node number (sequential).
-
-   **Type** --  type of node, which can be one of ``FIX``, ``CONNECT``, or ``VESSEL``. Vessel implied the node motion is prescribed.
-
-   **X**    -- X connection point relative to the global origin (if ``FIX`` or ``CONNECT``) or local vessel reference frame (if ``VESSEL``).  ``Connect`` nodes must be preceeded by a ``#`` is indicate this is as an initial guess.
-
-   **Y**    -- Y connection point relative to the global origin (if ``FIX`` or ``CONNECT``) or local vessel reference frame (if ``VESSEL``).  ``Connect`` nodes must be preceeded by a ``#`` is indicate this is as an initial guess.
-
-   **Z**    -- Z connection point relative to the global origin (if ``FIX`` or ``CONNECT``) or local vessel reference frame (if ``VESSEL``).  ``Connect`` nodes must be preceeded by a ``#`` is indicate this is as an initial guess.
-
-   **M**    -- point mass applied to the node. The force appled to the node is :math:`M\times g` applied in the direction of gravity.
-
-   **B**    -- displaced volume applied to node. The  force applied to the node is :math:`B\times \rho \times g` applied in the direction opposite of gravity. 
-
-   **FX**   -- X direction external force applied to node if ``CONNECT``. In the node is a ``VESSEL`` or ``FIX`` type, the ``#`` key must be used to indicate this is as an initial guess/iterated value.
-
-   **FY**   -- Y direction external force applied to node if ``CONNECT``. In the node is a ``VESSEL`` or ``FIX`` type, the ``#`` key must be used to indicate this is as an initial guess/iterated value.
-
-   **FZ**   -- Z direction external force applied to node if ``CONNECT``. In the node is a ``VESSEL`` or ``FIX`` type, the ``#`` key must be used to indicate this is as an initial guess/iterated value.
++------------+-------------------------------------------------------------------------------------------+
+| Variable   | Definition                                                                                |
++============+===========================================================================================+
+|   ``NODE`` | | Node number (sequential)                                                                |
++------------+-------------------------------------------------------------------------------------------+
+|            | | Type of node, which can be one of ``FIX``, ``CONNECT``, or ``VESSEL``.                  | 
+|   ``TYPE`` | | Vessel implied the node motion is prescribed.                                           |
++------------+-------------------------------------------------------------------------------------------+
+|            | | Global :math:`x` coordinate if node is ``FIX`` or ``CONNECT`` [m].                      |
+|   ``X``    | | Local :math:`x` cooridinate relative to vessel if node is ``VESSEL`` [m].               |
+|            | | ``Connect`` nodes must be preceeded by a ``#`` is indicate this is as an initial guess. |
++------------+-------------------------------------------------------------------------------------------+
+|            | | Global :math:`y` coordinate if node is ``FIX`` or ``CONNECT`` [m].                      |
+|   ``Y``    | | Local :math:`y` cooridinate relative to vessel if node is ``VESSEL`` [m].               |
+|            | | ``Connect`` nodes must be preceeded by a ``#`` is indicate this is as an initial guess. |
++------------+-------------------------------------------------------------------------------------------+
+|            | | Global :math:`z` coordinate if node is ``FIX`` or ``CONNECT`` [m].                      |
+|   ``Z``    | | Local :math:`z` cooridinate relative to vessel if node is ``VESSEL`` [m].               |
+|            | | ``Connect`` nodes must be preceeded by a ``#`` is indicate this is as an initial guess. |
++------------+-------------------------------------------------------------------------------------------+
+|            | | Point mass applied to the node [kg].                                                    |
+|   ``M``    | | The force appled to the node is :math:`M\times g` applied in the direction of gravity.  |
++------------+-------------------------------------------------------------------------------------------+
+|            | | Displaced volume applied to node [m^3].                                                 |
+|   ``B``    | | The force applied is :math:`B\times \rho \times g` applied opposite of gravity.         |
++------------+-------------------------------------------------------------------------------------------+
+|            | | :math:`x` direction external force applied to ``CONNECT`` node [N].                     | 
+|   ``FX``   | | ``VESSEL`` and ``FIX`` must use ``#`` to indicate iterated value.                       |
+|            | | ``#`` can be preceeded by user--suplied initial guess to speed convergence.             |
++------------+-------------------------------------------------------------------------------------------+
+|            | | :math:`y` direction external force applied to ``CONNECT`` node [N].                     | 
+|   ``FY``   | | ``VESSEL`` and ``FIX`` must use ``#`` to indicate iterated value.                       |
+|            | | ``#`` can be preceeded by user--suplied initial guess to speed convergence.             |
++------------+-------------------------------------------------------------------------------------------+
+|            | | :math:`z` direction external force applied to ``CONNECT`` node [N].                     | 
+|   ``FZ``   | | ``VESSEL`` and ``FIX`` must use ``#`` to indicate iterated value.                       |
+|            | | ``#`` can be preceeded by user--suplied initial guess to speed convergence.             |
++------------+-------------------------------------------------------------------------------------------+
 
 Line Properties
 ---------------
++--------------+--------------------------------------------------------------------------+
+| Variable     | Definition                                                               |
++==============+==========================================================================+
+| ``Line``     | | Line number (sequential).                                              |
++--------------+--------------------------------------------------------------------------+
+| ``LineType`` | | Line type. Must be one type defined in ``LineType`` from dictionary.   |
++--------------+--------------------------------------------------------------------------+
+| ``UnstrLen`` | | Unstretched line length [m].                                           |
++--------------+--------------------------------------------------------------------------+
+| ``NodeAnch`` | | Anchor node number                                                     |
++--------------+--------------------------------------------------------------------------+
+| ``NodeFair`` | | Fairlead node number                                                   |
++--------------+--------------------------------------------------------------------------+
+| ``Flags``    | | Line flag. Can include any command included in :ref:`flags`            |
++--------------+--------------------------------------------------------------------------+
 
-   **Line**      -- line number (sequential).
-
-   **LineType**  -- line type. Must be one type defined in ``LineType`` from dictionary.
-
-   **UnstrLen**  -- unstretched line length.
-
-   **NodeAnch**  -- anchor node number.
-
-   **NodeFair**  -- fairlead node number.
-
-   **Flags**     -- line flag (defined below).
+.. _flags:
 
 Flags
 ----- 
@@ -165,7 +193,7 @@ Solver options are applied to the entire model domain.
  * ``REPEAT`` - repeat the element/nodes defined in the input file by mirroring the mooring pattern with a rotation about the Z-axis
  * ``REF_POSITION`` - reference position
 
-Default Options
----------------
+Default Solver Options
+^^^^^^^^^^^^^^^^^^^^^^
 
 .. include-comment:: ../../src/mapinit.c
