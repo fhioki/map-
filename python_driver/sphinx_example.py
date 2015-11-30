@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-  Copyright (C) 2015 mdm                                     
+  Copyright (C) 2015 
   map[dot]plus[dot]plus[dot]help[at]gmail                     
   License: http://www.apache.org/licenses/LICENSE-2.0                 
 '''  

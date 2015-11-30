@@ -34,7 +34,7 @@ Frame :math:`\mathcal{F}_0` is an arbitrary global axis, but it is usually obser
 	</b></i></center></font>
 
 .. Note::
-   Simplistic way to think of MAP's dichotomy between nodes and elements:
+   Simplistic way to think of MAP++'s dichotomy between nodes and elements:
    Nodes define the force at connection points. 
    Elements define the mooring geometry.
 

@@ -136,7 +136,7 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
   print_machine_name_to_screen( );
 # endif 
      
-  printf("MAP environment properties (set externally)...\n");
+  printf("MAP++ environment properties (set externally)...\n");
   printf("    Gravity constant          [m/s^2]  : %1.2f\n", p_type->g ); 
   printf("    Sea density               [kg/m^3] : %1.2f\n", p_type->rho_sea );
   printf("    Water depth               [m]      : %1.2f\n", p_type->depth );

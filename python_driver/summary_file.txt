@@ -1,6 +1,6 @@
 Outputs were generated using MAP++ c2fd-dirty.
 
-    Sunday November 29-2015 at 23:47:28 PM
+    Monday November 30-2015 at 10:08:57 AM
 
     Gravity constant          [m/s^2]  : 9.81
     Sea density               [kg/m^3] : 1025.00
@@ -267,6 +267,6 @@ Line  LineType  UnstrLen  NodeAnch  NodeFair  Flags
 Option 
 [-] 
  help
-outer_tol 1e-4
+outer_tol 1e-5
 repeat 120 
 repeat 240

@@ -20,6 +20,6 @@ Line    LineType  UnstrLen  NodeAnch  NodeFair  Flags
 Option
 (-)
  help
-outer_tol 1e-4
+outer_tol 1e-5
 repeat 120 
 repeat 240

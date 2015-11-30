@@ -2,7 +2,7 @@ Release Notes
 =============
 
 .. Note::
-   Example input files are provided to demonstrate capabilities of MAP. 
+   Example input files are provided to demonstrate capabilities of MAP++. 
    These contrived examples should not be interpreted to represent realistic, practical moorings deployed in the field. 
 
 License

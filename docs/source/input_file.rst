@@ -1,15 +1,22 @@
 Input File
 ==========
 
-A MAP input file initializes a mooring mode to provide essential information regarding the mooring line properties, declaring the number of nodes and lines in the system, association between nodes and lines, boundary conditions, and initial states.
-We use the extension ``<*.map>`` to identify the MAP input file.
-The sample MAP input deck given below::
+The MAP++ input file define the mooring properties, material definitions, connections between lines, and identify lines anchored or attached to a vessel. 
+We use the extension ``<*.map>`` to identify the MAP++ input file.
+The sample MAP++ input deck and relevant commands are defined on this page. 
+
+.. _baseline_example:
+
+Baseline Example
+----------------
+
+The baseline example below is a template on how properties are defined in MAP++::
 
 	--------------- LINE DICTIONARY ----------------------------------------------
 	LineType  Diam      MassDenInAir   EA        CB   CIntDamp  Ca    Cdn    Cdt
 	(-)       (m)       (kg/m)        (N)        (-)   (Pa-s)   (-)   (-)    (-)
-	steel     0.25       319.07     9817477042   1.0   -999.9 -999.9 -999.9 -999.9
-	poly      0.30       98.96      989601685    1.0   -999.9 -999.9 -999.9 -999.9
+        mat_1     0.25       320.0     9800000000   1.0    -999.9 -999.9 -999.9 -999.9
+        mat_2     0.30       100.0     980000000    1.0    -999.9 -999.9 -999.9 -999.9
 	--------------- NODE PROPERTIES ----------------------------------------------
 	Node Type       X       Y       Z      M     B     FX    FY    FZ
 	(-)  (-)       (m)     (m)     (m)    (kg)  (mˆ3)  (N)   (N)   (N)
@@ -20,14 +27,16 @@ The sample MAP input deck given below::
 	--------------- LINE PROPERTIES ----------------------------------------------
 	Line    LineType  UnstrLen  NodeAnch  NodeFair  Flags
 	(-)      (-)       (m)       (-)       (-)       (-)
-	1       steel      450        1         2  
-	2       poly      #90         2         3  
-	3       poly      #90         2         4  
+	1       mat_1      450        1         2  
+	2       mat_2      90         2         3  
+	3       mat_2      90         2         4  
 	--------------- SOLVER OPTIONS------------------------------------------------
 	Option
 	(-)
+        outer_tol 1e-5
+         repeat 120 240
 
-acts as a template for defining parameters in a mooring system demonstrated here: 
+The space preceeding ``repeat 120 240`` indicates that line is a comment and is ignored by MAP++. Executing this input file produced the mooring geoemtry illustrated here:
 
 .. figure:: nstatic/input1a_image.png
     :align: center
@@ -37,7 +46,7 @@ acts as a template for defining parameters in a mooring system demonstrated here
    Environmental properties like water depth, sea density, and gavity constant are set by the calling program. 
    They are purposely absent in the MAP++ input file to prevent force imbalances from coefficient mismatches. 
 
-The MAP input file is divided into four sections:
+The MAP++ input file is divided into four sections:
 
 * **LINE DICTIONARY:** Defines the material properties of the line.
 
@@ -78,7 +87,7 @@ Node Properties
 +------------+-------------------------------------------------------------------------------------------+
 | Variable   | Definition                                                                                |
 +============+===========================================================================================+
-|   ``NODE`` | | Node number (sequential)                                                                |
+|   ``NODE`` | Node number (sequential)                                                                  |
 +------------+-------------------------------------------------------------------------------------------+
 |            | | Type of node, which can be one of ``FIX``, ``CONNECT``, or ``VESSEL``.                  | 
 |   ``TYPE`` | | Vessel implied the node motion is prescribed.                                           |
