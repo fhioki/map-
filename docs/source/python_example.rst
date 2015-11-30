@@ -1,7 +1,7 @@
 Python Example
 ==============
 
-This example will be run against the :ref:`the baseline input file <baseline_example>`. 
+This example will be run against the :ref:`baseline input file <baseline_example>`. 
 The water depth is :math:`350` meters. 
 The space preceeding the ``repeat 120 240`` solver option flag is removed to enable duplication of the mooring geometry twice with :math:`120^\circ` and :math:`240^\circ` offsets about the :math:`Z` axis. 
 
