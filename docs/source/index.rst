@@ -14,7 +14,7 @@ MAP++ Documentation
    theory.rst
    input_file.rst
    python_example.rst
-   license.rst
+   modules
    help.rst
    ref.rst
 

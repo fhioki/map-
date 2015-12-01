@@ -7,7 +7,13 @@ Release Notes
 
 License
 -------
-MAP++ is licensed under Apache v 2.0 :ref:`license`
+MAP++ is licensed under Apache v 2.0 :ref:`license`.
+
+.. toctree::
+   :maxdepth: 4
+   :hidden:
+   
+   license.rst
 
 Dependencies
 ------------

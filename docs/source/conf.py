@@ -22,8 +22,7 @@ import sphinx_rtd_theme
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
 
-
-
+sys.path.insert(0, os.path.abspath('../../python_driver'))
 
 # -- General configuration ------------------------------------------------
 
@@ -84,7 +83,7 @@ language = None
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = []
+exclude_patterns = ['driver.rst', 'main.rst', 'fast_driver.rst', 'sphinx_example.rst', 'fast_driver_support.rst']
 
 # The reST default role (used for this markup: `text`) to use for all
 # documents.

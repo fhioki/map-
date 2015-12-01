@@ -1,24 +1,22 @@
-'''
-  Copyright (C) 2014 mdm                                     
-  map[dot]plus[dot]plus[dot]help[at]gmail                     
-                                                             
-Licensed to the Apache Software Foundation (ASF) under one   
-or more contributor license agreements.  See the NOTICE file 
-distributed with this work for additional information        
-regarding copyright ownership.  The ASF licenses this file   
-to you under the Apache License, Version 2.0 (the            
-"License"); you may not use this file except in compliance   
-with the License.  You may obtain a copy of the License at   
-                                                             
-  http://www.apache.org/licenses/LICENSE-2.0                 
-                                                             
-Unless required by applicable law or agreed to in writing,   
-software distributed under the License is distributed on an  
-"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY       
-KIND, either express or implied.  See the License for the    
-specific language governing permissions and limitations            
-under the License.                                             
-'''  
+#   Copyright (C) 2014 mdm                                     
+#   map[dot]plus[dot]plus[dot]help[at]gmail                     
+#                                                              
+# Licensed to the Apache Software Foundation (ASF) under one   
+# or more contributor license agreements.  See the NOTICE file 
+# distributed with this work for additional information        
+# regarding copyright ownership.  The ASF licenses this file   
+# to you under the Apache License, Version 2.0 (the            
+# "License"); you may not use this file except in compliance   
+# with the License.  You may obtain a copy of the License at   
+#                                                              
+#   http://www.apache.org/licenses/LICENSE-2.0                 
+#                                                              
+# Unless required by applicable law or agreed to in writing,   
+# software distributed under the License is distributed on an  
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY       
+# KIND, either express or implied.  See the License for the    
+# specific language governing permissions and limitations            
+# under the License.                                             
 
 
 import sys
@@ -28,9 +26,8 @@ import os
 class Map(object):
     lib = cdll.LoadLibrary('../src/libmap-1.20.00.so')
 
-    '''
-    these are the fortran derived types created by the FAST registry.
-    '''
+
+    # these are the fortran derived types created by the FAST registry.
     f_type_init = None
     f_type_initout = None
     f_type_d = None
@@ -50,18 +47,16 @@ class Map(object):
         _fields_ = []
 
 
-    '''
-    void * object ;
-    double gravity ;
-    double seaDensity ;
-    double depth ;
-    char fileName[255] ;
-    char summaryFileName[255] ;
-    char libraryInputLine[255] ;
-    char nodeInputLine[255] ;
-    char elementInputLine[255] ;
-    char optionInputLine[255] ;
-    '''
+    # void * object ;
+    # double gravity ;
+    # double seaDensity ;
+    # double depth ;
+    # char fileName[255] ;
+    # char summaryFileName[255] ;
+    # char libraryInputLine[255] ;
+    # char nodeInputLine[255] ;
+    # char elementInputLine[255] ;
+    # char optionInputLine[255] ;
     class InitializationData_Type(Structure):
         _fields_= [("object",c_void_p),
                    ("gravity",c_double),
@@ -75,14 +70,14 @@ class Map(object):
                    ("optionInputLine",c_char*255)]
 
         
-    '''
-    void * object ;
-    char progName[99] ;
-    char version[99] ;
-    char compilingData[24] ;
-    char * writeOutputHdr ;     int writeOutputHdr_Len ;
-    char * writeOutputUnt ;     int writeOutputUnt_Len ;
-    '''
+
+    # void * object ;
+    # char progName[99] ;
+    # char version[99] ;
+    # char compilingData[24] ;
+    # char * writeOutputHdr ;     int writeOutputHdr_Len ;
+    # char * writeOutputUnt ;     int writeOutputUnt_Len ;
+
     class InitializationOutputData_Type(Structure):
         _fields_ = [("object",c_void_p),
                     ("progName",c_char*99),
@@ -101,12 +96,12 @@ class Map(object):
         _fields_ = []
 
         
-    '''
-    void * object ;
-    double g ;
-    double depth ;
-    double rhoSea ;
-    '''
+
+    # void * object ;
+    # double g ;
+    # double depth ;
+    # double rhoSea ;
+
     class ParameterData_Type(Structure):
         _fields_ = [("object",c_void_p),
                     ("g",c_double),
@@ -120,20 +115,18 @@ class Map(object):
 
     class ContinuousData_Type(Structure):
         _fields_ = []
+        
+    # fields for the fortran types
+    # 
+    # MAP_EXTERNCALL MAP_InitInputType_t* map_create_init_type( char* msg, MAP_ERROR_CODE* status );
+    # MAP_EXTERNCALL MAP_InitOutputType_t* map_create_initout_type( char* msg, MAP_ERROR_CODE* status );
+    # MAP_EXTERNCALL MAP_InputType_t* map_create_input_type( char* msg, MAP_ERROR_CODE* status );
+    # MAP_EXTERNCALL MAP_ParameterType_t* map_create_parameter_type( char* msg, MAP_ERROR_CODE* status );
+    # MAP_EXTERNCALL MAP_ConstraintStateType_t* map_create_constraint_type( char* msg, MAP_ERROR_CODE* status );
+    # MAP_EXTERNCALL MAP_OtherStateType_t* map_create_other_type( char* msg, MAP_ERROR_CODE* status );
+    # MAP_EXTERNCALL MAP_OutputType_t* map_create_output_type( char* msg, MAP_ERROR_CODE* status );
+    # MAP_EXTERNCALL MAP_ContinuousStateType_t* map_create_continuous_type( char* msg, MAP_ERROR_CODE* status );
 
-
-    '''
-    fields for the fortran types
-
-    MAP_EXTERNCALL MAP_InitInputType_t* map_create_init_type( char* msg, MAP_ERROR_CODE* status );
-    MAP_EXTERNCALL MAP_InitOutputType_t* map_create_initout_type( char* msg, MAP_ERROR_CODE* status );
-    MAP_EXTERNCALL MAP_InputType_t* map_create_input_type( char* msg, MAP_ERROR_CODE* status );
-    MAP_EXTERNCALL MAP_ParameterType_t* map_create_parameter_type( char* msg, MAP_ERROR_CODE* status );
-    MAP_EXTERNCALL MAP_ConstraintStateType_t* map_create_constraint_type( char* msg, MAP_ERROR_CODE* status );
-    MAP_EXTERNCALL MAP_OtherStateType_t* map_create_other_type( char* msg, MAP_ERROR_CODE* status );
-    MAP_EXTERNCALL MAP_OutputType_t* map_create_output_type( char* msg, MAP_ERROR_CODE* status );
-    MAP_EXTERNCALL MAP_ContinuousStateType_t* map_create_continuous_type( char* msg, MAP_ERROR_CODE* status );
-    '''
     MapData_Type       = POINTER(ModelData_Type)
     MapInit_Type       = POINTER(InitializationData_Type)
     MapInitOut_Type    = POINTER(InitializationOutputData_Type)
@@ -295,84 +288,73 @@ class Map(object):
             print self.status.value        
 
 
-    """
-    Calls function in main.c and fordatamanager.c to delete insteads of c structs. First, the malloc'ed arrays need to vanish
-    gracefully; we accomplish this by calling MAP_End(...) routine. Then, the structs themself are deleted. Order is important.
-
-    MAP_EXTERNCALL int MAP_End ( InputData *u, ParameterData *p, ContinuousData *x, ConstraintData *z, ModelData *data, OutputData *y, char *map_msg, MAP_ERROR_CODE *ierr )
-    MAP_EXTERNCALL void MAP_Input_Delete( InputData* u )
-    MAP_EXTERNCALL void MAP_Param_Delete( ParameterData* p )
-    MAP_EXTERNCALL void MAP_ContState_Delete( InputData* x )
-    MAP_EXTERNCALL void MAP_ConstrState_Delete( InputData* z )
-    MAP_EXTERNCALL void MAP_Output_Delete( InputData* y )
-    MAP_EXTERNCALL void MAP_OtherState_Delete( ModelData* data )
-    """
+    # Calls function in main.c and fordatamanager.c to delete insteads of c structs. First, the malloc'ed arrays need to vanish
+    # gracefully; we accomplish this by calling MAP_End(...) routine. Then, the structs themself are deleted. Order is important.
+    # 
+    # MAP_EXTERNCALL int MAP_End ( InputData *u, ParameterData *p, ContinuousData *x, ConstraintData *z, ModelData *data, OutputData *y, char *map_msg, MAP_ERROR_CODE *ierr )
+    # MAP_EXTERNCALL void MAP_Input_Delete( InputData* u )
+    # MAP_EXTERNCALL void MAP_Param_Delete( ParameterData* p )
+    # MAP_EXTERNCALL void MAP_ContState_Delete( InputData* x )
+    # MAP_EXTERNCALL void MAP_ConstrState_Delete( InputData* z )
+    # MAP_EXTERNCALL void MAP_Output_Delete( InputData* y )
+    # MAP_EXTERNCALL void MAP_OtherState_Delete( ModelData* data )
     def end(self):
         Map.lib.map_end(self.f_type_u, self.f_type_p, self.f_type_x, None, self.f_type_z, self.f_type_d, self.f_type_y, pointer(self.ierr), self.status)
 
 
-    """
-    Set a name for the MAP summary file. Does not need to be called. If not called, the default name is 'outlist.sum.map'
-    """
+
+    # Set a name for the MAP summary file. Does not need to be called. If not called, the default name is 'outlist.sum.map'
     def summary_file(self, echo_file):
         self.f_type_init.contents.summaryFileName = echo_file
         Map.lib.map_set_summary_file_name(self.f_type_init, self.status, pointer(self.ierr) )
 
 
-    """
-    Calls function in fortdatamanager.c to create instance of c structs
-    MAP_EXTERNCALL InitializationData* MAP_InitInput_Create( char* map_msg, MAP_ERROR_CODE* ierr )
-    """
+
+    # Calls function in fortdatamanager.c to create instance of c structs
+    # MAP_EXTERNCALL InitializationData* MAP_InitInput_Create( char* map_msg, MAP_ERROR_CODE* ierr )
     def CreateInitState( self ) :
         obj = Map.lib.map_create_init_type( self.status, pointer(self.ierr) )
         if self.ierr.value != 0 :
             print self.status.value        
         return obj
 
-    """
-    Calls function in fortdatamanager.c to create instance of c structs
-    MAP_EXTERNCALL void MAP_InitOutput_Delete( InputData* io )
-    """
+    # Calls function in fortdatamanager.c to create instance of c structs
+    # MAP_EXTERNCALL void MAP_InitOutput_Delete( InputData* io )
     def CreateInitoutState( self ) :
         obj = Map.lib.map_create_initout_type( self.status, pointer(self.ierr) )
         if self.ierr.value != 0 :
             print self.status.value        
         return obj
 
-    """
-    Calls function in fortdatamanager.c to create instance of c structs
-    MAP_EXTERNCALL ModelData *MAP_OtherState_Create( char *map_msg, MAP_ERROR_CODE *ierr )
-    """
+
+    # Calls function in fortdatamanager.c to create instance of c structs
+    # MAP_EXTERNCALL ModelData *MAP_OtherState_Create( char *map_msg, MAP_ERROR_CODE *ierr )
     def CreateDataState( self ) :
         obj = Map.lib.map_create_other_type( self.status, pointer(self.ierr) )
         if self.ierr.value != 0 :
             print self.status.value        
         return obj
 
-    """
-    Calls function in fortdatamanager.c to create instance of c structs
-    MAP_EXTERNCALL InputData* MAP_Input_Create( char* map_msg, MAP_ERROR_CODE *ierr )
-    """
+
+    # Calls function in fortdatamanager.c to create instance of c structs
+    # MAP_EXTERNCALL InputData* MAP_Input_Create( char* map_msg, MAP_ERROR_CODE *ierr )
     def CreateInputState( self ) :
         obj = Map.lib.map_create_input_type( self.status, pointer(self.ierr) )
         if self.ierr.value != 0 :
             print self.status.value        
         return obj
 
-    """
-    Calls function in fortdatamanager.c to create instance of c structs
-    MAP_EXTERNCALL ContinuousData* MAP_ContState_Create( char* map_msg, MAP_ERROR_CODE *ierr )
-    """
+
+    # Calls function in fortdatamanager.c to create instance of c structs
+    # MAP_EXTERNCALL ContinuousData* MAP_ContState_Create( char* map_msg, MAP_ERROR_CODE *ierr )
     def CreateContinuousState( self ) :
         obj = Map.lib.map_create_continuous_type( self.status, pointer(self.ierr) )
         if self.ierr.value != 0 :
             print self.status.value        
         return obj
 
-    """
-    Calls function in fortdatamanager.c to create instance of c structs
-    MAP_EXTERNCALL OutputData *MAP_Output_Create( char *map_msg, MAP_ERROR_CODE *ierr )
-    """
+    # Calls function in fortdatamanager.c to create instance of c structs
+    # MAP_EXTERNCALL OutputData *MAP_Output_Create( char *map_msg, MAP_ERROR_CODE *ierr )
     def CreateOutputState( self ) :
         obj = Map.lib.map_create_output_type( self.status, pointer(self.ierr) )
         if self.ierr.value != 0 :
@@ -380,10 +362,8 @@ class Map(object):
         return obj
 
 
-    """
-    Calls function in fortdatamanager.c to create instance of c structs
-    MAP_EXTERNCALL ConstraintData* MAP_ConstrState_Create( char* map_msg, MAP_ERROR_CODE *ierr )
-    """
+    # Calls function in fortdatamanager.c to create instance of c structs
+    # MAP_EXTERNCALL ConstraintData* MAP_ConstrState_Create( char* map_msg, MAP_ERROR_CODE *ierr )
     def CreateConstraintState( self ) :
         obj = Map.lib.map_create_constraint_type( self.status, pointer(self.ierr) )
         if self.ierr.value != 0 :
@@ -391,10 +371,8 @@ class Map(object):
         return obj
 
 
-    """
-    Calls function in fortdatamanager.c to create instance of c structs
-    MAP_EXTERNCALL ParameterData* MAP_Param_Create( char* map_msg, MAP_ERROR_CODE *ierr )
-    """
+    # Calls function in fortdatamanager.c to create instance of c structs
+    # MAP_EXTERNCALL ParameterData* MAP_Param_Create( char* map_msg, MAP_ERROR_CODE *ierr )
     def CreateParameterState( self ) :
         obj = Map.lib.map_create_parameter_type( self.status, pointer(self.ierr) )
         if self.ierr.value != 0 :
@@ -563,6 +541,19 @@ class Map(object):
 
 
     def linear( self, epsilon ) :
+        """Insert a function and its arguments in process pool.
+    
+        Input is inserted in queues using a round-robin fashion. Every job is
+        identified by and index that is returned by function. Not all parameters
+        of original multiprocessing.Pool.apply_aync are implemented so far.
+    
+        :param func: Function to process.
+        :type func: Callable.
+        :param args: Arguments for the function to process.
+        :type args: Tuple.
+        :returns: Assigned job id.
+        :rtype: Int.
+        """ 
         array = POINTER(POINTER(c_double))
         array = Map.lib.map_linearize_matrix( self.f_type_u, self.f_type_p, self.f_type_d, self.f_type_y, self.f_type_z, epsilon, pointer(self.ierr), self.status)        
         if self.ierr.value != 0 :
