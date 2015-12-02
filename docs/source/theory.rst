@@ -54,8 +54,12 @@ Interactions between solves is captured in the :ref:`flowchart below to summariz
 
 	<font size="2"><center><i><b>Partitioned approach to solve the multi-segmented, quasi-static problem.</b></i></center></font>
 
-Single Line
-~~~~~~~~~~~
+Line Theory
+-----------
+
+Free--Hanging Line
+~~~~~~~~~~~~~~~~~~
+
 The equations used to describe the shape of a suspended chain illustrated in :ref:`single_line` have been derived in numerous works :cite:`irvine1992`. 
 For completeness, a summary of the governing equations used inside the MSQS model are presented. 
 Given a set of line properties, the line geometry can be expressed as a function of the forces exerted at the end of the line:
@@ -105,7 +109,7 @@ In this case, the forces :math:`H` and :math:`V` are found by simultaneously sol
 	Single line definitions for a hanging catenary.
 	</b></i></center></font>
 		     
-Single Line with Contact
+Line Touching the Bottom
 ~~~~~~~~~~~~~~~~~~~~~~~~
 The solution for the line in contact with a bottom boundary is found by continuing :math:`x(s)` and :math:`z(s)` beyond the seabed touch--down point :math:`s=L_{B}`.
 Integration constants are added to ensure continuity of boundary conditions between equations:
@@ -181,9 +185,20 @@ This is given using:
 	</b></i></center></font>
 
 
+Vessel
+------
 
-Vessel Offset
-~~~~~~~~~~~~~
+Reference Origin
+~~~~~~~~~~~~~~~~
+
+.. math::
+   \mathbf{R} = \begin{bmatrix} \cos\psi \cos\theta   & \cos\psi \sin\theta \sin\phi - \sin\psi \cos\phi & \cos\psi  \sin\theta \cos\phi   + \sin\psi \sin\phi    
+   \\ 
+   \sin\psi \cos\theta & \sin\phi \sin\theta \sin\phi + \cos\psi \cos\phi & \sin\psi \sin\theta \cos\phi - \cos\psi \sin\phi   
+   \\ 
+   -\sin \theta   & \cos\theta \sin\phi   & \cos\theta \cos\phi   \end{bmatrix}
+
+
 
 .. figure:: nstatic/vessel.png
     :align: center
