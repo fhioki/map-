@@ -9,11 +9,11 @@ The force contribution at each element's anchor and fairlead is added to the cor
 The force-balance equation is evaluated for each node, as follows:
 
 .. math::
-   \scriptsize{\left \{ \mathbf{F} \right \}_{X}^{j} = \sum^{\textup{Elements $i$ at Node } j}_{i=1} \left [ H_{i}\cos(\alpha_{i}) \right ]-F_{X_{j}}^{ext} =0}
+   \scriptsize{\left \{ \mathbf{F} \right \}_{X}^{j} = \sum^{\text{Element i at Node } j}_{i=1} \left [ H_{i}\cos(\alpha_{i}) \right ]-F_{X_{j}}^{ext} =0}
   
-   \scriptsize{\left \{ \mathbf{F} \right \}_{Y}^{j} = \sum^{\textup{Elements $i$ at Node } j}_{i=1} \left [ H_{i}\sin(\alpha_{i}) \right ]-F_{Y_{j}}^{ext} =0}
+   \scriptsize{\left \{ \mathbf{F} \right \}_{Y}^{j} = \sum^{\text{Element $i$ at Node } j}_{i=1} \left [ H_{i}\sin(\alpha_{i}) \right ]-F_{Y_{j}}^{ext} =0}
   
-   \scriptsize{\left \{ \mathbf{F} \right \}_{Z}^{j} = \sum^{\textup{Elements $i$ at Node } j}_{i=1} \left [ V_{i} \right ]-F_{Z_{j}}^{ext} + M_{j}g - \rho g B_{j} =0}
+   \scriptsize{\left \{ \mathbf{F} \right \}_{Z}^{j} = \sum^{\text{Element $i$ at Node } j}_{i=1} \left [ V_{i} \right ]-F_{Z_{j}}^{ext} + M_{j}g - \rho g B_{j} =0}
 
 Node forces are found based on the connectivity geometry between element and external forces applied at the boundary conditions. 
 This :ref:`is initiated by defining a series <exploded_3d>` of :math:`\mathcal{F}_i` local frames at the origin in which the individual line elements are expressed in. 
@@ -69,7 +69,7 @@ Given a set of line properties, the line geometry can be expressed as a function
 where:
 
 .. math::
-   \scriptsize{\omega = gA\left ( \rho_{\textup{cable}}-\rho \right )}
+   \scriptsize{\omega = gA\left ( \rho_{\text{cable}}-\rho \right )}
 
 and :math:`x` and :math:`z` are coordinate axes in the local (element) frame, :ref:`exploded_3d`. 
 The following substitution can be made for :math:`V_a` in the above equations:
@@ -114,15 +114,15 @@ Integration constants are added to ensure continuity of boundary conditions betw
 
    \scriptsize{ x\left ( s \right ) = 
    \left\{\begin{matrix}
-   s & \textup{if } 0 \leq s \leq x_{0}
+   s & \text{if } 0 \leq s \leq x_{0}
    \\ 
    \\ 
-   s + \frac{C_{B}\omega}{2EA}\left [ s^{2} - 2x_{0}s + x_{0}\lambda \right ] & \textup{if } x_{0}  < s \leq L_{B} 
+   s + \frac{C_{B}\omega}{2EA}\left [ s^{2} - 2x_{0}s + x_{0}\lambda \right ] & \text{if } x_{0}  < s \leq L_{B} 
    \\ 
    \\ 
    \begin{matrix}
    L_{B} + \frac{H}{\omega} \ln \left [ \frac{\omega\left ( s-L_{B} \right )}{H} + \sqrt{1 + \left ( \frac{\omega\left ( s-L_{B} \right )}{H} \right )^{2}} \right ] + \frac{Hs}{EA} +\frac{C_{B}\omega}{2EA}\left [ x_{0}\lambda - L_{B}^{2} \right ]
-   \end{matrix} & \textup{if } L_{B} < s \leq L 
+   \end{matrix} & \text{if } L_{B} < s \leq L 
    \\ 
    \end{matrix}\right.}
 
@@ -130,10 +130,10 @@ where :math:`\lambda` is:
 
 .. math::
    \scriptsize{\lambda = \left\{\begin{matrix}
-   L_{B} - \frac{H}{C_{B}\omega} & \textup{if } x_{0} > 0
+   L_{B} - \frac{H}{C_{B}\omega} & \text{if } x_{0} > 0
    \\ 
    \\ 
-   0 &\textup{otherwise }
+   0 &\text{otherwise }
    \end{matrix}\right.}
   
 Between the range :math:`0\leq s \leq L_{B}`, the vertical height is zero since the line is resting on the seabed and forces can only occur parallel to the horizontal plane. 
@@ -141,10 +141,10 @@ This produces:
 
 .. math::
    \scriptsize{z\left ( s \right ) = \left\{\begin{matrix}
-   0 & \textup{if } 0 \leq s \leq L_{B}
+   0 & \text{if } 0 \leq s \leq L_{B}
    \\ 
    \\
-   \frac{H}{\omega}\left [ \sqrt{1 + \left ( \frac{\omega \left ( s - L_{B} \right )}{H} \right )^{2} } - 1\right ] + \frac{\omega \left ( s - L_{B} \right )^{2} }{2EA} & \textup{if } L_{B} < s \leq L
+   \frac{H}{\omega}\left [ \sqrt{1 + \left ( \frac{\omega \left ( s - L_{B} \right )}{H} \right )^{2} } - 1\right ] + \frac{\omega \left ( s - L_{B} \right )^{2} }{2EA} & \text{if } L_{B} < s \leq L
    \end{matrix}\right.}
 
 The equations above produce the mooring line profile as a function of :math:`s`. 
@@ -162,10 +162,10 @@ This is given using:
 
 .. math::
    \scriptsize{T_{e} \left ( s \right ) = \left\{\begin{matrix}
-   \textup{MAX} \left [ H+C_{B}\omega \left ( s-L_{B} \right ) \;,\; 0 \right ] & \textup{if }0 \leq s\leq L_{B}
+   \text{MAX} \left [ H+C_{B}\omega \left ( s-L_{B} \right ) \;,\; 0 \right ] & \text{if }0 \leq s\leq L_{B}
    \\
    \\
-   \sqrt{H^{2}+\left [ \omega\left ( s-L_{B} \right ) \right ]^{2}} &\textup{if } L_{B} < s \leq L
+   \sqrt{H^{2}+\left [ \omega\left ( s-L_{B} \right ) \right ]^{2}} &\text{if } L_{B} < s \leq L
    \end{matrix}\right.}
 
 .. figure:: nstatic/singleLineDefinition2.png
