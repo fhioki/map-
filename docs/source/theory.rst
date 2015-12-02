@@ -179,3 +179,20 @@ This is given using:
 	<font size="2"><center><i><b>
 	Single line definitions for a catenary touching a bottom boundary with friction.
 	</b></i></center></font>
+
+
+
+Vessel Offset
+~~~~~~~~~~~~~
+
+.. figure:: nstatic/vessel.png
+    :align: center
+    :width: 90%
+
+    Fig. 6
+    
+    .. raw:: html
+
+	<font size="2"><center><i><b>
+	Vessel kinematic breakdown to describe fairlead position relative to the origin.
+	</b></i></center></font>
