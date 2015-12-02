@@ -1,8 +1,3 @@
-"""
-sdhfsjdfhsdkfhksd
-"""
-
-
 #   Copyright (C) 2014 mdm                                     
 #   map[dot]plus[dot]plus[dot]help[at]gmail                     
 #                                                              

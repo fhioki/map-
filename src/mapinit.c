@@ -1296,15 +1296,17 @@ MAP_ERROR_CODE initialize_cable_library_variables(Domain* domain, MAP_ParameterT
     library_iter->omega = g*(mu-area*rho_fluid);
 
     library_iter->a = area;
-    if (fabs(library_iter->omega)<=1.0E-3) {
-      set_universal_error_with_message(map_msg, ierr, MAP_WARNING_5, "omega = %f <= 1.0", library_iter->omega);
+    if (fabs(library_iter->omega)<=1.0) {
+      set_universal_error_with_message(map_msg, ierr, MAP_WARNING_5, 
+                                       "omega = %f <= 1.0", library_iter->omega);
     };
   };
   list_iterator_stop(&domain->library); /* ending the iteration "session" */    
   
-  if (fabs(library_iter->omega)<=1.0E-6) {
+  if (fabs(library_iter->omega)<=1.0E-3) {
     return MAP_FATAL;
   }
+  /* end read */
   return MAP_SAFE;
 };
 

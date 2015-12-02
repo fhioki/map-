@@ -15,6 +15,7 @@ MAP++
    input_file.rst
    python_example.rst
    modules
+   faq.rst
    help.rst
    ref.rst
 

@@ -1,11 +1,6 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''
-http://www.apache.org/licenses/LICENSE-2.0                 
-'''  
-
-# import list
 from mapsys import *
 import math
 import matplotlib.pyplot as plt
@@ -34,38 +29,50 @@ def plot_mooring_system(mooring_data):
     ax.set_zlabel('Z [m]')        
 
 
-
-if __name__ == '__main__':      
-    ''' 
+def start():
+    """
     Step 1) First initialize an instance of a mooring system
-    ''' 
+
+    Step 2) Assume that (X, Y, Z, phi, theta, psi) are the translation and rotation displacement of the vessel. 
+    These displacements are fed into MAP as an argument to displace the fairlead. With the fairlead(s) 
+    rigidly connected to the vessel, the (X, Y, Z, phi, theta, psi) directly manifests into the fairlead
+    position in the global frame. 
+    
+    For the time being, assume a sinusoidal displacement of the vessel
+
+    Step 3) This for-loop emulates the time-stepping procedure. You want to loop through the length of 
+    the arrays (X,Y,Z,phi,theta,psi) to retrieve the fairlead force
+
+    Step 4) update the MAP state. The arguments in displace_vessel are the displace displacements and rotations about the reference origin. 
+    In this case, the reference origin is (0,0,0). 
+    They can be set to a different potision using a run-time argument (this is an advanced feature).
+
+    Step 5) get the fairlead tension. The get_fairlead_force_3d returns the fairlead force in 
+    X, Y Z coordinates. This must be called at each time-step, and then stored into an array. We append 
+    the empty lists created on lines 84-88.
+
+    .. Note::
+
+       MAP does *NOT* return the mooring restoring moment, The user must calculate this 
+       themself using the cross-product between the WEC reference origin and the mooring attached
+       point, i.e.,
+    
+       :math:`\mathbf{Moment} = \mathbf{r} \times \mathbf{F}`
+    """
+
+    # Step 1
     mooring = Map() 
     mooring.map_set_sea_depth(120)        # m
     mooring.map_set_gravity(9.81)         # m/s^2
     mooring.map_set_sea_density(1020.0)   # kg/m^2
     mooring.read_file('../test/baseline_1.map')   # input file
-    mooring.summary_file('wec_summary_file.sum.txt') # output summary file name at the conclusion of initialization
+    mooring.summary_file('summary_file.sum.txt') # output summary file name at the conclusion of initialization
     
     mooring.init()                # solve the cable equilibrium profile
     plot_mooring_system(mooring) # Optional: call the user function to illustrate the mooring equilibrium profile
-
-
-    epsilon = 1e-3
-    K = mooring.linear(epsilon)    
-    print "\nHere is the linearized stiffness matrix with zero vessel displacement:"
-    print np.array(K)
-
     
-    '''
-    Step 2) Assume that (X, Y, Z, phi, theta, psi) are the translation and rotation displacement of the WEC. 
-    These displacements are fed into MAP as an argument to displace the fairlead. With the fairlead(s) 
-    rigidly connected to the WEC, the (X, Y, Z, phi, theta, psi) directly manifests into the fairlead
-    position in the global frame. 
 
-    For the time being, assume a sinusoidal displacement of the WEC
-    '''    
-
-    # initialize list to zero (this is artificial. This would be prescribed the by WEC program)
+    # initialize list to zero (this is artificial. This would be prescribed the by vessel program)
     X,Y,Z,phi,theta,psi = ([0.0 for i in xrange(500)] for _ in xrange(6))
     time = []
 
@@ -79,15 +86,14 @@ if __name__ == '__main__':
         X[i] = (amplitude)*(math.sin(i*0.05))
         theta[i] = (amplitude)*(math.sin(i*0.025))
 
-    # Optional: plot the WEC displacement (surge=X and pitch=theta) as a function of time
+    # Optional: plot the vessel displacement (surge=X and pitch=theta) as a function of time
     plt.figure(2)
     plt.plot(time,X,lw=2,label='Surge displacement')
     plt.plot(time,theta,lw=2,label='Pitch displacement')
-    plt.title('Displacement of WEC\n Relative to Reference Origin (0,0,0)')
+    plt.title('Vessel Translation/Rotation')
     plt.ylabel('Amplitude [m,deg]')
     plt.xlabel('Time [sec]')
     plt.legend()
-
 
     # create an empty list of the line tension. We will store result from MAP in these lists
     line1_fx, line1_fy, line1_fz = ([] for _ in xrange(3))
@@ -95,27 +101,17 @@ if __name__ == '__main__':
     line3_fx, line3_fy, line3_fz = ([] for _ in xrange(3))
     line4_fx, line4_fy, line4_fz = ([] for _ in xrange(3))
 
+    # Step 3) 
+    for i in xrange(len(X)):        
+        # Step 4) 
 
+        # displace the vessel, X,Y,X are in units of m, and phi, theta, psi are in units of degrees
+        mooring.displace_vessel(X[i], Y[i], Z[i], phi[i], theta[i], psi[i]) 
 
-    '''
-    Step 3) This for-loop emulates the time-stepping procedure. You want to loop through the length of 
-    the arrays (X,Y,Z,phi,theta,psi) to retrieve the fairlead force
-    '''
-    for i in xrange(len(X)):
-        '''
-        Step 4) update the MAP state. The arguments in displace_vessel are the WEC displacements and rotations about the reference origin. In this case, the reference origin is (0,0,0). 
-        They can be set to a different potision using a run-time argument (this is an advanced feature).
-        '''
-        mooring.displace_vessel(X[i], Y[i], Z[i], phi[i], theta[i], psi[i]) # displace the vessel, X,Y,X are in units of m, and phi, theta, psi are in units of degrees
-        mooring.update_states(time[i], 0)                                   # first argument is the current time. Second argument is the coupling interval (used in FAST)
+        # first argument is the current time. Second argument is the coupling interval (used in FAST)
+        mooring.update_states(time[i], 0)                                   
 
-
-        
-        '''
-        Step 5) get the fairlead tension. The get_fairlead_force_3d returns the fairlead force in 
-        X, Y Z coordinates. This must be called at each time-step, and then stored into an array. We append 
-        the empty lists created on lines 84-88.
-        '''
+        # Step 5) 
         # line 1 tensions in X, Y and Z. Note that python is indexed started at zero
         fx, fy, fz = mooring.get_fairlead_force_3d(0) # arugment is the line number
         line1_fx.append(fx)
@@ -139,15 +135,6 @@ if __name__ == '__main__':
         line4_fx.append(fx)
         line4_fy.append(fy)
         line4_fz.append(fz)        
-
-        '''
-        Note that MAP does *NOT* return the mooring restoring moment, The user must calculate this 
-        themself using the cross-product between the WEC reference origin and the mooring attached
-        point, i.e.,
-
-        moment = [rx, ry, rz] (cross-product) [fx, fy, fz]
-        '''
-
 
     # Optional: plot line tension time history
     plt.figure(3)
@@ -177,4 +164,7 @@ if __name__ == '__main__':
     plt.ylabel('Z Fairlead Force [N]')
     plt.xlabel('Time [sec]')
 
-    # plt.show()
+    plt.show()
+
+if __name__ == '__main__':      
+    start()

@@ -89,7 +89,9 @@ The equations for :math:`x(s)` and :math:`z(s)` both describe the catenary profi
 However, in practice, the force terms :math:`H` and :math:`V` are sought, and the known entity is the fairlead excursion dimensions, :math:`l` and :math:`l`. 
 In this case, the forces :math:`H` and :math:`V` are found by simultaneously solving the following two equations:
 
-.. math::
+.. _eq_horizontal:
+
+.. math:: 
    \scriptsize{l = \frac{H}{\omega} \left [  \ln\left ( \frac{V}{H} +\sqrt{1+\left ( \frac{V}{H} \right )^{2}}\right )- \ln\left ( \frac{V-\omega L}{H} + \sqrt{1+ \left ( \frac{V-\omega L}{H}  \right )^{2}}\right ) \right ] + \frac{HL}{EA}}
 
 .. math::

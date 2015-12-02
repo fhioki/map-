@@ -1,6 +1,9 @@
 Python Example
 ==============
 
+Static Configuration
+--------------------
+
 This example will be run against the :ref:`baseline input file <baseline_example>`. 
 The water depth is :math:`350` meters. 
 The space preceeding the ``repeat 120 240`` solver option flag is removed to enable duplication of the mooring geometry twice with :math:`120^\circ` and :math:`240^\circ` offsets about the :math:`Z` axis. 
@@ -9,7 +12,7 @@ The space preceeding the ``repeat 120 240`` solver option flag is removed to ena
    :language: python
 
 Output
-------
+~~~~~~
 
 Two outputs are produced executing the stript above. 
 Information explicitly requested is printed to the command line:
@@ -46,4 +49,64 @@ A figure is also produced to show the mooring geometry with a :math:`5` meter ve
 
 .. figure:: nstatic/example.png
     :align: center
-    :width: 400pt
+    :width: 60%
+
+    Fig. 7
+    
+    .. raw:: html
+
+	<font size="2"><center><i><b>
+	Vessel kinematic breakdown to describe fairlead position relative to the origin.
+	</b></i></center></font>
+
+Time-Marching for Dynamics Simulation
+-------------------------------------
+
+.. automodule:: driver
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    :exclude-members: plot_mooring_system
+
+.. .. literalinclude:: ../../python_driver/driver.py
+..    :language: python
+.. 
+.. Output
+.. ~~~~~~
+.. 
+.. .. figure:: nstatic/time_domain_1.png
+..     :align: center
+..     :width: 60%
+.. 
+..     Fig. 8
+..     
+..     .. raw:: html
+.. 
+.. 	<font size="2"><center><i><b>
+.. 	Mooring footprint
+.. 	</b></i></center></font>
+.. 
+.. .. figure:: nstatic/time_domain_2.png
+..     :align: center
+..     :width: 60%
+.. 
+..     Fig. 9
+..     
+..     .. raw:: html
+.. 
+.. 	<font size="2"><center><i><b>
+.. 	Precribed displacement of the vessel fed to MAP++.
+.. 	</b></i></center></font>
+.. 
+.. .. figure:: nstatic/time_domain_3.png
+..     :align: center
+..     :width: 60%
+.. 
+..     Fig. 10
+..     
+..     .. raw:: html
+.. 
+.. 	<font size="2"><center><i><b>
+.. 	Fairlead line tensions for the respective lines. 
+.. 	</b></i></center></font>
+

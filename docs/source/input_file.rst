@@ -262,6 +262,7 @@ Solver options are applied to the entire model domain.
 
 Default Solver Options
 ^^^^^^^^^^^^^^^^^^^^^^
+.. _default_options:
 
 +-------------------+---------------------+
 | Variable          | Definition          |
