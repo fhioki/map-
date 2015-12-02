@@ -180,17 +180,6 @@ MAP_ERROR_CODE allocate_outlist(Domain* data, char* map_msg, MAP_ERROR_CODE* ier
 };
 
 
-/**
-
- * ``INNER_FTOL`` - 1.0E-6
-
- * ``INNER_GTOL`` - 1.0E-6
-
- * ``INNER_XTOL`` - 1.0E-6
-
- * ``INNER_MAX_ITS`` - 500
-
- */
 void initialize_inner_solve_data_defaults(InnerSolveAttributes* inner)
 {
   inner->f_tol = 1e-6;
@@ -221,17 +210,16 @@ void initialize_model_option_defaults(DomainOptions* options)
 
 
 /**
- * ``OUTER_MAX_ITS`` - 500
 
- * ``OUTER_TOL`` - 1.0E-6
+   +------------------------+------------------------------------------------------------------------+ 
+   | Variable               | Definition                                                             | 
+   +========================+========================================================================+ 
+   | ``HELP``               | prints a list of options on the command line when MAP++ initializes    | 
+   +------------------------+------------------------------------------------------------------------+ 
+  
+999 
 
- * ``OUTER_EPSILON`` - 1.0E-3
-
- * ``OUTER_BD`` 
-
- * ``REF_POSITION`` - <0.0 , 0.0 , 0.0>
-
- */
+*/
 
 /* deallocated in free_outer_solve_data() */
 void initialize_outer_solve_data_defaults(OuterSolveAttributes* outer) 

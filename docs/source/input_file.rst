@@ -59,27 +59,27 @@ The MAP++ input file is divided into four sections:
 Line Dictionary
 ---------------
 
-+--------------+---------------------------------------------------------+
-| Variable     | Definition                                              |
-+==================+=====================================================+
-| ``LineType``     | User--defined name [-]                              |
-+------------------+-----------------------------------------------------+
-| ``Diam``         | Material diameter [m]                               |
-+------------------+-----------------------------------------------------+
-| ``MassDenInAir`` | Mass density in air [kg/m^3]                        |
-+------------------+-----------------------------------------------------+
-| ``EA``           | Element axial stiffness [N/m]                       |
-+------------------+-----------------------------------------------------+
-| ``CB``           | Cable/seabed friction coefficient [-]               |
-+------------------+-----------------------------------------------------+
-| ``CIntDamp``     | Unused                                              |
-+------------------+-----------------------------------------------------+
-| ``Ca``           | Unused                                              |
-+------------------+-----------------------------------------------------+
-| ``Cdn``          | Unused                                              |
-+------------------+-----------------------------------------------------+
-| ``Cdt``          | Unused                                              |
-+------------------+-----------------------------------------------------+
++--------------+--------------------------------------------+
+| Variable     | Definition                                 |
++==================+========================================+
+| ``LineType``     | User--defined name [-]                 |
++------------------+----------------------------------------+
+| ``Diam``         | Material diameter [m]                  |
++------------------+----------------------------------------+
+| ``MassDenInAir`` | Mass density in air [kg/m^3]           |
++------------------+----------------------------------------+
+| ``EA``           | Element axial stiffness [N/m]          |
++------------------+----------------------------------------+
+| ``CB``           | Cable/seabed friction coefficient [-]  |
++------------------+----------------------------------------+
+| ``CIntDamp``     | Unused                                 |
++------------------+----------------------------------------+
+| ``Ca``           | Unused                                 |
++------------------+----------------------------------------+
+| ``Cdn``          | Unused                                 |
++------------------+----------------------------------------+
+| ``Cdt``          | Unused                                 |
++------------------+----------------------------------------+
 
 Node Properties
 ---------------
@@ -87,44 +87,45 @@ Node Properties
 +------------+-------------------------------------------------------------------------------------------+
 | Variable   | Definition                                                                                |
 +============+===========================================================================================+
-|   ``NODE`` | Node number (sequential)                                                                  |
+|  ``NODE``  | Node number (sequential)                                                                  |
 +------------+-------------------------------------------------------------------------------------------+
-|            | | Type of node, which can be one of ``FIX``, ``CONNECT``, or ``VESSEL``.                  | 
-|   ``TYPE`` | | Vessel implied the node motion is prescribed.                                           |
+|  ``TYPE``  | | Type of node, which can be one of ``FIX``, ``CONNECT``, or ``VESSEL``.                  | 
+|            | | Vessel implied the node motion is prescribed.                                           |
 +------------+-------------------------------------------------------------------------------------------+
-|            | | Global :math:`x` coordinate if node is ``FIX`` or ``CONNECT`` [m].                      |
-|   ``X``    | | Local :math:`x` cooridinate relative to vessel if node is ``VESSEL`` [m].               |
+|  ``X``     | | Global :math:`x` coordinate if node is ``FIX`` or ``CONNECT`` [m].                      |
+|            | | Local :math:`x` cooridinate relative to vessel if node is ``VESSEL`` [m].               |
 |            | | ``Connect`` nodes must be preceeded by a ``#`` is indicate this is as an initial guess. |
 +------------+-------------------------------------------------------------------------------------------+
-|            | | Global :math:`y` coordinate if node is ``FIX`` or ``CONNECT`` [m].                      |
-|   ``Y``    | | Local :math:`y` cooridinate relative to vessel if node is ``VESSEL`` [m].               |
+|  ``Y``     | | Global :math:`y` coordinate if node is ``FIX`` or ``CONNECT`` [m].                      |
+|            | | Local :math:`y` cooridinate relative to vessel if node is ``VESSEL`` [m].               |
 |            | | ``Connect`` nodes must be preceeded by a ``#`` is indicate this is as an initial guess. |
 +------------+-------------------------------------------------------------------------------------------+
-|            | | Global :math:`z` coordinate if node is ``FIX`` or ``CONNECT`` [m].                      |
-|   ``Z``    | | Local :math:`z` cooridinate relative to vessel if node is ``VESSEL`` [m].               |
+|  ``Z``     | | Global :math:`z` coordinate if node is ``FIX`` or ``CONNECT`` [m].                      |
+|            | | Local :math:`z` cooridinate relative to vessel if node is ``VESSEL`` [m].               |
 |            | | ``Connect`` nodes must be preceeded by a ``#`` is indicate this is as an initial guess. |
 +------------+-------------------------------------------------------------------------------------------+
-|            | | Point mass applied to the node [kg].                                                    |
-|   ``M``    | | The force appled to the node is :math:`M\times g` applied in the direction of gravity.  |
+|  ``M``     | | Point mass applied to the node [kg].                                                    |
+|            | | The force appled to the node is :math:`M\times g` applied in the direction of gravity.  |
 +------------+-------------------------------------------------------------------------------------------+
-|            | | Displaced volume applied to node [m^3].                                                 |
-|   ``B``    | | The force applied is :math:`B\times \rho \times g` applied opposite of gravity.         |
+|  ``B``     | | Displaced volume applied to node [m^3].                                                 |
+|            | | The force applied is :math:`B\times \rho \times g` applied opposite of gravity.         |
 +------------+-------------------------------------------------------------------------------------------+
-|            | | :math:`x` direction external force applied to ``CONNECT`` node [N].                     | 
-|   ``FX``   | | ``VESSEL`` and ``FIX`` must use ``#`` to indicate iterated value.                       |
+|  ``FX``    | | :math:`x` direction external force applied to ``CONNECT`` node [N].                     | 
+|            | | ``VESSEL`` and ``FIX`` must use ``#`` to indicate iterated value.                       |
 |            | | ``#`` can be preceeded by user--suplied initial guess to speed convergence.             |
 +------------+-------------------------------------------------------------------------------------------+
-|            | | :math:`y` direction external force applied to ``CONNECT`` node [N].                     | 
-|   ``FY``   | | ``VESSEL`` and ``FIX`` must use ``#`` to indicate iterated value.                       |
+|  ``FY``    | | :math:`y` direction external force applied to ``CONNECT`` node [N].                     | 
+|            | | ``VESSEL`` and ``FIX`` must use ``#`` to indicate iterated value.                       |
 |            | | ``#`` can be preceeded by user--suplied initial guess to speed convergence.             |
 +------------+-------------------------------------------------------------------------------------------+
-|            | | :math:`z` direction external force applied to ``CONNECT`` node [N].                     | 
-|   ``FZ``   | | ``VESSEL`` and ``FIX`` must use ``#`` to indicate iterated value.                       |
+|  ``FZ``    | | :math:`z` direction external force applied to ``CONNECT`` node [N].                     | 
+|            | | ``VESSEL`` and ``FIX`` must use ``#`` to indicate iterated value.                       |
 |            | | ``#`` can be preceeded by user--suplied initial guess to speed convergence.             |
 +------------+-------------------------------------------------------------------------------------------+
 
 Line Properties
 ---------------
+
 +--------------+------------------------------------------------------------------------+
 | Variable     | Definition                                                             |
 +==============+========================================================================+
@@ -148,61 +149,141 @@ Flags
 Flags are applied to individual lines. 
 These flags control the output text stream:
 
- * ``GX_POS`` - global X fairlead position [m]     
- * ``GY_POS`` - global Y fairlead position [m]  
- * ``GZ_POS`` - global Z fairlead position [m]  
- * ``GX_A_POS`` - global X position of anchor [m]
- * ``GY_A_POS`` - global Y position of anchor [m]  
- * ``GZ_A_POS`` - global Z position of anchor [m]
- * ``GX_FORCE`` - global X fairlead force [N]
- * ``GY_FORCE`` - global Y fairlead force [N]
- * ``GZ_FORCE`` - global Z fairlead force [N]
- * ``H_FAIR`` - horizontal (XY plane) fairlead force [N] 
- * ``H_ANCH`` - horizontal (XY plane) anchor force [N]  
- * ``V_FAIR`` - vertical (Z axis) fairlead force [N]
- * ``V_ANCH`` - vertical (Z axis) anchor force [N]  
- * ``TENSION_FAIR`` - fairlead force magnitude, [N] 
- * ``TENSION_ANCH`` - anchor force magnitude, [N]  
- * ``X_EXCURSION`` - line horizontal excursion [m]
- * ``Z_EXCURSION`` - line veritical excursion [m]
- * ``AZIMUTH`` - line azimuth angle with respect to the inertial reference frame [deg]
- * ``ALTITUDE`` - angle of declination at the fairlead [deg]
- * ``ALTITUDE_ANCH`` - line lift-off angle at the anchor [deg]
++--------------------+------------------------------------------------------------------------+
+| Variable           | Definition                                                             |
++====================+========================================================================+
+|  ``GX_POS``        | global X fairlead position [m]                                         |
++--------------------+------------------------------------------------------------------------+
+|  ``GY_POS``        | global Y fairlead position [m]                                         |
++--------------------+------------------------------------------------------------------------+
+|  ``GZ_POS``        | global Z fairlead position [m]                                         |
++--------------------+------------------------------------------------------------------------+
+|  ``GX_A_POS``      | global X position of anchor [m]                                        |
++--------------------+------------------------------------------------------------------------+
+|  ``GY_A_POS``      | global Y position of anchor [m]                                        |
++--------------------+------------------------------------------------------------------------+
+|  ``GZ_A_POS``      | global Z position of anchor [m]                                        |
++--------------------+------------------------------------------------------------------------+
+|  ``GX_FORCE``      | global X fairlead force [N]                                            |
++--------------------+------------------------------------------------------------------------+
+|  ``GY_FORCE``      | global Y fairlead force [N]                                            |
++--------------------+------------------------------------------------------------------------+
+|  ``GZ_FORCE``      | global Z fairlead force [N]                                            |
++--------------------+------------------------------------------------------------------------+
+|  ``H_FAIR``        | horizontal (XY plane) fairlead force [N]                               |
++--------------------+------------------------------------------------------------------------+
+|  ``H_ANCH``        | horizontal (XY plane) anchor force [N]                                 |
++--------------------+------------------------------------------------------------------------+
+|  ``V_FAIR``        | vertical (Z axis) fairlead force [N]                                   |
++--------------------+------------------------------------------------------------------------+
+|  ``V_ANCH``        | vertical (Z axis) anchor force [N]                                     |  
++--------------------+------------------------------------------------------------------------+
+|  ``TENSION_FAIR``  | fairlead force magnitude, [N]                                          |
++--------------------+------------------------------------------------------------------------+
+|  ``TENSION_ANCH``  | anchor force magnitude, [N]                                            |
++--------------------+------------------------------------------------------------------------+
+|  ``X_EXCURSION``   | line horizontal excursion [m]                                          |
++--------------------+------------------------------------------------------------------------+
+|  ``Z_EXCURSION``   | line veritical excursion [m]                                           |
++--------------------+------------------------------------------------------------------------+
+|  ``AZIMUTH``       | line azimuth angle with respect to the inertial reference frame [deg]  |
++--------------------+------------------------------------------------------------------------+
+|  ``ALTITUDE``      | angle of declination at the fairlead [deg]                             |
++--------------------+------------------------------------------------------------------------+
+|  ``ALTITUDE_ANCH`` | line lift|off angle at the anchor [deg]                                |
++--------------------+------------------------------------------------------------------------+
 
 The follow flags enable/disable features for each line they are applied to:
 
- * ``LINE_TENSION`` - line tension force magnitude at fairlead [N]
- * ``OMIT_CONTACT`` - ignore seabed boundary and treat line as freely hanging
- * ``LINEAR_SPRING`` - model the line as a linear spring. Intended for taut lines. 
- * ``LAY_LENGTH`` - amount of line laying on the seabed [m]
- * ``DAMAGE_TIME`` - time [sec] to disconnect fairlead from node
- * ``DIAGNOSTIC`` - run diagonostics on line for each solve iteration
-
++-------------------+---------------------------------------------------------------+
+| Variable          | Definition                                                    |
++===================+===============================================================+
+| ``LINE_TENSION``  | line tension force magnitude at fairlead [N]                  |
++-------------------+---------------------------------------------------------------+
+| ``OMIT_CONTACT``  | ignore seabed boundary and treat line as freely hanging       |
++-------------------+---------------------------------------------------------------+
+| ``LINEAR_SPRING`` | model the line as a linear spring. Intended for taut lines    | 
++-------------------+---------------------------------------------------------------+
+| ``LAY_LENGTH``    | amount of line laying on the seabed [m]                       |
++-------------------+---------------------------------------------------------------+
+| ``DAMAGE_TIME``   | time [sec] to disconnect fairlead from node                   |
++-------------------+---------------------------------------------------------------+
+| ``DIAGNOSTIC``    | run diagonostics on line for each solve iteration             |
++-------------------+---------------------------------------------------------------+
+   
 Solver Options
 --------------
+
 Solver options are applied to the entire model domain.
 
- * ``HELP`` - prints a list of options on the command line when MAP++ initializes
- * ``INNER_FTOL`` - inner loop function tolerance
- * ``INNER_GTOL`` - desired orthogonality between the function evaluations and Jacobian column
- * ``INNER_XTOL`` - inner loop consecutive iterate tolerance
- * ``INNER_MAX_ITS`` - maximum inner loop iterations 
- * ``OUTER_MAX_ITS`` - maximum outer loop iterations
- * ``OUTER_TOL`` - outer loop tolerance
- * ``OUTER_EPSILON`` - Not used
- * ``INTEGRATION_DT`` - Not used
- * ``KB_DEFAULT`` - Not used
- * ``CB_DEFAULT`` - Not used
- * ``OUTER_CD`` - central difference Jacobian (outer loop solve only)
- * ``OUTER_BD`` - backward difference Jacobian (outer loop solve only)
- * ``OUTER_FD`` - forward difference Jacobian (outer loop solve only)
- * ``LM_MODEL`` - Not used
- * ``PG_COOKED`` - use the relaxation algorithm developed in :cite:`peyrot1979`
- * ``KRYLOV_ACCELERATOR`` - use the Krylov accelerator algorithm developed in :cite:`scott2009`
- * ``REPEAT`` - repeat the element/nodes defined in the input file by mirroring the mooring pattern with a rotation about the Z-axis
- * ``REF_POSITION`` - reference position
++------------------------+------------------------------------------------------------------------+
+| Variable               | Definition                                                             |
++========================+========================================================================+
+| ``HELP``               | prints a list of options on the command line when MAP++ initializes    |
++------------------------+------------------------------------------------------------------------+
+| ``INNER_FTOL``         | inner loop function tolerance                                          |
++------------------------+------------------------------------------------------------------------+
+| ``INNER_GTOL``         | | desired orthogonality between the function evaluations and Jacobian  |
+|                        | | column                                                               |
++------------------------+------------------------------------------------------------------------+
+| ``INNER_XTOL``         | inner loop consecutive iterate tolerance                               |
++------------------------+------------------------------------------------------------------------+
+| ``INNER_MAX_ITS``      | maximum inner loop iterations                                          |
++------------------------+------------------------------------------------------------------------+
+| ``OUTER_MAX_ITS``      | maximum outer loop iterations                                          |
++------------------------+------------------------------------------------------------------------+
+| ``OUTER_TOL``          | outer loop tolerance                                                   |
++------------------------+------------------------------------------------------------------------+
+| ``OUTER_EPSILON``      | Not used                                                               |
++------------------------+------------------------------------------------------------------------+
+| ``INTEGRATION_DT``     | Not used                                                               |
++------------------------+------------------------------------------------------------------------+
+| ``KB_DEFAULT``         | Not used                                                               |
++------------------------+------------------------------------------------------------------------+
+| ``CB_DEFAULT``         | Not used                                                               |
++------------------------+------------------------------------------------------------------------+
+| ``OUTER_CD``           | central difference Jacobian (outer loop solve only)                    |
++------------------------+------------------------------------------------------------------------+
+| ``OUTER_BD``           | backward difference Jacobian (outer loop solve only)                   |
++------------------------+------------------------------------------------------------------------+
+| ``OUTER_FD``           | forward difference Jacobian (outer loop solve only)                    |
++------------------------+------------------------------------------------------------------------+
+| ``LM_MODEL``           | Not used                                                               |
++------------------------+------------------------------------------------------------------------+
+| ``PG_COOKED``          | use the relaxation algorithm developed in :cite:`peyrot1979`           |
++------------------------+------------------------------------------------------------------------+
+| ``KRYLOV_ACCELERATOR`` | use the Krylov accelerator algorithm developed in :cite:`scott2009`    |
++------------------------+------------------------------------------------------------------------+
+| ``REPEAT``             | | repeat the element/nodes defined in the input file by mirroring the  | 
+|                        | | mooring pattern with a rotation about the Z-axis                     | 
++------------------------+------------------------------------------------------------------------+ 
+| ``REF_POSITION``       | reference position                                                     | 
++------------------------+------------------------------------------------------------------------+ 
 
 Default Solver Options
 ^^^^^^^^^^^^^^^^^^^^^^
 
-.. include-comment:: ../../src/mapinit.c
++-------------------+---------------------+
+| Variable          | Definition          |
++===================+=====================+
+| ``INNER_FTOL``    | 1.0E-6              |
++-------------------+---------------------+
+| ``INNER_GTOL``    | 1.0E-6              |
++-------------------+---------------------+
+| ``INNER_XTOL``    | 1.0E-6              |
++-------------------+---------------------+
+| ``INNER_MAX_ITS`` | 500                 |
++-------------------+---------------------+
+| ``OUTER_MAX_ITS`` | 500                 |
++-------------------+---------------------+
+| ``OUTER_TOL``     | 1.0E-6              |
++-------------------+---------------------+
+| ``OUTER_EPSILON`` | 1.0E-3              |
++-------------------+---------------------+
+| ``OUTER_BD``      |                     |
++-------------------+---------------------+
+| ``REF_POSITION``  | <0.0 , 0.0 , 0.0>   |
++-------------------+---------------------+
+
+.. .. include-comment:: ../../src/mapinit.c
+
