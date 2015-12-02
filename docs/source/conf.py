@@ -55,7 +55,7 @@ sys.path.insert(0, os.path.abspath('../../python_driver'))
 extensions = [
     'sphinx.ext.autodoc',
     'sphinxcontrib.bibtex',
-    'sphinx.ext.pngmath',
+    'sphinx.ext.mathjax',
     'sphinxcontrib.cmtinc',
 ]
 # extensions = []
