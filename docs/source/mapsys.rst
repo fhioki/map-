@@ -1,7 +1,3 @@
-.. raw:: html
- 
-    <link rel="shortcut icon" href="http://sstatic.net/stackoverflow/img/favicon.ico">
-
 Python API
 =============
 
