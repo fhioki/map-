@@ -1,3 +1,4 @@
-../../python_driver/
+./python_driver/
+
 sphinxcontrib-bibtex
 sphinxcontrib-cmtinc
