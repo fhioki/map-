@@ -70,43 +70,43 @@ Time-Marching for Dynamics Simulation
 
 .. .. literalinclude:: ../../python_driver/driver.py
 ..    :language: python
-.. 
-.. Output
-.. ~~~~~~
-.. 
-.. .. figure:: nstatic/time_domain_1.png
-..     :align: center
-..     :width: 60%
-.. 
-..     Fig. 8
-..     
-..     .. raw:: html
-.. 
-.. 	<font size="2"><center><i><b>
-.. 	Mooring footprint
-.. 	</b></i></center></font>
-.. 
-.. .. figure:: nstatic/time_domain_2.png
-..     :align: center
-..     :width: 60%
-.. 
-..     Fig. 9
-..     
-..     .. raw:: html
-.. 
-.. 	<font size="2"><center><i><b>
-.. 	Precribed displacement of the vessel fed to MAP++.
-.. 	</b></i></center></font>
-.. 
-.. .. figure:: nstatic/time_domain_3.png
-..     :align: center
-..     :width: 60%
-.. 
-..     Fig. 10
-..     
-..     .. raw:: html
-.. 
-.. 	<font size="2"><center><i><b>
-.. 	Fairlead line tensions for the respective lines. 
-.. 	</b></i></center></font>
+
+Output
+~~~~~~
+
+.. figure:: nstatic/time_domain_1.png
+    :align: center
+    :width: 60%
+
+    Fig. 8
+    
+    .. raw:: html
+
+	<font size="2"><center><i><b>
+	Mooring footprint
+	</b></i></center></font>
+
+.. figure:: nstatic/time_domain_2.png
+    :align: center
+    :width: 60%
+
+    Fig. 9
+    
+    .. raw:: html
+
+	<font size="2"><center><i><b>
+	Precribed displacement of the vessel fed to MAP++.
+	</b></i></center></font>
+
+.. figure:: nstatic/time_domain_3.png
+    :align: center
+    :width: 60%
+
+    Fig. 10
+    
+    .. raw:: html
+
+	<font size="2"><center><i><b>
+	Fairlead line tensions for the respective lines. 
+	</b></i></center></font>
 
