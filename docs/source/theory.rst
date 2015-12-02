@@ -56,7 +56,7 @@ Interactions between solves is captured in the :ref:`flowchart below to summariz
 
 Single Line
 ~~~~~~~~~~~
-The equations used to describe the shape of a suspended chain illustrated in :ref:`single_line` have been derived in numerous works :cite:`wilson03,irvine1992`. 
+The equations used to describe the shape of a suspended chain illustrated in :ref:`single_line` have been derived in numerous works :cite:`irvine1992`. 
 For completeness, a summary of the governing equations used inside the MSQS model are presented. 
 Given a set of line properties, the line geometry can be expressed as a function of the forces exerted at the end of the line:
 
