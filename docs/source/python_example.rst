@@ -1,5 +1,6 @@
 Python Example
 ==============
+.. _quick_start:
 
 Static Configuration
 --------------------
