@@ -18,12 +18,13 @@
 # specific language governing permissions and limitations            
 # under the License.                                             
 
-
 import sys
 from ctypes import *
 import os
 
 class Map(object):
+    """A collection of method for the mooring line
+    """
     lib = cdll.LoadLibrary('../src/libmap-1.20.00.so')
 
 
@@ -269,6 +270,7 @@ class Map(object):
         self.summary_file("outlist.map.sum")
 
 
+    @classmethod
     def init( self ):
         Map.lib.map_init( self.f_type_init, self.f_type_u, self.f_type_p, self.f_type_x, None, self.f_type_z, self.f_type_d, self.f_type_y, self.f_type_initout, pointer(self.ierr), self.status )
         if self.ierr.value != 0 :

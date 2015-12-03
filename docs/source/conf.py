@@ -33,7 +33,7 @@ import sphinx_rtd_theme
 #         else:
 #             return Mock()
 # 
-# MOCK_MODULES = ['mapsys','driver']
+# MOCK_MODULES = ['mapsys']
 # for mod_name in MOCK_MODULES:
 #     sys.modules[mod_name] = Mock()
 
@@ -57,7 +57,6 @@ extensions = [
     'sphinxcontrib.bibtex',
     'sphinx.ext.mathjax',
     'sphinx.ext.todo',
-#    'sphinx.ext.pngmath',
     'sphinxcontrib.cmtinc',
 ]
 # extensions = []
