@@ -16,43 +16,15 @@ import sys
 import os
 import shlex
 import sphinx_rtd_theme
-from mock import MagicMock
-
-# class Mock(MagicMock):
-#     @classmethod
-#     def __getattr__(cls, name):
-#             return Mock()
-# 
-# MOCK_MODULES = ['mapsys', 'numpy']
-# sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 
-# class Mock(object):
-#     def __init__(self, *args, **kwargs):
-#         pass
-# 
-#     def __call__(self, *args, **kwargs):
-#         return Mock()
-# 
-#     @classmethod
-#     def __getattr__(self, name):
-#         if name in ('__file__', '__path__'):
-#             return '/dev/null'
-#         elif name[0] == name[0].upper():
-#             return type(name, (), {})
-#         else:
-#             return Mock()
-# 
-# MOCK_MODULES = ['mapsys']
-# for mod_name in MOCK_MODULES:
-#     sys.modules[mod_name] = Mock()
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
 
-sys.path.insert(0, os.path.abspath('../../python_driver'))
+sys.path.insert(0, os.path.abspath('../../python_driver/'))
 
 # -- General configuration ------------------------------------------------
 
@@ -69,9 +41,8 @@ extensions = [
     'sphinx.ext.todo',
     'sphinxcontrib.cmtinc',
 ]
-# extensions = []
 
-autodoc_mock_imports = ['numpy']
+# autodoc_mock_imports = ['mapsys','numpy']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['ntemplates']
@@ -116,7 +87,7 @@ language = None
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ['driver.rst', 'main.rst', 'fast_driver.rst', 'sphinx_example.rst', 'fast_driver_support.rst']
+# exclude_patterns = ['']
 
 # The reST default role (used for this markup: `text`) to use for all
 # documents.

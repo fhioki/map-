@@ -23,7 +23,28 @@ import sys
 from ctypes import *
 import os
 
+
 class Map(object):
+    def get_fairlead_force_2d(self, index):
+        """Gets the horizontal and vertical fairlead force in a 2D plane along the 
+        straight-line line. Must ensure update_states() is called before accessing 
+        this function. The function will not solve the forces for a new vessel position
+        if it updated. , otherwise the fairlead forces are not updated with the new 
+        vessel position. Called C function:
+        
+        MAP_EXTERNCALL void map_get_fairlead_force_2d(double* H, double* V, MAP_OtherStateType_t* other_type, int index, char* map_msg, MAP_ERROR_CODE* ierr);
+    
+        :param index: The line number the fairlead forces are being requested for. Zero indexed
+        :returns: horizontal and vertical fairlead force [N]
+    
+        >>> H,V = print get_fairlead_force_2d(1)        
+        """
+        H_ref = c_double(-999.9)
+        V_ref = c_double(-999.9)
+        Map.lib.map_get_fairlead_force_2d( pointer(H_ref), pointer(V_ref),self.f_type_d, index, self.status, pointer(self.ierr))
+        return H_ref.value, V_ref.value
+    
+
     """A collection of methods for the MAP++ program"""
     lib = cdll.LoadLibrary('../src/libmap-1.20.00.so')
 
@@ -438,25 +459,6 @@ class Map(object):
 
 
 
-    def get_fairlead_force_2d(self, index):
-        """Gets the horizontal and vertical fairlead force in a 2D plane along the 
-        straight-line line. Must ensure update_states() is called before accessing 
-        this function. The function will not solve the forces for a new vessel position
-        if it updated. , otherwise the fairlead forces are not updated with the new 
-        vessel position. Called C function:
-        
-        MAP_EXTERNCALL void map_get_fairlead_force_2d(double* H, double* V, MAP_OtherStateType_t* other_type, int index, char* map_msg, MAP_ERROR_CODE* ierr);
-    
-        :param index: The line number the fairlead forces are being requested for. Zero indexed
-        :returns: horizontal and vertical fairlead force [N]
-    
-        >>> H,V = print get_fairlead_force_2d(1)        
-        """
-        H_ref = c_double(-999.9)
-        V_ref = c_double(-999.9)
-        Map.lib.map_get_fairlead_force_2d( pointer(H_ref), pointer(V_ref),self.f_type_d, index, self.status, pointer(self.ierr))
-        return H_ref.value, V_ref.value
-    
     
     def get_fairlead_force_3d(self, index):
         """Gets the horizontal and vertical fairlead force in a 3D frame along relative 
@@ -540,7 +542,7 @@ class Map(object):
             sys.exit('MAP terminated premature.')
         return self.val
 
-
+    @classmethod
     def linear( self, epsilon ) :
         """Insert a function and its arguments in process pool.
     
