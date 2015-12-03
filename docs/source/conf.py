@@ -33,7 +33,7 @@ class Mock(object):
         else:
             return Mock()
 
-MOCK_MODULES = ['mapsys','driver']
+MOCK_MODULES = ['mapsys,driver']
 for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = Mock()
 
@@ -78,7 +78,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'MAP++'
-copyright = u'2015, MAP++ users'
+copyright = u'2015, mdm'
 author = u'Marco Masciola'
 
 # The version info for the project you're documenting, acts as replacement for
