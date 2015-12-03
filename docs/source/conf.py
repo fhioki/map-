@@ -71,6 +71,8 @@ extensions = [
 ]
 # extensions = []
 
+autodoc_mock_imports = ['Map','numpy']
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['ntemplates']
 
