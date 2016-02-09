@@ -18,34 +18,41 @@
 # specific language governing permissions and limitations            
 # under the License.                                             
 
+MAP_VER:=1.20.00
 
 BITS = -m64
 PLATFORM = $(shell uname -s)
-# CMINPACK_DIR = cminpack
-# BSTRING_DIR = bstring
-# SIMCLIST_DIR = simclist
-# LAPACK_DIR = lapack
-
 VPATH = cminpack:simclist:bstring:lapack
 
 
-ifeq ($(PLATFORM),Darwin)
-  CC_TOOLS  = clang
-  CFLAGS    = -g -O1 -fno-omit-frame-pointer -fPIC -D DEBUG -Icminpack -Isimclist
-  LDFLAGS   = -g -dynamiclib 
-else ifeq ($(PLATFORM),Linux)
-  CC_TOOLS  = gcc
-  #CFLAGS    = -g -O1 -fsanitize=address -fno-omit-frame-pointer -fPIC -D DEBUG -DGITVERSION=\"$(GIT_VERSION)\" -Icminpack -Isimclist
-  #CFLAGS    = -g -fPIC -std=c99 -Wuninitialized -Wall -D DEBUG -DGITVERSION=\"$(GIT_VERSION)\" 
-  CFLAGS    = $(BITS) -g -Wall -Wno-unused-but-set-variable -fPIC -std=c99 -D DEBUG -DGITVERSION=\"$(GIT_VERSION)\" -D WITH_LAPACK
-  LDFLAGS   = $(BITS) -g -shared -llapacke
+ifeq ($(OS),Windows_NT)
+  DEL_CMD   = del
+  LIB_EXT   = dll
+  CFLAGS    = $(BITS) -g -std=c99 -DMAP_DLL_EXPORTS -DCMINPACK_NO_DLL  -DNDEBUG -D_WINDOWS -D_USRDLL -D_MINGW
+  LDFLAGS   = $(BITS) -g -shared -Wl,--export-all-symbols
+  LIB_FLAGS :=
+else
+  PLATFORM = $(shell uname -s)
+  DEL_CMD   = rm -rf
+  GIT_VERSION := $(shell git describe --abbrev=4 --dirty --always)
+
+  ifeq ($(PLATFORM),Darwin)
+    LIB_EXT   = dylib
+    CC_TOOLS  = clang
+    CFLAGS    = -g -O1 -fno-omit-frame-pointer -fPIC -D DEBUG -Icminpack -Isimclist
+    LDFLAGS   = -g -dynamiclib
+    LIB_FLAGS := -lm
+  else ifeq ($(PLATFORM),Linux)
+    LIB_EXT   = so
+    CC_TOOLS  = gcc
+    #CFLAGS    = -g -O1 -fsanitize=address -fno-omit-frame-pointer -fPIC -D DEBUG -DGITVERSION=\"$(GIT_VERSION)\" -Icminpack -Isimclist
+    #CFLAGS    = -g -fPIC -std=c99 -Wuninitialized -Wall -D DEBUG -DGITVERSION=\"$(GIT_VERSION)\"
+    CFLAGS    = $(BITS) -g -fPIC -std=c99 -D DEBUG -DGITVERSION=\"$(GIT_VERSION)\" -D WITH_LAPACK
+    LDFLAGS   = $(BITS) -g -shared -llapacke
+    LIB_FLAGS := -lm -llapacke
+  endif
 endif
 
-
-
-
-
-GIT_VERSION := $(shell git describe --abbrev=4 --dirty --always)
 DEBUG     = 
 OBJ       = lmder.o \
 	dpmpar.o \
@@ -68,19 +75,15 @@ OBJ       = lmder.o \
 	jacobian.o \
 	residual.o \
 
-ifeq ($(PLATFORM),Darwin)
+
 all : $(OBJ)
-	$(CC_TOOLS) $(LDFLAGS) -o libmap-1.20.00.dylib $(DEBUG) $(OBJ) -lm 
-else ifeq ($(PLATFORM),Linux)
-all : $(OBJ)
-	$(CC_TOOLS) $(LDFLAGS) -o libmap-1.20.00.so $(DEBUG) $(OBJ) -lm -llapacke
-endif
+	$(CC_TOOLS) $(LDFLAGS) -o libmap-$(MAP_VER).$(LIB_EXT) $(DEBUG) $(OBJ) $(LIB_FLAGS) 
 
 .c.o :
 	$(CC_TOOLS) -c $(CFLAGS) $<
 
 clean:
-	rm -rf *.so *.o *~ *.dylib
+	$(DEL_CMD) *.$(LIB_EXT) *.o *~
 
 memcheck:	
 	valgrind --tool=memcheck --leak-check=yes python -E -tt ./main.py	

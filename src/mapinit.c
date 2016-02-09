@@ -2669,6 +2669,10 @@ void log_initialization_information(MAP_InitInputType_t* init_type, MAP_Paramete
   InitializationData* init_data = init_type->object;   
 
   MAP_BEGIN_ERROR_LOG; 
+  if ( init_data->summary_file_name->data[0] ) { // don't write this file if the file name isn't specified
+    success = write_summary_file(init_data, p_type, domain, map_msg, ierr); CHECKERRQ(MAP_FATAL_37); 
+  }
+
   success = write_summary_file(init_data, p_type, domain, map_msg, ierr); CHECKERRQ(MAP_FATAL_37);           
   success = get_iteration_output_stream(y_type, other_type, map_msg, ierr); // @todo CHECKERRQ()    
   MAP_END_ERROR_LOG; 
@@ -2754,7 +2758,7 @@ MAP_ERROR_CODE print_help_to_screen()
   printf("    -EA,       --Axial stiffness [N] \n");   
   printf("    -CB,       --Cable/seabed Coulumb friction coefficient [-]  \n");   
   printf("    -CIntDamp, --Internal structural damping coefficient [Pa-s]  \n");   
-  printf("    -Ca,       --Cross-flow added-mass coeficient [-]\n");   
+  printf("    -Ca,       --Cross-flow added-mass coefficient [-]\n");   
   printf("    -Cdn,      --Cross-flow drag coefficient [-]\n");   
   printf("    -Cdt,      --Tangent (skin) drag coefficient[-]\n");   
   printf("  Node property definitions:\n");
@@ -2769,7 +2773,7 @@ MAP_ERROR_CODE print_help_to_screen()
   printf("    -FY,       --Applied Y external force at node. '#' must prefix VESSEL and FIX nodes [N]\n");
   printf("    -FZ,       --Applied Z external force at node. '#' must prefix VESSEL and FIX nodes [N]\n");
   printf("  Line property definitions:\n");
-  printf("    -Line,  --Line number; first starts at 1 [-]\n");
+  printf("    -Line,     --Line number; first starts at 1 [-]\n");
   printf("    -LineType, --Must match property defined in 'Line Dictions'[-]\n");
   printf("    -UnstrLen, --Unstretched line length [m]\n");
   printf("    -NodeAnch, --Anchor node number corresponding to 'Node Property Definitions' section [-]\n");
