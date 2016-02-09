@@ -539,7 +539,7 @@ MAP_EXTERNCALL double* map_plot_x_array(MAP_OtherStateType_t* other_type, int i,
     w = line->line_property->omega;
     cb = line->line_property->cb;
     dS = Lu/(double)(num_points-1) ;
-    
+
     /* If the cable is not resting on the seabed, we use the classic catenary equation
      * for a hanging chain to plot the mooring line profile. Otherwise if it is, we 
      * the modified version as done in the FAST wind turbine program. 

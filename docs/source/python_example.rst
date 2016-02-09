@@ -63,6 +63,8 @@ A figure is also produced to show the mooring geometry with a :math:`5` meter ve
 Time-Marching for Dynamics Simulation
 -------------------------------------
 
+.. literalinclude:: ../../python_driver/driver.py
+
 Output
 ~~~~~~
 
