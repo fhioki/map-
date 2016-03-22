@@ -726,21 +726,21 @@ MAP_ERROR_CODE reset_force_to_zero(double* fx, double* fy, double* fz, double* m
 };
 
 
-MAP_ERROR_CODE set_force_minus(const double* u_type, double* force, const int size)
+MAP_ERROR_CODE set_force_minus(const double* in_force, double* force, const int size)
 {
   int i = 0;
   for (i=0 ; i<size ; i++) {
-    force[i] -= -u_type[i];
+    force[i] -= -in_force[i];
   };
   return MAP_SAFE;
 };
 
 
-MAP_ERROR_CODE set_force_plus(const double* input_type, double* force, const int size)
+MAP_ERROR_CODE set_force_plus(const double* in_force, double* force, const int size)
 {
   int i = 0;
   for (i=0 ; i<size ; i++) {
-    force[i] += -input_type[i];
+    force[i] += -in_force[i];
   };
   return MAP_SAFE;
 };

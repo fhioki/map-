@@ -49,13 +49,13 @@ MAP_ERROR_CODE reset_force_to_zero(double* fx, double* fy, double* fz, double* m
 /**
  * success = set_force_plus(yType->Fx, fx, N);
  */
-MAP_ERROR_CODE set_force_minus(const double* inputType, double* force, const int size);
+MAP_ERROR_CODE set_force_minus(const double* in_force, double* force, const int size);
 
 
 /**
  * success = set_force_plus(yType->Fx, fx, N);
  */
-MAP_ERROR_CODE set_force_plus(const double* inputType, double* force, const int size);
+MAP_ERROR_CODE set_force_plus(const double* in_force, double* force, const int size);
 
 
 /**
