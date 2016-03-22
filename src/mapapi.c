@@ -473,8 +473,6 @@ MAP_EXTERNCALL double** map_linearize_matrix(MAP_InputType_t* u_type, MAP_Parame
     success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, (float)-999.9, map_msg, ierr); // @todo CHECKERRQ()
   };    
 
-  // success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr); 
-  
   MAP_END_ERROR_LOG; 
 
   MAPFREE(force.fx);

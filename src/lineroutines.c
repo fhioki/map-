@@ -1237,36 +1237,6 @@ MAP_ERROR_CODE set_moment_plus_phi(const MAP_InputType_t* u_type, const MAP_Outp
 };
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 MAP_ERROR_CODE set_moment_minus_the(const MAP_InputType_t* u_type, const MAP_OutputType_t* y_type, const Vessel* vessel, double* mx, double* my, double* mz, const int size)
 {
   int i = 0;
