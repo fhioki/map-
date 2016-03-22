@@ -371,9 +371,9 @@ MAP_EXTERNCALL void map_offset_vessel(MAP_OtherStateType_t* other_type, MAP_Inpu
 
     /* matrix-vector product */
     /* r_{u_i} = r + r_{ref} + R*r_i */
-    u_type->x[i] = x + vessel->ref_origin.x.value + (rx*R[0][0] + ry*R[0][1] + rz*R[0][2]);
-    u_type->y[i] = y + vessel->ref_origin.y.value + (rx*R[1][0] + ry*R[1][1] + rz*R[1][2]);
-    u_type->z[i] = z + vessel->ref_origin.z.value + (rx*R[2][0] + ry*R[2][1] + rz*R[2][2]);
+    u_type->x[i] = x /* + vessel->ref_origin.x.value*/ + (rx*R[0][0] + ry*R[0][1] + rz*R[0][2]);
+    u_type->y[i] = y /* + vessel->ref_origin.y.value*/ + (rx*R[1][0] + ry*R[1][1] + rz*R[1][2]);
+    u_type->z[i] = z /* + vessel->ref_origin.z.value*/ + (rx*R[2][0] + ry*R[2][1] + rz*R[2][2]);
   };
 };
 

@@ -1110,9 +1110,9 @@ MAP_ERROR_CODE set_moment_minus(const MAP_OutputType_t* y_type, const Vessel* ve
     /* @todo: this is not consistent with set_moment_minus_2... 
      *        ensure moments are in the global frame
      */
-    rx = (vessel->xi[i] - vessel->ref_origin.x.value);
-    ry = (vessel->yi[i] - vessel->ref_origin.y.value);
-    rz = (vessel->zi[i] - vessel->ref_origin.z.value);    
+    rx = (vessel->xi[i]);// - vessel->ref_origin.x.value);
+    ry = (vessel->yi[i]);// - vessel->ref_origin.y.value);
+    rz = (vessel->zi[i]);// - vessel->ref_origin.z.value);    
 
     /* cross  product: 
      * \mathbf{m}=\mathbf{r} \times \mathbf{F} 
@@ -1126,7 +1126,7 @@ MAP_ERROR_CODE set_moment_minus(const MAP_OutputType_t* y_type, const Vessel* ve
 
 
 
-MAP_ERROR_CODE set_moment_plus(const MAP_OutputType_t* output_type, const Vessel* vessel, double* mx, double* my, double* mz, const int size)
+MAP_ERROR_CODE set_moment_plus(const MAP_OutputType_t* y_type, const Vessel* vessel, double* mx, double* my, double* mz, const int size)
 {
   int i = 0;
   double rx = 0.0;
@@ -1134,16 +1134,16 @@ MAP_ERROR_CODE set_moment_plus(const MAP_OutputType_t* output_type, const Vessel
   double rz = 0.0;
 
   for (i=0 ; i<size ; i++) {    
-    rx = (vessel->xi[i] - vessel->ref_origin.x.value);
-    ry = (vessel->yi[i] - vessel->ref_origin.y.value);
-    rz = (vessel->zi[i] - vessel->ref_origin.z.value);    
+    rx = (vessel->xi[i]);// - vessel->ref_origin.x.value);
+    ry = (vessel->yi[i]);// - vessel->ref_origin.y.value);
+    rz = (vessel->zi[i]);// - vessel->ref_origin.z.value);    
 
     /* cross  product: 
      * \mathbf{m}=\mathbf{r} \times \mathbf{F} 
      */
-    mx[i] += ((-output_type->Fz[i]*ry) - (-output_type->Fy[i]*rz));
-    my[i] += ((-output_type->Fx[i]*rz) - (-output_type->Fz[i]*rx));
-    mz[i] += ((-output_type->Fy[i]*rx) - (-output_type->Fx[i]*ry));
+    mx[i] += ((-y_type->Fz[i]*ry) - (-y_type->Fy[i]*rz));
+    my[i] += ((-y_type->Fx[i]*rz) - (-y_type->Fz[i]*rx));
+    mz[i] += ((-y_type->Fy[i]*rx) - (-y_type->Fx[i]*ry));
   };
   return MAP_SAFE;
 };

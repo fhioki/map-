@@ -73,10 +73,10 @@ MAP_ERROR_CODE update_outer_loop_residuals(double* residual, MAP_OtherStateType_
 /**
  * success = set_moment_minus(yType, vessel, mx, my, mz, N)
  */
-MAP_ERROR_CODE set_moment_minus(const MAP_OutputType_t* outputType, const Vessel* vessel, double* mx, double* my, double* mz, const int size);
+MAP_ERROR_CODE set_moment_minus(const MAP_OutputType_t* y_type, const Vessel* vessel, double* mx, double* my, double* mz, const int size);
 
 
-MAP_ERROR_CODE set_moment_plus(const MAP_OutputType_t* outputType, const Vessel* vessel, double* mx, double* my, double* mz, const int size);
+MAP_ERROR_CODE set_moment_plus(const MAP_OutputType_t* y_type, const Vessel* vessel, double* mx, double* my, double* mz, const int size);
 
 
 MAP_ERROR_CODE increment_phi_dof_by_delta(MAP_InputType_t* u_type, const Vessel* vessel, const double delta, const int size);
