@@ -79,6 +79,14 @@ MAP_ERROR_CODE set_moment_minus(const MAP_OutputType_t* y_type, const Vessel* ve
 MAP_ERROR_CODE set_moment_plus(const MAP_OutputType_t* y_type, const Vessel* vessel, double* mx, double* my, double* mz, const int size);
 
 
+MAP_ERROR_CODE set_moment_minus_phi(const MAP_InputType_t* u_type, const MAP_OutputType_t* y_type, const Vessel* vessel, double* mx, double* my, double* mz, const int size);
+MAP_ERROR_CODE set_moment_plus_phi(const MAP_InputType_t* u_type, const MAP_OutputType_t* y_type, const Vessel* vessel, double* mx, double* my, double* mz, const int size);
+MAP_ERROR_CODE set_moment_minus_the(const MAP_InputType_t* u_type, const MAP_OutputType_t* y_type, const Vessel* vessel, double* mx, double* my, double* mz, const int size);
+MAP_ERROR_CODE set_moment_plus_the(const MAP_InputType_t* u_type, const MAP_OutputType_t* y_type, const Vessel* vessel, double* mx, double* my, double* mz, const int size);
+MAP_ERROR_CODE set_moment_minus_psi(const MAP_InputType_t* u_type, const MAP_OutputType_t* y_type, const Vessel* vessel, double* mx, double* my, double* mz, const int size);
+MAP_ERROR_CODE set_moment_plus_psi(const MAP_InputType_t* u_type, const MAP_OutputType_t* y_type, const Vessel* vessel, double* mx, double* my, double* mz, const int size);
+
+
 MAP_ERROR_CODE increment_phi_dof_by_delta(MAP_InputType_t* u_type, const Vessel* vessel, const double delta, const int size);
 
 

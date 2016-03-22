@@ -754,6 +754,7 @@ MAP_ERROR_CODE increment_phi_dof_by_delta(MAP_InputType_t* u_type, const Vessel*
   double rx = 0.0;
   double ry = 0.0;
   double rz = 0.0;
+
   R[0][0] = 1.0;   R[0][1] = 0.0;              R[0][2] = 0.0;
   R[1][0] = 0.0;   R[1][1] = cos(phi+delta);   R[1][2] = -sin(phi+delta);  
   R[2][0] = 0.0;   R[2][1] = sin(phi+delta);   R[2][2] = cos(phi+delta);
@@ -810,6 +811,7 @@ MAP_ERROR_CODE increment_psi_dof_by_delta(MAP_InputType_t* u_type, const Vessel*
   double rx = 0.0;
   double ry = 0.0;
   double rz = 0.0;
+
   R[0][0] = cos(psi+delta);   R[0][1] = -sin(psi+delta);   R[0][2] = 0.0;
   R[1][0] = sin(psi+delta);   R[1][1] = cos(psi+delta);    R[1][2] = 0.0;
   R[2][0] = 0.0;              R[2][1] = 0.0;               R[2][2] = 1.0;
@@ -968,7 +970,8 @@ MAP_ERROR_CODE fd_phi_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterTy
   success = set_force_plus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
   success = set_force_plus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
   success = set_force_plus(y_type->Fz, force->fz, size); CHECKERRQ(MAP_FATAL_61);
-  success = set_moment_plus(y_type, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
+  success = set_moment_plus_phi(u_type, y_type, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
+  // success = set_moment_plus(y_type, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
   success = restore_original_displacement(u_type->x, original_x, size); CHECKERRQ(MAP_FATAL_61);        
   success = restore_original_displacement(u_type->y, original_y, size); CHECKERRQ(MAP_FATAL_61);        
   success = restore_original_displacement(u_type->z, original_z, size); CHECKERRQ(MAP_FATAL_61);        
@@ -983,7 +986,8 @@ MAP_ERROR_CODE fd_phi_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterTy
   success = set_force_minus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
   success = set_force_minus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
   success = set_force_minus(y_type->Fz, force->fz, size); CHECKERRQ(MAP_FATAL_61);
-  success = set_moment_minus(y_type, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
+  success = set_moment_minus_phi(u_type, y_type, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
+  // success = set_moment_minus(y_type, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
   success = restore_original_displacement(u_type->x, original_x, size); CHECKERRQ(MAP_FATAL_61);        
   success = restore_original_displacement(u_type->y, original_y, size); CHECKERRQ(MAP_FATAL_61);        
   success = restore_original_displacement(u_type->z, original_y, size); CHECKERRQ(MAP_FATAL_61);                
@@ -1012,7 +1016,8 @@ MAP_ERROR_CODE fd_the_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterTy
   success = set_force_plus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
   success = set_force_plus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
   success = set_force_plus(y_type->Fz, force->fz, size); CHECKERRQ(MAP_FATAL_61);
-  success = set_moment_plus(y_type, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
+  // success = set_moment_plus(y_type, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
+  success = set_moment_plus_the(u_type, y_type, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
   success = restore_original_displacement(u_type->x, original_x, size); CHECKERRQ(MAP_FATAL_61);        
   success = restore_original_displacement(u_type->y, original_y, size); CHECKERRQ(MAP_FATAL_61);        
   success = restore_original_displacement(u_type->z, original_z, size); CHECKERRQ(MAP_FATAL_61);        
@@ -1027,7 +1032,8 @@ MAP_ERROR_CODE fd_the_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterTy
   success = set_force_minus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
   success = set_force_minus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
   success = set_force_minus(y_type->Fz, force->fz, size); CHECKERRQ(MAP_FATAL_61);
-  success = set_moment_minus(y_type, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
+  success = set_moment_minus_the(u_type, y_type, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
+  // success = set_moment_minus(y_type, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
   success = restore_original_displacement(u_type->x, original_x, size); CHECKERRQ(MAP_FATAL_61);        
   success = restore_original_displacement(u_type->y, original_y, size); CHECKERRQ(MAP_FATAL_61);        
   success = restore_original_displacement(u_type->z, original_z, size); CHECKERRQ(MAP_FATAL_61);        
@@ -1056,7 +1062,8 @@ MAP_ERROR_CODE fd_psi_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterTy
   success = set_force_plus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
   success = set_force_plus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
   success = set_force_plus(y_type->Fz, force->fz, size); CHECKERRQ(MAP_FATAL_61);
-  success = set_moment_plus(y_type, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
+  success = set_moment_plus_psi(u_type, y_type, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
+  // success = set_moment_plus(y_type, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
   success = restore_original_displacement(u_type->x, original_x, size); CHECKERRQ(MAP_FATAL_61);
   success = restore_original_displacement(u_type->y, original_y, size); CHECKERRQ(MAP_FATAL_61);
   success = restore_original_displacement(u_type->z, original_z, size); CHECKERRQ(MAP_FATAL_61);
@@ -1071,7 +1078,8 @@ MAP_ERROR_CODE fd_psi_sequence(MAP_OtherStateType_t* other_type, MAP_ParameterTy
   success = set_force_minus(y_type->Fx, force->fx, size); CHECKERRQ(MAP_FATAL_61);
   success = set_force_minus(y_type->Fy, force->fy, size); CHECKERRQ(MAP_FATAL_61);
   success = set_force_minus(y_type->Fz, force->fz, size); CHECKERRQ(MAP_FATAL_61);
-  success = set_moment_minus(y_type, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
+  success = set_moment_minus_psi(u_type, y_type, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
+  // success = set_moment_minus(y_type, vessel, force->mx, force->my, force->mz, size); CHECKERRQ(MAP_FATAL_61);
   success = restore_original_displacement(u_type->x, original_x, size); CHECKERRQ(MAP_FATAL_61);
   success = restore_original_displacement(u_type->y, original_y, size); CHECKERRQ(MAP_FATAL_61);
   success = restore_original_displacement(u_type->z, original_z, size); CHECKERRQ(MAP_FATAL_61);
@@ -1099,30 +1107,6 @@ MAP_ERROR_CODE calculate_stiffness(double* K, Fd* force, const double delta, con
 };
 
 
-MAP_ERROR_CODE set_moment_minus(const MAP_OutputType_t* y_type, const Vessel* vessel, double* mx, double* my, double* mz, const int size)
-{
-  int i = 0;
-  double rx = 0.0;
-  double ry = 0.0;
-  double rz = 0.0;
-
-  for (i=0 ; i<size ; i++) {    
-    /* @todo: this is not consistent with set_moment_minus_2... 
-     *        ensure moments are in the global frame
-     */
-    rx = (vessel->xi[i]);// - vessel->ref_origin.x.value);
-    ry = (vessel->yi[i]);// - vessel->ref_origin.y.value);
-    rz = (vessel->zi[i]);// - vessel->ref_origin.z.value);    
-
-    /* cross  product: 
-     * \mathbf{m}=\mathbf{r} \times \mathbf{F} 
-     */
-    mx[i] -= ((-y_type->Fz[i]*ry) - (-y_type->Fy[i]*rz));
-    my[i] -= ((-y_type->Fx[i]*rz) - (-y_type->Fz[i]*rx));
-    mz[i] -= ((-y_type->Fy[i]*rx) - (-y_type->Fx[i]*ry));
-  };
-  return MAP_SAFE;
-}
 
 
 
@@ -1132,21 +1116,281 @@ MAP_ERROR_CODE set_moment_plus(const MAP_OutputType_t* y_type, const Vessel* ves
   double rx = 0.0;
   double ry = 0.0;
   double rz = 0.0;
+  double Fx = 0.0;
+  double Fy = 0.0;
+  double Fz = 0.0;
 
   for (i=0 ; i<size ; i++) {    
     rx = (vessel->xi[i]);// - vessel->ref_origin.x.value);
     ry = (vessel->yi[i]);// - vessel->ref_origin.y.value);
     rz = (vessel->zi[i]);// - vessel->ref_origin.z.value);    
-
+    Fx = y_type->Fx[i];
+    Fy = y_type->Fy[i];
+    Fz = y_type->Fz[i];
+    
     /* cross  product: 
      * \mathbf{m}=\mathbf{r} \times \mathbf{F} 
      */
-    mx[i] += ((-y_type->Fz[i]*ry) - (-y_type->Fy[i]*rz));
-    my[i] += ((-y_type->Fx[i]*rz) - (-y_type->Fz[i]*rx));
-    mz[i] += ((-y_type->Fy[i]*rx) - (-y_type->Fx[i]*ry));
+    mx[i] += ((-Fz*ry) - (-Fy*rz));
+    my[i] += ((-Fx*rz) - (-Fz*rx));
+    mz[i] += ((-Fy*rx) - (-Fx*ry));
   };
   return MAP_SAFE;
 };
 
 
 
+
+MAP_ERROR_CODE set_moment_minus(const MAP_OutputType_t* y_type, const Vessel* vessel, double* mx, double* my, double* mz, const int size)
+{
+  int i = 0;
+  double rx = 0.0;
+  double ry = 0.0;
+  double rz = 0.0;
+  double Fx = 0.0;
+  double Fy = 0.0;
+  double Fz = 0.0;
+
+  for (i=0 ; i<size ; i++) {    
+    /* @todo: this is not consistent with set_moment_minus_2... 
+     *        ensure moments are in the global frame
+     */
+    rx = (vessel->xi[i]);// - vessel->ref_origin.x.value);
+    ry = (vessel->yi[i]);// - vessel->ref_origin.y.value);
+    rz = (vessel->zi[i]);// - vessel->ref_origin.z.value);    
+    Fx = y_type->Fx[i];
+    Fy = y_type->Fy[i];
+    Fz = y_type->Fz[i];
+
+    /* cross  product: 
+     * \mathbf{m}=\mathbf{r} \times \mathbf{F} 
+     */
+    mx[i] -= ((-Fz*ry) - (-Fy*rz));
+    my[i] -= ((-Fx*rz) - (-Fz*rx));
+    mz[i] -= ((-Fy*rx) - (-Fx*ry));
+  };
+  return MAP_SAFE;
+}
+
+
+MAP_ERROR_CODE set_moment_minus_phi(const MAP_InputType_t* u_type, const MAP_OutputType_t* y_type, const Vessel* vessel, double* mx, double* my, double* mz, const int size)
+{
+  int i = 0;
+  double rx = 0.0;
+  double ry = 0.0;
+  double rz = 0.0;
+  double m1 = 0.0;
+  double m2 = 0.0;
+  double m3 = 0.0;
+  double phi = vessel->orientation.phi.value;
+
+  double delta = 1e-4;
+  for (i=0 ; i<size ; i++) {    
+    rx = u_type->x[i];// (vessel->xi[i] - vessel->ref_origin.x.value);
+    ry = u_type->y[i];// (vessel->yi[i] - vessel->ref_origin.y.value);
+    rz = u_type->z[i];// (vessel->zi[i] - vessel->ref_origin.z.value);    
+    m1 = ((-y_type->Fz[i]*ry) - (-y_type->Fy[i]*rz));
+    m2 = ((-y_type->Fx[i]*rz) - (-y_type->Fz[i]*rx));
+    m3 = ((-y_type->Fy[i]*rx) - (-y_type->Fx[i]*ry));
+    mx[i] -= m1;
+    my[i] -= m2*cos(phi+delta) - m3*sin(phi+delta);
+    mz[i] -= m2*sin(phi+delta) + m3*cos(phi+delta);    
+    // mx[i] -= ((-y_type->Fz[i]*ry) - (-y_type->Fy[i]*rz));
+    // my[i] -= ((-y_type->Fx[i]*rz) - (-y_type->Fz[i]*rx));
+    // mz[i] -= ((-y_type->Fy[i]*rx) - (-y_type->Fx[i]*ry));
+  };
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE set_moment_plus_phi(const MAP_InputType_t* u_type, const MAP_OutputType_t* y_type, const Vessel* vessel, double* mx, double* my, double* mz, const int size)
+{
+  int i = 0;
+  double rx = 0.0;
+  double ry = 0.0;
+  double rz = 0.0;
+  double m1 = 0.0;
+  double m2 = 0.0;
+  double m3 = 0.0;
+  double phi = vessel->orientation.phi.value;
+
+  double delta = 1e-4;
+  for (i=0 ; i<size ; i++) {    
+    /* @todo: forces are in global frame. Make sure everything is consistent. Should also add
+     *        reference origin. This need s to be converted to the global frame to be consistent with
+     *       uType. 
+     */
+    rx = u_type->x[i];// (vessel->xi[i] - vessel->ref_origin.x.value);
+    ry = u_type->y[i];// (vessel->yi[i] - vessel->ref_origin.y.value);
+    rz = u_type->z[i];// (vessel->zi[i] - vessel->ref_origin.z.value);    
+    m1 = ((-y_type->Fz[i]*ry) - (-y_type->Fy[i]*rz));
+    m2 = ((-y_type->Fx[i]*rz) - (-y_type->Fz[i]*rx));
+    m3 = ((-y_type->Fy[i]*rx) - (-y_type->Fx[i]*ry));
+    mx[i] += m1;
+    my[i] += m2*cos(phi+delta) - m3*sin(phi+delta);
+    mz[i] += m2*sin(phi+delta) + m3*cos(phi+delta);    
+    // mx[i] += ((-output_type->Fz[i]*ry) - (-output_type->Fy[i]*rz));
+    // my[i] += ((-output_type->Fx[i]*rz) - (-output_type->Fz[i]*rx));
+    // mz[i] += ((-output_type->Fy[i]*rx) - (-output_type->Fx[i]*ry));
+  };
+  return MAP_SAFE;
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+MAP_ERROR_CODE set_moment_minus_the(const MAP_InputType_t* u_type, const MAP_OutputType_t* y_type, const Vessel* vessel, double* mx, double* my, double* mz, const int size)
+{
+  int i = 0;
+  double rx = 0.0;
+  double ry = 0.0;
+  double rz = 0.0;
+  double m1 = 0.0;
+  double m2 = 0.0;
+  double m3 = 0.0;
+  double phi = vessel->orientation.phi.value;
+
+  double delta = 1e-4;
+  for (i=0 ; i<size ; i++) {    
+    rx = u_type->x[i];// (vessel->xi[i] - vessel->ref_origin.x.value);
+    ry = u_type->y[i];// (vessel->yi[i] - vessel->ref_origin.y.value);
+    rz = u_type->z[i];// (vessel->zi[i] - vessel->ref_origin.z.value);    
+    m1 = ((-y_type->Fz[i]*ry) - (-y_type->Fy[i]*rz));
+    m2 = ((-y_type->Fx[i]*rz) - (-y_type->Fz[i]*rx));
+    m3 = ((-y_type->Fy[i]*rx) - (-y_type->Fx[i]*ry));
+    mx[i] -= (m1*cos(phi+delta) + m3*sin(phi+delta));
+    my[i] -= m2;
+    mz[i] -= (-m1*sin(phi+delta) + m3*cos(phi+delta));    
+    // mx[i] -= ((-y_type->Fz[i]*ry) - (-y_type->Fy[i]*rz));
+    // my[i] -= ((-y_type->Fx[i]*rz) - (-y_type->Fz[i]*rx));
+    // mz[i] -= ((-y_type->Fy[i]*rx) - (-y_type->Fx[i]*ry));
+  };
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE set_moment_plus_the(const MAP_InputType_t* u_type, const MAP_OutputType_t* y_type, const Vessel* vessel, double* mx, double* my, double* mz, const int size)
+{
+  int i = 0;
+  double rx = 0.0;
+  double ry = 0.0;
+  double rz = 0.0;
+  double m1 = 0.0;
+  double m2 = 0.0;
+  double m3 = 0.0;
+  double phi = vessel->orientation.phi.value;
+
+  double delta = 1e-4;
+  for (i=0 ; i<size ; i++) {    
+    /* @todo: forces are in global frame. Make sure everything is consistent. Should also add
+     *        reference origin. This need s to be converted to the global frame to be consistent with
+     *       uType. 
+     */
+    rx = u_type->x[i];// (vessel->xi[i] - vessel->ref_origin.x.value);
+    ry = u_type->y[i];// (vessel->yi[i] - vessel->ref_origin.y.value);
+    rz = u_type->z[i];// (vessel->zi[i] - vessel->ref_origin.z.value);    
+    m1 = ((-y_type->Fz[i]*ry) - (-y_type->Fy[i]*rz));
+    m2 = ((-y_type->Fx[i]*rz) - (-y_type->Fz[i]*rx));
+    m3 = ((-y_type->Fy[i]*rx) - (-y_type->Fx[i]*ry));
+    mx[i] += (m1*cos(phi+delta) + m3*sin(phi+delta));
+    my[i] += m2;
+    mz[i] += (-m1*sin(phi+delta) + m3*cos(phi+delta));    
+    // mx[i] += ((-output_type->Fz[i]*ry) - (-output_type->Fy[i]*rz));
+    // my[i] += ((-output_type->Fx[i]*rz) - (-output_type->Fz[i]*rx));
+    // mz[i] += ((-output_type->Fy[i]*rx) - (-output_type->Fx[i]*ry));
+  };
+  return MAP_SAFE;
+};
+
+
+
+MAP_ERROR_CODE set_moment_minus_psi(const MAP_InputType_t* u_type, const MAP_OutputType_t* y_type, const Vessel* vessel, double* mx, double* my, double* mz, const int size)
+{
+  int i = 0;
+  double rx = 0.0;
+  double ry = 0.0;
+  double rz = 0.0;
+  double m1 = 0.0;
+  double m2 = 0.0;
+  double m3 = 0.0;
+  double phi = vessel->orientation.phi.value;
+
+  double delta = 1e-4;
+  for (i=0 ; i<size ; i++) {    
+    rx = u_type->x[i];// (vessel->xi[i] - vessel->ref_origin.x.value);
+    ry = u_type->y[i];// (vessel->yi[i] - vessel->ref_origin.y.value);
+    rz = u_type->z[i];// (vessel->zi[i] - vessel->ref_origin.z.value);    
+    m1 = ((-y_type->Fz[i]*ry) - (-y_type->Fy[i]*rz));
+    m2 = ((-y_type->Fx[i]*rz) - (-y_type->Fz[i]*rx));
+    m3 = ((-y_type->Fy[i]*rx) - (-y_type->Fx[i]*ry));
+    mx[i] -= (m1*cos(phi+delta) - m2*sin(phi+delta));
+    my[i] -= (m1*sin(phi+delta) + m2*cos(phi+delta));
+    mz[i] -= m3;
+    // mx[i] -= ((-y_type->Fz[i]*ry) - (-y_type->Fy[i]*rz));
+    // my[i] -= ((-y_type->Fx[i]*rz) - (-y_type->Fz[i]*rx));
+    // mz[i] -= ((-y_type->Fy[i]*rx) - (-y_type->Fx[i]*ry));
+  };
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE set_moment_plus_psi(const MAP_InputType_t* u_type, const MAP_OutputType_t* y_type, const Vessel* vessel, double* mx, double* my, double* mz, const int size)
+{
+  int i = 0;
+  double rx = 0.0;
+  double ry = 0.0;
+  double rz = 0.0;
+  double m1 = 0.0;
+  double m2 = 0.0;
+  double m3 = 0.0;
+  double phi = vessel->orientation.phi.value;
+
+  double delta = 1e-4;
+  for (i=0 ; i<size ; i++) {    
+    /* @todo: forces are in global frame. Make sure everything is consistent. Should also add
+     *        reference origin. This need s to be converted to the global frame to be consistent with
+     *       uType. 
+     */
+    rx = u_type->x[i];// (vessel->xi[i] - vessel->ref_origin.x.value);
+    ry = u_type->y[i];// (vessel->yi[i] - vessel->ref_origin.y.value);
+    rz = u_type->z[i];// (vessel->zi[i] - vessel->ref_origin.z.value);    
+    m1 = ((-y_type->Fz[i]*ry) - (-y_type->Fy[i]*rz));
+    m2 = ((-y_type->Fx[i]*rz) - (-y_type->Fz[i]*rx));
+    m3 = ((-y_type->Fy[i]*rx) - (-y_type->Fx[i]*ry));
+    mx[i] += (m1*cos(phi+delta) - m2*sin(phi+delta));
+    my[i] += (m1*sin(phi+delta) + m2*cos(phi+delta));
+    mz[i] += m3;
+    // mx[i] += ((-output_type->Fz[i]*ry) - (-output_type->Fy[i]*rz));
+    // my[i] += ((-output_type->Fx[i]*rz) - (-output_type->Fz[i]*rx));
+    // mz[i] += ((-output_type->Fy[i]*rx) - (-output_type->Fx[i]*ry));
+  };
+  return MAP_SAFE;
+};

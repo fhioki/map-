@@ -21,3 +21,4 @@ inner_xtol 1e-9
  inner_max_its 400
  outer_max_its 400
 repeat 120 240
+ref_position 0 0 0
