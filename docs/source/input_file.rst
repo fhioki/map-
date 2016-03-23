@@ -262,7 +262,7 @@ Solver options are applied to the entire model domain.
 
 .. _ref_position_is_fixed:
 
-.. todo:: The ``REF_POSITION`` options is disabled in MAP++ we can develop this feature into the program. The reference position is fixed at :math:`<0, 0, 0>` until then. 
+.. todo:: The ``REF_POSITION`` options is disabled in MAP++ until this feature can be fully integrated into the program. The reference position is fixed at :math:`<0, 0, 0>` until then. 
 
 Default Solver Options
 ^^^^^^^^^^^^^^^^^^^^^^
