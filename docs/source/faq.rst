@@ -4,8 +4,8 @@ FAQ
 Using with Python
 -----------------
 
-''Python doesn't load MAP''
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Python doesn't load MAP
+~~~~~~~~~~~~~~~~~~~~~~~
 
 If importing MAP++ into Python leads to this error on Linux/OSx: 
  

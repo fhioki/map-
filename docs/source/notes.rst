@@ -8,15 +8,18 @@ Release Notes
 License
 -------
 MAP++ is licensed under Apache v 2.0 :ref:`license`. 
-This software is provided as-is and without warrant. 
-There are no guarantees it is bug free or provides the correct answers, even if it is used for the intended purpose. 
-By using this software and as a condition of the Apache license, you agree to not hold the developers liable for damages.  
 
 .. toctree::
    :maxdepth: 4
    :hidden:
    
    license.rst
+
+Disclaimer
+----------
+This software is provided as-is and without warranty. 
+There are no guarantees it is bug free or provides the correct answers, even if it is used for the intended purpose. 
+By using this software and as a condition of the Apache license, you agree to not hold any MAP++ developer liable for damages.  
 
 Dependencies
 ------------
@@ -32,5 +35,6 @@ Better String Library  `Version 0.1.1 <http://mike.steinert.ca/bstring/doc/>`_
 
 Change Log
 ----------
-V. 1.20.00 -- First release
-V. 1.20.10 -- Repaired the linearized stiffness matrix function and improved the input file parsing in python.
+v1.20.00 -- First release.
+
+v1.20.10 -- Repaired the linearized stiffness matrix function and improved the input file parsing in python.
