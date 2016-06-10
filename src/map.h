@@ -275,8 +275,13 @@ struct Node_t {
 }; typedef struct Node_t Node;
 
 
-// struct LMAttributes {
+typedef struct {
 //   void* lm_container; /**< container struct in lmroutines.hpp */
+  double tension;
+  double l;
+  Node* r1; /**< Lower node, points to interior_node in Line */
+  Node* r2; /**< Upper node, points to interior_node in Line */
+
 //   double* FlineS;     /**< retains last solution for when this is called with dT = 0 */   // 
 //   double** rFairtS;   /**< fairlead locations ON TURBINE */                               // <--------- will be mapped to a Node_t list 
 //   double** rFairRel;  /**< fairlead locations relative to platform center */              // <--------- will be mapped to a Node_t list 
@@ -306,16 +311,17 @@ struct Node_t {
 //   int closed; // initialize to 0
 //   double dt;  // FAST time step, @rm
 //   double dts; /**< mooring line time step */
-// }; typedef struct LMAttributes_t LMAttributes;
+} Element;
 
 
 struct Line_t {
   CableLibrary* line_property; /**< line properties */
-  // LMAttributes* lm_attributes; /**< Preserves information of the LM model from previous time steps */
   LineOptions options;         /**< run-time options flag */
   VarTypePtr H;                /**< Horizontal fairlead force in the local cable elemenet frame */
   VarTypePtr V;                /**< Vertical fairlead force in the local cable elemenet frame */  
   VarType Lu;                  /**< unstretched cable length [m] */
+  list_t element;             /**< LM model elements Element */
+  list_t interior_node;        /**< Node link list for interior nodes in-between node. This omits the nodes in fairlead and anchor */
   bstring label;               /**< reference a pre-defined property in the line dictionary */
   double* line_tension;        /**< array of line tension along 's' [N] */ 
   double psi;                  /**< angle of roation between global X and local x axis [deg] */
@@ -336,7 +342,6 @@ struct Line_t {
   double fx_anchor;
   double fy_anchor;
   double fz_anchor;
-  list_t elements;             /**< LM model elements */
   Node* anchor;                /**< Anchor node */
   Node* fairlead;              /**< Fairlead node */
   int segment_size;
@@ -354,13 +359,6 @@ struct Line_t {
                                 *   - info=8 : gtol is too small. fvec is orthogonal to the columns of the Jacobian to machine precision.
                                 */ 
 }; typedef struct Line_t Line;
-
-
-struct Element_t {
-  double l;  /**< \left \| \mathbf{r}_{1}-\mathbf{r}_{2} \right \| */
-  Node* r1;  /**< upper node */
-  Node* r2;  /**< lower node */
-}; typedef struct Element_t Element;
 
 
 struct InnerSolveAttributes_t {
@@ -387,7 +385,6 @@ struct InnerSolveAttributes_t {
   int m;                      /**< number of functions */ 
   int n;                      /**< number of variables */
 }; typedef struct InnerSolveAttributes_t InnerSolveAttributes;
-
 
 
 struct OuterSolveAttributes_t {
@@ -440,7 +437,7 @@ struct Domain_t {
   Vessel vessel;                   /**< Vessel for the mooring instance. Initialized in {@link initialize_vessel_to_null}. Associated VarType's are set in {@link set_vessel} */
   list_t library;                  /**< Cable library link list; stores cable properties, e.g., @see CableLibrary_t */
   list_t line;                     /**< Line link list */
-  list_t node;                     /**< Node link list */
+  list_t node;                     /**< Node link list for lines */
   list_t u_update_list;            /**< List to update the references in VarType-associated u_type's in UpdateStates. Used when coupled to FAST */
   void* HEAD_U_TYPE;               /**< Checks if the reference to MAP_InputType_t changes */
 }; typedef struct Domain_t Domain;

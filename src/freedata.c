@@ -47,13 +47,13 @@ MAP_ERROR_CODE free_outlist(Domain* domain, char* map_msg, MAP_ERROR_CODE* ierr)
   VarTypePtr* vartype_ptr = NULL;
 
   if (domain->y_list) { /* if allocated, then proceed with free'ing */
-    list_iterator_start(&domain->y_list->out_list_ptr);
-    while (list_iterator_hasnext(&domain->y_list->out_list_ptr)) { 
-      vartype_ptr = (VarTypePtr*)list_iterator_next(&domain->y_list->out_list_ptr);
-      bdestroy(vartype_ptr->name);
-      bdestroy(vartype_ptr->units);
-    };
-    list_iterator_stop(&domain->y_list->out_list_ptr);     
+    // list_iterator_start(&domain->y_list->out_list_ptr);
+    // while (list_iterator_hasnext(&domain->y_list->out_list_ptr)) { 
+    //   vartype_ptr = (VarTypePtr*)list_iterator_next(&domain->y_list->out_list_ptr);
+    //   bdestroy(vartype_ptr->name);
+    //   bdestroy(vartype_ptr->units);
+    // };
+    // list_iterator_stop(&domain->y_list->out_list_ptr);     
     
     // @rm y_list->out_list no longer exists/is useful ?
     list_destroy(&domain->y_list->out_list);     /* destroy output lists for writting information to output file */
@@ -89,6 +89,22 @@ MAP_ERROR_CODE free_update_list (list_t* restrict ref_list)
   };
   list_iterator_stop(ref_list); 
 
+  return MAP_SAFE;
+};
+
+
+MAP_ERROR_CODE free_lumped_mass(Domain* domain) 
+{
+  Line* line_iter = NULL;
+  if (domain->MAP_SOLVE_TYPE==LUMPED_MASS) {
+    list_iterator_start(&domain->line);
+    while (list_iterator_hasnext(&domain->line)) { 
+      line_iter = (Line*)list_iterator_next(&domain->line);      
+      list_destroy(&line_iter->interior_node);
+      list_destroy(&line_iter->element);
+    };
+    list_iterator_stop(&domain->line); 
+  };
   return MAP_SAFE;
 };
 
@@ -152,37 +168,37 @@ MAP_ERROR_CODE free_line(list_t* restrict line)
 
 MAP_ERROR_CODE free_node(list_t *restrict node)
 {
-  Node* iterNode = NULL;
+  Node* iter_node = NULL;
   MAP_ERROR_CODE success = MAP_SAFE;
   list_iterator_start(node);            /* starting an iteration "session" */
   while (list_iterator_hasnext(node)) { /* tell whether more values available */ 
-    iterNode = (Node*)list_iterator_next(node);
+    iter_node = (Node*)list_iterator_next(node);
 
-    success = bdestroy(iterNode->M_applied.name); 
-    success = bdestroy(iterNode->M_applied.units);
-    success = bdestroy(iterNode->B_applied.name);
-    success = bdestroy(iterNode->B_applied.units);
+    success = bdestroy(iter_node->M_applied.name); 
+    success = bdestroy(iter_node->M_applied.units);
+    success = bdestroy(iter_node->B_applied.name);
+    success = bdestroy(iter_node->B_applied.units);
 
-    success = bdestroy(iterNode->external_force.fx.name);
-    success = bdestroy(iterNode->external_force.fx.units);
-    success = bdestroy(iterNode->external_force.fy.name);
-    success = bdestroy(iterNode->external_force.fy.units);
-    success = bdestroy(iterNode->external_force.fz.name);
-    success = bdestroy(iterNode->external_force.fz.units);
+    success = bdestroy(iter_node->external_force.fx.name);
+    success = bdestroy(iter_node->external_force.fx.units);
+    success = bdestroy(iter_node->external_force.fy.name);
+    success = bdestroy(iter_node->external_force.fy.units);
+    success = bdestroy(iter_node->external_force.fz.name);
+    success = bdestroy(iter_node->external_force.fz.units);
 
-    success = bdestroy(iterNode->position_ptr.x.name); 
-    success = bdestroy(iterNode->position_ptr.x.units);
-    success = bdestroy(iterNode->position_ptr.y.name); 
-    success = bdestroy(iterNode->position_ptr.y.units);
-    success = bdestroy(iterNode->position_ptr.z.name); 
-    success = bdestroy(iterNode->position_ptr.z.units);
+    success = bdestroy(iter_node->position_ptr.x.name);
+    success = bdestroy(iter_node->position_ptr.x.units);
+    success = bdestroy(iter_node->position_ptr.y.name); 
+    success = bdestroy(iter_node->position_ptr.y.units);
+    success = bdestroy(iter_node->position_ptr.z.name); 
+    success = bdestroy(iter_node->position_ptr.z.units);
 
-    success = bdestroy(iterNode->sum_force_ptr.fx.name); 
-    success = bdestroy(iterNode->sum_force_ptr.fx.units);
-    success = bdestroy(iterNode->sum_force_ptr.fy.name); 
-    success = bdestroy(iterNode->sum_force_ptr.fy.units);
-    success = bdestroy(iterNode->sum_force_ptr.fz.name); 
-    success = bdestroy(iterNode->sum_force_ptr.fz.units);
+    success = bdestroy(iter_node->sum_force_ptr.fx.name); 
+    success = bdestroy(iter_node->sum_force_ptr.fx.units);
+    success = bdestroy(iter_node->sum_force_ptr.fy.name); 
+    success = bdestroy(iter_node->sum_force_ptr.fy.units);
+    success = bdestroy(iter_node->sum_force_ptr.fz.name); 
+    success = bdestroy(iter_node->sum_force_ptr.fz.units);
   };
   list_iterator_stop(node); /* ending the iteration "session" */  
   return MAP_SAFE;

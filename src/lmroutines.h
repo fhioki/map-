@@ -18,3 +18,36 @@
  * specific language governing permissions and limitations      *      
  * under the License.                                           *  
  ****************************************************************/
+
+
+#ifndef _LMROUNTINES_H
+#define _LMROUNTINES_H
+
+
+#include "mapsys.h"
+#include "maperror.h"
+
+// #include "simclist/simclist.h"
+
+
+MAP_ERROR_CODE allocate_lumped_mass_data(Domain* domain, char* map_msg, MAP_ERROR_CODE* ierr);
+
+// #include "Line.hpp" 
+// #include "Connection.hpp"
+
+// #include <vector>
+// #include <string>
+// #include <stdlib.h>
+
+
+// /* Using a link list for LineList and ConnectList avoids the standard
+//  * library vectors. C and C++ stuff can be completely kept separate 
+//  * this way. 
+//  */
+// struct LMContainer_t {
+//   list_t LineList;    // vector<Line> LineList;          
+//   list_t ConnectList; // vector<Connection> ConnectList;
+// }; typedef struct LMContainer_t LMContainer;
+
+
+#endif /* _LMROUTINES_H */

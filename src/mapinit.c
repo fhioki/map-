@@ -149,6 +149,12 @@ size_t node_meter(const void *el)
 };
 
 
+size_t line_element_meter(const void *el) 
+{
+  return sizeof(Element);
+};
+
+
 size_t u_list_meter(const void *el) 
 {
   return sizeof(ReferencePoint);
@@ -335,9 +341,11 @@ MAP_ERROR_CODE first_solve(Domain* domain, MAP_ParameterType_t* p_type, MAP_Inpu
   
   if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
     success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr); /* @todo CHECKERRQ() */
-  } else {
+  } else if (domain->MAP_SOLVE_TYPE==PARTITIONED) {
     success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, 0.0, map_msg, ierr); /* @todo CHECKERRQ() */
-  };
+  } else { // must be lumped mass model
+    checkpoint();
+  }
   
   MAP_RETURN_STATUS(success);
 };

@@ -82,7 +82,8 @@ int main(int argc, char *argv[])
   strcpy(line_def[1], "2        middle    122       2         3 omit_contact gx_pos \0");
   strcpy(line_def[2], "3        upper     50        3         4 omit_contact gx_pos \0");
   strcpy(line_def[3], "4        upper     50        3         5 omit_contact gx_pos \0");
-  strcpy(option_def[0], " krylov_accelerator 0\0");
+  //strcpy(option_def[0], " krylov_accelerator 0\0");
+  strcpy(option_def[0], "lm_model\0");
   strcpy(option_def[1], "inner_xtol 1e-9\0");
   strcpy(option_def[2], "outer_tol 1e-5\0");
   strcpy(option_def[3], " pg_cooked 1000 1\0");

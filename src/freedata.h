@@ -74,6 +74,16 @@ MAP_ERROR_CODE free_line(list_t *restrict line);
 
 
 /**
+ * @brief     Deallocates data related to the lumped mass model. Function loops through the elemenet link list and frees allocated data. Pointers
+ *            are nullified.  
+ * @param     line the line link list
+ * @return    MAP_SAFE if it completes successfully
+ * @see       {@link Line_t()}
+ */
+MAP_ERROR_CODE free_lumped_mass(Domain* domain);
+
+
+/**
  * @brief     Deallocates all nodes. Function loops through the elemenet link list and frees allocated data. Pointers
  *            are nullified.  
  * @param     node the node link list
