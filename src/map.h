@@ -57,7 +57,8 @@ typedef enum NodeType_enum {
   NONE,     /**< */
   FIX,      /**< */
   CONNECT,  /**< */
-  VESSEL    /**< */
+  VESSEL,   /**< */
+  LM        /**< */
 } NodeType;
 
 
@@ -276,7 +277,6 @@ struct Node_t {
 
 
 typedef struct {
-//   void* lm_container; /**< container struct in lmroutines.hpp */
   double tension;
   double l;
   Node* r1; /**< Lower node, points to interior_node in Line */

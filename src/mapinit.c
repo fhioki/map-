@@ -47,7 +47,8 @@ MAP_ERROR_CODE initialize_fortran_types(MAP_InputType_t* u_type,
   u_type->z = NULL;     u_type->z_Len = 0;
 
   /* continuous state */
-  x_type->dummy=-999.9;
+  x_type->r = NULL;     x_type->r_Len = 0;
+  x_type->rd = NULL;    x_type->rd_Len = 0;
 
   /* constraint state */  
   z_type->H = NULL;     z_type->H_Len = 0;
@@ -78,6 +79,7 @@ MAP_ERROR_CODE initialize_fortran_types(MAP_InputType_t* u_type,
   y_type->Fx = NULL;              y_type->Fx_Len = 0;
   y_type->Fy = NULL;              y_type->Fy_Len = 0;
   y_type->Fz = NULL;              y_type->Fz_Len = 0;
+  y_type->rdd = NULL;             y_type->rdd_Len = 0;
   y_type->wrtOutput = NULL;       y_type->wrtOutput_Len = 0;
   y_type->WriteOutput = NULL;     y_type->WriteOutput_Len = 0;
   

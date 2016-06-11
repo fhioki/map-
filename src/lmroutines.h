@@ -31,6 +31,8 @@
 
 
 MAP_ERROR_CODE allocate_lumped_mass_data(Domain* domain, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE reset_element(Element* element);
+// MAP_ERROR_CODE initialize_interior_node(Node* node, char* map_msg, MAP_ERROR_CODE* ierr);
 
 // #include "Line.hpp" 
 // #include "Connection.hpp"

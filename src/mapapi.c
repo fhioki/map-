@@ -113,6 +113,7 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
   success = repeat_nodes(domain, init_data, map_msg, ierr);
   success = repeat_lines(domain, init_data, map_msg, ierr);
  
+  /* @todo should be two independent set_node_list for LM model and MSQS model */
   success = set_node_list(p_type, u_type, z_type, other_type, y_type, domain, init_data->expanded_node_input_string, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);
   success = set_line_list(z_type, domain, init_data->expanded_line_input_string, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);
 

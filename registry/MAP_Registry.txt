@@ -36,8 +36,8 @@ typedef         ^       ^                   ProgDesc         Ver                
 
 
 ## ============================== Define Continuous states here: =====================================================================================================================================
-typedef         ^       ContinuousStateType DbKI             dummy              -         -                   -            "Remove this variable if you have continuous states" -
-
+typedef         ^       ContinuousStateType Dbki             r                 {:}        ""                  -            "Node position"  "[m]"
+typedef         ^       ^                   Dbki             rd                {:}        ""                  -            "Node velocity"  "[m]"
 
 ## ============================== Define Discrete states here: =====================================================================================================================================
 typedef         ^       DiscreteStateType   DbKi             dummy              -         -                   -            "Remove this variable if you have discrete states" -
@@ -94,6 +94,7 @@ typedef	        ^       ^                   MeshType         PtFairDisplacement 
 typedef	       ^        OutputType          DbKi             Fx                 {:}        -                   -            "horizontal line force"   "[N]"	
 typedef	       ^        ^                   DbKi             Fy                 {:}        -                   -            "Vertical line force"     "[N]"
 typedef	       ^        ^                   DbKi             Fz                 {:}        -                   -            "horizontal line force at anchor"   "[N]"	
+typedef	       ^        ^                   DbKi             rdd                {:}        -                   -            "node acceleration (LM model)"   "[N]"	
 typedef	       ^        ^                   ReKi             WriteOutput        {:}        -                   -            "outpur vector" ""
 typedef	       ^        ^                   DbKi             wrtOutput          {:}        -                   -            "outpur vector" ""
 typedef	       ^        ^                   MeshType         ptFairleadLoad      -         -                   -            "point mesh for forces in X,Y,Z"         "[N]"
