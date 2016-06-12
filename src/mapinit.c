@@ -45,11 +45,14 @@ MAP_ERROR_CODE initialize_fortran_types(MAP_InputType_t* u_type,
   u_type->x = NULL;     u_type->x_Len = 0;
   u_type->y = NULL;     u_type->y_Len = 0;
   u_type->z = NULL;     u_type->z_Len = 0;
+  u_type->xd = NULL;    u_type->xd_Len = 0;
+  u_type->yd = NULL;    u_type->yd_Len = 0;
+  u_type->zd = NULL;    u_type->zd_Len = 0;
 
   /* continuous state */
-  x_type->r = NULL;     x_type->r_Len = 0;
-  x_type->rd = NULL;    x_type->rd_Len = 0;
-
+  x_type->rd = NULL;     x_type->rd_Len = 0;
+  x_type->rdd = NULL;    x_type->rdd_Len = 0;
+  
   /* constraint state */  
   z_type->H = NULL;     z_type->H_Len = 0;
   z_type->V = NULL;     z_type->V_Len = 0;
@@ -74,12 +77,14 @@ MAP_ERROR_CODE initialize_fortran_types(MAP_InputType_t* u_type,
   other_type->Fx_anchor = NULL;    other_type->Fx_anchor_Len = 0;
   other_type->Fy_anchor = NULL;    other_type->Fy_anchor_Len = 0;
   other_type->Fz_anchor = NULL;    other_type->Fz_anchor_Len = 0;
+  other_type->Fx_lm = NULL;     other_type->Fx_lm_Len = 0;
+  other_type->Fy_lm = NULL;     other_type->Fy_lm_Len = 0;
+  other_type->Fz_lm = NULL;     other_type->Fz_lm_Len = 0;
 
   /* outputs */
   y_type->Fx = NULL;              y_type->Fx_Len = 0;
   y_type->Fy = NULL;              y_type->Fy_Len = 0;
   y_type->Fz = NULL;              y_type->Fz_Len = 0;
-  y_type->rdd = NULL;             y_type->rdd_Len = 0;
   y_type->wrtOutput = NULL;       y_type->wrtOutput_Len = 0;
   y_type->WriteOutput = NULL;     y_type->WriteOutput_Len = 0;
   
@@ -126,6 +131,12 @@ void initialize_domain_to_null(Domain* domain)
 {
   domain->MAP_SOLVE_TYPE = -999;
   domain->y_list = NULL; 
+  domain->n_x = 0;                         /**< used only for LM model */
+  domain->n_u = 0;                         /**< used only for LM model to allocate FAST types */
+  domain->n_y = 0;                         /**< used only for LM model to allocate FAST types */
+  domain->lm_num = 0;                      /**< used only for LM model to allocate FAST types */
+  domain->connect_num = 0;                 /**< used only for LM model to allocate FAST types */
+  domain->fix_num = 0;                     /**< used only for LM model to allocate FAST types */
   initialize_inner_solve_data_defaults(&domain->inner_loop);    
   initialize_outer_solve_data_defaults(&domain->outer_loop);    
   initialize_vessel_to_null(&domain->vessel);    
@@ -1869,7 +1880,7 @@ MAP_ERROR_CODE compare_integer_length(const int a, const int b)
 };
 
 
-MAP_ERROR_CODE set_node_list(const MAP_ParameterType_t* p_type,  MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type, Domain* domain, struct bstrList* node_input_string, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE set_qs_node_list(const MAP_ParameterType_t* p_type,  MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type, Domain* domain, struct bstrList* node_input_string, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_ERROR_CODE success = MAP_SAFE;
   int i = 0;
@@ -1932,6 +1943,9 @@ MAP_ERROR_CODE set_node_list(const MAP_ParameterType_t* p_type,  MAP_InputType_t
             u_reference_point.x = NULL;
             u_reference_point.y = NULL;
             u_reference_point.z = NULL;
+            u_reference_point.xd = NULL;
+            u_reference_point.yd = NULL;
+            u_reference_point.zd = NULL;
             success = associate_vartype_ptr(&node_iter->position_ptr.x, u_type->x, vessel_num);
             success = associate_vartype_ptr(&node_iter->position_ptr.y, u_type->y, vessel_num);
             success = associate_vartype_ptr(&node_iter->position_ptr.z, u_type->z, vessel_num);                           
@@ -2221,7 +2235,7 @@ MAP_ERROR_CODE set_line_option_flags(struct bstrList* words, int* i_parsed, Line
 };
 
 
-MAP_ERROR_CODE set_line_list(MAP_ConstraintStateType_t* z_type, Domain* domain, struct bstrList* line_input_string, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_ERROR_CODE set_qs_line_list(MAP_ConstraintStateType_t* z_type, Domain* domain, struct bstrList* line_input_string, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   MAP_ERROR_CODE success = MAP_SAFE;
   int i = 0;
@@ -2532,12 +2546,15 @@ MAP_ERROR_CODE reset_line(Line* line_ptr)
   line_ptr->damage_time = -999.9;
   line_ptr->diagnostic_type = -9999;
   line_ptr->segment_size = 10;
+  line_ptr->idx_fair = -999;
+  line_ptr->idx_anch = -999;
   return MAP_SAFE;
 };
 
 
 MAP_ERROR_CODE reset_node(Node* node_ptr)
 {
+  node_ptr->type = NONE;
   node_ptr->position_ptr.x.name = NULL;
   node_ptr->position_ptr.x.units = NULL;
   node_ptr->position_ptr.x.value = NULL;
@@ -2580,6 +2597,10 @@ MAP_ERROR_CODE reset_node(Node* node_ptr)
   node_ptr->sum_force_ptr.fx.is_fixed = false;
   node_ptr->sum_force_ptr.fy.is_fixed = false;
   node_ptr->sum_force_ptr.fz.is_fixed = false;
+  node_ptr->assigned = false;
+  node_ptr->xi = -999.9;
+  node_ptr->yi = -999.9;
+  node_ptr->zi = -999.9;
   return MAP_SAFE;
 };
 

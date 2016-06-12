@@ -43,8 +43,8 @@
   } MAP_InitOutputType_t ;
   typedef struct MAP_ContinuousStateType {
     void * object ;
-    double * r ;     int r_Len ;
     double * rd ;     int rd_Len ;
+    double * rdd ;     int rdd_Len ;
   } MAP_ContinuousStateType_t ;
   typedef struct MAP_DiscreteStateType {
     void * object ;
@@ -68,6 +68,9 @@
     double * Fx_anchor ;     int Fx_anchor_Len ;
     double * Fy_anchor ;     int Fy_anchor_Len ;
     double * Fz_anchor ;     int Fz_anchor_Len ;
+    double * Fx_lm ;     int Fx_lm_Len ;
+    double * Fy_lm ;     int Fy_lm_Len ;
+    double * Fz_lm ;     int Fz_lm_Len ;
   } MAP_OtherStateType_t ;
   typedef struct MAP_ConstraintStateType {
     void * object ;
@@ -83,14 +86,17 @@
     double depth ;
     double rho_sea ;
     double dt ;
-    char InputLines[255] ; 
-    char InputLineType[1] ; 
+    char InputLines[255] ;
+    char InputLineType[1] ;
   } MAP_ParameterType_t ;
   typedef struct MAP_InputType {
     void * object ;
     double * x ;     int x_Len ;
     double * y ;     int y_Len ;
     double * z ;     int z_Len ;
+    double * xd ;     int xd_Len ;
+    double * yd ;     int yd_Len ;
+    double * zd ;     int zd_Len ;
 
   } MAP_InputType_t ;
   typedef struct MAP_OutputType {
@@ -98,7 +104,6 @@
     double * Fx ;     int Fx_Len ;
     double * Fy ;     int Fy_Len ;
     double * Fz ;     int Fz_Len ;
-    double * rdd ;     int rdd_Len ;
     float * WriteOutput ;     int WriteOutput_Len ;
     double * wrtOutput ;     int wrtOutput_Len ;
 

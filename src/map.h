@@ -178,11 +178,14 @@ struct ForcePtr_t {
 }; typedef struct ForcePtr_t ForcePtr;
 
 
-struct ReferencePoint_t {
+typedef struct {
   VarTypePtr* x;
   VarTypePtr* y;
   VarTypePtr* z;
-}; typedef struct ReferencePoint_t ReferencePoint;
+  VarTypePtr* xd;
+  VarTypePtr* yd;
+  VarTypePtr* zd;
+} ReferencePoint;
 
 
 /**
@@ -273,33 +276,18 @@ struct Node_t {
   VarType M_applied;
   VarType B_applied;
   Force external_force;    
+  bool assigned; /**< used only for LM model */
+  double xi;     /**< used only for LM model */
+  double yi;     /**< used only for LM model */
+  double zi;     /**< used only for LM model */
 }; typedef struct Node_t Node;
 
 
 typedef struct {
   double tension;
   double l;
-  Node* r1; /**< Lower node, points to interior_node in Line */
-  Node* r2; /**< Upper node, points to interior_node in Line */
-
-//   double* FlineS;     /**< retains last solution for when this is called with dT = 0 */   // 
-//   double** rFairtS;   /**< fairlead locations ON TURBINE */                               // <--------- will be mapped to a Node_t list 
-//   double** rFairRel;  /**< fairlead locations relative to platform center */              // <--------- will be mapped to a Node_t list 
-//   double** rFairi;    /**< inertial Fairlead Locations  */                                // <--------- will be mapped to a Node_t list    
-//   double** rdFairi;   /**< inertial Fairlead Velocities */                                // <--------- will be mapped to a Node_t list  
-// 
-//   // static vectors to hold line and connection objects!
-//   // vector< LineProps > LinePropList; // to hold line library types   <--------- Moved to the Line_t struct
-//   // vector< Line > LineList;          //  global and persistent?      <--------- Moved to a container struct in lmroutines.hpp to isolate c++ and c
-//   // vector< Connection > ConnectList;                                 <--------- Moved to a container struct in lmroutines.hpp to isolate c++ and c
-//   int nConnects; 
-//   int nLines;
-//   
-//   // state vector and stuff
-//   double* states;     /**< pointer to array comprising global state vector */
-//   double* newstates;
-//   int Nx;             /**< size of state vector array */
-// 
+  Node* r1; /**< Upper node, points to interior_node in Line */
+  Node* r2; /**< Lower node, points to interior_node in Line */
 //   // more state vector things for rk4 integration 
 //   double* f0;
 //   double* f1;
@@ -321,7 +309,6 @@ struct Line_t {
   VarTypePtr V;                /**< Vertical fairlead force in the local cable elemenet frame */  
   VarType Lu;                  /**< unstretched cable length [m] */
   list_t element;             /**< LM model elements Element */
-  list_t interior_node;        /**< Node link list for interior nodes in-between node. This omits the nodes in fairlead and anchor */
   bstring label;               /**< reference a pre-defined property in the line dictionary */
   double* line_tension;        /**< array of line tension along 's' [N] */ 
   double psi;                  /**< angle of roation between global X and local x axis [deg] */
@@ -344,6 +331,8 @@ struct Line_t {
   double fz_anchor;
   Node* anchor;                /**< Anchor node */
   Node* fairlead;              /**< Fairlead node */
+  int idx_fair;                /**< used only for LM model */
+  int idx_anch;                /**< used only for LM model */
   int segment_size;
   int diagnostic_type;         /**< none=0, first iteration only=2, all iterations otherwise */
   int evals;                   /**< number of function evaluations */ 
@@ -438,6 +427,12 @@ struct Domain_t {
   list_t library;                  /**< Cable library link list; stores cable properties, e.g., @see CableLibrary_t */
   list_t line;                     /**< Line link list */
   list_t node;                     /**< Node link list for lines */
+  int n_x;                         /**< used only for LM model */
+  int n_u;                         /**< used only for LM model to allocate FAST types */
+  int n_y;                         /**< used only for LM model to allocate FAST types */
+  int lm_num;                      /**< used only for LM model to allocate FAST types */
+  int connect_num;                 /**< used only for LM model to allocate FAST types */
+  int fix_num;                     /**< used only for LM model to allocate FAST types */
   list_t u_update_list;            /**< List to update the references in VarType-associated u_type's in UpdateStates. Used when coupled to FAST */
   void* HEAD_U_TYPE;               /**< Checks if the reference to MAP_InputType_t changes */
 }; typedef struct Domain_t Domain;

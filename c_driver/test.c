@@ -78,11 +78,11 @@ int main(int argc, char *argv[])
   strcpy(node_def[2], "3     Connect  #-53     #0     #-20     0     0      0      0       0 \0");
   strcpy(node_def[3], "4     vessel    -25     15       0.0    0     0      #      #       # \0");
   strcpy(node_def[4], "5     Vessel    -25    -15       0.0    0     0      #      #       # \0");
-  strcpy(line_def[0], "1        lower     122       1         2 omit_contact gx_pos seg_size 10\0");
-  strcpy(line_def[1], "2        middle    122       2         3 omit_contact gx_pos seg_size 20\0");
-  strcpy(line_def[2], "3        upper     50        3         4 omit_contact gx_pos seg_size 30\0");
-  strcpy(line_def[3], "4        upper     50        3         5 omit_contact gx_pos seg_size 40\0");
-  //strcpy(option_def[0], " krylov_accelerator 0\0");
+  strcpy(line_def[0], "1        lower     122       1         2 omit_contact gx_pos seg_size 2 \0");
+  strcpy(line_def[1], "2        middle    122       2         3 omit_contact gx_pos seg_size 2 \0");
+  strcpy(line_def[2], "3        upper     50        3         4 omit_contact gx_pos seg_size 2 \0");
+  strcpy(line_def[3], "4        upper     50        3         5 omit_contact gx_pos seg_size 2 \0");
+  // strcpy(option_def[0], " krylov_accelerator 0\0");
   strcpy(option_def[0], "lm_model\0");
   strcpy(option_def[1], "inner_xtol 1e-9\0");
   strcpy(option_def[2], "outer_tol 1e-5\0");

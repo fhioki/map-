@@ -90,7 +90,7 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
   InitializationData* init_data = init_type->object;   
   Domain* domain = other_type->object;
   MAP_ERROR_CODE success = MAP_SAFE;
-  
+  int sum = 0.0;
   map_reset_universal_error(map_msg, ierr);
   domain->HEAD_U_TYPE = u_type;  
 
@@ -106,34 +106,49 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
    * and expanded_line_input_string=line_input_string. This is just a convenient way
    * to duplicate lines if a symetric mooring is employed
    */
-
   success = set_model_options_list(domain, init_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_33);
   success = set_cable_library_list(domain, init_data, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);
 
   success = repeat_nodes(domain, init_data, map_msg, ierr);
   success = repeat_lines(domain, init_data, map_msg, ierr);
  
-  /* @todo should be two independent set_node_list for LM model and MSQS model */
-  success = set_node_list(p_type, u_type, z_type, other_type, y_type, domain, init_data->expanded_node_input_string, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);
-  success = set_line_list(z_type, domain, init_data->expanded_line_input_string, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);
-
-  /* now create an output list to print to and output file. */
-  list_attributes_copy(&domain->y_list->out_list, vartype_meter, 1);  
-  list_attributes_copy(&domain->y_list->out_list_ptr, vartype_ptr_meter, 1);  
-  success = set_output_list(domain, io_type, map_msg, ierr); 
-  success = set_vessel(&domain->vessel, u_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_69);
-
   if (domain->model_options.lm_model) {    
     domain->MAP_SOLVE_TYPE = LUMPED_MASS;            
-    success = allocate_lumped_mass_data(domain, map_msg, ierr); CHECKERRQ(MAP_FATAL_99);
-    checkpoint();
+    success = lm_set_node_list(p_type, u_type, z_type, other_type, y_type, domain, init_data->expanded_node_input_string, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);
+    success = lm_set_line_list(z_type, domain, init_data->expanded_line_input_string, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);
+    success = lm_set_element_list(domain, map_msg, ierr);
+    success = lm_allocate_input_type(u_type, domain->n_u, map_msg, ierr);
+    success = lm_allocate_continuous_type(x_type, domain->n_x, map_msg, ierr);
+    success = lm_allocate_output_type(y_type, domain->n_u, map_msg, ierr);
+    success = lm_allocate_other_type(other_type, domain->fix_num, domain->connect_num, domain->lm_num, map_msg, ierr);
+    sum = domain->fix_num + domain->connect_num + domain->lm_num + domain->n_u;
+    if (sum!=list_size(&domain->node)) {
+      set_universal_error(map_msg, ierr, MAP_FATAL_100);
+    }
   } else {
+    success = set_qs_node_list(p_type, u_type, z_type, other_type, y_type, domain, init_data->expanded_node_input_string, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);
+    success = set_qs_line_list(z_type, domain, init_data->expanded_line_input_string, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);
     if (z_type->x_Len!=0) { /* this means there are no connect nodes. This does NOT mean z_type->H_len==0 */
       success = allocate_outer_solve_data(&domain->outer_loop, z_type->x_Len, map_msg, ierr); CHECKERRQ(MAP_FATAL_72);
       domain->MAP_SOLVE_TYPE = PARTITIONED;      
     } else {
       domain->MAP_SOLVE_TYPE = MONOLITHIC;
     };
+  };
+
+  if (!domain->model_options.lm_model) {    
+    /* now create an output list to print to and output file. */
+    list_attributes_copy(&domain->y_list->out_list, vartype_meter, 1);  
+    list_attributes_copy(&domain->y_list->out_list_ptr, vartype_ptr_meter, 1);  
+    success = set_output_list(domain, io_type, map_msg, ierr); 
+    success = set_vessel(&domain->vessel, u_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_69);
+
+    success = initialize_cable_library_variables(domain, p_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_41);
+    success = set_line_variables_pre_solve(domain, map_msg, ierr); CHECKERRQ(MAP_FATAL_86);// @rm, not needed. This is called in line_solve_sequence
+    success = reset_node_force_to_zero(domain, map_msg, ierr); // @rm, not needed. This is called in line_solve_sequence
+    success = set_line_initial_guess(domain, map_msg, ierr);
+    success = first_solve(domain, p_type, u_type, z_type, other_type, y_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_39);
+    success = set_line_variables_post_solve(domain, map_msg, ierr);    // @rm, not needed. This is called in line_solve_sequence
   };
 
   /* if DEBUG is raised in CCFLAGS, then MAP version number is printed to screen */    
@@ -147,21 +162,16 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
   printf("    Water depth               [m]      : %1.2f\n", p_type->depth );
   printf("    Vessel reference position [m]      : %1.2f , %1.2f , %1.2f\n", domain->vessel.ref_origin.x.value, domain->vessel.ref_origin.y.value, domain->vessel.ref_origin.z.value); 
 
-  success = initialize_cable_library_variables(domain, p_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_41);
-  success = set_line_variables_pre_solve(domain, map_msg, ierr); CHECKERRQ(MAP_FATAL_86);// @rm, not needed. This is called in line_solve_sequence
-  success = reset_node_force_to_zero(domain, map_msg, ierr); // @rm, not needed. This is called in line_solve_sequence
-  success = set_line_initial_guess(domain, map_msg, ierr);
-  success = first_solve(domain, p_type, u_type, z_type, other_type, y_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_39);
-  success = set_line_variables_post_solve(domain, map_msg, ierr);    // @rm, not needed. This is called in line_solve_sequence
-
   MAP_END_ERROR_LOG;  
-  
-  /* the next functions are called in a seperate do-loop to log information to the 
-   * summary file even if a fatal error is encountered. This guarantees the summary 
-   * file is written even if garbage is recorded.
-   */
-  log_initialization_information(init_type, p_type, y_type, other_type, domain, map_msg, ierr);
-  
+
+  if (!domain->model_options.lm_model) {      
+    /* the next functions are called in a seperate do-loop to log information to the 
+     * summary file even if a fatal error is encountered. This guarantees the summary 
+     * file is written even if garbage is recorded.
+     */
+    log_initialization_information(init_type, p_type, y_type, other_type, domain, map_msg, ierr);
+  };
+
   free_init_data(init_data, map_msg, ierr); 
   MAP_InitInput_Delete(init_data);
   if (*ierr!=MAP_SAFE) printf("Intialization: %s\n", map_msg);
@@ -184,21 +194,22 @@ MAP_EXTERNCALL void map_update_states(float t,
    int i = 0;
 
    map_reset_universal_error(map_msg, ierr);
-
+   
    MAP_BEGIN_ERROR_LOG;
-
-   success = associate_constraint_states(domain, z_type); CHECKERRQ(MAP_FATAL_97);
-
-   /* If the reference to u_type changes, then we have to update the location MAP internal states are pointing 
-    * to. This is accomplished in the following code. The issue here is when this is called in Fortran:
-    *
-    *    CALL MAP_CopyInput(u(1), u_interp, MESH_NEWCOPY, ErrStat, ErrMsg)      
-    *
-    * u_interp is passed into into the argument for map_update_states(); however, the internal states are not
-    * pointing to data in u_interp. We address this below. Note that the initial reference for point_iter is set
-    * in set_node_list(...)
-    */
-   //if (u_type!=domain->HEAD_U_TYPE) { /* this is intended to be triggered when couled to FAST */
+   
+   if (!domain->model_options.lm_model) {    
+     success = associate_constraint_states(domain, z_type); CHECKERRQ(MAP_FATAL_97);
+     
+     /* If the reference to u_type changes, then we have to update the location MAP internal states are pointing 
+      * to. This is accomplished in the following code. The issue here is when this is called in Fortran:
+      *
+      *    CALL MAP_CopyInput(u(1), u_interp, MESH_NEWCOPY, ErrStat, ErrMsg)      
+      *
+      * u_interp is passed into into the argument for map_update_states(); however, the internal states are not
+      * pointing to data in u_interp. We address this below. Note that the initial reference for point_iter is set
+      * in set_node_list(...)
+      */
+     //if (u_type!=domain->HEAD_U_TYPE) { /* this is intended to be triggered when couled to FAST */
      list_iterator_start(&domain->u_update_list);  
      while (list_iterator_hasnext(&domain->u_update_list)) { 
        point_iter = (ReferencePoint*)list_iterator_next(&domain->u_update_list);               
@@ -209,21 +220,21 @@ MAP_EXTERNCALL void map_update_states(float t,
      };
      list_iterator_stop(&domain->u_update_list);
      domain->HEAD_U_TYPE = u_type;
-
+     
      if (i!=u_type->x_Len) { /* raise error if the input array are exceeded */
        set_universal_error_with_message(map_msg, ierr, MAP_FATAL_89, "u_type range: <%d>. Updated array range: <%d>", u_type->x_Len, i);
        break;
      };
-   //};
-
-   if (domain->MAP_SOLVE_TYPE==MONOLITHIC) { /* if the line has no CONNECT object ... */
-     success = line_solve_sequence(domain, p_type, t, map_msg, ierr);
-   } else if (domain->MAP_SOLVE_TYPE==PARTITIONED) { /* the line does have CONNECT object defined ... */
-     success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, t, map_msg, ierr); // @todo CHECKERRQ()
-   } else {
-     checkpoint();
-   }
-
+     //};
+     
+     if (domain->MAP_SOLVE_TYPE==MONOLITHIC) { /* if the line has no CONNECT object ... */
+       success = line_solve_sequence(domain, p_type, t, map_msg, ierr);
+     } else if (domain->MAP_SOLVE_TYPE==PARTITIONED) { /* the line does have CONNECT object defined ... */
+       success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, t, map_msg, ierr); // @todo CHECKERRQ()
+     } else {
+       checkpoint();
+     }
+   };
    MAP_END_ERROR_LOG;
    if (*ierr!=MAP_SAFE) printf("interval %d Update_state: %s\n",interval, map_msg);
 };    
@@ -248,19 +259,19 @@ MAP_EXTERNCALL void map_calc_output(float t,
    map_reset_universal_error(map_msg, ierr);
    
    MAP_BEGIN_ERROR_LOG;
+   if (!domain->model_options.lm_model) {    
+     success = associate_constraint_states(domain, z_type); CHECKERRQ(MAP_FATAL_98);
 
-   success = associate_constraint_states(domain, z_type); CHECKERRQ(MAP_FATAL_98);
-
-   /* If the reference to u_type changes, then we have to update the location MAP internal states are pointing
-   * to. This is accomplished in the following code. The issue here is when this is called in Fortran:
-   *
-   *    CALL MAP_CopyInput(u(1), u_interp, MESH_NEWCOPY, ErrStat, ErrMsg)
-   *
-   * u_interp is passed into into the argument for map_update_states(); however, the internal states are not
-   * pointing to data in u_interp. We address this below. Note that the initial reference for point_iter is set
-   * in set_node_list(...)
-   */
-   // if (u_type!=domain->HEAD_U_TYPE) { /* this is intended to be triggered when couled to FAST */
+     /* If the reference to u_type changes, then we have to update the location MAP internal states are pointing
+      * to. This is accomplished in the following code. The issue here is when this is called in Fortran:
+      *
+      *    CALL MAP_CopyInput(u(1), u_interp, MESH_NEWCOPY, ErrStat, ErrMsg)
+      *
+      * u_interp is passed into into the argument for map_update_states(); however, the internal states are not
+      * pointing to data in u_interp. We address this below. Note that the initial reference for point_iter is set
+      * in set_node_list(...)
+      */
+     // if (u_type!=domain->HEAD_U_TYPE) { /* this is intended to be triggered when couled to FAST */
      list_iterator_start(&domain->u_update_list);
      while (list_iterator_hasnext(&domain->u_update_list)) {
        point_iter = (ReferencePoint*)list_iterator_next(&domain->u_update_list);
@@ -276,17 +287,18 @@ MAP_EXTERNCALL void map_calc_output(float t,
        set_universal_error_with_message(map_msg, ierr, MAP_FATAL_89, "u_type range: <%d>. Updated array range: <%d>", u_type->x_Len, i);
        break;
      };
-   //};
+     //};
 
-   if (domain->MAP_SOLVE_TYPE == MONOLITHIC) { /* if the line has no CONNECT object ... */
-     success = line_solve_sequence(domain, p_type, t, map_msg, ierr);
-   } else if (domain->MAP_SOLVE_TYPE == PARTITIONED) { /* the line does have CONNECT object defined ... */
-     success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, t, map_msg, ierr); // @todo CHECKERRQ()
-   } else { // must be a lumped mass model
-     checkpoint();
+     if (domain->MAP_SOLVE_TYPE == MONOLITHIC) { /* if the line has no CONNECT object ... */
+       success = line_solve_sequence(domain, p_type, t, map_msg, ierr);
+     } else if (domain->MAP_SOLVE_TYPE == PARTITIONED) { /* the line does have CONNECT object defined ... */
+       success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, t, map_msg, ierr); // @todo CHECKERRQ()
+     } else { // must be a lumped mass model
+       checkpoint();
+     };
+
+     success = get_iteration_output_stream(y_type, other_type, map_msg, ierr); // @todo: CHECKERRQ();   
    };
-
-   success = get_iteration_output_stream(y_type, other_type, map_msg, ierr); // @todo: CHECKERRQ();   
    MAP_END_ERROR_LOG;
    if (*ierr!=MAP_SAFE) printf("time %f Calc_output: %s\n",t, map_msg);
 };

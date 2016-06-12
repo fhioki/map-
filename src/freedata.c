@@ -100,7 +100,6 @@ MAP_ERROR_CODE free_lumped_mass(Domain* domain)
     list_iterator_start(&domain->line);
     while (list_iterator_hasnext(&domain->line)) { 
       line_iter = (Line*)list_iterator_next(&domain->line);      
-      list_destroy(&line_iter->interior_node);
       list_destroy(&line_iter->element);
     };
     list_iterator_stop(&domain->line); 
@@ -249,10 +248,15 @@ MAP_ERROR_CODE map_free_types(MAP_InputType_t* u_type, MAP_ParameterType_t* p_ty
   MAPFREE(u_type->x);
   MAPFREE(u_type->y);
   MAPFREE(u_type->z);
+  MAPFREE(u_type->xd);
+  MAPFREE(u_type->yd);
+  MAPFREE(u_type->zd);
 
   /* parameters are skipped for now; they are set in fortran since depth, gravity and sea density are set by glue code */
 
   /* continuous state */
+  MAPFREE(x_type->rd);
+  MAPFREE(x_type->rdd);
 
   /* constraint state */  
   MAPFREE(z_type->H);     
@@ -278,6 +282,9 @@ MAP_ERROR_CODE map_free_types(MAP_InputType_t* u_type, MAP_ParameterType_t* p_ty
   MAPFREE(other_type->Fx_anchor); 
   MAPFREE(other_type->Fy_anchor); 
   MAPFREE(other_type->Fz_anchor); 
+  MAPFREE(other_type->Fx_lm); 
+  MAPFREE(other_type->Fy_lm); 
+  MAPFREE(other_type->Fz_lm); 
 
   /* outputs */
   MAPFREE(y_type->Fx);    

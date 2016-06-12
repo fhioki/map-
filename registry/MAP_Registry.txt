@@ -36,8 +36,8 @@ typedef         ^       ^                   ProgDesc         Ver                
 
 
 ## ============================== Define Continuous states here: =====================================================================================================================================
-typedef         ^       ContinuousStateType Dbki             r                 {:}        ""                  -            "Node position"  "[m]"
-typedef         ^       ^                   Dbki             rd                {:}        ""                  -            "Node velocity"  "[m]"
+typedef         ^       ContinuousStateType Dbki             rd                {:}        ""                  -            "Node position"  "[m]"
+typedef         ^       ^                   Dbki             rdd               {:}        ""                  -            "Node velocity"  "[m]"
 
 ## ============================== Define Discrete states here: =====================================================================================================================================
 typedef         ^       DiscreteStateType   DbKi             dummy              -         -                   -            "Remove this variable if you have discrete states" -
@@ -60,6 +60,9 @@ typedef	       ^        ^                   DbKi             Fz_connect        {
 typedef	       ^        ^                   DbKi             Fx_anchor         {:}        -                   -            "horizontal x line force at connect node"  "[N]"	
 typedef	       ^        ^                   DbKi             Fy_anchor         {:}        -                   -            "horizontal y line force at connect node"  "[N]"
 typedef	       ^        ^                   DbKi             Fz_anchor         {:}        -                   -            "vertical z line force at connect node"    "[N]"	
+typedef	       ^        ^                   DbKi             Fx_lm             {:}        -                   -            "horizontal x line force at interior LM nodes"  "[N]"	
+typedef	       ^        ^                   DbKi             Fy_lm             {:}        -                   -            "horizontal y line force at interior LM nodes"  "[N]"
+typedef	       ^        ^                   DbKi             Fz_lm             {:}        -                   -            "vertical z line force at interior LM nodes"    "[N]"	
 
 
 ## ============================== Define constraint states here: =====================================================================================================================================
@@ -87,6 +90,9 @@ typedef          ^       ^                   CHARACTER(1)     InputLineType     
 typedef	        ^       InputType           DbKi             x                 {:}        -                   -            "fairlead x displacement"  "[m]"					
 typedef	        ^       ^                   DbKi             y                 {:}        -                   -            "fairlead y displacement"  "[m]"					
 typedef	        ^       ^                   DbKi             z                 {:}        -                   -            "fairlead z displacement"  "[m]"					
+typedef	        ^       ^                   DbKi             xd                {:}        -                   -            "fairlead x velocity"  "[m/s]"					
+typedef	        ^       ^                   DbKi             yd                {:}        -                   -            "fairlead y velocity"  "[m/s]"					
+typedef	        ^       ^                   DbKi             zd                {:}        -                   -            "fairlead z velocity"  "[m/s]"					
 typedef	        ^       ^                   MeshType         PtFairDisplacement -         -                   -            "position of each fairlead in X,Y,Z"  "[m]"		
 
 
@@ -94,7 +100,6 @@ typedef	        ^       ^                   MeshType         PtFairDisplacement 
 typedef	       ^        OutputType          DbKi             Fx                 {:}        -                   -            "horizontal line force"   "[N]"	
 typedef	       ^        ^                   DbKi             Fy                 {:}        -                   -            "Vertical line force"     "[N]"
 typedef	       ^        ^                   DbKi             Fz                 {:}        -                   -            "horizontal line force at anchor"   "[N]"	
-typedef	       ^        ^                   DbKi             rdd                {:}        -                   -            "node acceleration (LM model)"   "[N]"	
 typedef	       ^        ^                   ReKi             WriteOutput        {:}        -                   -            "outpur vector" ""
 typedef	       ^        ^                   DbKi             wrtOutput          {:}        -                   -            "outpur vector" ""
 typedef	       ^        ^                   MeshType         ptFairleadLoad      -         -                   -            "point mesh for forces in X,Y,Z"         "[N]"

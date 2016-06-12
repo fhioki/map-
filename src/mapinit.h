@@ -685,7 +685,7 @@ MAP_ERROR_CODE reset_cable_library(CableLibrary* new_cable_library);
 
 
 MAP_ERROR_CODE repeat_nodes(Domain* domain, InitializationData* init_data, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE set_node_list(const MAP_ParameterType_t* p_type,  MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type, Domain* domain, struct bstrList* node_input_string, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE set_qs_node_list(const MAP_ParameterType_t* p_type,  MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type, Domain* domain, struct bstrList* node_input_string, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE allocate_types_for_nodes(MAP_InputType_t* u_type, MAP_ConstraintStateType_t* z_type, MAP_OtherStateType_t* other_type, MAP_OutputType_t* y_type, Domain* domain, struct bstrList* node_input_string, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE reset_node(Node* node_ptr);
 MAP_ERROR_CODE expand_node_number(const int n_line, bstring line); 
@@ -701,7 +701,7 @@ MAP_ERROR_CODE expand_node_force_z(Vector* force, const double angle, const doub
 
 
 MAP_ERROR_CODE repeat_lines(Domain* domain, InitializationData* init, char* map_msg, MAP_ERROR_CODE* ierr);
-MAP_ERROR_CODE set_line_list(MAP_ConstraintStateType_t* z_type, Domain* domain, struct bstrList* line_input_string, char* map_msg, MAP_ERROR_CODE* ierr);
+MAP_ERROR_CODE set_qs_line_list(MAP_ConstraintStateType_t* z_type, Domain* domain, struct bstrList* line_input_string, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_ERROR_CODE reset_line(Line* line_ptr);
 MAP_ERROR_CODE expand_line_number(const int n_line, bstring line); 
 MAP_ERROR_CODE expand_line_property_name(const char* word, bstring line); 
