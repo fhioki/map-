@@ -32,7 +32,6 @@
 #include "numeric.h"
 #include "jacobian.h"
 #include "residual.h"
-#include "lmroutines.h"
 
 
 MAP_EXTERNCALL void map_initialize_msqs_base(MAP_InputType_t* u_type,
@@ -90,7 +89,7 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
   InitializationData* init_data = init_type->object;   
   Domain* domain = other_type->object;
   MAP_ERROR_CODE success = MAP_SAFE;
-  
+
   map_reset_universal_error(map_msg, ierr);
   domain->HEAD_U_TYPE = u_type;  
 
@@ -112,8 +111,7 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
 
   success = repeat_nodes(domain, init_data, map_msg, ierr);
   success = repeat_lines(domain, init_data, map_msg, ierr);
- 
-  /* @todo should be two independent set_node_list for LM model and MSQS model */
+
   success = set_node_list(p_type, u_type, z_type, other_type, y_type, domain, init_data->expanded_node_input_string, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);
   success = set_line_list(z_type, domain, init_data->expanded_line_input_string, map_msg, ierr); CHECKERRQ(MAP_FATAL_16);
 
@@ -123,17 +121,14 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
   success = set_output_list(domain, io_type, map_msg, ierr); 
   success = set_vessel(&domain->vessel, u_type, map_msg, ierr); CHECKERRQ(MAP_FATAL_69);
 
-  if (domain->model_options.lm_model) {    
+  if (domain->model_options.lm_model) {
+    /* @todo: need to allocate LM-specific data */
     domain->MAP_SOLVE_TYPE = LUMPED_MASS;            
-    success = allocate_lumped_mass_data(domain, map_msg, ierr); CHECKERRQ(MAP_FATAL_99);
-    checkpoint();
+  } else if (z_type->x_Len!=0) { /* this means there are no connect nodes. This does NOT mean z_type->H_len==0 */
+    success = allocate_outer_solve_data(&domain->outer_loop, z_type->x_Len, map_msg, ierr); CHECKERRQ(MAP_FATAL_72);
+    domain->MAP_SOLVE_TYPE = PARTITIONED;      
   } else {
-    if (z_type->x_Len!=0) { /* this means there are no connect nodes. This does NOT mean z_type->H_len==0 */
-      success = allocate_outer_solve_data(&domain->outer_loop, z_type->x_Len, map_msg, ierr); CHECKERRQ(MAP_FATAL_72);
-      domain->MAP_SOLVE_TYPE = PARTITIONED;      
-    } else {
-      domain->MAP_SOLVE_TYPE = MONOLITHIC;
-    };
+    domain->MAP_SOLVE_TYPE = MONOLITHIC;
   };
 
   /* if DEBUG is raised in CCFLAGS, then MAP version number is printed to screen */    
@@ -165,6 +160,13 @@ MAP_EXTERNCALL void map_init(MAP_InitInputType_t* init_type,
   free_init_data(init_data, map_msg, ierr); 
   MAP_InitInput_Delete(init_data);
   if (*ierr!=MAP_SAFE) printf("Intialization: %s\n", map_msg);
+
+  // checkpoint();
+  // printf("In initialization: %p\n",z_type);
+  // for (int i=0 ; i<z_type->H_Len ; i++){
+  //   printf("  H=%2.2f  V=%2.2f\n",z_type->H[i],z_type->V[i]);
+  // }   
+
 };
 
 
@@ -218,11 +220,9 @@ MAP_EXTERNCALL void map_update_states(float t,
 
    if (domain->MAP_SOLVE_TYPE==MONOLITHIC) { /* if the line has no CONNECT object ... */
      success = line_solve_sequence(domain, p_type, t, map_msg, ierr);
-   } else if (domain->MAP_SOLVE_TYPE==PARTITIONED) { /* the line does have CONNECT object defined ... */
+   } else { /* the line does have CONNECT object defined ... */
      success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, t, map_msg, ierr); // @todo CHECKERRQ()
-   } else {
-     checkpoint();
-   }
+   };    
 
    MAP_END_ERROR_LOG;
    if (*ierr!=MAP_SAFE) printf("interval %d Update_state: %s\n",interval, map_msg);
@@ -280,10 +280,9 @@ MAP_EXTERNCALL void map_calc_output(float t,
 
    if (domain->MAP_SOLVE_TYPE == MONOLITHIC) { /* if the line has no CONNECT object ... */
      success = line_solve_sequence(domain, p_type, t, map_msg, ierr);
-   } else if (domain->MAP_SOLVE_TYPE == PARTITIONED) { /* the line does have CONNECT object defined ... */
+   }
+   else { /* the line does have CONNECT object defined ... */
      success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, t, map_msg, ierr); // @todo CHECKERRQ()
-   } else { // must be a lumped mass model
-     checkpoint();
    };
 
    success = get_iteration_output_stream(y_type, other_type, map_msg, ierr); // @todo: CHECKERRQ();   
@@ -313,7 +312,6 @@ MAP_EXTERNCALL void map_end(MAP_InputType_t* u_type,
   success = free_outer_solve_data(&domain->outer_loop, z_type->x_Len, map_msg, ierr); CHECKERRQ(MAP_FATAL_73);
   success = map_free_types(u_type, p_type, x_type, z_type, other_type, y_type); 
   success = free_outlist(domain,map_msg,ierr); CHECKERRQ(MAP_FATAL_47);//@rm, should be replaced with a MAPFREE(data->y_list)   
-  success = free_lumped_mass(domain);
   success = free_line(&domain->line);
   success = free_node(&domain->node);
   success = free_vessel(&domain->vessel);

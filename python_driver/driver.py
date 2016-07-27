@@ -77,62 +77,62 @@ def start():
     mooring.init()                # solve the cable equilibrium profile
     plot_mooring_system(mooring) # Optional: call the user function to illustrate the mooring equilibrium profile
     
-    
+
     # initialize list to zero (this is artificial. This would be prescribed the by vessel program)
     X,Y,Z,phi,theta,psi = ([0.0 for i in xrange(500)] for _ in xrange(6))
     time = []
-    
+
     # variable to specify the amplitude of surge oscillation and period factor
     dt = 0.1
     amplitude = 10.0
-    
+
     # prescribe artificial surge and pitch displacement. Again, this should be supplied based on the WEC motion or from time-marching routine
     for i in xrange(len(X)):
         time.append(i*dt)
         X[i] = (amplitude)*(math.sin(i*0.05))
         theta[i] = (amplitude)*(math.sin(i*0.025))
-    
+
     # create an empty list of the line tension. We will store result from MAP in these lists
     line1_fx, line1_fy, line1_fz = ([] for _ in xrange(3))
     line2_fx, line2_fy, line2_fz = ([] for _ in xrange(3))
     line3_fx, line3_fy, line3_fz = ([] for _ in xrange(3))
     line4_fx, line4_fy, line4_fz = ([] for _ in xrange(3))
-    
+
     # Step 3) Time marching
     for i in xrange(len(X)):        
         # Step 4) 
-    
+
         # displace the vessel, X,Y,X are in units of m, and phi, theta, psi are in units of degrees
         mooring.displace_vessel(X[i], Y[i], Z[i], phi[i], theta[i], psi[i]) 
-    
+
         # first argument is the current time. Second argument is the coupling interval (used in FAST)
         mooring.update_states(time[i], 0)                                   
-    
+
         # Step 5) 
         # line 1 tensions in X, Y and Z. Note that python is indexed started at zero
         fx, fy, fz = mooring.get_fairlead_force_3d(0) # arugment is the line number
         line1_fx.append(fx)
         line1_fy.append(fy)
         line1_fz.append(fz)        
-    
+
         # line 2 tensions in X, Y and Z.
         fx, fy, fz = mooring.get_fairlead_force_3d(1)
         line2_fx.append(fx)
         line2_fy.append(fy)
         line2_fz.append(fz)        
-    
+
         # line 3 tensions in X, Y and Z.
         fx, fy, fz = mooring.get_fairlead_force_3d(2)
         line3_fx.append(fx)
         line3_fy.append(fy)
         line3_fz.append(fz)        
-    
+
         # line 4 tensions in X, Y and Z.
         fx, fy, fz = mooring.get_fairlead_force_3d(3)
         line4_fx.append(fx)
         line4_fy.append(fy)
         line4_fz.append(fz)        
-    
+
     # Optional: plot the vessel displacement (surge=X and pitch=theta) as a function of time
     plt.figure(2)
     plt.plot(time,X,lw=2,label='Surge displacement')
@@ -141,7 +141,7 @@ def start():
     plt.ylabel('Amplitude [m,deg]')
     plt.xlabel('Time [sec]')
     plt.legend()
-    
+
     # Optional: plot line tension time history
     plt.figure(3)
     ax=plt.subplot(3,1,1)
@@ -152,7 +152,7 @@ def start():
     ax.yaxis.set_major_formatter(mtick.FormatStrFormatter('%.2e'))
     plt.ylabel('X Fairlead Force [N]')
     plt.legend()
-    
+
     ax = plt.subplot(3,1,2)
     ax.yaxis.set_major_formatter(mtick.FormatStrFormatter('%.2e'))
     plt.plot(time,line1_fy)
@@ -160,7 +160,7 @@ def start():
     plt.plot(time,line3_fy)
     plt.plot(time,line4_fy)
     plt.ylabel('Y Fairlead Force [N]')
-    
+
     ax = plt.subplot(3,1,3)
     ax.yaxis.set_major_formatter(mtick.FormatStrFormatter('%.2e'))
     plt.plot(time,line1_fz)
@@ -169,7 +169,7 @@ def start():
     plt.plot(time,line4_fz)
     plt.ylabel('Z Fairlead Force [N]')
     plt.xlabel('Time [sec]')
-    
+
     plt.show()
 
 if __name__ == '__main__':      

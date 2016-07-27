@@ -51,15 +51,6 @@ size_t node_meter(const void* el);
 
 
 /**
- * @brief   Returns the size of Element structure for link list creation for LM model
- * @param   el, opaque object used in simclist
- * @see     allocate_lumped_mass_data()
- * @return  Size of Line structure
- */
-size_t line_element_meter(const void *el);
-
-
-/**
  * @brief   Returns the size of Line structure for link list creation
  * @param   el, opaque object used in simclist
  * @see     map_init()

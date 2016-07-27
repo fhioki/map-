@@ -47,8 +47,7 @@ MAP_ERROR_CODE initialize_fortran_types(MAP_InputType_t* u_type,
   u_type->z = NULL;     u_type->z_Len = 0;
 
   /* continuous state */
-  x_type->r = NULL;     x_type->r_Len = 0;
-  x_type->rd = NULL;    x_type->rd_Len = 0;
+  x_type->dummy=-999.9;
 
   /* constraint state */  
   z_type->H = NULL;     z_type->H_Len = 0;
@@ -79,7 +78,6 @@ MAP_ERROR_CODE initialize_fortran_types(MAP_InputType_t* u_type,
   y_type->Fx = NULL;              y_type->Fx_Len = 0;
   y_type->Fy = NULL;              y_type->Fy_Len = 0;
   y_type->Fz = NULL;              y_type->Fz_Len = 0;
-  y_type->rdd = NULL;             y_type->rdd_Len = 0;
   y_type->wrtOutput = NULL;       y_type->wrtOutput_Len = 0;
   y_type->WriteOutput = NULL;     y_type->WriteOutput_Len = 0;
   
@@ -148,12 +146,6 @@ size_t cable_library_meter(const void *el)
 size_t node_meter(const void *el) 
 {
   return sizeof(Node);
-};
-
-
-size_t line_element_meter(const void *el) 
-{
-  return sizeof(Element);
 };
 
 
@@ -343,11 +335,9 @@ MAP_ERROR_CODE first_solve(Domain* domain, MAP_ParameterType_t* p_type, MAP_Inpu
   
   if (domain->MAP_SOLVE_TYPE==MONOLITHIC) {
     success = line_solve_sequence(domain, p_type, 0.0, map_msg, ierr); /* @todo CHECKERRQ() */
-  } else if (domain->MAP_SOLVE_TYPE==PARTITIONED) {
+  } else {
     success = node_solve_sequence(domain, p_type, u_type, z_type, other_type, 0.0, map_msg, ierr); /* @todo CHECKERRQ() */
-  } else { // must be lumped mass model
-    checkpoint();
-  }
+  };
   
   MAP_RETURN_STATUS(success);
 };

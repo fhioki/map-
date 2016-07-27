@@ -598,7 +598,7 @@ class Map(object):
                     line = next(f)
 
             if "NODE PROPERTIES" in line.upper():
-                for _ in xrange(3): line = next(f)
+                for _ in xrange(3): line = next(f)#.rstrip('\n')
                 while not any(opt in line for opt in option_breaks):
                     self.f_type_init.contents.nodeInputLine = line+'\0'
                     Map.lib.map_add_node_input_text(self.f_type_init)
@@ -611,14 +611,12 @@ class Map(object):
                     Map.lib.map_add_line_input_text(self.f_type_init)
                     line = next(f)
 
-
             if "SOLVER OPTIONS" in line.upper():
                 for _ in xrange(3): line = next(f)
                 while not any(opt in line for opt in option_breaks):
                     self.f_type_init.contents.optionInputLine = line+'\0'
                     Map.lib.map_add_options_input_text(self.f_type_init)            
                     line = next(f,"SOLVER OPTIONS")
-
 
                     
     # def read_file( self, fileName ):
