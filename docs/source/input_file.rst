@@ -206,9 +206,9 @@ The follow flags enable/disable features for each line they are applied to:
 +-------------------+---------------------------------------------------------------+
 | ``LAY_LENGTH``    | amount of line laying on the seabed [m]                       |
 +-------------------+---------------------------------------------------------------+
-| ``DAMAGE_TIME``   | time [sec] to disconnect fairlead from node                   |
-+-------------------+---------------------------------------------------------------+
 | ``DIAGNOSTIC``    | run diagonostics on line for each solve iteration             |
++-------------------+---------------------------------------------------------------+
+| ``DAMAGE_TIME``   | time [sec] to disconnect fairlead from node. Not used         |
 +-------------------+---------------------------------------------------------------+
    
 Solver Options
