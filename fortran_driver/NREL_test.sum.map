@@ -1,6 +1,6 @@
-Outputs were generated using MAP++ 078f-dirty.
+Outputs were generated using MAP++ 4f89-dirty.
 
-    Saturday August 27-2016 at 21:43:28 PM
+    Tuesday October 25-2016 at 13:19:33 PM
 
     Gravity constant          [m/s^2]  : 9.81
     Sea density               [kg/m^3] : 1025.00
@@ -251,15 +251,15 @@ Node  Type       X       Y       Z      M     B     FX    FY    FZ
 ---------------------- LINE PROPERTIES ---------------------------------------
 Line  LineType  UnstrLen  NodeAnch  NodeFair  Flags
 [-]      [-]       [m]       [-]       [-]       [-]
-1       MatA      424.4        1         4        tension_fair tension_anch 
-2       MatA      424.4        2         5        tension_fair tension_anch 
-3       MatA      424.4        3         6        tension_fair tension_anch 
-4       MatBC      30.0        4         8        tension_fair tension_anch 
-5       MatBC      30.0        4         9        tension_fair tension_anch 
-6       MatBC      30.0        5         7        tension_fair tension_anch 
-7       MatBC      30.0        5         9        tension_fair tension_anch 
-8       MatBC      30.0        6         7        tension_fair tension_anch 
-9       MatBC      30.0        6         8        tension_fair tension_anch 
+1       MatA      424.4        1         4        azimuth altitude altitude_anch 
+2       MatA      424.4        2         5 
+3       MatA      424.4        3         6 
+4       MatBC      30.0        4         8 
+5       MatBC      30.0        4         9 
+6       MatBC      30.0        5         7 
+7       MatBC      30.0        5         9         azimuth altitude altitude_anch 
+8       MatBC      30.0        6         7 
+9       MatBC      30.0        6         8 
 ---------------------- SOLVER OPTIONS-----------------------------------------
 Option 
 [-] 

@@ -613,7 +613,10 @@ IF (ErrStat >= AbortErrLev) RETURN
       CALL SetErrStat(ErrStat2,ErrMsg2, ErrStat, ErrMsg, RoutineName)    
     
     CALL MAP_Get_Output_Headers(InitOut, other)
-    
+
+    write(*,*) InitOut%writeOutputHdr
+    write(*,*) InitOut%writeOutputUnt
+
     !==========   MAP Mesh initialization   ======     <--------------------------+               
     ! get header information for the FAST output file                  !          | 
     NumNodes = u%C_obj%X_Len                                           !          |    

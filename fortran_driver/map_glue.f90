@@ -249,9 +249,12 @@ PROGRAM Main
      IF (ErrStat.NE.0) THEN
         CALL WrScr(ErrMsg) 
      END IF
-   
 
-     write(*,*), t_global, y_MAP%ptFairleadLoad%Force(1,1), y_MAP%ptFairleadLoad%Force(2,1), y_MAP%ptFairleadLoad%Force(3,1)
+     write(*,*) y_MAP%writeOutput   
+
+     ! write(*,*), t_global, y_MAP%ptFairleadLoad%Force(1,1), y_MAP%ptFairleadLoad%Force(2,1), y_MAP%ptFairleadLoad%Force(3,1)
+
+
      !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
      ! Step 2: Correct (continue in loop) 
      !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
