@@ -2797,7 +2797,7 @@ MAP_ERROR_CODE print_help_to_screen()
   printf("      -v_anch,       --Vertical force at anchor (does NOT include applied forces) [N]\n");
   printf("      -tension_fair, --Line force-magnitude at fairlead (include applied loads) [N]\n");
   printf("      -tension_anch, --Line force-magnitude at anchor (include applied loads) [N]\n");
-  printf("      -azimuth,      --Line lateral offset angle global X axis [rag]\n");
+  printf("      -azimuth,      --Line lateral offset angle global X axis [rad]\n");
   printf("      -altitude,     --Line inclination angle relative to global XY plane at fairlead [rad]\n");
   printf("      -lay_length,   --Length of line on seabed [m]\n");
   printf("      -line_tension, -- \n");
