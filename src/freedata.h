@@ -23,7 +23,7 @@
 
 #ifndef _FREE_DATA_H
 #define _FREE_DATA_H
-
+// comment
 
 #include "map.h"
 
