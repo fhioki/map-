@@ -20,4 +20,4 @@ clean:
 
 memcheck:	
 	valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --track-origins=yes ./c_driver
-	#valgrind --tool=exp-sgcheck ./c_driver
+	 #valgrind --tool=exp-sgcheck ./c_driver

@@ -32,6 +32,8 @@ On Windows, it would look something like this:
 
     lib = cdll.LoadLibrary("C:\User\local\directory\map_x64.dll")  
 
+If the error still persists, the solution could be one of the answers on this post at `Stack Overflow <http://stackoverflow.com/questions/1940578/windowserror-error-126-the-specified-module-could-not-be-found>`_.  
+
 
 Initialization Errors
 ---------------------
