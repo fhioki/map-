@@ -32,20 +32,21 @@ if __name__ == '__main__':
 
     mooring_1 = Map( )
     
-    mooring_1.map_set_sea_depth(320)
+    mooring_1.map_set_sea_depth(120)
     mooring_1.map_set_gravity(9.81)
     mooring_1.map_set_sea_density(1025.0)
     
     # mooring_1.read_file("input.map")                                         # 350 m depth        
     # mooring_1.read_file("inwind_new.map")
     # mooring_1.read_file("../test/test_for_nrel.map")
-    # mooring_1.read_file("../test/baseline_1.map")                                        # 120 m depth    
+    mooring_1.read_file("../test/baseline_1.map")                                        # 120 m depth    
     # mooring_1.read_file("../test/baseline_2.map")                                       # 350 m depth    
     # mooring_1.read_file("../test/baseline_5.map")                                       # 80 m depth
     # mooring_1.read_file("../test/NRELOffshrBsline5MW_Platform_OC3Hywind.map")           # 320 m depth
-    mooring_1.read_file("../test/NRELOffshrBsline5MW_Platform_OC3Hywind_segmented.map")   # 320 m depth
+    # mooring_1.read_file("../test/NRELOffshrBsline5MW_Platform_OC3Hywind_segmented.map")   # 320 m depth
     # mooring_1.read_file("../test/NRELOffshrBsLine5MW_OC4.map")                            # 200 m depth
     # mooring_1.read_file("../test/NRELOffshrBsLine5MW_TLP.map")                          # 200 m depth
+    # mooring_1.read_file("../test/MAP_ex2.dat")                        
 
     # mooring_1.summary_file('name_me.txt')
     mooring_1.init( )
@@ -99,9 +100,18 @@ if __name__ == '__main__':
     ax.set_ylabel('Y [m]')
     ax.set_zlabel('Z [m]')        
     #ax.set_xlim([-3.0,3])        
-    #ax.set_ylim([-3.0,3])        
+    # ax.set_ylim([-3.0,3])        
     #ax.set_zlim([-3.0,0])        
-     
+    
+    fig = plt.figure(2)
+    # ax = Axes3D(fig)
+    color = ['r','b','m','y','g','r','b']
+    for i in range(0,mooring_1.size_lines()):
+        x = mooring_1.plot_x( i, 20 )
+        y = mooring_1.plot_y( i, 20 )
+        z = mooring_1.plot_z( i, 20 )        
+        plt.plot(x,z,'-',color=color[i])
+
     plt.show()
     
     mooring_1.end( )

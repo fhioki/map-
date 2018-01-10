@@ -7,7 +7,7 @@ Node  Type       X       Y       Z      M     B     FX    FY    FZ
 (-)   (-)       (m)     (m)     (m)    (kg)  (mˆ3)  (N)   (N)   (N)
 1     fix        0    -520      -120    0     0      #     #     #
 2     Vessel     0     -20       40     0     0      #     #     #
----------------------- LINE P ROPERTIES ---------------------------------------
+---------------------- LINE PROPERTIES ---------------------------------------
 Line    LineType  UnstrLen  NodeAnch  NodeFair  Flags
 (-)      (-)       (m)       (-)       (-)       (-)
 1        chainup   540        1         2        omit_contact gx_pos gy_pos gz_a_pos H_ANCH 

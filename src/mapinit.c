@@ -2099,7 +2099,7 @@ MAP_ERROR_CODE set_vartype_ptr(const char* unit, bstring alias, const int num, V
     };
   } else { /* this variable is constant */    
     type->is_fixed = true;
-    if ((char*)is_numeric((char*)property->data)) { 
+    if ((char*)is_numeric((char*)property->data)) {
       *type->value = (double)atof((char*)property->data);
     } else {
       return MAP_FATAL;
