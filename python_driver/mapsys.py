@@ -582,6 +582,16 @@ class Map(object):
             self.end( )
             sys.exit('MAP terminated premature.')    
 
+            
+    lib.map_offset_fairlead.argtypes = [MapInput_Type, c_int, c_double, c_double, c_double, c_char_p, POINTER(c_int)]                    
+    def offset_fairlead(self,x,y,z, idx):
+        Map.lib.map_offset_fairlead(self.f_type_u, c_int(idx), x, y, z, self.status, pointer(self.ierr) )
+        if self.ierr.value != 0 :
+            print self.status.value        
+            self.end( )
+            sys.exit('MAP terminated premature.')    
+
+            
     def read_file(self, file_name):
         f           = open(file_name, 'r')
         charptr     = POINTER(c_char)

@@ -329,6 +329,18 @@ MAP_EXTERNCALL void map_end(MAP_InputType_t* u_type,
 };
 
 
+MAP_EXTERNCALL
+void map_offset_fairlead(MAP_InputType_t* u_type, const int fairlead_id, const double x, const double y, const double z, char* map_msg, MAP_ERROR_CODE* ierr)
+{
+    map_reset_universal_error(map_msg, ierr);
+    checkpoint();
+    u_type->x[fairlead_id] = x + u_type->x[fairlead_id];
+    u_type->y[fairlead_id] = y + u_type->y[fairlead_id];
+    u_type->z[fairlead_id] = z + u_type->z[fairlead_id];
+};
+
+
+
 MAP_EXTERNCALL void map_offset_vessel(MAP_OtherStateType_t* other_type, MAP_InputType_t* u_type, double x, double y, double z, double phi, double the, double psi, char* map_msg, MAP_ERROR_CODE* ierr)
 {
   Domain* data = other_type->object;
