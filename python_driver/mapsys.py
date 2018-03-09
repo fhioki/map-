@@ -227,7 +227,7 @@ class Map(object):
                               c_char_p]
 
 
-    lib.map_update_states.argtypes = [ c_double,
+    lib.map_update_states.argtypes = [ c_float,
                                        c_int,
                                        MapInput_Type,
                                        MapParameter_Type,
