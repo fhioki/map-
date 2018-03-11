@@ -13,9 +13,9 @@ Node Type       X       Y       Z      M     B     FX    FY    FZ
 --------------- LINE PROPERTIES -------------------------
 Line    LineType  UnstrLen  NodeAnch  NodeFair  Flags
 (-)      (-)       (m)       (-)       (-)       (-)
-1       steel      450        1         2    
-2       nylon      90         2         3    
-3       nylon      90         2         4    
+1       steel      450        1         2    gx_pos h_anch v_anch
+2       nylon      90         2         3    h_fair v_fair
+3       nylon      90         2         4    h_fair v_fair
 --------------- SOLVER OPTIONS---------------------------
 Option
 (-)

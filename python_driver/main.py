@@ -32,15 +32,15 @@ if __name__ == '__main__':
 
     mooring_1 = Map( )
     
-    mooring_1.map_set_sea_depth(120)
+    mooring_1.map_set_sea_depth(350)
     mooring_1.map_set_gravity(9.81)
     mooring_1.map_set_sea_density(1025.0)
     
     # mooring_1.read_file("input.map")                                         # 350 m depth        
     # mooring_1.read_file("inwind_new.map")
     # mooring_1.read_file("../test/test_for_nrel.map")
-    mooring_1.read_file("../test/baseline_1.map")                                        # 120 m depth    
-    # mooring_1.read_file("../test/baseline_2.map")                                       # 350 m depth    
+    # mooring_1.read_file("../test/baseline_1.map")                                        # 120 m depth    
+    mooring_1.read_file("../test/baseline_2.map")                                       # 350 m depth    
     # mooring_1.read_file("../test/baseline_5.map")                                       # 80 m depth
     # mooring_1.read_file("../test/NRELOffshrBsline5MW_Platform_OC3Hywind.map")           # 320 m depth
     # mooring_1.read_file("../test/NRELOffshrBsline5MW_Platform_OC3Hywind_segmented.map")   # 320 m depth
@@ -52,12 +52,15 @@ if __name__ == '__main__':
     mooring_1.init( )
 
     epsilon = 1e-5
-    K = mooring_1.linear(epsilon)    
-    print "\nHere is the linearized stiffness matrix with zero vessel displacement:"
-    print np.array(K)
+    #K = mooring_1.linear(epsilon)    
+    #print "\nHere is the linearized stiffness matrix with zero vessel displacement:"
+    #print np.array(K)
 
     #mooring_1.displace_vessel(5,0,0,0,0,0)
-    #mooring_1.update_states(0.0,0)
+    mooring_1.update_states(0.0,0)
+    mooring_1.calc_output(0.0)
+    print mooring_1.get_output()
+    print mooring_1.get_output_buffer()
 
     #mooring_1.displace_vessel(17,0,0,0,0,0)
     #mooring_1.update_states(0.0,0)
@@ -110,8 +113,8 @@ if __name__ == '__main__':
         x = mooring_1.plot_x( i, 20 )
         y = mooring_1.plot_y( i, 20 )
         z = mooring_1.plot_z( i, 20 )        
-        plt.plot(x,z,'-',color=color[i])
+        plt.plot(x,z,'-')#,color=color[i])
 
-    plt.show()
+    # plt.show()
     
     mooring_1.end( )

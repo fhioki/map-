@@ -260,24 +260,22 @@ MAP_EXTERNCALL void map_calc_output(float t,
    * pointing to data in u_interp. We address this below. Note that the initial reference for point_iter is set
    * in set_node_list(...)
    */
-   // if (u_type!=domain->HEAD_U_TYPE) { /* this is intended to be triggered when couled to FAST */
-     list_iterator_start(&domain->u_update_list);
-     while (list_iterator_hasnext(&domain->u_update_list)) {
-       point_iter = (ReferencePoint*)list_iterator_next(&domain->u_update_list);
-       point_iter->x->value = &(u_type->x[i]);
-       point_iter->y->value = &(u_type->y[i]);
-       point_iter->z->value = &(u_type->z[i]);
-       i++;       
-     };
-     list_iterator_stop(&domain->u_update_list);
-     domain->HEAD_U_TYPE = u_type;
+   list_iterator_start(&domain->u_update_list);
+   while (list_iterator_hasnext(&domain->u_update_list)) {
+     point_iter = (ReferencePoint*)list_iterator_next(&domain->u_update_list);
+     point_iter->x->value = &(u_type->x[i]);
+     point_iter->y->value = &(u_type->y[i]);
+     point_iter->z->value = &(u_type->z[i]);
+     i++;       
+   };
+   list_iterator_stop(&domain->u_update_list);
+   domain->HEAD_U_TYPE = u_type;
      
-     if (i != u_type->x_Len) { /* raise error if the input array are exceeded */
-       set_universal_error_with_message(map_msg, ierr, MAP_FATAL_89, "u_type range: <%d>. Updated array range: <%d>", u_type->x_Len, i);
-       break;
-     };
-   //};
-
+   if (i != u_type->x_Len) { /* raise error if the input array are exceeded */
+     set_universal_error_with_message(map_msg, ierr, MAP_FATAL_89, "u_type range: <%d>. Updated array range: <%d>", u_type->x_Len, i);
+     break;
+   };
+   
    if (domain->MAP_SOLVE_TYPE == MONOLITHIC) { /* if the line has no CONNECT object ... */
      success = line_solve_sequence(domain, p_type, t, map_msg, ierr);
    }

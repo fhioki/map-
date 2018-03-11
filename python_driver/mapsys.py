@@ -99,7 +99,17 @@ class Map(object):
 
 
     class OutputData_Type(Structure):
-        _fields_ = []
+        _fields_ = [("object", c_void_p),
+                    ("Fx",POINTER(c_double)),
+                    ("Fx_Len", c_int),
+                    ("Fy",POINTER(c_double)),
+                    ("Fy_Len", c_int),
+                    ("Fz",POINTER(c_double)),
+                    ("Fz_Len", c_int),
+                    ("WriteOuput",POINTER(c_float)),
+                    ("WriteOutput_Len", c_int),
+                    ("wrtOuput",POINTER(c_double)),
+                    ("wrtOutput_Len", c_int)]
 
         
     '''
@@ -114,14 +124,11 @@ class Map(object):
                     ("depth",c_double), 
                     ("rhoSea", c_double)]
 
-
     class ConstraintData_Type(Structure):
         _fields_ = []
 
-
     class ContinuousData_Type(Structure):
         _fields_ = []
-
 
     '''
     fields for the fortran types
@@ -171,7 +178,6 @@ class Map(object):
     lib.map_create_output_type.restype     = MapOutput_Type
     lib.map_create_continuous_type.restype = MapContinuous_Type
 
-
     lib.map_set_sea_depth.argtypes   = [ MapParameter_Type, c_double ]
     lib.map_set_gravity.argtypes     = [ MapParameter_Type, c_double ]
     lib.map_set_sea_density.argtypes = [ MapParameter_Type, c_double ]
@@ -192,11 +198,9 @@ class Map(object):
     lib.map_jacobian_dxdv.argtypes            = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
     lib.map_jacobian_dzdh.argtypes            = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
     lib.map_jacobian_dzdv.argtypes            = [ MapData_Type, c_int, c_char_p, POINTER(c_int) ]
- 
-     
+      
     lib.map_get_fairlead_force_2d.argtypes = [POINTER(c_double), POINTER(c_double), MapData_Type, c_int, c_char_p, POINTER(c_int)]
- 
-     
+      
     # plot routines
     lib.map_plot_x_array.argtypes = [ MapData_Type, c_int, c_int, c_char_p, POINTER(c_int) ]
     lib.map_plot_x_array.restype  = POINTER(c_double)
@@ -205,8 +209,6 @@ class Map(object):
     lib.map_plot_z_array.argtypes = [ MapData_Type, c_int, c_int, c_char_p, POINTER(c_int) ]
     lib.map_plot_z_array.restype  = POINTER(c_double)
     lib.map_plot_array_free.argtypes = [ POINTER(c_double) ]
- 
-     
  
     # modifyers
     lib.map_offset_vessel.argtypes = [MapData_Type, MapInput_Type, c_double, c_double, c_double, c_double, c_double, c_double, c_char_p, POINTER(c_int)]        
@@ -238,6 +240,17 @@ class Map(object):
                                        POINTER(c_int),
                                        c_char_p]
 
+    lib.map_calc_output.argtypes = [c_float,
+                                    MapInput_Type,
+                                    MapParameter_Type,
+                                    MapContinuous_Type,
+                                    c_void_p,
+                                    MapConstraint_Type,
+                                    MapData_Type,
+                                    MapOutput_Type,
+                                    POINTER(c_int),
+                                    c_char_p]            
+    
     lib.map_end.argtypes = [ MapInput_Type,
                              MapParameter_Type,
                              MapContinuous_Type,
@@ -248,7 +261,6 @@ class Map(object):
                              POINTER(c_int),
                              c_char_p]
     
-
     lib.map_initialize_msqs_base.argtypes = [MapInput_Type,
                                              MapParameter_Type,
                                              MapContinuous_Type,
@@ -257,12 +269,10 @@ class Map(object):
                                              MapOutput_Type,
                                              MapInitOut_Type]
 
-
     lib.map_size_lines.argtypes = [ MapData_Type,
                                     POINTER(c_int),
                                     c_char_p]
-
-
+    
     def __init__( self ) :
         self.f_type_d       = self.CreateDataState()
         self.f_type_u       = self.CreateInputState( )
@@ -291,11 +301,41 @@ class Map(object):
 
 
     def update_states(self, t, interval):
-        Map.lib.map_update_states(t, interval, self.f_type_u, self.f_type_p, self.f_type_x, None, self.f_type_z, self.f_type_d, pointer(self.ierr), self.status )
+        Map.lib.map_update_states(c_float(t), c_int(interval), self.f_type_u, self.f_type_p, self.f_type_x, None, self.f_type_z, self.f_type_d, pointer(self.ierr), self.status )
         if self.ierr.value != 0 :
-            print self.status.value        
+            print self.status.value
 
 
+    def calc_output(self, t):
+        Map.lib.map_calc_output(c_float(t), self.f_type_u, self.f_type_p, self.f_type_x, None, self.f_type_z, self.f_type_d, self.f_type_y, pointer(self.ierr), self.status )
+        if self.ierr.value != 0 :
+            print self.status.value
+
+
+    def get_output(self):
+        size_x, size_y, size_z = self.f_type_y.contents.Fx_Len, self.f_type_y.contents.Fy_Len, self.f_type_y.contents.Fz_Len
+        arr_x, arr_y, arr_z = [None]*size_x, [None]*size_y, [None]*size_z
+        fx = [self.f_type_y.contents.Fx[j] for j in range(size_x)]
+        fy = [self.f_type_y.contents.Fy[j] for j in range(size_y)]
+        fz = [self.f_type_y.contents.Fz[j] for j in range(size_z)]        
+        return fx, fy, fz
+
+    
+    def get_output_header(self):
+        size_label = self.f_type_initout.contents.writeOutputHdr_Len
+        arr_label = [None]*size_label
+        #arr_label = [self.f_type_initout.contents.writeOutputHdr for j in range(size_label)]
+        #print arr_label
+
+    
+    def get_output_buffer(self):
+        size_float, size_double = self.f_type_y.contents.WriteOutput_Len, self.f_type_y.contents.wrtOutput_Len
+        arr_float, arr_double = [None]*size_float, [None]*size_double
+        arr_float = [self.f_type_y.contents.WriteOutput[j] for j in range(size_float)]
+        arr_double = [self.f_type_y.contents.wrtOuput[j] for j in range(size_double)]
+        return arr_float + arr_double
+    
+        
     """
     Calls function in main.c and fordatamanager.c to delete insteads of c structs. First, the malloc'ed arrays need to vanish
     gracefully; we accomplish this by calling MAP_End(...) routine. Then, the structs themself are deleted. Order is important.
@@ -406,9 +446,11 @@ class Map(object):
     def map_set_sea_depth( self, depth ):
          Map.lib.map_set_sea_depth( self.f_type_p, depth )
 
+         
     def map_set_gravity( self, g ):
         Map.lib.map_set_gravity( self.f_type_p, g )
 
+        
     def map_set_sea_density( self, rho ):
         Map.lib.map_set_sea_density( self.f_type_p, rho )
 
@@ -425,6 +467,7 @@ class Map(object):
         Map.lib.map_plot_array_free( array )        
         return arr 
 
+    
     def plot_y( self, lineNum, length ) :
         arr = [None]*length
         array = POINTER(c_double)
@@ -450,15 +493,8 @@ class Map(object):
             sys.exit('MAP terminated premature.')
         arr = [array[j] for j in range(length)]        
         Map.lib.map_plot_array_free( array )        
-        return arr 
-
-
-
-
-
-
-
-
+        return arr
+    
 
     def get_fairlead_force_2d(self, index):
         """Gets the horizontal and vertical fairlead force in a 2D plane along the 
@@ -500,14 +536,6 @@ class Map(object):
         Map.lib.map_get_fairlead_force_3d( pointer(fx), pointer(fy), pointer(fz), self.f_type_d, index, self.status, pointer(self.ierr))
         return fx.value, fy.value, fz.value
         
-
-
-
-
-
-
-
-
 
     def funcl( self, i ) :
         self.val = Map.lib.map_residual_function_length(self.f_type_d, i, self.status, pointer(self.ierr))
@@ -627,68 +655,3 @@ class Map(object):
                     self.f_type_init.contents.optionInputLine = line+'\0'
                     Map.lib.map_add_options_input_text(self.f_type_init)            
                     line = next(f,"SOLVER OPTIONS")
-
-                    
-    # def read_file( self, fileName ):
-    #     f           = open(fileName, 'r')
-    #     charptr     = POINTER(c_char)
-    #     line_offset = []
-    #     temp_str    = []
-    #     offset      = 0
-    # 
-    #     for line in f:
-    #         line_offset.append(offset)
-    #         offset += len(line)    
-    #     f.seek(0)
-    #     
-    #     i = 0
-    #     for line in f:
-    #         words = line.split()
-    #         if words[0] == "LineType":
-    #             next(f)
-    #             LineType_ref = i
-    #         elif words[0] == "Node":
-    #             next(f)
-    #             Node_ref = i
-    #         elif words[0] == "Line":
-    #             next(f)
-    #             Line_ref = i 
-    #         elif words[0] == "Option":
-    #             next(f)
-    #             Option_ref = i   
-    #         i+=1
-    #     
-    #     f.seek(line_offset[LineType_ref+2])         
-    #     for line in f:
-    #         line = line.rstrip('\n')
-    #         if line[0] == "-":
-    #             break
-    #         else:
-    #             self.f_type_init.contents.libraryInputLine =  line+'\0'
-    #             Map.lib.map_add_cable_library_input_text(self.f_type_init)
-    # 
-    #     f.seek(line_offset[Node_ref+3])
-    #     for line in f:
-    #         if line[0] == "-":
-    #             break
-    #         else:
-    #             self.f_type_init.contents.nodeInputLine = line+'\0'
-    #             Map.lib.map_add_node_input_text(self.f_type_init)
-    # 
-    #     f.seek(line_offset[Line_ref+4])
-    #     for line in f:
-    #         if line[0] == "-":
-    #             break
-    #         else:
-    #             self.f_type_init.contents.elementInputLine = line+'\0'
-    #             Map.lib.map_add_line_input_text(self.f_type_init)
-    #              
-    #     f.seek(line_offset[Option_ref+5])
-    #     for line in f:
-    #         if line[0]=="-":
-    #             break
-    #         elif line[0]=="!":
-    #             None
-    #         else:
-    #             self.f_type_init.contents.optionInputLine = line+'\0'
-    #             Map.lib.map_add_options_input_text(self.f_type_init)            
