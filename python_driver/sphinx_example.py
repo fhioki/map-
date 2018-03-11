@@ -42,14 +42,20 @@ if __name__ == '__main__':
 
     # We need to call update states after linearization to find the equilibrium
     mooring_1.update_states(0.0,0)
-     
+    
     line_number = 0
     H,V = mooring_1.get_fairlead_force_2d(line_number)    
     print "Line %d: H = %2.2f [N]  V = %2.2f [N]"%(line_number, H, V)
       
     fx,fy,fz = mooring_1.get_fairlead_force_3d(line_number)    
-    print "Line %d: Fx = %2.2f [N]  Fy = %2.2f [N]  Fz = %2.2f [N]"%(line_number, fx, fy, fz)
+    print "Line %d: Fx = %2.2f [N]  Fy = %2.2f [N]  Fz = %2.2f [N]\n"%(line_number, fx, fy, fz)
 
+    print "These values come from the output buffer as defined in the 'LINE PROPERTIES' portion of the input file"
+    print "Labels : ", mooring_1.get_output_labels()[0:6]
+    print "Units  : ", mooring_1.get_output_units()[0:6]
+    v = mooring_1.get_output_buffer()[0:6]
+    print "Values : ", ["{0:0.2f}".format(i) for i in v]
+    
     fig = plt.figure()
     ax = Axes3D(fig)
     num_points = 20

@@ -320,13 +320,25 @@ class Map(object):
         fz = [self.f_type_y.contents.Fz[j] for j in range(size_z)]        
         return fx, fy, fz
 
-    
-    def get_output_header(self):
-        size_label = self.f_type_initout.contents.writeOutputHdr_Len
-        arr_label = [None]*size_label
-        #arr_label = [self.f_type_initout.contents.writeOutputHdr for j in range(size_label)]
-        #print arr_label
 
+
+    lib.map_get_header_string.argtypes = [c_void_p, POINTER(c_char_p),   MapData_Type]
+    def get_output_labels(self):
+        size = self.f_type_y.contents.WriteOutput_Len + self.f_type_y.contents.wrtOutput_Len
+        string_buffers = [create_string_buffer(16) for i in range(size)]
+        pointers = (c_char_p*size)(*map(addressof, string_buffers))
+        Map.lib.map_get_header_string(None, pointers, self.f_type_d)
+        return [s.value for s in string_buffers]
+
+    
+    lib.map_get_unit_string.argtypes = [c_void_p, POINTER(c_char_p),   MapData_Type]
+    def get_output_units(self):
+        size = self.f_type_y.contents.WriteOutput_Len + self.f_type_y.contents.wrtOutput_Len
+        string_buffers = [create_string_buffer(16) for i in range(size)]
+        pointers = (c_char_p*size)(*map(addressof, string_buffers))
+        Map.lib.map_get_unit_string(None, pointers, self.f_type_d)
+        return [s.value for s in string_buffers]
+    
     
     def get_output_buffer(self):
         size_float, size_double = self.f_type_y.contents.WriteOutput_Len, self.f_type_y.contents.wrtOutput_Len

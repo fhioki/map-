@@ -46,7 +46,12 @@ Information explicitly requested is printed to the command line:
     [  2.10e-03  -5.60e-01   5.77e-03  -8.52e+01   1.07e-01   1.41e+08]]
    Line 0: H = 597513.33 [N]  V = 1143438.75 [N]
    Line 0: Fx = -597513.33 [N]  Fy = -0.00 [N]  Fz = 1143438.75 [N]
-   
+
+   These values come from the output buffer as defined in the 'LINE PROPERTIES' portion of the input file
+   Labels :  ['l[1]', 'alpha[1]', 'T[2]', 'l[4]', 'alpha[4]', 'T[5]']
+   Units  :  ['[m]', '[rad]', '[N]', '[m]', '[rad]', '[N]']
+   Values :  ['338.18', '1.07', '711942.60', '338.18', '1.07', '711942.39']
+		
 
 A figure is also produced to show the mooring geometry with a :math:`5` meter vessel offset:
 

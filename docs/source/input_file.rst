@@ -27,8 +27,8 @@ The baseline example below is a template on how properties are defined in MAP++:
 	--------------- LINE PROPERTIES ----------------------------------------------
 	Line    LineType  UnstrLen  NodeAnch  NodeFair  Flags
 	(-)      (-)       (m)       (-)       (-)       (-)
-	1       mat_1      450        1         2  
-	2       mat_2      90         2         3  
+	1       mat_1      450        1         2     altitude     x_excursion
+	2       mat_2      90         2         3     tension_fair
 	3       mat_2      90         2         4  
 	--------------- SOLVER OPTIONS------------------------------------------------
 	Option
@@ -146,7 +146,7 @@ Line Properties
 
 Flags
 ----- 
-Flags are applied to individual lines. 
+Flags are applied to individual lines as indicated in the 'LINE PROPERTIES' section of the input file above. 
 These flags control the output text stream:
 
 +--------------------+------------------------------------------------------------------------+
