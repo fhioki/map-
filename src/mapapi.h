@@ -53,7 +53,7 @@ MAP_EXTERNCALL double map_jacobian_dxdv(MAP_OtherStateType_t* other_type, int i,
 MAP_EXTERNCALL double map_jacobian_dzdh(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_EXTERNCALL double map_jacobian_dzdv(MAP_OtherStateType_t* other_type, int i, char* map_msg, MAP_ERROR_CODE* ierr);
 MAP_EXTERNCALL int map_size_lines(MAP_OtherStateType_t* other_type, MAP_ERROR_CODE* ierr, char* map_msg);
-
+MAP_EXTERNCALL void map_offset_fairlead(MAP_InputType_t* u_type, const int fairlead_id, const double x, const double y, const double z, char* map_msg, MAP_ERROR_CODE* ierr);
 
 /**
  * @brief     Deallocates the memory space for the init structure. Should be called immediately after map_init()

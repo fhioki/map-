@@ -327,8 +327,7 @@ MAP_EXTERNCALL void map_end(MAP_InputType_t* u_type,
 };
 
 
-MAP_EXTERNCALL
-void map_offset_fairlead(MAP_InputType_t* u_type, const int fairlead_id, const double x, const double y, const double z, char* map_msg, MAP_ERROR_CODE* ierr)
+MAP_EXTERNCALL void map_offset_fairlead(MAP_InputType_t* u_type, const int fairlead_id, const double x, const double y, const double z, char* map_msg, MAP_ERROR_CODE* ierr)
 {
     map_reset_universal_error(map_msg, ierr);
     checkpoint();
