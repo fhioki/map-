@@ -35,5 +35,3 @@ More information on the theory behind MAP++ is described :cite:`masciola2013`. M
 
 .. figure:: nstatic/comparison.png
     :align: center
-
-

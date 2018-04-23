@@ -18,7 +18,7 @@
 # specific language governing permissions and limitations            
 # under the License.                                             
 
-MAP_VER:=1.20.10
+MAP_VER:=1.30.00
 
 BITS = -m64
 PLATFORM = $(shell uname -s)

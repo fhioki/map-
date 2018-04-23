@@ -36,13 +36,18 @@ sys.path.insert(0, os.path.abspath('../../python_driver/'))
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinxcontrib.bibtex',
+    #'sphinxcontrib.bibtex',
     'sphinx.ext.mathjax',
     'sphinx.ext.todo',
-    'sphinxcontrib.cmtinc',
+    #'sphinxcontrib.cmtinc',
+    'breathe'
 ]
 
-# autodoc_mock_imports = [s','numpy']
+# sys.path.append( "/media/sf_Dropbox/map-plus-plus/docs/breathe/" )
+# extensions = ['sphinx.ext.pngmath', 'sphinx.ext.todo', 'breathe' ]
+# breathe_projects = { "myproject": "/media/sf_Dropbox/new_map/src/xml/" }
+# breathe_default_project = "myproject"
+
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['ntemplates']
